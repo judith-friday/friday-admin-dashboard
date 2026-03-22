@@ -6,15 +6,17 @@ databases:
   production: false
 services:
 - name: frontend
-  dockerfile_path: frontend/Dockerfile
   source_dir: frontend
   github:
     branch: main
     deploy_on_push: true
     repo: judith-friday/friday-admin-dashboard
+  dockerfile_path: frontend/Dockerfile
   http_port: 3000
   instance_count: 1
   instance_size_slug: basic-xs
+  build_command: npm install && npm run build
+  run_command: npm start
   routes:
   - path: /
   envs:
@@ -23,15 +25,17 @@ services:
     value: ${backend.PRIVATE_URL}
 
 - name: backend
-  dockerfile_path: backend/Dockerfile
   source_dir: backend
   github:
     branch: main
     deploy_on_push: true
     repo: judith-friday/friday-admin-dashboard
+  dockerfile_path: backend/Dockerfile
   http_port: 3001
   instance_count: 1
   instance_size_slug: basic-xs
+  build_command: npm install
+  run_command: npm run start
   routes:
   - path: /api
   envs:
