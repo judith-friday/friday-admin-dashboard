@@ -6,10 +6,8 @@ databases:
   production: false
 services:
 - name: frontend
-  build_command: npm run build
-  run_command: npm start
-  source_dir: frontend
   dockerfile_path: frontend/Dockerfile
+  source_dir: frontend
   github:
     branch: main
     deploy_on_push: true
@@ -25,10 +23,8 @@ services:
     value: ${backend.PRIVATE_URL}
 
 - name: backend
-  build_command: npm install
-  run_command: npm start
-  source_dir: backend
   dockerfile_path: backend/Dockerfile
+  source_dir: backend
   github:
     branch: main
     deploy_on_push: true
