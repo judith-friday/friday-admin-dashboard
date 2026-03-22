@@ -1,61 +1,44 @@
-{
-  "name": "friday-admin-dashboard",
-  "version": "1.0.0",
-  "databases": [{
-    "engine": "PG",
-    "name": "db",
-    "version": "15"
-  }],
-  "services": [
-    {
-      "name": "frontend",
-      "build_command": "npm run build",
-      "run_command": "npm start",
-      "source_dir": "frontend",
-      "dockerfile_path": "frontend/Dockerfile",
-      "github": {
-        "branch": "main",
-        "deploy_on_push": true,
-        "repo": "judith-friday/friday-admin-dashboard"
-      },
-      "http_port": 3000,
-      "instance_count": 1,
-      "instance_size_slug": "basic-xs",
-      "routes": [{
-        "path": "/"
-      }],
-      "envs": [
-        {
-          "key": "NEXT_PUBLIC_API_URL",
-          "scope": "RUN_TIME",
-          "value": "${backend.PRIVATE_URL}"
-        }
-      ]
-    },
-    {
-      "name": "backend",
-      "build_command": "npm install",
-      "run_command": "npm start",
-      "source_dir": "backend",
-      "dockerfile_path": "backend/Dockerfile",
-      "github": {
-        "branch": "main",
-        "deploy_on_push": true,
-        "repo": "judith-friday/friday-admin-dashboard"
-      },
-      "http_port": 3001,
-      "instance_count": 1,
-      "instance_size_slug": "basic-xs",
-      "routes": [{
-        "path": "/api"
-      }],
-      "envs": [
-        {
-          "key": "DATABASE_URL",
-          "scope": "RUN_TIME", 
-          "value": "${db.DATABASE_URL}"
-        }
-      ]
-    }
-  ]
-}
+name: friday-admin-dashboard
+databases:
+- engine: PG
+  name: db
+  version: "15"
+  production: false
+services:
+- name: frontend
+  build_command: npm run build
+  run_command: npm start
+  source_dir: frontend
+  dockerfile_path: frontend/Dockerfile
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: judith-friday/friday-admin-dashboard
+  http_port: 3000
+  instance_count: 1
+  instance_size_slug: basic-xs
+  routes:
+  - path: /
+  envs:
+  - key: NEXT_PUBLIC_API_URL
+    scope: RUN_TIME
+    value: ${backend.PRIVATE_URL}
+
+- name: backend
+  build_command: npm install
+  run_command: npm start
+  source_dir: backend
+  dockerfile_path: backend/Dockerfile
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: judith-friday/friday-admin-dashboard
+  http_port: 3001
+  instance_count: 1
+  instance_size_slug: basic-xs
+  routes:
+  - path: /api
+  envs:
+  - key: DATABASE_URL
+    scope: RUN_TIME
+    value: ${db.DATABASE_URL}
