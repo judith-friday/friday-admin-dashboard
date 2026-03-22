@@ -1,0 +1,26 @@
+name: friday-admin-dashboard
+services:
+  - name: frontend
+    github:
+      repo: judith-friday/friday-admin-dashboard
+      branch: main
+      deploy_on_push: true
+    source_dir: frontend
+    build_command: npm run build
+    run_command: npm start
+
+  - name: backend
+    github:
+      repo: judith-friday/friday-admin-dashboard
+      branch: main
+      deploy_on_push: true
+    source_dir: backend
+    build_command: npm install
+    run_command: node server.js
+
+databases:
+  - engine: PG
+    name: friday-admin-db
+    num_nodes: 1
+    size: basic-xs
+    version: "14"
