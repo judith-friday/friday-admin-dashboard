@@ -65,6 +65,7 @@ interface Conversation {
   num_guests?: number
   first_response_minutes?: number
   auto_send_enabled?: boolean
+  notes?: string
   created_at: string
   updated_at: string
 }
@@ -327,9 +328,15 @@ export default function MessageDashboard() {
   const [detail, setDetail] = useState<ConversationDetail | null>(null)
   const [stats, setStats] = useState<InboxStats | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'all' | 'review' | 'open' | 'done' | 'actions'>('all')
+  const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'review' | 'open' | 'done' | 'actions'>('all')
   const [editingDraft, setEditingDraft] = useState<string | null>(null)
   const [editBody, setEditBody] = useState('')
+  const [revisionText, setRevisionText] = useState('')
+  const [revisingDraft, setRevisingDraft] = useState<string | null>(null)
+  const [rejectingDraft, setRejectingDraft] = useState<string | null>(null)
+  const [rejectReason, setRejectReason] = useState('')
+  const [staffNotes, setStaffNotes] = useState('')
+  const notesTimerRef = useRef<NodeJS.Timeout | null>(null)
   const sseRef = useRef<EventSource | null>(null)
 
   // Init auth
@@ -444,13 +451,73 @@ export default function MessageDashboard() {
     }
   }
 
+  const handleRevision = async (draftId: string) => {
+    if (!revisionText.trim()) return
+    setRevisingDraft(draftId)
+    try {
+      await apiFetch(`/api/drafts/${draftId}/revise`, {
+        method: 'POST',
+        body: JSON.stringify({ revision_instruction: revisionText.trim(), reviewed_by: 'dashboard' }),
+      })
+      toast.success('Revision requested — new draft coming...')
+      setRevisionText('')
+      // Poll for updated draft after short delay
+      setTimeout(() => { if (selectedConvId) fetchDetail(selectedConvId) }, 3000)
+      setTimeout(() => { if (selectedConvId) fetchDetail(selectedConvId) }, 8000)
+    } catch (err: any) {
+      toast.error(err.message)
+    } finally {
+      setRevisingDraft(null)
+    }
+  }
+
+  const handleRejectWithReason = async (draftId: string) => {
+    try {
+      await apiFetch(`/api/drafts/${draftId}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({ reviewed_by: 'dashboard', rejection_reason: rejectReason.trim() || 'Rejected from dashboard' }),
+      })
+      toast.success('Draft rejected')
+      setRejectingDraft(null)
+      setRejectReason('')
+      if (selectedConvId) fetchDetail(selectedConvId)
+      fetchConversations()
+      fetchStats()
+    } catch (err: any) {
+      toast.error(err.message)
+    }
+  }
+
+  const handleNotesChange = (value: string, convId: string) => {
+    setStaffNotes(value)
+    if (notesTimerRef.current) clearTimeout(notesTimerRef.current)
+    notesTimerRef.current = setTimeout(async () => {
+      try {
+        await apiFetch(`/api/conversations/${convId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ notes: value }),
+        })
+      } catch { }
+    }, 2000)
+  }
+
+  // Load staff notes when conversation changes
+  useEffect(() => {
+    if (detail?.conversation?.notes !== undefined) {
+      setStaffNotes(detail.conversation.notes || '')
+    }
+  }, [detail?.conversation?.id])
+
   // Filter conversations
   const filteredConversations = conversations.filter(c => {
+    if (activeTab === 'unread') return c.is_unread === true
     if (activeTab === 'review') return c.latest_draft_state === 'draft_ready'
     if (activeTab === 'open') return c.status === 'active' && c.latest_draft_state !== 'sent'
     if (activeTab === 'done') return c.latest_draft_state === 'sent'
     return true
   })
+
+  const unreadCount = conversations.filter(c => c.is_unread).length
 
   const channelEmoji = (ch?: string) => {
     if (!ch) return ''
@@ -545,6 +612,7 @@ export default function MessageDashboard() {
           <div className="flex border-b text-xs">
             {([
               ['all', 'All'],
+              ['unread', 'Unread'],
               ['review', 'Review'],
               ['open', 'Open'],
               ['done', 'Done'],
@@ -553,6 +621,9 @@ export default function MessageDashboard() {
               <button key={key} onClick={() => setActiveTab(key as any)}
                 className={`flex-1 py-2 text-center border-b-2 transition-colors ${activeTab === key ? 'border-blue-500 text-blue-600 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
                 {label}
+                {key === 'unread' && unreadCount > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs bg-blue-500 text-white">{unreadCount}</span>
+                )}
                 {key === 'actions' && stats && stats.pending_actions_count > 0 && (
                   <span className={`ml-1 px-1.5 py-0.5 rounded-full text-xs ${stats.overdue_actions_count > 0 ? 'bg-red-500 text-white' : 'bg-amber-100 text-amber-700'}`}>
                     {stats.pending_actions_count}
@@ -594,6 +665,11 @@ export default function MessageDashboard() {
                         <span className="text-xs text-gray-500">{conv.property_name}</span>
                       )}
                       {draftStateBadge(conv.latest_draft_state)}
+                      {conv.latest_draft_confidence && (() => {
+                        const c = Number(conv.latest_draft_confidence)
+                        const cls = c >= 80 ? 'bg-green-100 text-green-800' : c >= 60 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                        return <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium ${cls}`}>{c}%</span>
+                      })()}
                     </div>
                     {conv.last_message_body && (
                       <p className="text-xs text-gray-500 truncate">
@@ -664,7 +740,11 @@ export default function MessageDashboard() {
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="text-sm font-medium text-amber-800 flex items-center">
                           <GlobeAltIcon className="h-4 w-4 mr-1.5" /> AI Draft
-                          {draft.confidence && <span className="ml-2 text-xs text-amber-600">({draft.confidence}% confidence)</span>}
+                          {draft.confidence != null && (() => {
+                            const c = Number(draft.confidence)
+                            const cls = c >= 80 ? 'bg-green-100 text-green-800' : c >= 60 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                            return <span className={`ml-2 px-1.5 py-0.5 rounded-full text-xs font-medium ${cls}`}>{c}%</span>
+                          })()}
                         </h4>
                         {draftStateBadge(draft.state)}
                       </div>
@@ -699,9 +779,35 @@ export default function MessageDashboard() {
                               className="flex items-center px-3 py-1.5 bg-amber-500 text-white text-sm rounded hover:bg-amber-600">
                               <PencilSquareIcon className="h-4 w-4 mr-1" /> Edit
                             </button>
-                            <button onClick={() => handleDraftAction(draft.id, 'reject')}
+                            <button onClick={() => { setRejectingDraft(rejectingDraft === draft.id ? null : draft.id); setRejectReason('') }}
                               className="flex items-center px-3 py-1.5 bg-red-500 text-white text-sm rounded hover:bg-red-600">
                               <XMarkIcon className="h-4 w-4 mr-1" /> Reject
+                            </button>
+                          </div>
+
+                          {/* Rejection reason */}
+                          {rejectingDraft === draft.id && (
+                            <div className="mt-2 flex space-x-2">
+                              <input type="text" value={rejectReason} onChange={e => setRejectReason(e.target.value)}
+                                placeholder="Why are you rejecting? (helps Judith learn)"
+                                className="flex-1 text-sm border rounded px-2 py-1"
+                                onKeyDown={e => { if (e.key === 'Enter') handleRejectWithReason(draft.id) }} />
+                              <button onClick={() => handleRejectWithReason(draft.id)}
+                                className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Reject</button>
+                            </div>
+                          )}
+
+                          {/* Revision input */}
+                          <div className="mt-3 flex space-x-2">
+                            <input type="text" value={revisionText} onChange={e => setRevisionText(e.target.value)}
+                              placeholder="Ask Judith to adjust... (e.g. 'make it shorter', 'add WiFi password')"
+                              className="flex-1 text-sm border border-purple-200 rounded px-2 py-1.5 bg-purple-50 placeholder-purple-300 focus:ring-1 focus:ring-purple-400 focus:border-purple-400"
+                              disabled={revisingDraft === draft.id}
+                              onKeyDown={e => { if (e.key === 'Enter') handleRevision(draft.id) }} />
+                            <button onClick={() => handleRevision(draft.id)}
+                              disabled={revisingDraft === draft.id || !revisionText.trim()}
+                              className="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 disabled:opacity-50">
+                              {revisingDraft === draft.id ? 'Revising...' : 'Revise'}
                             </button>
                           </div>
                         </>
@@ -723,7 +829,45 @@ export default function MessageDashboard() {
                   {detail.conversation.check_out_date && <div>Check-out: {format(new Date(detail.conversation.check_out_date), 'MMM d, yyyy')}</div>}
                   {detail.conversation.num_guests && <div>{detail.conversation.num_guests} guest{detail.conversation.num_guests > 1 ? 's' : ''}</div>}
                   <div>{detail.conversation.inbound_count || 0} inbound messages</div>
-                  {detail.conversation.auto_send_enabled && <div>Auto-send enabled</div>}
+                </div>
+
+                {/* Auto-send toggle */}
+                <div className="p-3 border-b">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-gray-700">Auto-send</span>
+                    <button onClick={async () => {
+                      const newVal = !detail.conversation.auto_send_enabled
+                      try {
+                        await apiFetch(`/api/conversations/${detail.conversation.id}`, {
+                          method: 'PATCH',
+                          body: JSON.stringify({ auto_send_enabled: newVal }),
+                        })
+                        setDetail(prev => prev ? { ...prev, conversation: { ...prev.conversation, auto_send_enabled: newVal } } : null)
+                        toast.success(`Auto-send ${newVal ? 'enabled' : 'disabled'}`)
+                      } catch (err: any) { toast.error(err.message) }
+                    }} className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${detail.conversation.auto_send_enabled ? 'bg-green-500' : 'bg-gray-300'}`}>
+                      <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${detail.conversation.auto_send_enabled ? 'translate-x-4.5' : 'translate-x-0.5'}`} />
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">{detail.conversation.auto_send_enabled ? 'On — routine replies ≥85% send automatically' : 'Off — all drafts require review'}</p>
+                </div>
+
+                {/* Staff notes */}
+                <div className="p-3 border-b">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-1">Staff Notes</h3>
+                  <textarea value={staffNotes}
+                    onChange={e => handleNotesChange(e.target.value, detail.conversation.id)}
+                    onBlur={async () => {
+                      if (notesTimerRef.current) clearTimeout(notesTimerRef.current)
+                      try {
+                        await apiFetch(`/api/conversations/${detail.conversation.id}`, {
+                          method: 'PATCH',
+                          body: JSON.stringify({ notes: staffNotes }),
+                        })
+                      } catch { }
+                    }}
+                    placeholder="Add notes... (e.g. 'VIP guest', 'needs early check-in')"
+                    className="w-full text-xs border rounded px-2 py-1.5 resize-none" rows={3} />
                 </div>
 
                 {/* Draft history */}
