@@ -1884,13 +1884,16 @@ export default function MessageDashboard() {
 
                           {/* Rejection reason */}
                           {rejectingDraft === draft.id && (
-                            <div className="mt-2 flex space-x-2">
-                              <input type="text" value={rejectReason} onChange={e => setRejectReason(e.target.value)}
-                                placeholder="Why are you rejecting? (helps Judith learn)"
-                                className="flex-1 text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
-                                onKeyDown={e => { if (e.key === 'Enter') handleRejectWithReason(draft.id) }} />
-                              <button onClick={() => handleRejectWithReason(draft.id)}
-                                className="px-3 py-1 text-xs rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>Reject</button>
+                            <div className="mt-2 space-y-2">
+                              <div className="flex space-x-2">
+                                <input type="text" value={rejectReason} onChange={e => setRejectReason(e.target.value)}
+                                  placeholder="Why? (optional — helps Judith learn)"
+                                  className="flex-1 text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
+                                  onKeyDown={e => { if (e.key === 'Enter') handleRejectWithReason(draft.id) }} />
+                                <button onClick={() => handleRejectWithReason(draft.id)}
+                                  className="px-3 py-1 text-xs rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>{rejectReason.trim() ? 'Reject with feedback' : 'Dismiss'}</button>
+                              </div>
+                              <p className="text-xs" style={{color: '#64748b'}}>{rejectReason.trim() ? 'Judith will learn from your feedback' : 'Dismissing without feedback \u2014 no learning'}</p>
                             </div>
                           )}
 
