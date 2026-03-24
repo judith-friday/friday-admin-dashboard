@@ -357,6 +357,153 @@ function PendingActionsTab({ token, conversationFilter }: { token: string; conve
   )
 }
 
+
+// ── Help Panel ──
+function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  if (!isOpen) return null
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
+      <div className="absolute inset-0" style={{background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(2px)'}} />
+      <div className="relative w-[340px] h-full overflow-y-auto slide-in-right custom-scrollbar" 
+           style={{background: 'rgba(15,25,50,0.97)', borderLeft: '1px solid rgba(255,255,255,0.08)'}}
+           onClick={e => e.stopPropagation()}>
+        <div className="sticky top-0 z-10 px-6 pt-5 pb-4 flex items-center justify-between" style={{background: 'rgba(15,25,50,0.98)', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+          <div>
+            <div className="text-base font-bold" style={{color: '#f1f5f9'}}>Friday GMS</div>
+            <div className="text-xs" style={{color: '#64748b'}}>Quick guide</div>
+          </div>
+          <button onClick={onClose} className="w-7 h-7 rounded-md flex items-center justify-center" style={{background: 'rgba(255,255,255,0.06)', color: '#64748b'}}>✕</button>
+        </div>
+        <div className="px-6 py-5 space-y-6">
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wide mb-2.5" style={{color: '#6395ff'}}>How it works</h4>
+            <p className="text-xs leading-relaxed mb-2" style={{color: '#94a3b8'}}>When a guest sends a message, Judith automatically:</p>
+            <div className="space-y-1.5">
+              {['Detects the language and translates if needed', 'Summarizes the conversation', 'Drafts a reply with a confidence score', 'Queues it for your review'].map((step, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#94a3b8'}}>
+                  <span className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-[10px] font-semibold" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{i+1}</span>
+                  <span>{step}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wide mb-2.5" style={{color: '#6395ff'}}>Confidence scores</h4>
+            <div className="space-y-2">
+              {[
+                {range: '80-98%', color: '#4ade80', bg: 'rgba(34,197,94,0.06)', border: 'rgba(34,197,94,0.1)', badge: 'rgba(34,197,94,0.15)', label: 'Green', desc: 'Routine question with good context. Quick review and approve.'},
+                {range: '60-79%', color: '#fbbf24', bg: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.1)', badge: 'rgba(245,158,11,0.15)', label: 'Amber', desc: 'Check carefully, might need revision.'},
+                {range: 'Below 60%', color: '#f87171', bg: 'rgba(239,68,68,0.06)', border: 'rgba(239,68,68,0.1)', badge: 'rgba(239,68,68,0.15)', label: 'Red', desc: 'Complex situation, complaint, or missing context. Review closely.'},
+              ].map(s => (
+                <div key={s.range} className="rounded-lg p-2.5" style={{background: s.bg, border: `1px solid ${s.border}`}}>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded" style={{background: s.badge, color: s.color}}>{s.range}</span>
+                    <span className="text-xs font-semibold" style={{color: s.color}}>{s.label}</span>
+                  </div>
+                  <div className="text-xs" style={{color: '#94a3b8'}}>{s.desc}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wide mb-2.5" style={{color: '#6395ff'}}>Reviewing drafts</h4>
+            <div className="space-y-1.5 text-xs" style={{color: '#94a3b8'}}>
+              {[
+                ['Read the draft', ' in the center panel'],
+                ['Edit directly', ' — click Edit to make changes'],
+                ['Ask Judith to revise', ' — type an instruction below the draft'],
+                ['Approve & Send', ' — sends via the guest\'s booking platform'],
+                ['Reject', ' — discards with a reason (helps Judith learn)'],
+              ].map(([bold, rest], i) => (
+                <div key={i}><span style={{color: '#e2e8f0', fontWeight: 500}}>{bold}</span>{rest}</div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wide mb-2.5" style={{color: '#6395ff'}}>Tips for great revisions</h4>
+            <div className="space-y-1.5">
+              {[
+                ['"Add the WiFi password"', '"Add more info"'],
+                ['"Guest seems upset, be extra empathetic"', '"Make it better"'],
+                ['"Mention the beach is 2 min walk"', '"Talk about the location"'],
+              ].map(([good, bad], i) => (
+                <div key={i} className="rounded-md p-2 text-xs" style={{background: 'rgba(255,255,255,0.03)'}}>
+                  <span style={{color: '#4ade80'}}>Good:</span> <span style={{color: '#e2e8f0'}}>{good}</span><br/>
+                  <span style={{color: '#f87171'}}>Vague:</span> <span style={{color: '#64748b'}}>{bad}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wide mb-2.5" style={{color: '#6395ff'}}>Pending actions</h4>
+            <p className="text-xs leading-relaxed" style={{color: '#94a3b8'}}>
+              When we promise something to a guest, it appears in the <span style={{color: '#fbbf24'}}>Actions</span> tab. Age badges show urgency:
+            </p>
+            <div className="flex gap-2 mt-2">
+              <span className="text-[10px] px-2 py-0.5 rounded" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>under 2h</span>
+              <span className="text-[10px] px-2 py-0.5 rounded" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>2-6h</span>
+              <span className="text-[10px] px-2 py-0.5 rounded" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>6h+ overdue</span>
+            </div>
+          </section>
+
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wide mb-2.5" style={{color: '#6395ff'}}>Keyboard shortcuts</h4>
+            <div className="space-y-1.5">
+              {[
+                ['Navigate conversations', ['↑', '↓']],
+                ['Open conversation', ['Enter']],
+                ['Focus "Ask Judith"', ['/']],
+                ['Approve & send', ['⌘', '↵']],
+                ['Deselect', ['Esc']],
+              ].map(([label, keys]) => (
+                <div key={label as string} className="flex items-center justify-between text-xs">
+                  <span style={{color: '#94a3b8'}}>{label as string}</span>
+                  <div className="flex gap-1">
+                    {(keys as string[]).map(k => (
+                      <span key={k} className="px-2 py-0.5 rounded text-[10px] font-mono" style={{background: 'rgba(255,255,255,0.08)', color: '#e2e8f0'}}>{k}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wide mb-2.5" style={{color: '#6395ff'}}>Staff notes</h4>
+            <p className="text-xs leading-relaxed" style={{color: '#94a3b8'}}>
+              The notes field in the right panel is shared with Judith. Anything you write becomes context for future drafts.
+            </p>
+            <div className="space-y-1 mt-2">
+              {['"VIP guest, husband proposed here last year"', '"Guest is elderly, needs ground floor access"', '"Repeat guest, prefers early check-in"'].map(ex => (
+                <div key={ex} className="rounded px-2 py-1 text-xs italic" style={{background: 'rgba(255,255,255,0.03)', color: '#e2e8f0'}}>{ex}</div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h4 className="text-xs font-semibold uppercase tracking-wide mb-2.5" style={{color: '#6395ff'}}>Auto-send</h4>
+            <p className="text-xs leading-relaxed" style={{color: '#94a3b8'}}>
+              Toggle per conversation in the right panel. When enabled, replies with 85%+ confidence for routine questions send automatically.
+            </p>
+            <div className="mt-2 rounded-md px-2.5 py-1.5 text-xs" style={{background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)', color: '#fbbf24'}}>
+              Start with this OFF until you trust Judith&apos;s drafts
+            </div>
+          </section>
+
+          <div className="rounded-lg p-4 text-center" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)'}}>
+            <div className="text-xs" style={{color: '#94a3b8'}}>Need help? Tag <span style={{color: '#6395ff', fontWeight: 500}}>@Ishant</span> in Slack</div>
+            <div className="text-xs mt-0.5" style={{color: '#64748b'}}>or message Judith directly</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Main Dashboard ──
 export default function MessageDashboard() {
   const [token, setTokenState] = useState<string | null>(null)
@@ -377,12 +524,46 @@ export default function MessageDashboard() {
   const [doneWarningCount, setDoneWarningCount] = useState(0)
   const notesTimerRef = useRef<NodeJS.Timeout | null>(null)
   const sseRef = useRef<EventSource | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
+  const revisionInputRef = useRef<HTMLInputElement>(null)
 
   // Init auth
   useEffect(() => {
     const t = getToken()
     if (t) setTokenState(t)
     else setLoading(false)
+    // Init mute state from localStorage
+    const muted = localStorage.getItem('gms_muted')
+    if (muted === 'true') setIsMuted(true)
+  }, [])
+
+  // Toggle mute handler
+  const toggleMute = useCallback(() => {
+    setIsMuted(prev => {
+      const next = !prev
+      localStorage.setItem('gms_muted', String(next))
+      return next
+    })
+  }, [])
+
+  // Play notification chime using AudioContext
+  const playChime = useCallback(() => {
+    try {
+      const ctx = new AudioContext()
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(880, ctx.currentTime)
+      osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.1)
+      gain.gain.setValueAtTime(0.3, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3)
+      osc.start(ctx.currentTime)
+      osc.stop(ctx.currentTime + 0.3)
+      setTimeout(() => ctx.close(), 500)
+    } catch {}
   }, [])
 
   const handleLogin = (t: string) => {
@@ -442,7 +623,10 @@ export default function MessageDashboard() {
           if (selectedConvId && (data.data?.conversationId === selectedConvId || data.data?.conversation_id === selectedConvId)) {
             fetchDetail(selectedConvId)
           }
-          if (data.type === 'new_message') toast.success('New message received')
+          if (data.type === 'new_message') {
+            toast.success('New message received')
+            if (!isMuted) playChime()
+          }
         }
       } catch { }
     }
@@ -452,7 +636,7 @@ export default function MessageDashboard() {
     }
 
     return () => es.close()
-  }, [token, selectedConvId, fetchConversations, fetchStats, fetchDetail])
+  }, [token, selectedConvId, fetchConversations, fetchStats, fetchDetail, isMuted, playChime])
 
   // Auto-refresh every 30s
   useEffect(() => {
@@ -460,6 +644,69 @@ export default function MessageDashboard() {
     const iv = setInterval(() => { fetchConversations(); fetchStats() }, 30000)
     return () => clearInterval(iv)
   }, [token, fetchConversations, fetchStats])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    if (!token) return
+    const handler = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName
+      const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+      
+      // Cmd+Enter: approve & send current draft
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault()
+        if (detail?.drafts) {
+          const readyDraft = detail.drafts.find(d => ['draft_ready', 'under_review'].includes(d.state))
+          if (readyDraft) handleDraftAction(readyDraft.id, 'approve')
+        }
+        return
+      }
+
+      // Escape: deselect conversation or close help
+      if (e.key === 'Escape') {
+        if (showHelp) { setShowHelp(false); return }
+        if (isInput) return
+        setSelectedConvId(null)
+        setDetail(null)
+        return
+      }
+
+      // Skip other shortcuts when in input
+      if (isInput) return
+
+      // /: focus revision input
+      if (e.key === '/') {
+        e.preventDefault()
+        const el = document.querySelector('.revision-input') as HTMLInputElement
+        if (el) el.focus()
+        return
+      }
+
+      // Arrow up/down: navigate conversations
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        const list = filteredConversations
+        if (list.length === 0) return
+        const currentIdx = selectedConvId ? list.findIndex(c => c.id === selectedConvId) : -1
+        let nextIdx: number
+        if (e.key === 'ArrowUp') {
+          nextIdx = currentIdx <= 0 ? list.length - 1 : currentIdx - 1
+        } else {
+          nextIdx = currentIdx >= list.length - 1 ? 0 : currentIdx + 1
+        }
+        selectConversation(list[nextIdx])
+        return
+      }
+
+      // Enter: open selected conversation (already selected via arrows)
+      if (e.key === 'Enter' && selectedConvId) {
+        // Already open, no-op needed
+        return
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [token, selectedConvId, detail, filteredConversations, showHelp])
 
   const selectConversation = (conv: Conversation) => {
     setSelectedConvId(conv.id)
@@ -663,6 +910,7 @@ export default function MessageDashboard() {
   return (
     <div className="min-h-screen" style={{background: '#0a1628', color: '#f1f5f9'}}>
       <Toaster position="top-right" />
+      <HelpPanel isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
       {/* Header */}
       <header style={{background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
@@ -697,6 +945,10 @@ export default function MessageDashboard() {
                 </div>
                 <button onClick={() => { clearToken(); setTokenState(null) }}
                   className="text-xs ml-4" style={{color: '#64748b'}}>Logout</button>
+                <button onClick={toggleMute} className="ml-2 p-1 rounded" style={{color: '#64748b'}} title={isMuted ? 'Unmute' : 'Mute'}>
+                  {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
+                </button>
+                <button onClick={() => setShowHelp(true)} className="ml-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>?</button>
               </div>
             )}
           </div>
