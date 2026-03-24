@@ -846,6 +846,11 @@ export default function MessageDashboard() {
   const [revokeReason, setRevokeReason] = useState('')
   const [newTeachingText, setNewTeachingText] = useState('')
   const [propertyCard, setPropertyCard] = useState<{code: string; data: any; loading: boolean} | null>(null)
+  const [cardEditing, setCardEditing] = useState(false)
+  const [cardEditData, setCardEditData] = useState<string>('')
+  const [cardEditHistory, setCardEditHistory] = useState<any[]>([])
+  const [cardReviseInput, setCardReviseInput] = useState('')
+  const [cardSaving, setCardSaving] = useState(false)
   const [rejectingDraft, setRejectingDraft] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState('')
   const [sendConfirm, setSendConfirm] = useState<{draftId: string; guestName: string; property: string; channel: string; preview: string} | null>(null)
@@ -1458,29 +1463,61 @@ export default function MessageDashboard() {
 
       {/* Property card popup */}
       {propertyCard && (
-        <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}} onClick={() => setPropertyCard(null)}>
-          <div className="rounded-xl p-6 max-w-lg mx-4 w-full max-h-[80vh] overflow-y-auto" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}} onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}} onClick={() => { setPropertyCard(null); setCardEditing(false); }}>
+          <div className="rounded-xl p-6 max-w-2xl mx-4 w-full max-h-[85vh] overflow-y-auto" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>
                 <HomeIcon className="h-5 w-5 inline mr-2" style={{color: '#6395ff'}} />
                 {propertyCard.code}
               </h3>
-              <button onClick={() => setPropertyCard(null)} className="text-sm" style={{color: '#64748b'}}>✕</button>
+              <div className="flex items-center gap-2">
+                {propertyCard.data?.exists && !cardEditing && (
+                  <button onClick={() => { setCardEditing(true); setCardEditData(JSON.stringify(propertyCard.data.card, null, 2)); }} className="px-3 py-1 rounded-lg text-xs font-medium" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>Edit</button>
+                )}
+                {cardEditing && (
+                  <>
+                    <button onClick={() => setCardEditing(false)} className="px-3 py-1 rounded-lg text-xs" style={{color: '#94a3b8'}}>Cancel</button>
+                    <button onClick={savePropertyCard} disabled={cardSaving} className="px-3 py-1 rounded-lg text-xs font-medium" style={{background: 'rgba(34,197,94,0.2)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.3)'}}>{cardSaving ? 'Saving...' : 'Save'}</button>
+                  </>
+                )}
+                <button onClick={() => { setPropertyCard(null); setCardEditing(false); }} className="text-sm" style={{color: '#64748b'}}>\u2715</button>
+              </div>
             </div>
             {propertyCard.loading ? (
               <p className="text-sm" style={{color: '#94a3b8'}}>Loading property card...</p>
+            ) : cardEditing ? (
+              <div className="space-y-3">
+                <textarea
+                  value={cardEditData}
+                  onChange={e => setCardEditData(e.target.value)}
+                  className="w-full rounded-lg p-3 text-xs font-mono"
+                  style={{background: 'rgba(0,0,0,0.3)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', minHeight: '400px', resize: 'vertical'}}
+                  spellCheck={false}
+                />
+                <p className="text-xs" style={{color: '#64748b'}}>Edit the JSON directly. All fields are editable: WiFi, access codes, descriptions, etc.</p>
+              </div>
             ) : propertyCard.data?.exists && propertyCard.data?.card ? (
               <div className="space-y-3">
-                {Object.entries(propertyCard.data.card).map(([key, value]) => (
+                {Object.entries(propertyCard.data.card).filter(([k]) => !k.startsWith('_')).map(([key, value]) => (
                   <div key={key}>
                     <div className="text-xs font-semibold uppercase mb-1" style={{color: '#6395ff', letterSpacing: '0.5px'}}>{key.replace(/_/g, ' ')}</div>
-                    <div className="text-sm" style={{color: '#e2e8f0'}}>{typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}</div>
+                    <div className="text-sm whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}</div>
                   </div>
                 ))}
+                {cardEditHistory.length > 0 && (
+                  <div className="mt-4 pt-3" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
+                    <div className="text-xs font-semibold uppercase mb-2" style={{color: '#64748b'}}>Edit History</div>
+                    {cardEditHistory.slice(0, 5).map((edit: any, i: number) => (
+                      <div key={i} className="text-xs mb-1" style={{color: '#94a3b8'}}>
+                        {edit.change_summary} \u2014 {edit.edited_by} \u00b7 {new Date(edit.edited_at).toLocaleDateString('en-MU', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-xs" style={{color: '#64748b'}}>No knowledge card on file. Showing database info:</p>
+                <p className="text-xs" style={{color: '#64748b'}}>No knowledge card on file.</p>
                 {detail && detail.conversation.property_name === propertyCard.code && (
                   <div className="space-y-2 text-sm" style={{color: '#e2e8f0'}}>
                     {detail.conversation.check_in_date && <div><span style={{color: '#64748b'}}>Check-in:</span> {detail.conversation.check_in_date}</div>}
@@ -1489,7 +1526,6 @@ export default function MessageDashboard() {
                     {detail.conversation.channel && <div><span style={{color: '#64748b'}}>Channel:</span> {detail.conversation.channel}</div>}
                   </div>
                 )}
-                <p className="text-xs mt-3" style={{color: '#fbbf24'}}>To add a knowledge card, use the API: PUT /api/properties/{propertyCard.code}/card</p>
               </div>
             )}
           </div>
