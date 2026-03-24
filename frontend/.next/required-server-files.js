@@ -2,7 +2,7 @@ self.__SERVER_FILES_MANIFEST={
   "version": 1,
   "config": {
     "env": {
-      "NEXT_PUBLIC_API_URL": ""
+      "NEXT_PUBLIC_API_URL": "http://localhost:3001"
     },
     "webpack": null,
     "typescript": {
@@ -69,7 +69,7 @@ self.__SERVER_FILES_MANIFEST={
       "qualities": [
         75
       ],
-      "unoptimized": true,
+      "unoptimized": false,
       "customCacheHandler": false
     },
     "devIndicators": {

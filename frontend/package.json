@@ -1,6 +1,6 @@
 {
-  "name": "friday-gms-dashboard",
-  "version": "1.6.0",
+  "name": "friday-admin-frontend",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,15 +8,18 @@
     "start": "next start -p ${PORT:-3000}"
   },
   "dependencies": {
-    "@tailwindcss/forms": "^0.5.11",
+    "@heroicons/react": "^2.0.18",
+    "@tailwindcss/forms": "latest",
     "@tailwindcss/postcss": "^4.2.2",
     "autoprefixer": "latest",
+    "axios": "^1.6.2",
     "clsx": "^2.0.0",
     "date-fns": "^3.0.6",
     "next": "latest",
     "postcss": "latest",
     "react": "latest",
     "react-dom": "latest",
+    "react-hot-toast": "^2.4.1",
     "tailwindcss": "latest"
   },
   "devDependencies": {
