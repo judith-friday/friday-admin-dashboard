@@ -1760,6 +1760,8 @@ export default function MessageDashboard() {
                       <div className="flex items-center space-x-1.5 min-w-0">
                         {conv.is_unread && <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>}
                         <span className="text-sm truncate" style={{color: '#f1f5f9'}}>{conv.guest_name}</span>
+                        {conv.sentiment === 'frustrated' && <span title="Guest seems frustrated" style={{fontSize: '10px', marginLeft: '4px'}}>🟡</span>}
+                        {conv.sentiment === 'upset' && <span title="Guest is upset" style={{fontSize: '10px', marginLeft: '4px'}}>🔴</span>}
                         {conv.channel && channelBadge(conv.channel)}
                       </div>
                       {conv.last_message_at && (
