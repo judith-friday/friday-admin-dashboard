@@ -1803,8 +1803,9 @@ export default function MessageDashboard() {
               {/* Center - messages + drafts */}
               <div className={`flex-1 flex flex-col min-w-0 ${mobileView === 'list' ? 'hidden md:flex' : ''}`}>
                 {/* Mobile back button */}
-                <div className="mobile-only mobile-nav-back" onClick={() => setMobileView('list')}>
-                  <span>\u2190</span> <span>Back to inbox</span>
+                <div className="mobile-only mobile-nav-back" onClick={() => setMobileView('list')} style={{justifyContent: 'space-between'}}>
+                  <span>\u2190 Back to inbox</span>
+                  <button onClick={(e) => { e.stopPropagation(); setMobileView('info'); }} className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>Info</button>
                   <button onClick={(e) => { e.stopPropagation(); setMobileView('info'); }} className="ml-auto px-2 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>\u2139\uFE0F Info</button>
                 </div>
                 {/* Conversation header */}
@@ -2029,7 +2030,7 @@ export default function MessageDashboard() {
               {/* Right sidebar - conversation info + pending actions */}
               <div className={`w-72 overflow-y-auto custom-scrollbar ${mobileView === 'info' ? 'fixed inset-0 w-full z-40 md:relative md:w-72' : 'hidden md:block'}`} style={{background: 'rgba(255,255,255,0.05)', borderLeft: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
                 <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-                  <div className="flex items-center justify-between"><h3 className="text-xs font-semibold" style={{color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px"}}>Guest Info</h3><button className="mobile-only text-xs px-2 py-0.5 rounded" style={{background: "rgba(99,149,255,0.15)", color: "#6395ff"}} onClick={() => setMobileView("detail")}>2190 Back</button></div>
+                  <div className="flex items-center justify-between"><h3 className="text-xs font-semibold" style={{color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px"}}>Guest Info</h3><button className="mobile-only text-xs px-2 py-0.5 rounded" style={{background: "rgba(99,149,255,0.15)", color: "#6395ff"}} onClick={() => setMobileView("detail")}>← Back</button></div>
                 </div>
                 <div className="p-3 space-y-2 text-xs" style={{color: '#94a3b8', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
                   {detail.conversation.guest_email && <div>Email: {detail.conversation.guest_email}</div>}

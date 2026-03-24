@@ -154,3 +154,26 @@ input:focus, textarea:focus, select:focus {
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out;
 }
+
+/* Mobile touch target improvements */
+@media (max-width: 767px) {
+  /* Larger touch targets for approve/reject buttons */
+  button {
+    min-height: 36px;
+  }
+  
+  /* Fix modal positioning on mobile */
+  .fixed.inset-0 {
+    padding: 0.5rem;
+  }
+  
+  /* Ensure inputs are readable size on mobile (prevent iOS zoom) */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+  
+  /* Full-width conversation list on mobile */
+  .w-80 {
+    width: 100% !important;
+  }
+}
