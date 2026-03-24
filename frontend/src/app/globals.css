@@ -1,25 +1,49 @@
 @import "tailwindcss";
 
 body {
-  color: #000;
-  background: #f9fafb;
+  color: #f1f5f9;
+  background: #0a1628;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
 }
 
-/* Custom scrollbar for message containers */
+/* Custom scrollbar for dark theme */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: rgba(255,255,255,0.02);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: rgba(255,255,255,0.1);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: rgba(255,255,255,0.15);
+}
+
+/* Glass panel utility */
+.glass-panel {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Help panel slide animation */
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.25s ease-out;
+}
+
+/* Toaster override for dark theme */
+div[data-sonner-toaster] {
+  --normal-bg: rgba(15,25,50,0.95) !important;
+  --normal-text: #f1f5f9 !important;
+  --normal-border: rgba(255,255,255,0.08) !important;
 }
