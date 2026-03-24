@@ -994,7 +994,13 @@ export default function MessageDashboard() {
     if (!detail) return
     const draft = detail.drafts.find(d => d.id === draftId)
     if (!draft) return
-    setSendChannel(detail?.conversation.channel || 'airbnb')
+    // Smart channel default: conversation channel for OTA bookings, whatsapp for direct
+    const convChannel = detail?.conversation.channel || ''
+    if (convChannel === 'direct' || convChannel === 'manual' || convChannel === 'unknown') {
+      setSendChannel('whatsapp')
+    } else {
+      setSendChannel(convChannel || 'airbnb')
+    }
     setSendConfirm({
       draftId,
       guestName: detail.conversation.guest_name,
@@ -1029,7 +1035,7 @@ export default function MessageDashboard() {
       try {
         await apiFetch('/api/drafts/' + draftId + '/approve', {
           method: 'POST',
-          body: JSON.stringify({ reviewed_by: displayName }),
+          body: JSON.stringify({ reviewed_by: displayName, sent_via: sendChannel }),
         })
         toast.success('Draft approved and sent')
         if (selectedConvId) fetchDetail(selectedConvId)
