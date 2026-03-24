@@ -519,6 +519,11 @@ export default function MessageDashboard() {
   const [revisingDraft, setRevisingDraft] = useState<string | null>(null)
   const [rejectingDraft, setRejectingDraft] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState('')
+  const [sendConfirm, setSendConfirm] = useState<{draftId: string; guestName: string; property: string; channel: string; preview: string} | null>(null)
+  const [undoCountdown, setUndoCountdown] = useState<number>(0)
+  const [undoDraftId, setUndoDraftId] = useState<string | null>(null)
+  const undoTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const undoIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const [staffNotes, setStaffNotes] = useState('')
   const [showDoneWarning, setShowDoneWarning] = useState(false)
   const [doneWarningCount, setDoneWarningCount] = useState(0)
@@ -650,14 +655,72 @@ export default function MessageDashboard() {
     fetchDetail(conv.id)
   }
 
-  const handleDraftAction = async (draftId: string, action: 'approve' | 'reject', editedBody?: string) => {
-    try {
-      if (action === 'approve') {
-        await apiFetch(`/api/drafts/${draftId}/approve`, {
+  // Show confirmation modal before sending
+  const requestApproval = (draftId: string) => {
+    if (!detail) return
+    const draft = detail.drafts.find(d => d.id === draftId)
+    if (!draft) return
+    setSendConfirm({
+      draftId,
+      guestName: detail.conversation.guest_name,
+      property: detail.conversation.property_name || 'Unknown',
+      channel: detail.conversation.channel || 'Unknown',
+      preview: (draft.draft_body || '').substring(0, 100) + ((draft.draft_body || '').length > 100 ? '...' : ''),
+    })
+  }
+
+  // Actual send after confirmation + undo countdown
+  const executeSend = async (draftId: string) => {
+    setSendConfirm(null)
+    setUndoDraftId(draftId)
+    setUndoCountdown(5)
+
+    // Start countdown
+    const interval = setInterval(() => {
+      setUndoCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    undoIntervalRef.current = interval
+
+    // Schedule actual send after 5 seconds
+    const timer = setTimeout(async () => {
+      setUndoDraftId(null)
+      setUndoCountdown(0)
+      try {
+        await apiFetch('/api/drafts/' + draftId + '/approve', {
           method: 'POST',
           body: JSON.stringify({ reviewed_by: 'dashboard' }),
         })
         toast.success('Draft approved and sent')
+        if (selectedConvId) fetchDetail(selectedConvId)
+        fetchConversations()
+        fetchStats()
+      } catch (err: any) {
+        toast.error(err.message)
+      }
+    }, 5000)
+    undoTimerRef.current = timer
+  }
+
+  // Cancel send during undo window
+  const cancelSend = () => {
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current)
+    if (undoIntervalRef.current) clearInterval(undoIntervalRef.current)
+    setUndoDraftId(null)
+    setUndoCountdown(0)
+    toast.success('Send cancelled')
+  }
+
+  const handleDraftAction = async (draftId: string, action: 'approve' | 'reject', editedBody?: string) => {
+    try {
+      if (action === 'approve') {
+        requestApproval(draftId)
+        return
       } else {
         await apiFetch(`/api/drafts/${draftId}/reject`, {
           method: 'POST',
@@ -666,9 +729,12 @@ export default function MessageDashboard() {
         toast.success('Draft rejected')
       }
       setEditingDraft(null)
-      if (selectedConvId) fetchDetail(selectedConvId)
-      fetchConversations()
-      fetchStats()
+      // For reject, refresh immediately. For approve, handled in executeSend.
+      if (action === 'reject') {
+        if (selectedConvId) fetchDetail(selectedConvId)
+        fetchConversations()
+        fetchStats()
+      }
     } catch (err: any) {
       toast.error(err.message)
     }
@@ -806,7 +872,7 @@ export default function MessageDashboard() {
         e.preventDefault()
         if (detail?.drafts) {
           const readyDraft = [...detail.drafts].filter(d => ['draft_ready', 'under_review'].includes(d.state)).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
-          if (readyDraft) handleDraftAction(readyDraft.id, 'approve')
+          if (readyDraft) requestApproval(readyDraft.id)
         }
         return
       }
@@ -911,6 +977,48 @@ export default function MessageDashboard() {
     <div className="min-h-screen" style={{background: '#0a1628', color: '#f1f5f9'}}>
       <Toaster position="top-right" />
       <HelpPanel isOpen={showHelp} onClose={() => setShowHelp(false)} />
+
+      {/* Send confirmation modal */}
+      {sendConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}}>
+          <div className="rounded-xl p-6 max-w-md mx-4" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}}>
+            <div className="flex items-center mb-3">
+              <PaperAirplaneIcon className="h-6 w-6 mr-2" style={{color: '#4ade80'}} />
+              <h3 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>Confirm Send</h3>
+            </div>
+            <p className="text-sm mb-3" style={{color: '#94a3b8'}}>
+              Send this reply to <strong style={{color: '#f1f5f9'}}>{sendConfirm.guestName}</strong> at <strong style={{color: '#f1f5f9'}}>{sendConfirm.property}</strong> via <strong style={{color: '#f1f5f9'}}>{sendConfirm.channel}</strong>?
+            </p>
+            <div className="p-2 rounded text-xs mb-4" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#e2e8f0'}}>
+              {sendConfirm.preview}
+            </div>
+            <div className="flex space-x-2">
+              <button onClick={() => executeSend(sendConfirm.draftId)}
+                className="flex-1 px-3 py-2 text-sm rounded-lg font-medium" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
+                Confirm Send
+              </button>
+              <button onClick={() => setSendConfirm(null)}
+                className="flex-1 px-3 py-2 text-sm rounded-lg" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Undo send countdown bar */}
+      {undoDraftId && undoCountdown > 0 && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-xl flex items-center space-x-4" style={{background: 'rgba(15,25,50,0.95)', border: '1px solid rgba(245,158,11,0.3)', backdropFilter: 'blur(12px)'}}>
+          <div className="flex items-center">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mr-3" style={{background: 'rgba(245,158,11,0.2)', color: '#fbbf24'}}>{undoCountdown}</div>
+            <span className="text-sm" style={{color: '#f1f5f9'}}>Sending in {undoCountdown}s...</span>
+          </div>
+          <button onClick={cancelSend}
+            className="px-4 py-1.5 text-sm rounded-lg font-medium" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>
+            Undo
+          </button>
+        </div>
+      )}
 
       {/* Header */}
       <header style={{background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
@@ -1150,7 +1258,7 @@ export default function MessageDashboard() {
                             </div>
                           )}
                           <div className="flex space-x-2">
-                            <button onClick={() => handleDraftAction(draft.id, 'approve')}
+                            <button onClick={() => requestApproval(draft.id)}
                               className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
                               <PaperAirplaneIcon className="h-4 w-4 mr-1" /> Approve & Send
                             </button>
