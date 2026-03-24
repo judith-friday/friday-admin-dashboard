@@ -1096,9 +1096,25 @@ export default function MessageDashboard() {
                     </div>
                   ))}
 
-                  {/* Latest draft */}
-                  {detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 1).map(draft => (
-                    <div key={draft.id} className="rounded-lg p-4 mt-4" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)'}}>
+                  {/* Sent drafts with translations */}
+                  {detail.drafts.filter(d => d.state === 'sent' && d.translated_content && d.sent_language).map(draft => {
+                    const lang = draft.sent_language || 'unknown'
+                    return (
+                      <div key={`sent-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)'}}>
+                        <div className="text-xs font-medium mb-1" style={{color: '#4ade80'}}>Approved English draft:</div>
+                        <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{draft.draft_body}</p>
+                        <div className="pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)'}}>
+                          <div className="text-xs font-medium mb-1" style={{color: '#4ade80'}}>Sent in {LANG_FLAGS[lang] || ''} {LANG_NAMES[lang] || lang}:</div>
+                          <p className="text-sm whitespace-pre-wrap" style={{color: '#94a3b8'}}>{draft.translated_content}</p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Draft review section - pinned to bottom */}
+                {detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 1).map(draft => (
+                    <div key={draft.id} className="rounded-lg p-4 mx-4 mb-2 flex-shrink-0 max-h-[40vh] overflow-y-auto custom-scrollbar" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', borderTop: '1px solid rgba(255,255,255,0.06)'}}>
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="text-sm font-medium flex items-center" style={{color: '#94a3b8'}}>
                           <GlobeAltIcon className="h-4 w-4 mr-1.5" /> AI Draft
@@ -1177,22 +1193,6 @@ export default function MessageDashboard() {
                       )}
                     </div>
                   ))}
-
-                  {/* Sent drafts with translations */}
-                  {detail.drafts.filter(d => d.state === 'sent' && d.translated_content && d.sent_language).map(draft => {
-                    const lang = draft.sent_language || 'unknown'
-                    return (
-                      <div key={`sent-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)'}}>
-                        <div className="text-xs font-medium mb-1" style={{color: '#4ade80'}}>Approved English draft:</div>
-                        <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{draft.draft_body}</p>
-                        <div className="pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)'}}>
-                          <div className="text-xs font-medium mb-1" style={{color: '#4ade80'}}>Sent in {LANG_FLAGS[lang] || ''} {LANG_NAMES[lang] || lang}:</div>
-                          <p className="text-sm whitespace-pre-wrap" style={{color: '#94a3b8'}}>{draft.translated_content}</p>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
               </div>
 
               {/* Right sidebar - conversation info + pending actions */}
