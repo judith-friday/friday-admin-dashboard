@@ -1679,11 +1679,21 @@ export default function MessageDashboard() {
                     </div>
                   ))}
 
-                  {/* Queued drafts - browser fallback pending */}
+                  {/* Queued drafts - awaiting retry */}
                   {detail.drafts.filter(d => d.state === "send_queued").map(draft => (
                     <div key={draft.id} className="rounded-lg p-3 mt-2" style={{background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)"}}>
-                      <div className="flex items-center text-xs font-medium mb-1" style={{color: "#fbbf24"}}>
-                        <span className="mr-1.5">⏳</span> Queued for sending — API unavailable, will send via browser fallback
+                      <div className="flex items-center justify-between text-xs font-medium mb-1" style={{color: "#fbbf24"}}>
+                        <span><span className="mr-1.5">⏳</span> Queued — Guesty API unavailable. Will retry automatically.</span>
+                        <div className="flex space-x-1">
+                          <button onClick={async () => { try { await apiFetch('/api/drafts/' + draft.id + '/retry', { method: 'POST', body: JSON.stringify({ reviewed_by: displayName }) }); toast.success('Retry successful — message sent!'); if (selectedConvId) fetchDetail(selectedConvId); fetchConversations(); } catch (e: any) { toast.error('Retry failed: ' + e.message); } }}
+                            className="px-2 py-0.5 rounded text-[10px] font-semibold" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
+                            Retry Now
+                          </button>
+                          <button onClick={async () => { try { await apiFetch('/api/drafts/' + draft.id + '/fail', { method: 'POST' }); toast('Marked as failed'); if (selectedConvId) fetchDetail(selectedConvId); } catch {} }}
+                            className="px-2 py-0.5 rounded text-[10px]" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)'}}>
+                            Mark Failed
+                          </button>
+                        </div>
                       </div>
                       <p className="text-sm whitespace-pre-wrap" style={{color: "#e2e8f0"}}>{draft.draft_body}</p>
                     </div>
