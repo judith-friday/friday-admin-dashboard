@@ -2,33 +2,65 @@
 
 body {
   color: #f1f5f9;
-  background: #0a1628;
+  background: #0d1117;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
 }
 
-/* Custom scrollbar for dark theme */
+/* Custom scrollbar for dark theme - thin and rounded */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
+  height: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
   background: rgba(255,255,255,0.02);
-  border-radius: 10px;
+  border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(255,255,255,0.1);
-  border-radius: 10px;
+  border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(255,255,255,0.15);
 }
 
-/* Glass panel utility */
+.custom-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Glass panel utility with backdrop blur */
 .glass-panel {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(16px);
+  transition: all 200ms ease-in-out;
+}
+
+.glass-panel:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.1);
+}
+
+/* Smooth transitions for UI elements */
+.transition-smooth {
+  transition: all 200ms ease-in-out;
+}
+
+.transition-panel {
+  transition: background-color 200ms ease-in-out, border-color 200ms ease-in-out, backdrop-filter 200ms ease-in-out;
+}
+
+/* Focus ring utilities */
+.focus-ring {
+  outline: none;
+  transition: all 200ms ease-in-out;
+}
+
+.focus-ring:focus {
+  outline: 2px solid rgba(99, 149, 255, 0.3);
+  outline-offset: 2px;
 }
 
 /* Help panel slide animation */
@@ -46,4 +78,27 @@ div[data-sonner-toaster] {
   --normal-bg: rgba(15,25,50,0.95) !important;
   --normal-text: #f1f5f9 !important;
   --normal-border: rgba(255,255,255,0.08) !important;
+}
+
+/* Button hover effects */
+button {
+  transition: all 200ms ease-in-out;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Input focus effects */
+input, textarea, select {
+  transition: all 200ms ease-in-out;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: 2px solid rgba(99, 149, 255, 0.3);
+  outline-offset: 2px;
 }
