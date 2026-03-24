@@ -21,6 +21,7 @@ import {
   ArrowPathIcon,
   PlusIcon,
   ArchiveBoxIcon,
+  EyeSlashIcon,
 } from '@heroicons/react/24/outline'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || ''
@@ -548,6 +549,18 @@ export default function MessageDashboard() {
     }
   }
 
+  // Mark conversation as unread
+  const handleMarkUnread = async (convId: string, e?: React.MouseEvent) => {
+    if (e) { e.stopPropagation(); e.preventDefault() }
+    try {
+      await apiFetch(`/api/conversations/${convId}/unread`, { method: 'POST' })
+      toast.success('Marked as unread')
+      fetchConversations()
+    } catch (err: any) {
+      toast.error(err.message)
+    }
+  }
+
   // Load staff notes when conversation changes
   useEffect(() => {
     if (detail?.conversation?.notes !== undefined) {
@@ -699,9 +712,17 @@ export default function MessageDashboard() {
               ) : (
                 filteredConversations.map(conv => (
                   <div key={conv.id} onClick={() => selectConversation(conv)}
-                    className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
+                    className={`group relative p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
                       selectedConvId === conv.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
                     } ${conv.is_unread ? 'font-semibold' : ''}`}>
+                    {/* Hover action: mark as unread */}
+                    {!conv.is_unread && (
+                      <button onClick={(e) => handleMarkUnread(conv.id, e)}
+                        title="Mark as unread"
+                        className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-gray-200 z-10">
+                        <EyeSlashIcon className="h-3.5 w-3.5 text-gray-500" />
+                      </button>
+                    )}
                     <div className="flex justify-between items-start mb-1">
                       <div className="flex items-center space-x-1.5 min-w-0">
                         {conv.is_unread && <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>}
