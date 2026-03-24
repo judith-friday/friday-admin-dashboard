@@ -845,6 +845,7 @@ export default function MessageDashboard() {
   const [revokeId, setRevokeId] = useState<string | null>(null)
   const [revokeReason, setRevokeReason] = useState('')
   const [newTeachingText, setNewTeachingText] = useState('')
+  const [propertyCard, setPropertyCard] = useState<{code: string; data: any; loading: boolean} | null>(null)
   const [rejectingDraft, setRejectingDraft] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState('')
   const [sendConfirm, setSendConfirm] = useState<{draftId: string; guestName: string; property: string; channel: string; preview: string} | null>(null)
@@ -1106,6 +1107,16 @@ export default function MessageDashboard() {
       const data = await apiFetch('/api/teachings')
       setTeachings(data.teachings || [])
     } catch {}
+  }
+
+  const fetchPropertyCard = async (code: string) => {
+    setPropertyCard({ code, data: null, loading: true })
+    try {
+      const data = await apiFetch('/api/properties/' + encodeURIComponent(code) + '/card')
+      setPropertyCard({ code, data, loading: false })
+    } catch {
+      setPropertyCard({ code, data: { exists: false }, loading: false })
+    }
   }
 
   const handleRevokeTeaching = async (id: string) => {
@@ -1445,6 +1456,46 @@ export default function MessageDashboard() {
         </div>
       )}
 
+      {/* Property card popup */}
+      {propertyCard && (
+        <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}} onClick={() => setPropertyCard(null)}>
+          <div className="rounded-xl p-6 max-w-lg mx-4 w-full max-h-[80vh] overflow-y-auto" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}} onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>
+                <HomeIcon className="h-5 w-5 inline mr-2" style={{color: '#6395ff'}} />
+                {propertyCard.code}
+              </h3>
+              <button onClick={() => setPropertyCard(null)} className="text-sm" style={{color: '#64748b'}}>✕</button>
+            </div>
+            {propertyCard.loading ? (
+              <p className="text-sm" style={{color: '#94a3b8'}}>Loading property card...</p>
+            ) : propertyCard.data?.exists && propertyCard.data?.card ? (
+              <div className="space-y-3">
+                {Object.entries(propertyCard.data.card).map(([key, value]) => (
+                  <div key={key}>
+                    <div className="text-xs font-semibold uppercase mb-1" style={{color: '#6395ff', letterSpacing: '0.5px'}}>{key.replace(/_/g, ' ')}</div>
+                    <div className="text-sm" style={{color: '#e2e8f0'}}>{typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-xs" style={{color: '#64748b'}}>No knowledge card on file. Showing database info:</p>
+                {detail && detail.conversation.property_name === propertyCard.code && (
+                  <div className="space-y-2 text-sm" style={{color: '#e2e8f0'}}>
+                    {detail.conversation.check_in_date && <div><span style={{color: '#64748b'}}>Check-in:</span> {detail.conversation.check_in_date}</div>}
+                    {detail.conversation.check_out_date && <div><span style={{color: '#64748b'}}>Check-out:</span> {detail.conversation.check_out_date}</div>}
+                    {detail.conversation.num_guests && <div><span style={{color: '#64748b'}}>Guests:</span> {detail.conversation.num_guests}</div>}
+                    {detail.conversation.channel && <div><span style={{color: '#64748b'}}>Channel:</span> {detail.conversation.channel}</div>}
+                  </div>
+                )}
+                <p className="text-xs mt-3" style={{color: '#fbbf24'}}>To add a knowledge card, use the API: PUT /api/properties/{propertyCard.code}/card</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Send confirmation modal */}
       {sendConfirm && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}}>
@@ -1606,7 +1657,7 @@ export default function MessageDashboard() {
                     </div>
                     <div className="flex items-center space-x-1.5 mb-1">
                       {conv.property_name && (
-                        <span className="text-xs" style={{color: '#94a3b8'}}>{conv.property_name}</span>
+                        <span className="text-xs" style={{color: '#94a3b8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '2px'}} onClick={(e) => { e.stopPropagation(); fetchPropertyCard(conv.property_name); }}>{conv.property_name}</span>
                       )}
                       {statusBadge(conv)}
                       {conv.latest_draft_confidence && (() => {
@@ -1645,7 +1696,7 @@ export default function MessageDashboard() {
                     <div>
                       <h2 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>{detail.conversation.guest_name}</h2>
                       <div className="flex items-center space-x-3 text-xs mt-1" style={{color: '#64748b'}}>
-                        {detail.conversation.property_name && <span>{detail.conversation.property_name}</span>}
+                        {detail.conversation.property_name && <span onClick={() => fetchPropertyCard(detail.conversation.property_name)} style={{cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '2px'}}>{detail.conversation.property_name}</span>}
                         {detail.conversation.channel && channelBadge(detail.conversation.channel)}
                         {detail.conversation.check_in_date && detail.conversation.check_out_date && (
                           <span>{format(new Date(detail.conversation.check_in_date), 'MMM d')} - {format(new Date(detail.conversation.check_out_date), 'MMM d')}</span>
