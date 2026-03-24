@@ -1565,7 +1565,7 @@ export default function MessageDashboard() {
                   placeholder="e.g. A draft should have appeared in the review panel"
                   className="w-full text-sm rounded-lg px-3 py-2 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9'}} />
               </div>
-              {bugWhat.trim() && (
+              {bugWhat.length > 0 && (
                 <div>
                   <label className="text-xs font-medium mb-1 block" style={{color: '#94a3b8'}}>Bug Report (copy and paste in #fr-gms-feedback)</label>
                   <textarea readOnly value={[
