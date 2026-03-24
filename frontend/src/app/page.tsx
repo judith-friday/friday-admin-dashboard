@@ -1296,12 +1296,20 @@ export default function MessageDashboard() {
     if (!ch) return null
     const channels: Record<string, { label: string; bg: string; color: string }> = {
       airbnb: { label: 'Airbnb', bg: 'rgba(239,68,68,0.15)', color: '#f87171' },
+      airbnb2: { label: 'Airbnb', bg: 'rgba(239,68,68,0.15)', color: '#f87171' },
+      airbnb_v2: { label: 'Airbnb', bg: 'rgba(239,68,68,0.15)', color: '#f87171' },
       booking: { label: 'Booking', bg: 'rgba(59,130,246,0.15)', color: '#60a5fa' },
+      'booking.com': { label: 'Booking', bg: 'rgba(59,130,246,0.15)', color: '#60a5fa' },
+      bookingcom: { label: 'Booking', bg: 'rgba(59,130,246,0.15)', color: '#60a5fa' },
       direct: { label: 'Direct', bg: 'rgba(168,85,247,0.15)', color: '#c084fc' },
+      manual: { label: 'Direct', bg: 'rgba(168,85,247,0.15)', color: '#c084fc' },
+      website: { label: 'Direct', bg: 'rgba(168,85,247,0.15)', color: '#c084fc' },
       whatsapp: { label: 'WhatsApp', bg: 'rgba(34,197,94,0.15)', color: '#4ade80' },
-      other: { label: 'Other', bg: 'rgba(255,255,255,0.08)', color: '#94a3b8' },
+      email: { label: 'Email', bg: 'rgba(251,191,36,0.15)', color: '#fbbf24' },
+      vrbo: { label: 'Vrbo', bg: 'rgba(14,165,233,0.15)', color: '#38bdf8' },
     }
-    const c = channels[ch.toLowerCase()] || channels.other
+    // Show raw value for unknown channels instead of 'Other'
+    const c = channels[ch.toLowerCase()] || { label: ch.charAt(0).toUpperCase() + ch.slice(1), bg: 'rgba(255,255,255,0.08)', color: '#94a3b8' }
     return <span className="px-1.5 py-0.5 rounded-full" style={{background: c.bg, color: c.color, fontSize: '10px', fontWeight: 500}}>{c.label}</span>
   }
 
