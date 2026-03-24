@@ -14,7 +14,13 @@
     "tailwindcss": "latest",
     "@tailwindcss/forms": "latest",
     "autoprefixer": "latest",
-    "postcss": "latest"
+    "postcss": "latest",
+    "socket.io-client": "^4.7.4",
+    "axios": "^1.6.2",
+    "date-fns": "^3.0.6",
+    "@heroicons/react": "^2.0.18",
+    "react-hot-toast": "^2.4.1",
+    "clsx": "^2.0.0"
   },
   "devDependencies": {
     "@types/node": "latest",
