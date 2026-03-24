@@ -1407,6 +1407,9 @@ export default function MessageDashboard() {
                       <span className="text-xs" style={{color: '#64748b'}}>
                         {t.source === 'auto_pattern' ? '🔄 Auto' : t.source === 'manual' ? '✏️ Manual' : '💬 Direct'}
                       </span>
+                      <span className="text-xs" style={{color: '#64748b'}}>
+                        {t.taught_by ? `Taught by ${t.taught_by}` : 'Taught by Unknown'}{t.taught_at ? ` · ${format(new Date(t.taught_at), 'MMM d, yyyy')}` : ''}
+                      </span>
                     </div>
                     {revokeId === t.id ? (
                       <div className="flex items-center space-x-1">
@@ -1432,6 +1435,7 @@ export default function MessageDashboard() {
                 {teachings.filter(t => t.status === 'revoked').map(t => (
                   <div key={t.id} className="p-3 rounded-lg mb-2 opacity-50" style={{background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)'}}>
                     <p className="text-sm line-through" style={{color: '#64748b'}}>{t.instruction}</p>
+                    <p className="text-xs mt-1" style={{color: '#475569'}}>{t.taught_by ? `Taught by ${t.taught_by}` : ''}{t.revoked_by ? ` · Revoked by ${t.revoked_by}` : ''}</p>
                     {t.revoke_reason && <p className="text-xs mt-1" style={{color: '#f87171'}}>Reason: {t.revoke_reason}</p>}
                   </div>
                 ))}
