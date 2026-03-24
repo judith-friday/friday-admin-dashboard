@@ -645,69 +645,6 @@ export default function MessageDashboard() {
     return () => clearInterval(iv)
   }, [token, fetchConversations, fetchStats])
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    if (!token) return
-    const handler = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName
-      const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
-      
-      // Cmd+Enter: approve & send current draft
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-        e.preventDefault()
-        if (detail?.drafts) {
-          const readyDraft = detail.drafts.find(d => ['draft_ready', 'under_review'].includes(d.state))
-          if (readyDraft) handleDraftAction(readyDraft.id, 'approve')
-        }
-        return
-      }
-
-      // Escape: deselect conversation or close help
-      if (e.key === 'Escape') {
-        if (showHelp) { setShowHelp(false); return }
-        if (isInput) return
-        setSelectedConvId(null)
-        setDetail(null)
-        return
-      }
-
-      // Skip other shortcuts when in input
-      if (isInput) return
-
-      // /: focus revision input
-      if (e.key === '/') {
-        e.preventDefault()
-        const el = document.querySelector('.revision-input') as HTMLInputElement
-        if (el) el.focus()
-        return
-      }
-
-      // Arrow up/down: navigate conversations
-      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-        e.preventDefault()
-        const list = filteredConversations
-        if (list.length === 0) return
-        const currentIdx = selectedConvId ? list.findIndex(c => c.id === selectedConvId) : -1
-        let nextIdx: number
-        if (e.key === 'ArrowUp') {
-          nextIdx = currentIdx <= 0 ? list.length - 1 : currentIdx - 1
-        } else {
-          nextIdx = currentIdx >= list.length - 1 ? 0 : currentIdx + 1
-        }
-        selectConversation(list[nextIdx])
-        return
-      }
-
-      // Enter: open selected conversation (already selected via arrows)
-      if (e.key === 'Enter' && selectedConvId) {
-        // Already open, no-op needed
-        return
-      }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [token, selectedConvId, detail, filteredConversations, showHelp])
-
   const selectConversation = (conv: Conversation) => {
     setSelectedConvId(conv.id)
     fetchDetail(conv.id)
@@ -856,6 +793,69 @@ export default function MessageDashboard() {
   })
 
   const unreadCount = conversations.filter(c => c.is_unread).length
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    if (!token) return
+    const handler = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName
+      const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+      
+      // Cmd+Enter: approve & send current draft
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault()
+        if (detail?.drafts) {
+          const readyDraft = detail.drafts.find(d => ['draft_ready', 'under_review'].includes(d.state))
+          if (readyDraft) handleDraftAction(readyDraft.id, 'approve')
+        }
+        return
+      }
+
+      // Escape: deselect conversation or close help
+      if (e.key === 'Escape') {
+        if (showHelp) { setShowHelp(false); return }
+        if (isInput) return
+        setSelectedConvId(null)
+        setDetail(null)
+        return
+      }
+
+      // Skip other shortcuts when in input
+      if (isInput) return
+
+      // /: focus revision input
+      if (e.key === '/') {
+        e.preventDefault()
+        const el = document.querySelector('.revision-input') as HTMLInputElement
+        if (el) el.focus()
+        return
+      }
+
+      // Arrow up/down: navigate conversations
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        const list = filteredConversations
+        if (list.length === 0) return
+        const currentIdx = selectedConvId ? list.findIndex(c => c.id === selectedConvId) : -1
+        let nextIdx: number
+        if (e.key === 'ArrowUp') {
+          nextIdx = currentIdx <= 0 ? list.length - 1 : currentIdx - 1
+        } else {
+          nextIdx = currentIdx >= list.length - 1 ? 0 : currentIdx + 1
+        }
+        selectConversation(list[nextIdx])
+        return
+      }
+
+      // Enter: open selected conversation (already selected via arrows)
+      if (e.key === 'Enter' && selectedConvId) {
+        // Already open, no-op needed
+        return
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [token, selectedConvId, detail, filteredConversations, showHelp])
 
   const statusBadge = (conv: Conversation) => {
     if (conv.status === 'done') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(255,255,255,0.06)', color: '#64748b'}}>Done</span>
