@@ -689,6 +689,7 @@ export default function MessageDashboard() {
   const [rejectingDraft, setRejectingDraft] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState('')
   const [sendConfirm, setSendConfirm] = useState<{draftId: string; guestName: string; property: string; channel: string; preview: string} | null>(null)
+  const [sendChannel, setSendChannel] = useState<string>('')
   const [undoCountdown, setUndoCountdown] = useState<number>(0)
   const [undoDraftId, setUndoDraftId] = useState<string | null>(null)
   const undoTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -829,6 +830,7 @@ export default function MessageDashboard() {
     if (!detail) return
     const draft = detail.drafts.find(d => d.id === draftId)
     if (!draft) return
+    setSendChannel(detail?.conversation.channel || 'airbnb')
     setSendConfirm({
       draftId,
       guestName: detail.conversation.guest_name,
@@ -1126,10 +1128,17 @@ export default function MessageDashboard() {
     return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>Open</span>
   }
 
-  const channelEmoji = (ch?: string) => {
-    if (!ch) return ''
-    const m: Record<string, string> = { airbnb: 'AB', booking: 'BK', direct: 'DR', other: 'OT', whatsapp: 'WA' }
-    return m[ch] || ch.slice(0, 2).toUpperCase()
+  const channelBadge = (ch?: string) => {
+    if (!ch) return null
+    const channels: Record<string, { label: string; bg: string; color: string }> = {
+      airbnb: { label: 'Airbnb', bg: 'rgba(239,68,68,0.15)', color: '#f87171' },
+      booking: { label: 'Booking', bg: 'rgba(59,130,246,0.15)', color: '#60a5fa' },
+      direct: { label: 'Direct', bg: 'rgba(168,85,247,0.15)', color: '#c084fc' },
+      whatsapp: { label: 'WhatsApp', bg: 'rgba(34,197,94,0.15)', color: '#4ade80' },
+      other: { label: 'Other', bg: 'rgba(255,255,255,0.08)', color: '#94a3b8' },
+    }
+    const c = channels[ch.toLowerCase()] || channels.other
+    return <span className="px-1.5 py-0.5 rounded-full" style={{background: c.bg, color: c.color, fontSize: '10px', fontWeight: 500}}>{c.label}</span>
   }
 
   const draftStateBadge = (state?: string) => {
@@ -1263,8 +1272,19 @@ export default function MessageDashboard() {
               <h3 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>Confirm Send</h3>
             </div>
             <p className="text-sm mb-3" style={{color: '#94a3b8'}}>
-              Send this reply to <strong style={{color: '#f1f5f9'}}>{sendConfirm.guestName}</strong> at <strong style={{color: '#f1f5f9'}}>{sendConfirm.property}</strong> via <strong style={{color: '#f1f5f9'}}>{sendConfirm.channel}</strong>?
+              Send this reply to <strong style={{color: '#f1f5f9'}}>{sendConfirm.guestName}</strong> at <strong style={{color: '#f1f5f9'}}>{sendConfirm.property}</strong>?
             </p>
+            <div className="mb-3">
+              <label className="text-xs font-medium block mb-1" style={{color: '#64748b'}}>Send via:</label>
+              <select value={sendChannel} onChange={e => setSendChannel(e.target.value)}
+                className="w-full text-sm rounded px-2 py-1.5 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}>
+                <option value="airbnb" style={{background: '#1a1a2e'}}>Airbnb</option>
+                <option value="booking" style={{background: '#1a1a2e'}}>Booking.com</option>
+                <option value="whatsapp" style={{background: '#1a1a2e'}}>WhatsApp</option>
+                <option value="email" style={{background: '#1a1a2e'}}>Email</option>
+                <option value="direct" style={{background: '#1a1a2e'}}>Direct</option>
+              </select>
+            </div>
             <div className="p-2 rounded text-xs mb-4" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#e2e8f0'}}>
               {sendConfirm.preview}
             </div>
@@ -1394,7 +1414,7 @@ export default function MessageDashboard() {
                       <div className="flex items-center space-x-1.5 min-w-0">
                         {conv.is_unread && <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>}
                         <span className="text-sm truncate" style={{color: '#f1f5f9'}}>{conv.guest_name}</span>
-                        {conv.channel && <span className="text-xs px-1 rounded" style={{color: '#94a3b8', background: 'rgba(255,255,255,0.06)'}}>{channelEmoji(conv.channel)}</span>}
+                        {conv.channel && channelBadge(conv.channel)}
                       </div>
                       {conv.last_message_at && (
                         <span className="text-xs flex-shrink-0 ml-1" style={{color: '#64748b'}}>
@@ -1439,7 +1459,7 @@ export default function MessageDashboard() {
                       <h2 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>{detail.conversation.guest_name}</h2>
                       <div className="flex items-center space-x-3 text-xs mt-1" style={{color: '#64748b'}}>
                         {detail.conversation.property_name && <span>{detail.conversation.property_name}</span>}
-                        {detail.conversation.channel && <span className="px-1 rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8'}}>{channelEmoji(detail.conversation.channel)}</span>}
+                        {detail.conversation.channel && channelBadge(detail.conversation.channel)}
                         {detail.conversation.check_in_date && detail.conversation.check_out_date && (
                           <span>{format(new Date(detail.conversation.check_in_date), 'MMM d')} - {format(new Date(detail.conversation.check_out_date), 'MMM d')}</span>
                         )}
