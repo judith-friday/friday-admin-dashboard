@@ -679,6 +679,13 @@ export default function MessageDashboard() {
   const [editBody, setEditBody] = useState('')
   const [revisionText, setRevisionText] = useState('')
   const [revisingDraft, setRevisingDraft] = useState<string | null>(null)
+  const [showTeachPrompt, setShowTeachPrompt] = useState<string | null>(null)
+  const [teachScope, setTeachScope] = useState<'global' | 'property'>('global')
+  const [showTeachingsPanel, setShowTeachingsPanel] = useState(false)
+  const [teachings, setTeachings] = useState<any[]>([])
+  const [revokeId, setRevokeId] = useState<string | null>(null)
+  const [revokeReason, setRevokeReason] = useState('')
+  const [newTeachingText, setNewTeachingText] = useState('')
   const [rejectingDraft, setRejectingDraft] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState('')
   const [sendConfirm, setSendConfirm] = useState<{draftId: string; guestName: string; property: string; channel: string; preview: string} | null>(null)
@@ -902,17 +909,17 @@ export default function MessageDashboard() {
     }
   }
 
-  const handleRevision = async (draftId: string) => {
+  const handleRevision = async (draftId: string, mode: 'standard' | 'teach' | 'one_time' = 'standard', tScope?: 'global' | 'property', tPropCode?: string) => {
     if (!revisionText.trim()) return
     setRevisingDraft(draftId)
     try {
-      await apiFetch(`/api/drafts/${draftId}/revise`, {
-        method: 'POST',
-        body: JSON.stringify({ revision_instruction: revisionText.trim(), reviewed_by: 'dashboard' }),
-      })
-      toast.success('Revision requested — new draft coming...')
+      const body: any = { revision_instruction: revisionText.trim(), reviewed_by: 'dashboard', mode }
+      if (mode === 'teach') { body.teach_scope = tScope || 'global'; body.teach_property_code = tPropCode || null }
+      await apiFetch(`/api/drafts/${draftId}/revise`, { method: 'POST', body: JSON.stringify(body) })
+      const msgs: Record<string, string> = { standard: 'Revision requested — new draft coming...', teach: 'Revision + teaching saved 🧠', one_time: 'One-time revision requested...' }
+      toast.success(msgs[mode])
       setRevisionText('')
-      // Poll for updated draft after short delay
+      setShowTeachPrompt(null)
       setTimeout(() => { if (selectedConvId) fetchDetail(selectedConvId) }, 3000)
       setTimeout(() => { if (selectedConvId) fetchDetail(selectedConvId) }, 8000)
     } catch (err: any) {
@@ -920,6 +927,33 @@ export default function MessageDashboard() {
     } finally {
       setRevisingDraft(null)
     }
+  }
+
+  const fetchTeachings = async () => {
+    try {
+      const data = await apiFetch('/api/teachings')
+      setTeachings(data.teachings || [])
+    } catch {}
+  }
+
+  const handleRevokeTeaching = async (id: string) => {
+    try {
+      await apiFetch(`/api/teachings/${id}/revoke`, { method: 'PATCH', body: JSON.stringify({ revoked_by: 'dashboard', revoke_reason: revokeReason }) })
+      toast.success('Teaching revoked')
+      setRevokeId(null)
+      setRevokeReason('')
+      fetchTeachings()
+    } catch (err: any) { toast.error(err.message) }
+  }
+
+  const handleAddTeaching = async () => {
+    if (!newTeachingText.trim()) return
+    try {
+      await apiFetch('/api/teachings', { method: 'POST', body: JSON.stringify({ instruction: newTeachingText.trim(), scope: 'global', taught_by: 'dashboard' }) })
+      toast.success('Teaching added 🧠')
+      setNewTeachingText('')
+      fetchTeachings()
+    } catch (err: any) { toast.error(err.message) }
   }
 
   const handleRejectWithReason = async (draftId: string) => {
@@ -1141,6 +1175,85 @@ export default function MessageDashboard() {
       <Toaster position="top-right" />
       <HelpPanel isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
+      
+      {/* Teachings panel */}
+      {showTeachingsPanel && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="flex-1" style={{background: 'rgba(0,0,0,0.4)'}} onClick={() => setShowTeachingsPanel(false)} />
+          <div className="w-[480px] h-full overflow-y-auto custom-scrollbar" style={{background: '#0d1117', borderLeft: '1px solid rgba(255,255,255,0.08)'}}>
+            <div className="p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>🧠 Teachings</h2>
+                <button onClick={() => setShowTeachingsPanel(false)} className="text-sm" style={{color: '#64748b'}}>✕</button>
+              </div>
+              <p className="text-xs mt-1" style={{color: '#64748b'}}>Instructions Judith has learned from revisions</p>
+            </div>
+
+            {/* Add new teaching */}
+            <div className="p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+              <div className="flex space-x-2">
+                <input type="text" value={newTeachingText} onChange={e => setNewTeachingText(e.target.value)}
+                  placeholder="Add a teaching..."
+                  className="flex-1 text-sm rounded px-2 py-1.5 outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
+                  onKeyDown={e => { if (e.key === 'Enter') handleAddTeaching() }} />
+                <button onClick={handleAddTeaching} disabled={!newTeachingText.trim()}
+                  className="px-3 py-1.5 text-xs rounded disabled:opacity-50" style={{background: 'rgba(168,85,247,0.2)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)'}}>
+                  Add
+                </button>
+              </div>
+            </div>
+
+            {/* Active teachings */}
+            <div className="p-4">
+              <h3 className="text-xs font-semibold mb-3" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Active</h3>
+              {teachings.filter(t => t.status === 'active').length === 0 && (
+                <p className="text-xs" style={{color: '#64748b'}}>No active teachings yet. Teachings are created from revision patterns or manually.</p>
+              )}
+              {teachings.filter(t => t.status === 'active').map(t => (
+                <div key={t.id} className="p-3 rounded-lg mb-2" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)'}}>
+                  <p className="text-sm" style={{color: '#e2e8f0'}}>{t.instruction}</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs px-1.5 py-0.5 rounded" style={{background: t.scope === 'global' ? 'rgba(99,149,255,0.15)' : 'rgba(245,158,11,0.15)', color: t.scope === 'global' ? '#6395ff' : '#fbbf24'}}>
+                        {t.scope === 'global' ? '🌐 Global' : `📍 ${t.property_code}`}
+                      </span>
+                      <span className="text-xs" style={{color: '#64748b'}}>
+                        {t.source === 'auto_pattern' ? '🔄 Auto' : t.source === 'manual' ? '✏️ Manual' : '💬 Direct'}
+                      </span>
+                    </div>
+                    {revokeId === t.id ? (
+                      <div className="flex items-center space-x-1">
+                        <input type="text" value={revokeReason} onChange={e => setRevokeReason(e.target.value)}
+                          placeholder="Why?" className="text-xs rounded px-1.5 py-0.5 w-32 outline-none"
+                          style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
+                          onKeyDown={e => { if (e.key === 'Enter') handleRevokeTeaching(t.id) }} />
+                        <button onClick={() => handleRevokeTeaching(t.id)} className="text-xs px-1.5 py-0.5 rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171'}}>OK</button>
+                        <button onClick={() => setRevokeId(null)} className="text-xs" style={{color: '#64748b'}}>✕</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setRevokeId(t.id)} className="text-xs" style={{color: '#f87171'}}>Revoke</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Revoked teachings */}
+            {teachings.filter(t => t.status === 'revoked').length > 0 && (
+              <div className="p-4" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
+                <h3 className="text-xs font-semibold mb-3" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Revoked</h3>
+                {teachings.filter(t => t.status === 'revoked').map(t => (
+                  <div key={t.id} className="p-3 rounded-lg mb-2 opacity-50" style={{background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)'}}>
+                    <p className="text-sm line-through" style={{color: '#64748b'}}>{t.instruction}</p>
+                    {t.revoke_reason && <p className="text-xs mt-1" style={{color: '#f87171'}}>Reason: {t.revoke_reason}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Send confirmation modal */}
       {sendConfirm && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}}>
@@ -1221,7 +1334,7 @@ export default function MessageDashboard() {
                 <button onClick={toggleMute} className="ml-2 p-1 rounded" style={{color: '#64748b'}} title={isMuted ? 'Unmute' : 'Mute'}>
                   {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
                 </button>
-                <button onClick={() => setShowHelp(true)} className="ml-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>?</button>
+                <button onClick={() => { setShowTeachingsPanel(!showTeachingsPanel); if (!showTeachingsPanel) fetchTeachings() }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc'}} title="Teachings">🧠</button><button onClick={() => setShowHelp(true)} className="ml-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>?</button>
               </div>
             )}
           </div>
@@ -1460,17 +1573,46 @@ export default function MessageDashboard() {
                           )}
 
                           {/* Revision input */}
-                          <div className="mt-3 flex space-x-2">
-                            <input type="text" value={revisionText} onChange={e => setRevisionText(e.target.value)}
-                              placeholder="Ask Judith to adjust... (e.g. 'make it shorter', 'add WiFi password')"
-                              className="flex-1 text-sm rounded px-2 py-1.5 outline-none revision-input" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
-                              disabled={revisingDraft === draft.id}
-                              onKeyDown={e => { if (e.key === 'Enter') handleRevision(draft.id) }} />
-                            <button onClick={() => handleRevision(draft.id)}
-                              disabled={revisingDraft === draft.id || !revisionText.trim()}
-                              className="px-3 py-1 text-xs rounded disabled:opacity-50" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>
-                              {revisingDraft === draft.id ? 'Revising...' : 'Revise'}
-                            </button>
+                          <div className="mt-3">
+                            <div className="flex space-x-2">
+                              <input type="text" value={revisionText} onChange={e => setRevisionText(e.target.value)}
+                                placeholder="Ask Judith to adjust... (e.g. 'make it shorter', 'add WiFi password')"
+                                className="flex-1 text-sm rounded px-2 py-1.5 outline-none revision-input" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
+                                disabled={revisingDraft === draft.id}
+                                onKeyDown={e => { if (e.key === 'Enter') handleRevision(draft.id, 'standard') }} />
+                            </div>
+                            <div className="flex items-center space-x-2 mt-2">
+                              <button onClick={() => handleRevision(draft.id, 'standard')}
+                                disabled={revisingDraft === draft.id || !revisionText.trim()}
+                                className="px-3 py-1 text-xs rounded disabled:opacity-50" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>
+                                {revisingDraft === draft.id ? 'Revising...' : 'Revise'}
+                              </button>
+                              <button onClick={() => { if (!revisionText.trim()) return; setShowTeachPrompt(showTeachPrompt === draft.id ? null : draft.id) }}
+                                disabled={revisingDraft === draft.id || !revisionText.trim()}
+                                className="px-3 py-1 text-xs rounded disabled:opacity-50 flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
+                                <span className="mr-1">🧠</span> Revise & teach
+                              </button>
+                              <button onClick={() => handleRevision(draft.id, 'one_time')}
+                                disabled={revisingDraft === draft.id || !revisionText.trim()}
+                                className="text-xs disabled:opacity-50" style={{color: '#64748b'}}>
+                                one-time
+                              </button>
+                            </div>
+                            {showTeachPrompt === draft.id && (
+                              <div className="mt-2 p-2 rounded" style={{background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.15)'}}>
+                                <div className="text-xs mb-1.5" style={{color: '#c084fc'}}>Save this teaching to:</div>
+                                <div className="flex space-x-2">
+                                  <button onClick={() => handleRevision(draft.id, 'teach', 'property', detail?.conversation.property_name || undefined)}
+                                    className="px-2 py-1 text-xs rounded" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
+                                    📍 {detail?.conversation.property_name || 'This property'} only
+                                  </button>
+                                  <button onClick={() => handleRevision(draft.id, 'teach', 'global')}
+                                    className="px-2 py-1 text-xs rounded" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
+                                    🌐 All properties
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </>
                       )}
