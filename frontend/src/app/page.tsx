@@ -1108,6 +1108,7 @@ export default function MessageDashboard() {
       sent: { bg: 'rgba(34,197,94,0.15)', text: '#4ade80', label: 'Sent' },
       rejected: { bg: 'rgba(239,68,68,0.15)', text: '#f87171', label: 'Rejected' },
       send_failed: { bg: 'rgba(239,68,68,0.15)', text: '#f87171', label: 'Send Failed' },
+      send_queued: { bg: 'rgba(245,158,11,0.15)', text: '#fbbf24', label: '⏳ Queued' },
       generation_failed: { bg: 'rgba(239,68,68,0.15)', text: '#f87171', label: 'Gen Failed' },
     }
     const s = m[state]
@@ -1365,6 +1366,16 @@ export default function MessageDashboard() {
                           )}
                         </div>
                       </div>
+                    </div>
+                  ))}
+
+                  {/* Queued drafts - browser fallback pending */}
+                  {detail.drafts.filter(d => d.state === "send_queued").map(draft => (
+                    <div key={draft.id} className="rounded-lg p-3 mt-2" style={{background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)"}}>
+                      <div className="flex items-center text-xs font-medium mb-1" style={{color: "#fbbf24"}}>
+                        <span className="mr-1.5">⏳</span> Queued for sending — API unavailable, will send via browser fallback
+                      </div>
+                      <p className="text-sm whitespace-pre-wrap" style={{color: "#e2e8f0"}}>{draft.draft_body}</p>
                     </div>
                   ))}
 
