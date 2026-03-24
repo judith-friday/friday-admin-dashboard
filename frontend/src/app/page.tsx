@@ -1033,22 +1033,24 @@ export default function MessageDashboard() {
               <div className="flex space-x-5 items-center">
                 <div className="text-center">
                   <div className="text-lg font-bold" style={{color: '#fbbf24'}}>{stats.needs_review_count}</div>
-                  <div className="text-xs" style={{color: '#64748b'}}>Review</div>
+                  <div className="text-xs" style={{color: '#64748b'}}>to review</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold" style={{color: rtColor(stats.avg_response_time_minutes)}}>{stats.avg_response_time_minutes}m</div>
-                  <div className="text-xs" style={{color: '#64748b'}}>Avg RT</div>
+                  <div className="text-lg font-bold" style={{color: stats.avg_response_time_minutes != null ? rtColor(stats.avg_response_time_minutes) : '#64748b'}}>
+                    {stats.avg_response_time_minutes != null ? `${stats.avg_response_time_minutes} min` : '\u2014'}
+                  </div>
+                  <div className="text-xs" style={{color: '#64748b'}}>avg response</div>
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-bold" style={{color: '#6395ff'}}>{stats.messages_today}</div>
-                  <div className="text-xs" style={{color: '#64748b'}}>Today</div>
+                  <div className="text-xs" style={{color: '#64748b'}}>new today</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold" style={{color: stats.overdue_actions_count > 0 ? '#f87171' : '#4ade80'}}>
+                  <div className="text-lg font-bold" style={{color: stats.overdue_actions_count > 0 ? '#f87171' : stats.pending_actions_count > 0 ? '#fbbf24' : '#4ade80'}}>
                     {stats.pending_actions_count}
                   </div>
                   <div className="text-xs" style={{color: '#64748b'}}>
-                    Actions {stats.overdue_actions_count > 0 && <span style={{color: '#f87171'}}>({stats.overdue_actions_count} overdue)</span>}
+                    {stats.pending_actions_count === 1 ? 'action' : 'actions'} {stats.overdue_actions_count > 0 && <span style={{color: '#f87171'}}>({stats.overdue_actions_count} overdue)</span>}
                   </div>
                 </div>
                 <button onClick={() => { clearToken(); setTokenState(null) }}
