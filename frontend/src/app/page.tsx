@@ -393,6 +393,39 @@ function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
           <button onClick={onClose} className="w-7 h-7 rounded-md flex items-center justify-center" style={{background: 'rgba(255,255,255,0.06)', color: '#64748b'}}>✕</button>
         </div>
         <div className="px-6 py-5 space-y-6">
+          <ExpandableSection title="Getting started">
+            <div className="space-y-3">
+              <p>Welcome to Friday GMS! This is where you review and send guest messages.</p>
+              <div className="space-y-2">
+                <p className="font-semibold" style={{color: '#e2e8f0'}}>Your daily workflow:</p>
+                <div className="space-y-1.5">
+                  {['Check the inbox \u2014 unread messages have a blue dot',
+                    'Click a conversation to read the guest\'s message and Judith\'s draft',
+                    'Review the draft \u2014 check the confidence score for how much attention it needs',
+                    'Adjust if needed \u2014 type instructions like \"add the WiFi password\" or \"be warmer\"',
+                    'Approve & Send \u2014 a confirmation pops up with a 5-second undo window',
+                    'Check \u23F3 Action Items \u2014 things we promised guests but haven\'t done yet',
+                  ].map((step, i) => (
+                    <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#94a3b8'}}>
+                      <span className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-[10px] font-semibold" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{i+1}</span>
+                      <span>{step}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-1.5 mt-3">
+                <p className="font-semibold" style={{color: '#e2e8f0'}}>Key things to know:</p>
+                <div className="space-y-1 text-xs" style={{color: '#94a3b8'}}>
+                  <div>\u2022 Everything you do is tracked (who approved, who rejected, who wrote notes)</div>
+                  <div>\u2022 Staff notes are shared with Judith \u2014 she reads them when drafting future replies</div>
+                  <div>\u2022 Don&apos;t approve bad drafts to save time \u2014 Judith learns from your approvals</div>
+                  <div>\u2022 When in doubt, reject and say why \u2014 this helps Judith improve</div>
+                  <div>\u2022 Translations happen automatically \u2014 you review in English, Judith sends in the guest&apos;s language</div>
+                </div>
+              </div>
+            </div>
+          </ExpandableSection>
+
           <section>
             <h4 className="text-xs font-semibold uppercase tracking-wide mb-2.5" style={{color: '#6395ff'}}>How it works</h4>
             <p className="text-xs leading-relaxed mb-2" style={{color: '#94a3b8'}}>When a guest sends a message, Judith automatically:</p>
@@ -538,21 +571,29 @@ function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
             </div>
           </ExpandableSection>
 
-          <ExpandableSection title="How to help Judith learn">
-            <div className="space-y-2">
-              <p>Every interaction teaches Judith:</p>
+          <ExpandableSection title="Teaching Judith">
+            <div className="space-y-3">
+              <p>When you submit a revision, you&apos;ll see three options:</p>
               <div className="space-y-1.5">
-                <div><span style={{color: '#4ade80', fontWeight: 500}}>Staff notes</span> — Context becomes part of future drafts</div>
-                <div><span style={{color: '#4ade80', fontWeight: 500}}>Revision instructions</span> — "Add WiFi password" improves similar responses</div>
-                <div><span style={{color: '#4ade80', fontWeight: 500}}>Rejections with reasons</span> — "Too formal" or "Missing empathy" refines tone</div>
+                <div><span style={{color: '#4ade80', fontWeight: 500}}>Revise</span> — adjusts draft, doesn&apos;t learn permanently. 3+ similar instructions triggers auto-learn.</div>
+                <div><span style={{color: '#fbbf24', fontWeight: 500}}>Revise &amp; teach \uD83E\uDDE0</span> — adjusts AND saves as a permanent rule. Choose: this property or all properties.</div>
+                <div><span style={{color: '#6395ff', fontWeight: 500}}>Revise (one-time)</span> — adjusts but does NOT learn. For guest-specific things.</div>
               </div>
-              <div className="mt-3 rounded-md p-2.5" style={{background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)'}}>
-                <div className="text-xs font-semibold mb-1" style={{color: '#f87171'}}>How NOT to teach</div>
+              <p className="mt-2">View what Judith has learned: click \uD83E\uDDE0 Teachings. You can revoke any teaching if it was a mistake.</p>
+              <div className="rounded-md p-2.5 mt-2" style={{background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)'}}>
+                <div className="text-xs font-semibold mb-1" style={{color: '#4ade80'}}>Good teaching examples</div>
                 <div className="space-y-1 text-xs" style={{color: '#94a3b8'}}>
-                  <div>❌ "This is wrong" (no specifics)</div>
-                  <div>❌ "Make it better" (too vague)</div>
-                  <div>❌ Approving bad drafts to save time</div>
-                  <div>❌ Rejecting without explanation</div>
+                  <div>\u2705 &quot;Never mention the pool is shared&quot; (property-specific)</div>
+                  <div>\u2705 &quot;Always include parking for GBH properties&quot; (global)</div>
+                </div>
+              </div>
+              <div className="rounded-md p-2.5" style={{background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)'}}>
+                <div className="text-xs font-semibold mb-1" style={{color: '#f87171'}}>Don&apos;t teach</div>
+                <div className="space-y-1 text-xs" style={{color: '#94a3b8'}}>
+                  <div>\u274C Guest-specific things like &quot;mention their anniversary&quot; \u2014 use one-time instead</div>
+                  <div>\u274C Approving bad drafts (she thinks it&apos;s good)</div>
+                  <div>\u274C Contradictory instructions</div>
+                  <div>\u274C Editing draft text directly without revision input (no feedback for Judith)</div>
                 </div>
               </div>
             </div>
@@ -660,10 +701,37 @@ function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
           </ExpandableSection>
 
 
+          <ExpandableSection title="Property knowledge">
+            <div className="space-y-2">
+              <p>Click any property code in the sidebar to view its knowledge card \u2014 WiFi, check-in instructions, parking, amenities, FAQs.</p>
+              <div className="space-y-1.5 text-xs" style={{color: '#94a3b8'}}>
+                <div>\u2022 If info is wrong: click Edit, fix it, save. Judith uses updated info immediately.</div>
+                <div>\u2022 If no card exists: you can create one. More info = better drafts for that property.</div>
+              </div>
+            </div>
+          </ExpandableSection>
+
+          <ExpandableSection title="Channels and sending">
+            <div className="space-y-2">
+              <p>When you approve, the confirmation popup shows a channel selector:</p>
+              <div className="space-y-1.5 text-xs" style={{color: '#94a3b8'}}>
+                <div>\u2022 <span style={{fontWeight: 500, color: '#e2e8f0'}}>Booking platform</span> (Airbnb/Booking.com messaging) \u2014 default for OTA bookings</div>
+                <div>\u2022 <span style={{fontWeight: 500, color: '#e2e8f0'}}>WhatsApp</span> \u2014 common for direct bookings</div>
+                <div>\u2022 <span style={{fontWeight: 500, color: '#e2e8f0'}}>Email</span> \u2014 for formal or fallback messages</div>
+              </div>
+              <p className="mt-1">Default is based on how the guest last messaged us. You can change it before sending.</p>
+            </div>
+          </ExpandableSection>
+
           <div className="rounded-lg p-4 text-center" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)'}}>
             <div className="text-xs" style={{color: '#94a3b8'}}>Need help? Tag <span style={{color: '#6395ff', fontWeight: 500}}>@Ishant</span> in Slack</div>
             <div className="text-xs mt-0.5" style={{color: '#64748b'}}>or message Judith directly</div>
           </div>
+
+          <a href="https://slack.com/app_redirect?channel=fr-gms-feedback" target="_blank" rel="noopener noreferrer"
+             className="block w-full text-center py-2 rounded-lg text-xs mt-2" style={{background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#f87171'}}>
+            \uD83D\uDC1B Report issue
+          </a>
         </div>
       </div>
     </div>
