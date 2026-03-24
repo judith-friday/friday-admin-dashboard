@@ -22,6 +22,9 @@ import {
   PlusIcon,
   ArchiveBoxIcon,
   EyeSlashIcon,
+  QuestionMarkCircleIcon,
+  SpeakerWaveIcon,
+  SpeakerXMarkIcon,
 } from '@heroicons/react/24/outline'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || ''
@@ -193,17 +196,17 @@ function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-lg w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Friday GMS</h1>
-        <p className="text-sm text-gray-500 mb-6">Guest Messaging System</p>
-        {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded text-sm">{error}</div>}
+    <div className="min-h-screen flex items-center justify-center" style={{background: 'linear-gradient(135deg, #0a1628 0%, #0f1d35 50%, #0a1628 100%)'}}>
+      <form onSubmit={handleSubmit} className="p-8 rounded-xl w-full max-w-sm" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)'}}>
+        <h1 className="text-2xl font-bold mb-1" style={{color: '#f1f5f9'}}>Friday GMS</h1>
+        <p className="text-sm mb-6" style={{color: '#64748b'}}>Guest Messaging System</p>
+        {error && <div className="mb-4 p-3 rounded text-sm" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>{error}</div>}
         <input type="text" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)}
-          className="w-full mb-3 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+          className="w-full mb-3 px-4 py-2 rounded-lg outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
         <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}
-          className="w-full mb-4 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+          className="w-full mb-4 px-4 py-2 rounded-lg outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
         <button type="submit" disabled={loading}
-          className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium">
+          className="w-full py-2 rounded-lg font-medium disabled:opacity-50" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>
           {loading ? 'Signing in...' : 'Sign In'}
         </button>
       </form>
@@ -275,74 +278,74 @@ function PendingActionsTab({ token, conversationFilter }: { token: string; conve
     const mins = action.age_minutes ?? (Date.now() - new Date(action.detected_at).getTime()) / 60000
     const hours = mins / 60
     const isOverdue = action.due_by && new Date(action.due_by) < new Date() && action.status === 'pending'
-    if (isOverdue) return <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">OVERDUE</span>
-    if (hours > 6) return <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">{Math.round(hours)}h</span>
-    if (hours > 2) return <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">{Math.round(hours)}h</span>
-    return <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">{mins < 60 ? `${Math.round(mins)}m` : `${Math.round(hours)}h`}</span>
+    if (isOverdue) return <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>OVERDUE</span>
+    if (hours > 6) return <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>{Math.round(hours)}h</span>
+    if (hours > 2) return <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>{Math.round(hours)}h</span>
+    return <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>{mins < 60 ? `${Math.round(mins)}m` : `${Math.round(hours)}h`}</span>
   }
 
-  if (loading) return <div className="p-4 text-center text-gray-500">Loading actions...</div>
+  if (loading) return <div className="p-4 text-center" style={{color: '#64748b'}}>Loading actions...</div>
 
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar">
       {!conversationFilter && (
-        <div className="p-3 border-b flex justify-between items-center">
-          <span className="text-sm font-medium text-gray-700">{actions.length} pending action{actions.length !== 1 ? 's' : ''}</span>
-          <button onClick={() => setShowAddForm(!showAddForm)} className="flex items-center text-sm text-blue-600 hover:text-blue-800">
+        <div className="p-3 flex justify-between items-center" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+          <span className="text-sm font-medium" style={{color: '#94a3b8'}}>{actions.length} pending action{actions.length !== 1 ? 's' : ''}</span>
+          <button onClick={() => setShowAddForm(!showAddForm)} className="flex items-center text-sm" style={{color: '#6395ff'}}>
             <PlusIcon className="h-4 w-4 mr-1" /> Add
           </button>
         </div>
       )}
 
       {showAddForm && (
-        <form onSubmit={handleCreate} className="p-3 border-b bg-blue-50 space-y-2">
+        <form onSubmit={handleCreate} className="p-3 space-y-2" style={{borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(99,149,255,0.06)'}}>
           <select value={newAction.conversation_id} onChange={e => setNewAction({ ...newAction, conversation_id: e.target.value })}
-            className="w-full text-sm border rounded px-2 py-1" required>
+            className="w-full text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} required>
             <option value="">Select conversation...</option>
             {conversations.map(c => <option key={c.id} value={c.id}>{c.guest_name}</option>)}
           </select>
           <input type="text" placeholder="Action text..." value={newAction.action_text}
             onChange={e => setNewAction({ ...newAction, action_text: e.target.value })}
-            className="w-full text-sm border rounded px-2 py-1" required />
+            className="w-full text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} required />
           <input type="datetime-local" value={newAction.due_by}
             onChange={e => setNewAction({ ...newAction, due_by: e.target.value })}
-            className="w-full text-sm border rounded px-2 py-1" />
+            className="w-full text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
           <div className="flex space-x-2">
-            <button type="submit" className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700">Create</button>
-            <button type="button" onClick={() => setShowAddForm(false)} className="px-3 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500">Cancel</button>
+            <button type="submit" className="px-3 py-1 text-xs rounded" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>Create</button>
+            <button type="button" onClick={() => setShowAddForm(false)} className="px-3 py-1 text-xs rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Cancel</button>
           </div>
         </form>
       )}
 
       {actions.length === 0 ? (
-        <div className="p-6 text-center text-gray-400">
+        <div className="p-6 text-center" style={{color: '#64748b'}}>
           <CheckIcon className="h-10 w-10 mx-auto mb-2" />
           <p className="text-sm">No pending actions</p>
         </div>
       ) : (
         actions.map(action => (
-          <div key={action.id} className={`p-3 border-b hover:bg-gray-50 ${action.status !== 'pending' ? 'opacity-50' : ''}`}>
+          <div key={action.id} className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.03)', opacity: action.status !== 'pending' ? 0.5 : 1}}>
             <div className="flex justify-between items-start mb-1">
-              <span className="text-sm font-medium text-gray-900">{action.guest_name}</span>
+              <span className="text-sm font-medium" style={{color: '#f1f5f9'}}>{action.guest_name}</span>
               {action.status === 'pending' && ageBadge(action)}
             </div>
-            {action.property_code && <div className="text-xs text-gray-500 mb-1">{action.property_code}</div>}
-            <p className="text-sm text-gray-700 mb-2">{action.action_text}</p>
+            {action.property_code && <div className="text-xs mb-1" style={{color: '#64748b'}}>{action.property_code}</div>}
+            <p className="text-sm mb-2" style={{color: '#94a3b8'}}>{action.action_text}</p>
             {action.status === 'pending' ? (
               <div className="space-y-1">
                 <input type="text" placeholder="Note (optional)..."
                   value={completionNotes[action.id] || ''}
                   onChange={e => setCompletionNotes({ ...completionNotes, [action.id]: e.target.value })}
-                  className="w-full text-xs border rounded px-2 py-1" />
+                  className="w-full text-xs rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
                 <div className="flex space-x-2">
                   <button onClick={() => handleAction(action.id, 'completed')}
-                    className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700">Done</button>
+                    className="px-2 py-1 text-xs rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Done</button>
                   <button onClick={() => handleAction(action.id, 'dismissed')}
-                    className="px-2 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500">Dismiss</button>
+                    className="px-2 py-1 text-xs rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Dismiss</button>
                 </div>
               </div>
             ) : (
-              <div className="text-xs text-gray-500">
+              <div className="text-xs" style={{color: '#64748b'}}>
                 {action.status} {action.completed_by ? `by ${action.completed_by}` : ''}
                 {action.completion_note ? ` - ${action.completion_note}` : ''}
               </div>
@@ -608,10 +611,10 @@ export default function MessageDashboard() {
   const unreadCount = conversations.filter(c => c.is_unread).length
 
   const statusBadge = (conv: Conversation) => {
-    if (conv.status === 'done') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Done</span>
-    if (conv.latest_draft_state === 'draft_ready') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Review</span>
-    if (conv.latest_draft_state === 'sent') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Sent</span>
-    return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Open</span>
+    if (conv.status === 'done') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(255,255,255,0.06)', color: '#64748b'}}>Done</span>
+    if (conv.latest_draft_state === 'draft_ready') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>Review</span>
+    if (conv.latest_draft_state === 'sent') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>Sent</span>
+    return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>Open</span>
   }
 
   const channelEmoji = (ch?: string) => {
@@ -623,33 +626,33 @@ export default function MessageDashboard() {
   const draftStateBadge = (state?: string) => {
     if (!state) return null
     const m: Record<string, { bg: string; text: string; label: string }> = {
-      draft_ready: { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Needs Review' },
-      under_review: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Under Review' },
-      approved: { bg: 'bg-green-100', text: 'text-green-800', label: 'Approved' },
-      sending: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Sending...' },
-      sent: { bg: 'bg-green-100', text: 'text-green-800', label: 'Sent' },
-      rejected: { bg: 'bg-red-100', text: 'text-red-800', label: 'Rejected' },
-      send_failed: { bg: 'bg-red-100', text: 'text-red-800', label: 'Send Failed' },
-      generation_failed: { bg: 'bg-red-100', text: 'text-red-800', label: 'Gen Failed' },
+      draft_ready: { bg: 'rgba(245,158,11,0.15)', text: '#fbbf24', label: 'Needs Review' },
+      under_review: { bg: 'rgba(99,149,255,0.15)', text: '#6395ff', label: 'Under Review' },
+      approved: { bg: 'rgba(34,197,94,0.15)', text: '#4ade80', label: 'Approved' },
+      sending: { bg: 'rgba(99,149,255,0.15)', text: '#6395ff', label: 'Sending...' },
+      sent: { bg: 'rgba(34,197,94,0.15)', text: '#4ade80', label: 'Sent' },
+      rejected: { bg: 'rgba(239,68,68,0.15)', text: '#f87171', label: 'Rejected' },
+      send_failed: { bg: 'rgba(239,68,68,0.15)', text: '#f87171', label: 'Send Failed' },
+      generation_failed: { bg: 'rgba(239,68,68,0.15)', text: '#f87171', label: 'Gen Failed' },
     }
     const s = m[state]
-    if (!s) return <span className="text-xs text-gray-500">{state}</span>
-    return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${s.bg} ${s.text}`}>{s.label}</span>
+    if (!s) return <span className="text-xs" style={{color: '#64748b'}}>{state}</span>
+    return <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{background: s.bg, color: s.text}}>{s.label}</span>
   }
 
   const rtColor = (mins?: number) => {
-    if (!mins && mins !== 0) return 'text-gray-400'
-    if (mins <= 15) return 'text-green-600'
-    if (mins <= 60) return 'text-amber-600'
-    return 'text-red-600'
+    if (!mins && mins !== 0) return '#64748b'
+    if (mins <= 15) return '#4ade80'
+    if (mins <= 60) return '#fbbf24'
+    return '#f87171'
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{background: '#0a1628'}}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading Friday GMS...</p>
+          <div className="animate-spin rounded-full h-12 w-12 mx-auto" style={{borderBottom: '2px solid #6395ff'}}></div>
+          <p className="mt-4" style={{color: '#64748b'}}>Loading Friday GMS...</p>
         </div>
       </div>
     )
@@ -658,42 +661,42 @@ export default function MessageDashboard() {
   if (!token) return <LoginScreen onLogin={handleLogin} />
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{background: '#0a1628', color: '#f1f5f9'}}>
       <Toaster position="top-right" />
 
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header style={{background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
         <div className="px-6 py-3">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Friday GMS</h1>
-              <p className="text-xs text-gray-500">Guest Messaging System</p>
+              <h1 className="text-xl font-bold" style={{color: '#f1f5f9'}}>Friday GMS</h1>
+              <p className="text-xs" style={{color: '#64748b'}}>Guest Messaging System</p>
             </div>
 
             {stats && (
               <div className="flex space-x-5 items-center">
                 <div className="text-center">
-                  <div className="text-lg font-bold text-amber-600">{stats.needs_review_count}</div>
-                  <div className="text-xs text-gray-500">Review</div>
+                  <div className="text-lg font-bold" style={{color: '#fbbf24'}}>{stats.needs_review_count}</div>
+                  <div className="text-xs" style={{color: '#64748b'}}>Review</div>
                 </div>
                 <div className="text-center">
-                  <div className={`text-lg font-bold ${rtColor(stats.avg_response_time_minutes)}`}>{stats.avg_response_time_minutes}m</div>
-                  <div className="text-xs text-gray-500">Avg RT</div>
+                  <div className="text-lg font-bold" style={{color: rtColor(stats.avg_response_time_minutes)}}>{stats.avg_response_time_minutes}m</div>
+                  <div className="text-xs" style={{color: '#64748b'}}>Avg RT</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-blue-600">{stats.messages_today}</div>
-                  <div className="text-xs text-gray-500">Today</div>
+                  <div className="text-lg font-bold" style={{color: '#6395ff'}}>{stats.messages_today}</div>
+                  <div className="text-xs" style={{color: '#64748b'}}>Today</div>
                 </div>
                 <div className="text-center">
-                  <div className={`text-lg font-bold ${stats.overdue_actions_count > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  <div className="text-lg font-bold" style={{color: stats.overdue_actions_count > 0 ? '#f87171' : '#4ade80'}}>
                     {stats.pending_actions_count}
                   </div>
-                  <div className="text-xs text-gray-500">
-                    Actions {stats.overdue_actions_count > 0 && <span className="text-red-600">({stats.overdue_actions_count} overdue)</span>}
+                  <div className="text-xs" style={{color: '#64748b'}}>
+                    Actions {stats.overdue_actions_count > 0 && <span style={{color: '#f87171'}}>({stats.overdue_actions_count} overdue)</span>}
                   </div>
                 </div>
                 <button onClick={() => { clearToken(); setTokenState(null) }}
-                  className="text-xs text-gray-400 hover:text-gray-600 ml-4">Logout</button>
+                  className="text-xs ml-4" style={{color: '#64748b'}}>Logout</button>
               </div>
             )}
           </div>
@@ -702,9 +705,9 @@ export default function MessageDashboard() {
 
       <div className="flex h-[calc(100vh-72px)]">
         {/* Left sidebar - conversation list */}
-        <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+        <div className="w-80 flex flex-col" style={{background: 'rgba(255,255,255,0.03)', borderRight: '1px solid rgba(255,255,255,0.06)'}}>
           {/* Tabs */}
-          <div className="flex border-b text-xs">
+          <div className="flex text-xs" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
             {([
               ['all', 'All'],
               ['unread', 'Unread'],
@@ -714,13 +717,13 @@ export default function MessageDashboard() {
               ['actions', 'Actions'],
             ] as [string, string][]).map(([key, label]) => (
               <button key={key} onClick={() => setActiveTab(key as any)}
-                className={`flex-1 py-2 text-center border-b-2 transition-colors ${activeTab === key ? 'border-blue-500 text-blue-600 font-medium' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                className="flex-1 py-2 text-center transition-colors" style={{borderBottom: activeTab === key ? '2px solid #6395ff' : '2px solid transparent', color: activeTab === key ? '#6395ff' : '#64748b', fontWeight: activeTab === key ? 500 : 400}}>
                 {label}
                 {key === 'unread' && unreadCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs bg-blue-500 text-white">{unreadCount}</span>
+                  <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs" style={{background: '#3b82f6', color: 'white'}}>{unreadCount}</span>
                 )}
                 {key === 'actions' && stats && stats.pending_actions_count > 0 && (
-                  <span className={`ml-1 px-1.5 py-0.5 rounded-full text-xs ${stats.overdue_actions_count > 0 ? 'bg-red-500 text-white' : 'bg-amber-100 text-amber-700'}`}>
+                  <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs" style={{background: stats.overdue_actions_count > 0 ? '#ef4444' : 'rgba(245,158,11,0.15)', color: stats.overdue_actions_count > 0 ? 'white' : '#fbbf24'}}>
                     {stats.pending_actions_count}
                   </span>
                 )}
@@ -733,49 +736,48 @@ export default function MessageDashboard() {
           ) : (
             <div className="flex-1 overflow-y-auto custom-scrollbar">
               {filteredConversations.length === 0 ? (
-                <div className="p-4 text-center text-gray-500">
-                  <ChatBubbleLeftRightIcon className="h-12 w-12 mx-auto text-gray-300 mb-2" />
+                <div className="p-4 text-center" style={{color: '#64748b'}}>
+                  <ChatBubbleLeftRightIcon className="h-12 w-12 mx-auto mb-2" style={{color: '#334155'}} />
                   <p>No conversations</p>
                 </div>
               ) : (
                 filteredConversations.map(conv => (
                   <div key={conv.id} onClick={() => selectConversation(conv)}
-                    className={`group relative p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
-                      selectedConvId === conv.id ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
-                    } ${conv.is_unread ? 'font-semibold' : ''}`}>
+                    className="group relative p-3 cursor-pointer transition-colors" style={{borderBottom: '1px solid rgba(255,255,255,0.03)', background: selectedConvId === conv.id ? 'rgba(99,149,255,0.08)' : 'transparent', borderLeft: selectedConvId === conv.id ? '2px solid #6395ff' : '2px solid transparent', fontWeight: conv.is_unread ? 600 : 400}}>
                     {/* Hover action: mark as unread */}
                     {!conv.is_unread && (
                       <button onClick={(e) => handleMarkUnread(conv.id, e)}
                         title="Mark as unread"
-                        className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full hover:bg-gray-200 z-10">
-                        <EyeSlashIcon className="h-3.5 w-3.5 text-gray-500" />
+                        className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full z-10" style={{background: 'rgba(255,255,255,0.06)'}}>
+                        <EyeSlashIcon className="h-3.5 w-3.5" style={{color: '#64748b'}} />
                       </button>
                     )}
                     <div className="flex justify-between items-start mb-1">
                       <div className="flex items-center space-x-1.5 min-w-0">
                         {conv.is_unread && <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>}
-                        <span className="text-sm truncate">{conv.guest_name}</span>
-                        {conv.channel && <span className="text-xs text-gray-400 px-1 bg-gray-100 rounded">{channelEmoji(conv.channel)}</span>}
+                        <span className="text-sm truncate" style={{color: '#f1f5f9'}}>{conv.guest_name}</span>
+                        {conv.channel && <span className="text-xs px-1 rounded" style={{color: '#94a3b8', background: 'rgba(255,255,255,0.06)'}}>{channelEmoji(conv.channel)}</span>}
                       </div>
                       {conv.last_message_at && (
-                        <span className="text-xs text-gray-400 flex-shrink-0 ml-1">
+                        <span className="text-xs flex-shrink-0 ml-1" style={{color: '#64748b'}}>
                           {formatDistanceToNow(new Date(conv.last_message_at), { addSuffix: true })}
                         </span>
                       )}
                     </div>
                     <div className="flex items-center space-x-1.5 mb-1">
                       {conv.property_name && (
-                        <span className="text-xs text-gray-500">{conv.property_name}</span>
+                        <span className="text-xs" style={{color: '#94a3b8'}}>{conv.property_name}</span>
                       )}
                       {statusBadge(conv)}
                       {conv.latest_draft_confidence && (() => {
                         const c = Number(conv.latest_draft_confidence)
-                        const cls = c >= 80 ? 'bg-green-100 text-green-800' : c >= 60 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
-                        return <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium ${cls}`}>{c}%</span>
+                        const cbg = c >= 80 ? 'rgba(34,197,94,0.15)' : c >= 60 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)'
+                        const cclr = c >= 80 ? '#4ade80' : c >= 60 ? '#fbbf24' : '#f87171'
+                        return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: cbg, color: cclr}}>{c}%</span>
                       })()}
                     </div>
                     {conv.last_message_body && (
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs truncate" style={{color: '#64748b'}}>
                         {conv.last_message_direction === 'outbound' ? '> ' : ''}{conv.last_message_body}
                       </p>
                     )}
@@ -793,13 +795,13 @@ export default function MessageDashboard() {
               {/* Center - messages + drafts */}
               <div className="flex-1 flex flex-col min-w-0">
                 {/* Conversation header */}
-                <div className="bg-white border-b p-3">
+                <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
                   <div className="flex justify-between items-start">
                     <div>
-                      <h2 className="text-lg font-semibold text-gray-900">{detail.conversation.guest_name}</h2>
-                      <div className="flex items-center space-x-3 text-xs text-gray-500 mt-1">
+                      <h2 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>{detail.conversation.guest_name}</h2>
+                      <div className="flex items-center space-x-3 text-xs mt-1" style={{color: '#64748b'}}>
                         {detail.conversation.property_name && <span>{detail.conversation.property_name}</span>}
-                        {detail.conversation.channel && <span className="px-1 bg-gray-100 rounded">{channelEmoji(detail.conversation.channel)}</span>}
+                        {detail.conversation.channel && <span className="px-1 rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8'}}>{channelEmoji(detail.conversation.channel)}</span>}
                         {detail.conversation.check_in_date && detail.conversation.check_out_date && (
                           <span>{format(new Date(detail.conversation.check_in_date), 'MMM d')} - {format(new Date(detail.conversation.check_out_date), 'MMM d')}</span>
                         )}
@@ -807,30 +809,32 @@ export default function MessageDashboard() {
                       </div>
                     </div>
                     {detail.conversation.first_response_minutes !== null && detail.conversation.first_response_minutes !== undefined && (
-                      <span className={`text-xs font-medium ${rtColor(detail.conversation.first_response_minutes)}`}>
+                      <span className="text-xs font-medium" style={{color: rtColor(detail.conversation.first_response_minutes)}}>
                         RT: {detail.conversation.first_response_minutes}m
                       </span>
                     )}
                   </div>
                   {detail.conversation.conversation_summary && (
-                    <p className="text-xs text-gray-600 mt-2 bg-gray-50 p-2 rounded">{detail.conversation.conversation_summary}</p>
+                    <p className="text-xs mt-2 p-2 rounded" style={{color: '#94a3b8', background: 'rgba(255,255,255,0.03)'}}>{detail.conversation.conversation_summary}</p>
                   )}
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar" style={{background: 'rgba(255,255,255,0.01)'}}>
                   {detail.messages.map(msg => (
                     <div key={msg.id} className={`flex ${msg.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-xl px-4 py-2.5 rounded-lg ${
-                        msg.direction === 'outbound' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200 text-gray-900'
-                      }`}>
+                      <div className="max-w-xl px-4 py-2.5 rounded-lg" style={{
+                        background: msg.direction === 'outbound' ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.06)',
+                        border: msg.direction === 'outbound' ? '1px solid rgba(34,197,94,0.15)' : '1px solid rgba(255,255,255,0.08)',
+                        color: '#e2e8f0'
+                      }}>
                         <p className="text-sm whitespace-pre-wrap" dir="auto">{msg.body}</p>
                         {msg.translated_body && msg.translated_body !== msg.body && (
-                          <div className={`text-xs mt-2 pt-2 border-t ${msg.direction === 'outbound' ? 'border-blue-500 text-blue-100' : 'border-gray-200 text-gray-500'}`}>
+                          <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8'}}>
                             <LanguageIcon className="h-3 w-3 inline mr-1" /> <span dir="auto">{msg.translated_body}</span>
                           </div>
                         )}
-                        <div className={`text-xs mt-1 ${msg.direction === 'outbound' ? 'text-blue-200' : 'text-gray-400'}`}>
+                        <div className="text-xs mt-1" style={{color: '#64748b'}}>
                           {format(new Date(msg.created_at), 'HH:mm')} {msg.sender_name && `- ${msg.sender_name}`}
                           {msg.direction === 'inbound' && msg.original_language && msg.original_language !== 'en' && (
                             <span className="ml-1">{LANG_FLAGS[msg.original_language] || ''} {LANG_NAMES[msg.original_language] || msg.original_language}</span>
@@ -842,14 +846,15 @@ export default function MessageDashboard() {
 
                   {/* Latest draft */}
                   {detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).map(draft => (
-                    <div key={draft.id} className="bg-amber-50 border border-amber-200 rounded-lg p-4 mt-4">
+                    <div key={draft.id} className="rounded-lg p-4 mt-4" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)'}}>
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-medium text-amber-800 flex items-center">
+                        <h4 className="text-sm font-medium flex items-center" style={{color: '#94a3b8'}}>
                           <GlobeAltIcon className="h-4 w-4 mr-1.5" /> AI Draft
                           {draft.confidence != null && (() => {
                             const c = Number(draft.confidence)
-                            const cls = c >= 80 ? 'bg-green-100 text-green-800' : c >= 60 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
-                            return <span className={`ml-2 px-1.5 py-0.5 rounded-full text-xs font-medium ${cls}`}>{c}%</span>
+                            const dbg = c >= 80 ? 'rgba(34,197,94,0.15)' : c >= 60 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)'
+                            const dclr = c >= 80 ? '#4ade80' : c >= 60 ? '#fbbf24' : '#f87171'
+                            return <span className="ml-2 px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: dbg, color: dclr}}>{c}%</span>
                           })()}
                         </h4>
                         {draftStateBadge(draft.state)}
@@ -858,35 +863,35 @@ export default function MessageDashboard() {
                       {editingDraft === draft.id ? (
                         <div className="space-y-2">
                           <textarea value={editBody} onChange={e => setEditBody(e.target.value)}
-                            className="w-full px-3 py-2 border rounded text-sm" rows={4} />
+                            className="w-full px-3 py-2 rounded text-sm outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} rows={4} />
                           <div className="flex space-x-2">
                             <button onClick={() => { handleDraftAction(draft.id, 'approve', editBody) }}
-                              className="px-3 py-1.5 bg-green-600 text-white text-sm rounded hover:bg-green-700">Save and Send</button>
+                              className="px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Save and Send</button>
                             <button onClick={() => setEditingDraft(null)}
-                              className="px-3 py-1.5 bg-gray-400 text-white text-sm rounded hover:bg-gray-500">Cancel</button>
+                              className="px-3 py-1.5 text-sm rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Cancel</button>
                           </div>
                         </div>
                       ) : (
                         <>
-                          <div className="bg-white p-3 rounded border text-sm mb-2 whitespace-pre-wrap" dir="auto">{draft.draft_body}</div>
+                          <div className="p-3 rounded text-sm mb-2 whitespace-pre-wrap" dir="auto" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#e2e8f0'}}>{draft.draft_body}</div>
                           {draft.draft_translated && draft.draft_translated !== draft.draft_body && (
-                            <div className="bg-blue-50 p-3 rounded border border-blue-200 text-sm mb-2">
-                              <LanguageIcon className="h-3 w-3 inline mr-1 text-blue-600" />
-                              <span className="text-xs font-medium text-blue-600">Translated:</span>
+                            <div className="p-3 rounded text-sm mb-2" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)'}}>
+                              <LanguageIcon className="h-3 w-3 inline mr-1" style={{color: '#6395ff'}} />
+                              <span className="text-xs font-medium" style={{color: '#6395ff'}}>Translated:</span>
                               <p className="mt-1 whitespace-pre-wrap" dir="auto">{draft.draft_translated}</p>
                             </div>
                           )}
                           <div className="flex space-x-2">
                             <button onClick={() => handleDraftAction(draft.id, 'approve')}
-                              className="flex items-center px-3 py-1.5 bg-green-600 text-white text-sm rounded hover:bg-green-700">
-                              <PaperAirplaneIcon className="h-4 w-4 mr-1" /> Approve and Send
+                              className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
+                              <PaperAirplaneIcon className="h-4 w-4 mr-1" /> Approve & Send
                             </button>
                             <button onClick={() => { setEditingDraft(draft.id); setEditBody(draft.draft_body) }}
-                              className="flex items-center px-3 py-1.5 bg-amber-500 text-white text-sm rounded hover:bg-amber-600">
+                              className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
                               <PencilSquareIcon className="h-4 w-4 mr-1" /> Edit
                             </button>
                             <button onClick={() => { setRejectingDraft(rejectingDraft === draft.id ? null : draft.id); setRejectReason('') }}
-                              className="flex items-center px-3 py-1.5 bg-red-500 text-white text-sm rounded hover:bg-red-600">
+                              className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)'}}>
                               <XMarkIcon className="h-4 w-4 mr-1" /> Reject
                             </button>
                           </div>
@@ -896,10 +901,10 @@ export default function MessageDashboard() {
                             <div className="mt-2 flex space-x-2">
                               <input type="text" value={rejectReason} onChange={e => setRejectReason(e.target.value)}
                                 placeholder="Why are you rejecting? (helps Judith learn)"
-                                className="flex-1 text-sm border rounded px-2 py-1"
+                                className="flex-1 text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
                                 onKeyDown={e => { if (e.key === 'Enter') handleRejectWithReason(draft.id) }} />
                               <button onClick={() => handleRejectWithReason(draft.id)}
-                                className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">Reject</button>
+                                className="px-3 py-1 text-xs rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>Reject</button>
                             </div>
                           )}
 
@@ -907,12 +912,12 @@ export default function MessageDashboard() {
                           <div className="mt-3 flex space-x-2">
                             <input type="text" value={revisionText} onChange={e => setRevisionText(e.target.value)}
                               placeholder="Ask Judith to adjust... (e.g. 'make it shorter', 'add WiFi password')"
-                              className="flex-1 text-sm border border-purple-200 rounded px-2 py-1.5 bg-purple-50 placeholder-purple-300 focus:ring-1 focus:ring-purple-400 focus:border-purple-400"
+                              className="flex-1 text-sm rounded px-2 py-1.5 outline-none revision-input" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
                               disabled={revisingDraft === draft.id}
                               onKeyDown={e => { if (e.key === 'Enter') handleRevision(draft.id) }} />
                             <button onClick={() => handleRevision(draft.id)}
                               disabled={revisingDraft === draft.id || !revisionText.trim()}
-                              className="px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 disabled:opacity-50">
+                              className="px-3 py-1 text-xs rounded disabled:opacity-50" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>
                               {revisingDraft === draft.id ? 'Revising...' : 'Revise'}
                             </button>
                           </div>
@@ -925,12 +930,12 @@ export default function MessageDashboard() {
                   {detail.drafts.filter(d => d.state === 'sent' && d.translated_content && d.sent_language).map(draft => {
                     const lang = draft.sent_language || 'unknown'
                     return (
-                      <div key={`sent-${draft.id}`} className="bg-green-50 border border-green-200 rounded-lg p-3 mt-2">
-                        <div className="text-xs font-medium text-green-700 mb-1">Approved English draft:</div>
-                        <p className="text-sm text-gray-700 mb-2 whitespace-pre-wrap">{draft.draft_body}</p>
-                        <div className="border-t border-green-200 pt-2">
-                          <div className="text-xs font-medium text-green-700 mb-1">Sent in {LANG_FLAGS[lang] || ''} {LANG_NAMES[lang] || lang}:</div>
-                          <p className="text-sm text-gray-600 whitespace-pre-wrap">{draft.translated_content}</p>
+                      <div key={`sent-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)'}}>
+                        <div className="text-xs font-medium mb-1" style={{color: '#4ade80'}}>Approved English draft:</div>
+                        <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{draft.draft_body}</p>
+                        <div className="pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)'}}>
+                          <div className="text-xs font-medium mb-1" style={{color: '#4ade80'}}>Sent in {LANG_FLAGS[lang] || ''} {LANG_NAMES[lang] || lang}:</div>
+                          <p className="text-sm whitespace-pre-wrap" style={{color: '#94a3b8'}}>{draft.translated_content}</p>
                         </div>
                       </div>
                     )
@@ -939,11 +944,11 @@ export default function MessageDashboard() {
               </div>
 
               {/* Right sidebar - conversation info + pending actions */}
-              <div className="w-72 bg-white border-l overflow-y-auto custom-scrollbar">
-                <div className="p-3 border-b">
-                  <h3 className="text-sm font-semibold text-gray-700">Conversation Info</h3>
+              <div className="w-72 overflow-y-auto custom-scrollbar" style={{background: 'rgba(255,255,255,0.03)', borderLeft: '1px solid rgba(255,255,255,0.06)'}}>
+                <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+                  <h3 className="text-xs font-semibold" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Guest Info</h3>
                 </div>
-                <div className="p-3 space-y-2 text-xs text-gray-600 border-b">
+                <div className="p-3 space-y-2 text-xs" style={{color: '#94a3b8', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
                   {detail.conversation.guest_email && <div>Email: {detail.conversation.guest_email}</div>}
                   {detail.conversation.channel && <div>Channel: {detail.conversation.channel}</div>}
                   {detail.conversation.check_in_date && <div>Check-in: {format(new Date(detail.conversation.check_in_date), 'MMM d, yyyy')}</div>}
@@ -953,15 +958,15 @@ export default function MessageDashboard() {
                 </div>
 
                 {/* Mark as Done / Reopen button */}
-                <div className="p-3 border-b">
+                <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
                   {detail.conversation.status === 'done' ? (
                     <button onClick={() => handleReopen(detail.conversation.id)}
-                      className="w-full flex items-center justify-center px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+                      className="w-full flex items-center justify-center px-3 py-2 text-sm rounded-lg" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>
                       <ArrowPathIcon className="h-4 w-4 mr-1.5" /> Reopen Conversation
                     </button>
                   ) : (
                     <button onClick={() => handleMarkDone(detail.conversation.id)}
-                      className="w-full flex items-center justify-center px-3 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700">
+                      className="w-full flex items-center justify-center px-3 py-2 text-sm rounded-lg" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
                       <CheckCircleIcon className="h-4 w-4 mr-1.5" /> Mark as Done
                     </button>
                   )}
@@ -969,22 +974,22 @@ export default function MessageDashboard() {
 
                 {/* Pending actions warning modal */}
                 {showDoneWarning && (
-                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl p-6 max-w-sm mx-4 shadow-xl">
+                  <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}}>
+                    <div className="rounded-xl p-6 max-w-sm mx-4" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}}>
                       <div className="flex items-center mb-3">
-                        <ExclamationTriangleIcon className="h-6 w-6 text-amber-500 mr-2" />
-                        <h3 className="text-lg font-semibold text-gray-900">Open Actions</h3>
+                        <ExclamationTriangleIcon className="h-6 w-6 mr-2" style={{color: '#fbbf24'}} />
+                        <h3 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>Open Actions</h3>
                       </div>
-                      <p className="text-sm text-gray-600 mb-4">
+                      <p className="text-sm mb-4" style={{color: '#94a3b8'}}>
                         This conversation has <strong>{doneWarningCount}</strong> open action{doneWarningCount !== 1 ? 's' : ''}. Complete or dismiss them first.
                       </p>
                       <div className="flex space-x-2">
                         <button onClick={() => { setShowDoneWarning(false); setActiveTab('actions') }}
-                          className="flex-1 px-3 py-2 bg-amber-500 text-white text-sm rounded-lg hover:bg-amber-600">
+                          className="flex-1 px-3 py-2 text-sm rounded-lg" style={{background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)'}}>
                           View Actions
                         </button>
                         <button onClick={() => setShowDoneWarning(false)}
-                          className="flex-1 px-3 py-2 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300">
+                          className="flex-1 px-3 py-2 text-sm rounded-lg" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
                           Cancel
                         </button>
                       </div>
@@ -993,9 +998,9 @@ export default function MessageDashboard() {
                 )}
 
                 {/* Auto-send toggle */}
-                <div className="p-3 border-b">
+                <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-gray-700">Auto-send</span>
+                    <span className="text-xs font-medium" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Auto-send</span>
                     <button onClick={async () => {
                       const newVal = !detail.conversation.auto_send_enabled
                       try {
@@ -1006,16 +1011,16 @@ export default function MessageDashboard() {
                         setDetail(prev => prev ? { ...prev, conversation: { ...prev.conversation, auto_send_enabled: newVal } } : null)
                         toast.success(`Auto-send ${newVal ? 'enabled' : 'disabled'}`)
                       } catch (err: any) { toast.error(err.message) }
-                    }} className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${detail.conversation.auto_send_enabled ? 'bg-green-500' : 'bg-gray-300'}`}>
-                      <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${detail.conversation.auto_send_enabled ? 'translate-x-4.5' : 'translate-x-0.5'}`} />
+                    }} className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors" style={{background: detail.conversation.auto_send_enabled ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.1)'}}>
+                      <span className="inline-block h-3.5 w-3.5 transform rounded-full transition-transform" style={{background: detail.conversation.auto_send_enabled ? '#4ade80' : '#64748b', transform: detail.conversation.auto_send_enabled ? 'translateX(18px)' : 'translateX(2px)'}} />
                     </button>
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">{detail.conversation.auto_send_enabled ? 'On — routine replies ≥85% send automatically' : 'Off — all drafts require review'}</p>
+                  <p className="text-xs mt-1" style={{color: '#64748b'}}>{detail.conversation.auto_send_enabled ? 'On — routine replies ≥85% send automatically' : 'Off — all drafts require review'}</p>
                 </div>
 
                 {/* Staff notes */}
-                <div className="p-3 border-b">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-1">Staff Notes</h3>
+                <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+                  <h3 className="text-xs font-semibold mb-1" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Staff Notes</h3>
                   <textarea value={staffNotes}
                     onChange={e => handleNotesChange(e.target.value, detail.conversation.id)}
                     onBlur={async () => {
@@ -1027,20 +1032,20 @@ export default function MessageDashboard() {
                         })
                       } catch { }
                     }}
-                    placeholder="Add notes... (e.g. 'VIP guest', 'needs early check-in')"
-                    className="w-full text-xs border rounded px-2 py-1.5 resize-none" rows={3} />
+                    placeholder="Add notes for Judith..."
+                    className="w-full text-xs rounded px-2 py-1.5 resize-none outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} rows={3} />
                 </div>
 
                 {/* Draft history */}
                 {detail.drafts.length > 0 && (
-                  <div className="border-b">
+                  <div style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
                     <div className="p-3 pb-1">
-                      <h3 className="text-sm font-semibold text-gray-700">Draft History</h3>
+                      <h3 className="text-xs font-semibold" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Draft History</h3>
                     </div>
                     <div className="p-3 pt-1 space-y-1.5">
                       {detail.drafts.map(d => (
                         <div key={d.id} className="flex items-center justify-between text-xs">
-                          <span className="text-gray-500">{format(new Date(d.created_at), 'MMM d HH:mm')}</span>
+                          <span style={{color: '#64748b'}}>{format(new Date(d.created_at), 'MMM d HH:mm')}</span>
                           {draftStateBadge(d.state)}
                         </div>
                       ))}
@@ -1051,18 +1056,18 @@ export default function MessageDashboard() {
                 {/* Pending actions for this conversation */}
                 <div>
                   <div className="p-3 pb-1">
-                    <h3 className="text-sm font-semibold text-gray-700">Pending Actions</h3>
+                    <h3 className="text-xs font-semibold" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Pending Actions</h3>
                   </div>
                   <PendingActionsTab token={token} conversationFilter={selectedConvId} />
                 </div>
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-gray-50">
+            <div className="flex-1 flex items-center justify-center" style={{background: 'rgba(255,255,255,0.01)'}}>
               <div className="text-center">
-                <ChatBubbleLeftRightIcon className="h-20 w-20 mx-auto text-gray-300 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Friday GMS</h3>
-                <p className="text-gray-500 text-sm max-w-md">Select a conversation to view messages, review AI drafts, and manage guest communication.</p>
+                <ChatBubbleLeftRightIcon className="h-20 w-20 mx-auto mb-4" style={{color: '#1e293b'}} />
+                <h3 className="text-lg font-medium mb-2" style={{color: '#f1f5f9'}}>Friday GMS</h3>
+                <p className="text-sm max-w-md" style={{color: '#64748b'}}>Select a conversation to view messages, review AI drafts, and manage guest communication.</p>
               </div>
             </div>
           )}
