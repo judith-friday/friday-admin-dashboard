@@ -65,7 +65,9 @@ function setToken(token: string) {
   localStorage.setItem('gms_token', token)
 }
 function clearToken() {
-  localStorage.removeItem('gms_token')
+  localStorage.removeItem('gms_token');
+  localStorage.removeItem('gms_display_name');
+  localStorage.removeItem('gms_role');
 }
 
 async function apiFetch(path: string, opts: RequestInit = {}) {
@@ -187,6 +189,8 @@ function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Login failed')
+      localStorage.setItem('gms_display_name', data.display_name || data.username)
+      localStorage.setItem('gms_role', data.role || 'agent')
       onLogin(data.token)
     } catch (err: any) {
       setError(err.message)
@@ -669,6 +673,7 @@ function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
 // ── Main Dashboard ──
 export default function MessageDashboard() {
   const [token, setTokenState] = useState<string | null>(null)
+  const [displayName, setDisplayName] = useState<string>('Dashboard')
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConvId, setSelectedConvId] = useState<string | null>(null)
   const [detail, setDetail] = useState<ConversationDetail | null>(null)
@@ -707,6 +712,8 @@ export default function MessageDashboard() {
   useEffect(() => {
     const t = getToken()
     if (t) setTokenState(t)
+    const dn = localStorage.getItem('gms_display_name')
+    if (dn) setDisplayName(dn)
     else setLoading(false)
     // Init mute state from localStorage
     const muted = localStorage.getItem('gms_muted')
@@ -744,6 +751,8 @@ export default function MessageDashboard() {
   const handleLogin = (t: string) => {
     setToken(t)
     setTokenState(t)
+    const dn = localStorage.getItem('gms_display_name')
+    if (dn) setDisplayName(dn)
   }
 
   // Fetch conversations
@@ -865,7 +874,7 @@ export default function MessageDashboard() {
       try {
         await apiFetch('/api/drafts/' + draftId + '/approve', {
           method: 'POST',
-          body: JSON.stringify({ reviewed_by: 'dashboard' }),
+          body: JSON.stringify({ reviewed_by: displayName }),
         })
         toast.success('Draft approved and sent')
         if (selectedConvId) fetchDetail(selectedConvId)
@@ -895,7 +904,7 @@ export default function MessageDashboard() {
       } else {
         await apiFetch(`/api/drafts/${draftId}/reject`, {
           method: 'POST',
-          body: JSON.stringify({ rejection_reason: 'Rejected from dashboard' }),
+          body: JSON.stringify({ rejection_reason: 'Rejected by ' }),
         })
         toast.success('Draft rejected')
       }
@@ -915,7 +924,7 @@ export default function MessageDashboard() {
     if (!revisionText.trim()) return
     setRevisingDraft(draftId)
     try {
-      const body: any = { revision_instruction: revisionText.trim(), reviewed_by: 'dashboard', mode }
+      const body: any = { revision_instruction: revisionText.trim(), reviewed_by: displayName, mode }
       if (mode === 'teach') { body.teach_scope = tScope || 'global'; body.teach_property_code = tPropCode || null }
       await apiFetch(`/api/drafts/${draftId}/revise`, { method: 'POST', body: JSON.stringify(body) })
       const msgs: Record<string, string> = { standard: 'Revision requested — new draft coming...', teach: 'Revision + teaching saved 🧠', one_time: 'One-time revision requested...' }
@@ -940,7 +949,7 @@ export default function MessageDashboard() {
 
   const handleRevokeTeaching = async (id: string) => {
     try {
-      await apiFetch(`/api/teachings/${id}/revoke`, { method: 'PATCH', body: JSON.stringify({ revoked_by: 'dashboard', revoke_reason: revokeReason }) })
+      await apiFetch(`/api/teachings/${id}/revoke`, { method: 'PATCH', body: JSON.stringify({ revoked_by: displayName, revoke_reason: revokeReason }) })
       toast.success('Teaching revoked')
       setRevokeId(null)
       setRevokeReason('')
@@ -951,7 +960,7 @@ export default function MessageDashboard() {
   const handleAddTeaching = async () => {
     if (!newTeachingText.trim()) return
     try {
-      await apiFetch('/api/teachings', { method: 'POST', body: JSON.stringify({ instruction: newTeachingText.trim(), scope: 'global', taught_by: 'dashboard' }) })
+      await apiFetch('/api/teachings', { method: 'POST', body: JSON.stringify({ instruction: newTeachingText.trim(), scope: 'global', taught_by: displayName }) })
       toast.success('Teaching added 🧠')
       setNewTeachingText('')
       fetchTeachings()
@@ -962,7 +971,7 @@ export default function MessageDashboard() {
     try {
       await apiFetch(`/api/drafts/${draftId}/reject`, {
         method: 'POST',
-        body: JSON.stringify({ reviewed_by: 'dashboard', rejection_reason: rejectReason.trim() || 'Rejected from dashboard' }),
+        body: JSON.stringify({ reviewed_by: displayName, rejection_reason: rejectReason.trim() || 'Rejected by ' }),
       })
       toast.success('Draft rejected')
       setRejectingDraft(null)
@@ -1350,7 +1359,7 @@ export default function MessageDashboard() {
                   </div>
                 </div>
                 <button onClick={() => { clearToken(); setTokenState(null) }}
-                  className="text-xs ml-4" style={{color: '#64748b'}}>Logout</button>
+                  className="text-xs ml-4" style={{color: '#64748b'}}>{displayName} · Logout</button>
                 <button onClick={toggleMute} className="ml-2 p-1 rounded" style={{color: '#64748b'}} title={isMuted ? 'Unmute' : 'Mute'}>
                   {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
                 </button>
@@ -1522,11 +1531,29 @@ export default function MessageDashboard() {
                         <div className="pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)'}}>
                           <div className="text-xs font-medium mb-1" style={{color: '#4ade80'}}>Sent in {LANG_FLAGS[lang] || ''} {LANG_NAMES[lang] || lang}:</div>
                           <p className="text-sm whitespace-pre-wrap" style={{color: '#94a3b8'}}>{draft.translated_content}</p>
+                        <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>Approved by {draft.reviewed_by} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}</div>
                         </div>
                       </div>
                     )
                   })}
-                </div>
+
+                  {/* Sent drafts without translations */}
+                  {detail.drafts.filter(d => d.state === 'sent' && !d.translated_content).map(draft => (
+                    <div key={`sent-plain-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)'}}>
+                      <div className="text-xs font-medium mb-1" style={{color: '#4ade80'}}>Sent:</div>
+                      <p className="text-sm whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{draft.draft_body}</p>
+                      <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>Approved by {draft.reviewed_by} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}</div>
+                    </div>
+                  ))}
+
+                  {/* Rejected drafts */}
+                  {detail.drafts.filter(d => d.state === 'rejected').map(draft => (
+                    <div key={`rejected-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.1)'}}>
+                      <div className="text-xs font-medium mb-1" style={{color: '#f87171'}}>Rejected:</div>
+                      <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{draft.draft_body}</p>
+                      <div className="text-xs pt-2" style={{borderTop: '1px solid rgba(239,68,68,0.1)', color: '#f87171'}}>Rejected by {draft.reviewed_by} · {draft.rejection_reason}</div>
+                    </div>
+                  ))}                </div>
 
                 {/* Draft review section - pinned to bottom */}
                 {detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 1).map(draft => (
