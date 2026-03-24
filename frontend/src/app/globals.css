@@ -102,3 +102,39 @@ input:focus, textarea:focus, select:focus {
   outline: 2px solid rgba(99, 149, 255, 0.3);
   outline-offset: 2px;
 }
+
+
+/* Mobile responsive styles */
+@media (max-width: 767px) {
+  .desktop-only { display: none !important; }
+  .mobile-nav-back {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    color: #6395ff;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .mobile-full-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    z-index: 50;
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-only { display: none !important; }
+}
+
+/* Horizontal scrollable tabs on mobile */
+@media (max-width: 767px) {
+  .tabs-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tabs-scroll::-webkit-scrollbar { display: none; }
+}

@@ -382,7 +382,7 @@ function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
   return (
     <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
       <div className="absolute inset-0" style={{background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(2px)'}} />
-      <div className="relative w-[340px] h-full overflow-y-auto slide-in-right custom-scrollbar" 
+      <div className="relative w-full md:w-[340px] h-full overflow-y-auto slide-in-right custom-scrollbar" 
            style={{background: 'rgba(15,25,50,0.97)', borderLeft: '1px solid rgba(255,255,255,0.08)'}}
            onClick={e => e.stopPropagation()}>
         <div className="sticky top-0 z-10 px-6 pt-5 pb-4 flex items-center justify-between" style={{background: 'rgba(15,25,50,0.98)', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
@@ -773,6 +773,7 @@ export default function MessageDashboard() {
   const notesTimerRef = useRef<NodeJS.Timeout | null>(null)
   const sseRef = useRef<EventSource | null>(null)
   const [showHelp, setShowHelp] = useState(false)
+  const [mobileView, setMobileView] = useState<'list' | 'detail' | 'info'>('list')
   const [isMuted, setIsMuted] = useState(false)
   const revisionInputRef = useRef<HTMLInputElement>(null)
 
@@ -898,7 +899,7 @@ export default function MessageDashboard() {
   }, [token, fetchConversations, fetchStats])
 
   const selectConversation = (conv: Conversation) => {
-    setSelectedConvId(conv.id)
+    setSelectedConvId(conv.id); setMobileView('detail')
     fetchDetail(conv.id)
   }
 
@@ -1403,7 +1404,7 @@ export default function MessageDashboard() {
             </div>
 
             {stats && (
-              <div className="flex space-x-5 items-center">
+              <div className="flex space-x-5 items-center flex-wrap gap-y-1">
                 <div className="text-center">
                   <div className="text-lg font-bold" style={{color: '#fbbf24'}}>{stats.needs_review_count}</div>
                   <div className="text-xs" style={{color: '#64748b'}}>to review</div>
@@ -1438,11 +1439,11 @@ export default function MessageDashboard() {
         </div>
       </header>
 
-      <div className="flex h-[calc(100vh-72px)]">
+      <div className="flex h-[calc(100vh-72px)] relative">
         {/* Left sidebar - conversation list */}
-        <div className="w-80 flex flex-col" style={{background: 'rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
+        <div className={`w-80 flex flex-col ${mobileView !== 'list' ? 'hidden md:flex' : 'w-full md:w-80'}`} style={{background: 'rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
           {/* Tabs */}
-          <div className="flex text-xs" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+          <div className="flex text-xs tabs-scroll" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
             {([
               ['all', 'All'],
               ['unread', 'Unread'],
@@ -1528,7 +1529,12 @@ export default function MessageDashboard() {
           {selectedConvId && detail ? (
             <>
               {/* Center - messages + drafts */}
-              <div className="flex-1 flex flex-col min-w-0">
+              <div className={`flex-1 flex flex-col min-w-0 ${mobileView === 'list' ? 'hidden md:flex' : ''}`}>
+                {/* Mobile back button */}
+                <div className="mobile-only mobile-nav-back" onClick={() => setMobileView('list')}>
+                  <span>\u2190</span> <span>Back to inbox</span>
+                  <button onClick={(e) => { e.stopPropagation(); setMobileView('info'); }} className="ml-auto px-2 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>\u2139\uFE0F Info</button>
+                </div>
                 {/* Conversation header */}
                 <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
                   <div className="flex justify-between items-start">
@@ -1736,9 +1742,9 @@ export default function MessageDashboard() {
               </div>
 
               {/* Right sidebar - conversation info + pending actions */}
-              <div className="w-72 overflow-y-auto custom-scrollbar" style={{background: 'rgba(255,255,255,0.05)', borderLeft: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
+              <div className={`w-72 overflow-y-auto custom-scrollbar ${mobileView === 'info' ? 'fixed inset-0 w-full z-40 md:relative md:w-72' : 'hidden md:block'}`} style={{background: 'rgba(255,255,255,0.05)', borderLeft: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
                 <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-                  <h3 className="text-xs font-semibold" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Guest Info</h3>
+                  <div className="flex items-center justify-between"><h3 className="text-xs font-semibold" style={{color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px"}}>Guest Info</h3><button className="mobile-only text-xs px-2 py-0.5 rounded" style={{background: "rgba(99,149,255,0.15)", color: "#6395ff"}} onClick={() => setMobileView("detail")}>2190 Back</button></div>
                 </div>
                 <div className="p-3 space-y-2 text-xs" style={{color: '#94a3b8', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
                   {detail.conversation.guest_email && <div>Email: {detail.conversation.guest_email}</div>}
