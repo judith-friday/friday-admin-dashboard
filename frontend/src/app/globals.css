@@ -138,3 +138,19 @@ input:focus, textarea:focus, select:focus {
   }
   .tabs-scroll::-webkit-scrollbar { display: none; }
 }
+
+/* Subtle background gradient animation for login */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Welcome flash fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
