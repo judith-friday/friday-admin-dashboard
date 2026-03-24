@@ -805,7 +805,7 @@ export default function MessageDashboard() {
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
         e.preventDefault()
         if (detail?.drafts) {
-          const readyDraft = detail.drafts.find(d => ['draft_ready', 'under_review'].includes(d.state))
+          const readyDraft = [...detail.drafts].filter(d => ['draft_ready', 'under_review'].includes(d.state)).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0]
           if (readyDraft) handleDraftAction(readyDraft.id, 'approve')
         }
         return
@@ -1097,7 +1097,7 @@ export default function MessageDashboard() {
                   ))}
 
                   {/* Latest draft */}
-                  {detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).map(draft => (
+                  {detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 1).map(draft => (
                     <div key={draft.id} className="rounded-lg p-4 mt-4" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)'}}>
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="text-sm font-medium flex items-center" style={{color: '#94a3b8'}}>
