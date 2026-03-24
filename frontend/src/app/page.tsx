@@ -95,6 +95,8 @@ interface Draft {
   state: string
   draft_body: string
   draft_translated?: string
+  translated_content?: string
+  sent_language?: string
   confidence?: number
   reviewed_by?: string
   rejection_reason?: string
@@ -814,6 +816,23 @@ export default function MessageDashboard() {
                       )}
                     </div>
                   ))}
+
+                  {/* Sent drafts with translations */}
+                  {detail.drafts.filter(d => d.state === 'sent' && d.translated_content && d.sent_language).map(draft => {
+                    const langNames: Record<string, string> = { fr: 'French', de: 'German', es: 'Spanish', pt: 'Portuguese', it: 'Italian', zh: 'Chinese', ja: 'Japanese', ko: 'Korean', ru: 'Russian', ar: 'Arabic', nl: 'Dutch', hi: 'Hindi' }
+                    const langFlags: Record<string, string> = { fr: '\u{1F1EB}\u{1F1F7}', de: '\u{1F1E9}\u{1F1EA}', es: '\u{1F1EA}\u{1F1F8}', pt: '\u{1F1F5}\u{1F1F9}', it: '\u{1F1EE}\u{1F1F9}', zh: '\u{1F1E8}\u{1F1F3}', ja: '\u{1F1EF}\u{1F1F5}', ko: '\u{1F1F0}\u{1F1F7}', ru: '\u{1F1F7}\u{1F1FA}', ar: '\u{1F1F8}\u{1F1E6}', nl: '\u{1F1F3}\u{1F1F1}', hi: '\u{1F1EE}\u{1F1F3}' }
+                    const lang = draft.sent_language || 'unknown'
+                    return (
+                      <div key={`sent-${draft.id}`} className="bg-green-50 border border-green-200 rounded-lg p-3 mt-2">
+                        <div className="text-xs font-medium text-green-700 mb-1">Approved English draft:</div>
+                        <p className="text-sm text-gray-700 mb-2 whitespace-pre-wrap">{draft.draft_body}</p>
+                        <div className="border-t border-green-200 pt-2">
+                          <div className="text-xs font-medium text-green-700 mb-1">Sent in {langFlags[lang] || ''} {langNames[lang] || lang}:</div>
+                          <p className="text-sm text-gray-600 whitespace-pre-wrap">{draft.translated_content}</p>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
 
