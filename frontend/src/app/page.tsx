@@ -1630,6 +1630,8 @@ export default function MessageDashboard() {
                 <option value="email" style={{background: '#1a1a2e'}}>Email</option>
                 <option value="direct" style={{background: '#1a1a2e'}}>Direct</option>
               </select>
+              {sendChannel === 'booking' && <p className="text-xs mt-1" style={{color: '#64748b'}}>Booking.com messages delivered via Guesty email integration</p>}
+              {sendChannel === 'direct' && <p className="text-xs mt-1" style={{color: '#64748b'}}>Direct booking guests receive message via email</p>}
             </div>
             <div className="p-2 rounded text-xs mb-4" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#e2e8f0'}}>
               {sendConfirm.preview}
