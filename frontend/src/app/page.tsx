@@ -485,12 +485,12 @@ function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
               <div className="space-y-2">
                 <p className="font-semibold" style={{color: '#e2e8f0'}}>Your daily workflow:</p>
                 <div className="space-y-1.5">
-                  {['Check the inbox \u2014 unread messages have a blue dot',
+                  {['Check the inbox — unread messages have a blue dot',
                     'Click a conversation to read the guest\'s message and Judith\'s draft',
-                    'Review the draft \u2014 check the confidence score for how much attention it needs',
-                    'Adjust if needed \u2014 type instructions like \"add the WiFi password\" or \"be warmer\"',
-                    'Approve & Send \u2014 a confirmation pops up with a 5-second undo window',
-                    'Check \u23F3 Action Items \u2014 things we promised guests but haven\'t done yet',
+                    'Review the draft — check the confidence score for how much attention it needs',
+                    'Adjust if needed — type instructions like \"add the WiFi password\" or \"be warmer\"',
+                    'Approve & Send — a confirmation pops up with a 5-second undo window',
+                    'Check \u23F3 Action Items — things we promised guests but haven\'t done yet',
                   ].map((step, i) => (
                     <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#94a3b8'}}>
                       <span className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-[10px] font-semibold" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{i+1}</span>
@@ -503,10 +503,10 @@ function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
                 <p className="font-semibold" style={{color: '#e2e8f0'}}>Key things to know:</p>
                 <div className="space-y-1 text-xs" style={{color: '#94a3b8'}}>
                   <div>\u2022 Everything you do is tracked (who approved, who rejected, who wrote notes)</div>
-                  <div>\u2022 Staff notes are shared with Judith \u2014 she reads them when drafting future replies</div>
-                  <div>\u2022 Don&apos;t approve bad drafts to save time \u2014 Judith learns from your approvals</div>
-                  <div>\u2022 When in doubt, reject and say why \u2014 this helps Judith improve</div>
-                  <div>\u2022 Translations happen automatically \u2014 you review in English, Judith sends in the guest&apos;s language</div>
+                  <div>\u2022 Staff notes are shared with Judith — she reads them when drafting future replies</div>
+                  <div>\u2022 Don&apos;t approve bad drafts to save time — Judith learns from your approvals</div>
+                  <div>\u2022 When in doubt, reject and say why — this helps Judith improve</div>
+                  <div>\u2022 Translations happen automatically — you review in English, Judith sends in the guest&apos;s language</div>
                 </div>
               </div>
             </div>
@@ -676,7 +676,7 @@ function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
               <div className="rounded-md p-2.5" style={{background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)'}}>
                 <div className="text-xs font-semibold mb-1" style={{color: '#f87171'}}>Don&apos;t teach</div>
                 <div className="space-y-1 text-xs" style={{color: '#94a3b8'}}>
-                  <div>\u274C Guest-specific things like &quot;mention their anniversary&quot; \u2014 use one-time instead</div>
+                  <div>\u274C Guest-specific things like &quot;mention their anniversary&quot; — use one-time instead</div>
                   <div>\u274C Approving bad drafts (she thinks it&apos;s good)</div>
                   <div>\u274C Contradictory instructions</div>
                   <div>\u274C Editing draft text directly without revision input (no feedback for Judith)</div>
@@ -789,7 +789,7 @@ function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
 
           <ExpandableSection title="Property knowledge">
             <div className="space-y-2">
-              <p>Click any property code in the sidebar to view its knowledge card \u2014 WiFi, check-in instructions, parking, amenities, FAQs.</p>
+              <p>Click any property code in the sidebar to view its knowledge card — WiFi, check-in instructions, parking, amenities, FAQs.</p>
               <div className="space-y-1.5 text-xs" style={{color: '#94a3b8'}}>
                 <div>\u2022 If info is wrong: click Edit, fix it, save. Judith uses updated info immediately.</div>
                 <div>\u2022 If no card exists: you can create one. More info = better drafts for that property.</div>
@@ -801,9 +801,9 @@ function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
             <div className="space-y-2">
               <p>When you approve, the confirmation popup shows a channel selector:</p>
               <div className="space-y-1.5 text-xs" style={{color: '#94a3b8'}}>
-                <div>\u2022 <span style={{fontWeight: 500, color: '#e2e8f0'}}>Booking platform</span> (Airbnb/Booking.com messaging) \u2014 default for OTA bookings</div>
-                <div>\u2022 <span style={{fontWeight: 500, color: '#e2e8f0'}}>WhatsApp</span> \u2014 common for direct bookings</div>
-                <div>\u2022 <span style={{fontWeight: 500, color: '#e2e8f0'}}>Email</span> \u2014 for formal or fallback messages</div>
+                <div>\u2022 <span style={{fontWeight: 500, color: '#e2e8f0'}}>Booking platform</span> (Airbnb/Booking.com messaging) — default for OTA bookings</div>
+                <div>\u2022 <span style={{fontWeight: 500, color: '#e2e8f0'}}>WhatsApp</span> — common for direct bookings</div>
+                <div>\u2022 <span style={{fontWeight: 500, color: '#e2e8f0'}}>Email</span> — for formal or fallback messages</div>
               </div>
               <p className="mt-1">Default is based on how the guest last messaged us. You can change it before sending.</p>
             </div>
@@ -1513,7 +1513,7 @@ export default function MessageDashboard() {
                     <div className="text-xs font-semibold uppercase mb-2" style={{color: '#64748b'}}>Edit History</div>
                     {cardEditHistory.slice(0, 5).map((edit: any, i: number) => (
                       <div key={i} className="text-xs mb-1" style={{color: '#94a3b8'}}>
-                        {edit.change_summary} \u2014 {edit.edited_by} \u00b7 {new Date(edit.edited_at).toLocaleDateString('en-MU', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {edit.change_summary} — {edit.edited_by} \u00b7 {new Date(edit.edited_at).toLocaleDateString('en-MU', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
                     ))}
                   </div>
@@ -1679,7 +1679,7 @@ export default function MessageDashboard() {
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-bold" style={{color: stats.avg_response_time_minutes != null ? rtColor(stats.avg_response_time_minutes) : '#64748b'}}>
-                    {stats.avg_response_time_minutes != null ? `${stats.avg_response_time_minutes} min` : '\u2014'}
+                    {stats.avg_response_time_minutes != null ? `${stats.avg_response_time_minutes} min` : '—'}
                   </div>
                   <div className="text-xs" style={{color: '#64748b'}}>avg response</div>
                 </div>
@@ -1972,7 +1972,7 @@ export default function MessageDashboard() {
                                 <button onClick={() => handleRejectWithReason(draft.id)}
                                   className="px-3 py-1 text-xs rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>{rejectReason.trim() ? 'Reject with feedback' : 'Dismiss'}</button>
                               </div>
-                              <p className="text-xs" style={{color: '#64748b'}}>{rejectReason.trim() ? 'Judith will learn from your feedback' : 'Dismissing without feedback \u2014 no learning'}</p>
+                              <p className="text-xs" style={{color: '#64748b'}}>{rejectReason.trim() ? 'Judith will learn from your feedback' : 'Dismissing without feedback — no learning'}</p>
                             </div>
                           )}
 
@@ -2116,6 +2116,22 @@ export default function MessageDashboard() {
                     placeholder="Add notes for Judith..."
                     className="w-full text-xs rounded px-2 py-1.5 resize-none outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} rows={3} />
                 </div>
+
+                {/* Suggested next steps */}
+                {detail.conversation.next_steps && (() => { try { const steps = JSON.parse(detail.conversation.next_steps); return steps.length > 0 ? (
+                  <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+                    <h3 className="text-xs font-semibold mb-2" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Suggested Next Steps</h3>
+                    <div className="space-y-1.5">
+                      {steps.map((s: any, i: number) => (
+                        <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#e2e8f0'}}>
+                          <span>{s.icon || '📋'}</span>
+                          <span>{s.text}{s.who && <span style={{color: '#6395ff'}}> — {s.who}</span>}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs mt-2" style={{color: '#475569', fontStyle: 'italic'}}>Judith's suggestions based on conversation context</p>
+                  </div>
+                ) : null; } catch { return null; } })()}
 
                 {/* Draft history */}
                 {detail.drafts.length > 0 && (
