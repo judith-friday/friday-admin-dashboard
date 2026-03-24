@@ -15,9 +15,12 @@ import {
   GlobeAltIcon,
   ClockIcon,
   ExclamationCircleIcon,
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
   LanguageIcon,
   ArrowPathIcon,
   PlusIcon,
+  ArchiveBoxIcon,
 } from '@heroicons/react/24/outline'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || ''
@@ -338,6 +341,8 @@ export default function MessageDashboard() {
   const [rejectingDraft, setRejectingDraft] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState('')
   const [staffNotes, setStaffNotes] = useState('')
+  const [showDoneWarning, setShowDoneWarning] = useState(false)
+  const [doneWarningCount, setDoneWarningCount] = useState(0)
   const notesTimerRef = useRef<NodeJS.Timeout | null>(null)
   const sseRef = useRef<EventSource | null>(null)
 
@@ -503,6 +508,46 @@ export default function MessageDashboard() {
     }, 2000)
   }
 
+  // Mark conversation as done (with pending action guard)
+  const handleMarkDone = async (convId: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/conversations/${convId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ status: 'done' }),
+      })
+      const data = await res.json()
+      if (res.status === 409 && data.error === 'pending_actions_exist') {
+        setDoneWarningCount(data.pending_count)
+        setShowDoneWarning(true)
+        return
+      }
+      if (!res.ok) throw new Error(data.error || 'Failed to update')
+      toast.success('Conversation marked as done')
+      setDetail(prev => prev ? { ...prev, conversation: { ...prev.conversation, status: 'done' } } : null)
+      fetchConversations()
+      fetchStats()
+    } catch (err: any) {
+      toast.error(err.message)
+    }
+  }
+
+  // Reopen conversation
+  const handleReopen = async (convId: string) => {
+    try {
+      await apiFetch(`/api/conversations/${convId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'active' }),
+      })
+      toast.success('Conversation reopened')
+      setDetail(prev => prev ? { ...prev, conversation: { ...prev.conversation, status: 'active' } } : null)
+      fetchConversations()
+      fetchStats()
+    } catch (err: any) {
+      toast.error(err.message)
+    }
+  }
+
   // Load staff notes when conversation changes
   useEffect(() => {
     if (detail?.conversation?.notes !== undefined) {
@@ -515,11 +560,18 @@ export default function MessageDashboard() {
     if (activeTab === 'unread') return c.is_unread === true
     if (activeTab === 'review') return c.latest_draft_state === 'draft_ready'
     if (activeTab === 'open') return c.status === 'active' && c.latest_draft_state !== 'sent'
-    if (activeTab === 'done') return c.latest_draft_state === 'sent'
+    if (activeTab === 'done') return c.status === 'done'
     return true
   })
 
   const unreadCount = conversations.filter(c => c.is_unread).length
+
+  const statusBadge = (conv: Conversation) => {
+    if (conv.status === 'done') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Done</span>
+    if (conv.latest_draft_state === 'draft_ready') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Review</span>
+    if (conv.latest_draft_state === 'sent') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Sent</span>
+    return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Open</span>
+  }
 
   const channelEmoji = (ch?: string) => {
     if (!ch) return ''
@@ -666,7 +718,7 @@ export default function MessageDashboard() {
                       {conv.property_name && (
                         <span className="text-xs text-gray-500">{conv.property_name}</span>
                       )}
-                      {draftStateBadge(conv.latest_draft_state)}
+                      {statusBadge(conv)}
                       {conv.latest_draft_confidence && (() => {
                         const c = Number(conv.latest_draft_confidence)
                         const cls = c >= 80 ? 'bg-green-100 text-green-800' : c >= 60 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
@@ -849,6 +901,46 @@ export default function MessageDashboard() {
                   {detail.conversation.num_guests && <div>{detail.conversation.num_guests} guest{detail.conversation.num_guests > 1 ? 's' : ''}</div>}
                   <div>{detail.conversation.inbound_count || 0} inbound messages</div>
                 </div>
+
+                {/* Mark as Done / Reopen button */}
+                <div className="p-3 border-b">
+                  {detail.conversation.status === 'done' ? (
+                    <button onClick={() => handleReopen(detail.conversation.id)}
+                      className="w-full flex items-center justify-center px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+                      <ArrowPathIcon className="h-4 w-4 mr-1.5" /> Reopen Conversation
+                    </button>
+                  ) : (
+                    <button onClick={() => handleMarkDone(detail.conversation.id)}
+                      className="w-full flex items-center justify-center px-3 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700">
+                      <CheckCircleIcon className="h-4 w-4 mr-1.5" /> Mark as Done
+                    </button>
+                  )}
+                </div>
+
+                {/* Pending actions warning modal */}
+                {showDoneWarning && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl p-6 max-w-sm mx-4 shadow-xl">
+                      <div className="flex items-center mb-3">
+                        <ExclamationTriangleIcon className="h-6 w-6 text-amber-500 mr-2" />
+                        <h3 className="text-lg font-semibold text-gray-900">Open Actions</h3>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-4">
+                        This conversation has <strong>{doneWarningCount}</strong> open action{doneWarningCount !== 1 ? 's' : ''}. Complete or dismiss them first.
+                      </p>
+                      <div className="flex space-x-2">
+                        <button onClick={() => { setShowDoneWarning(false); setActiveTab('actions') }}
+                          className="flex-1 px-3 py-2 bg-amber-500 text-white text-sm rounded-lg hover:bg-amber-600">
+                          View Actions
+                        </button>
+                        <button onClick={() => setShowDoneWarning(false)}
+                          className="flex-1 px-3 py-2 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300">
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Auto-send toggle */}
                 <div className="p-3 border-b">
