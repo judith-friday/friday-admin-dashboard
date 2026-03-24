@@ -26,6 +26,34 @@ import {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || ''
 
+// Comprehensive language name and flag mapping
+const LANG_NAMES: Record<string, string> = {
+  en: 'English', fr: 'French', de: 'German', es: 'Spanish', pt: 'Portuguese',
+  it: 'Italian', nl: 'Dutch', ru: 'Russian', uk: 'Ukrainian', pl: 'Polish',
+  cs: 'Czech', sv: 'Swedish', da: 'Danish', no: 'Norwegian', fi: 'Finnish',
+  zh: 'Chinese', ja: 'Japanese', ko: 'Korean', th: 'Thai', vi: 'Vietnamese',
+  hi: 'Hindi', id: 'Indonesian', ms: 'Malay', ar: 'Arabic', he: 'Hebrew',
+  tr: 'Turkish', el: 'Greek', hu: 'Hungarian', ro: 'Romanian', bg: 'Bulgarian',
+  hr: 'Croatian', sk: 'Slovak', sl: 'Slovenian', et: 'Estonian', lv: 'Latvian',
+  lt: 'Lithuanian', fa: 'Persian', ur: 'Urdu', bn: 'Bengali', ta: 'Tamil',
+  te: 'Telugu', mr: 'Marathi', gu: 'Gujarati', kn: 'Kannada', ml: 'Malayalam',
+  si: 'Sinhala', sw: 'Swahili', am: 'Amharic', ne: 'Nepali', my: 'Burmese',
+  km: 'Khmer', lo: 'Lao', ka: 'Georgian', hy: 'Armenian', az: 'Azerbaijani',
+  kk: 'Kazakh', uz: 'Uzbek', mn: 'Mongolian', tl: 'Filipino', 'zh-TW': 'Chinese (Traditional)',
+}
+const LANG_FLAGS: Record<string, string> = {
+  en: '\u{1F1EC}\u{1F1E7}', fr: '\u{1F1EB}\u{1F1F7}', de: '\u{1F1E9}\u{1F1EA}', es: '\u{1F1EA}\u{1F1F8}', pt: '\u{1F1F5}\u{1F1F9}',
+  it: '\u{1F1EE}\u{1F1F9}', nl: '\u{1F1F3}\u{1F1F1}', ru: '\u{1F1F7}\u{1F1FA}', uk: '\u{1F1FA}\u{1F1E6}', pl: '\u{1F1F5}\u{1F1F1}',
+  cs: '\u{1F1E8}\u{1F1FF}', sv: '\u{1F1F8}\u{1F1EA}', da: '\u{1F1E9}\u{1F1F0}', no: '\u{1F1F3}\u{1F1F4}', fi: '\u{1F1EB}\u{1F1EE}',
+  zh: '\u{1F1E8}\u{1F1F3}', ja: '\u{1F1EF}\u{1F1F5}', ko: '\u{1F1F0}\u{1F1F7}', th: '\u{1F1F9}\u{1F1ED}', vi: '\u{1F1FB}\u{1F1F3}',
+  hi: '\u{1F1EE}\u{1F1F3}', id: '\u{1F1EE}\u{1F1E9}', ms: '\u{1F1F2}\u{1F1FE}', ar: '\u{1F1F8}\u{1F1E6}', he: '\u{1F1EE}\u{1F1F1}',
+  tr: '\u{1F1F9}\u{1F1F7}', el: '\u{1F1EC}\u{1F1F7}', hu: '\u{1F1ED}\u{1F1FA}', ro: '\u{1F1F7}\u{1F1F4}', bg: '\u{1F1E7}\u{1F1EC}',
+  hr: '\u{1F1ED}\u{1F1F7}', sk: '\u{1F1F8}\u{1F1F0}', sl: '\u{1F1F8}\u{1F1EE}', et: '\u{1F1EA}\u{1F1EA}', lv: '\u{1F1F1}\u{1F1FB}',
+  lt: '\u{1F1F1}\u{1F1F9}', fa: '\u{1F1EE}\u{1F1F7}', ur: '\u{1F1F5}\u{1F1F0}', bn: '\u{1F1E7}\u{1F1E9}', ta: '\u{1F1EE}\u{1F1F3}',
+  sw: '\u{1F1F0}\u{1F1EA}', tl: '\u{1F1F5}\u{1F1ED}', 'zh-TW': '\u{1F1F9}\u{1F1FC}', ne: '\u{1F1F3}\u{1F1F5}',
+}
+const RTL_LANGS = new Set(['ar', 'he', 'fa', 'ur'])
+
 // ── Auth helpers ──
 function getToken() {
   return typeof window !== 'undefined' ? localStorage.getItem('gms_token') : null
@@ -796,14 +824,17 @@ export default function MessageDashboard() {
                       <div className={`max-w-xl px-4 py-2.5 rounded-lg ${
                         msg.direction === 'outbound' ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200 text-gray-900'
                       }`}>
-                        <p className="text-sm whitespace-pre-wrap">{msg.body}</p>
+                        <p className="text-sm whitespace-pre-wrap" dir="auto">{msg.body}</p>
                         {msg.translated_body && msg.translated_body !== msg.body && (
                           <div className={`text-xs mt-2 pt-2 border-t ${msg.direction === 'outbound' ? 'border-blue-500 text-blue-100' : 'border-gray-200 text-gray-500'}`}>
-                            <LanguageIcon className="h-3 w-3 inline mr-1" /> {msg.translated_body}
+                            <LanguageIcon className="h-3 w-3 inline mr-1" /> <span dir="auto">{msg.translated_body}</span>
                           </div>
                         )}
                         <div className={`text-xs mt-1 ${msg.direction === 'outbound' ? 'text-blue-200' : 'text-gray-400'}`}>
                           {format(new Date(msg.created_at), 'HH:mm')} {msg.sender_name && `- ${msg.sender_name}`}
+                          {msg.direction === 'inbound' && msg.original_language && msg.original_language !== 'en' && (
+                            <span className="ml-1">{LANG_FLAGS[msg.original_language] || ''} {LANG_NAMES[msg.original_language] || msg.original_language}</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -837,12 +868,12 @@ export default function MessageDashboard() {
                         </div>
                       ) : (
                         <>
-                          <div className="bg-white p-3 rounded border text-sm mb-2 whitespace-pre-wrap">{draft.draft_body}</div>
+                          <div className="bg-white p-3 rounded border text-sm mb-2 whitespace-pre-wrap" dir="auto">{draft.draft_body}</div>
                           {draft.draft_translated && draft.draft_translated !== draft.draft_body && (
                             <div className="bg-blue-50 p-3 rounded border border-blue-200 text-sm mb-2">
                               <LanguageIcon className="h-3 w-3 inline mr-1 text-blue-600" />
                               <span className="text-xs font-medium text-blue-600">Translated:</span>
-                              <p className="mt-1 whitespace-pre-wrap">{draft.draft_translated}</p>
+                              <p className="mt-1 whitespace-pre-wrap" dir="auto">{draft.draft_translated}</p>
                             </div>
                           )}
                           <div className="flex space-x-2">
@@ -892,15 +923,13 @@ export default function MessageDashboard() {
 
                   {/* Sent drafts with translations */}
                   {detail.drafts.filter(d => d.state === 'sent' && d.translated_content && d.sent_language).map(draft => {
-                    const langNames: Record<string, string> = { fr: 'French', de: 'German', es: 'Spanish', pt: 'Portuguese', it: 'Italian', zh: 'Chinese', ja: 'Japanese', ko: 'Korean', ru: 'Russian', ar: 'Arabic', nl: 'Dutch', hi: 'Hindi' }
-                    const langFlags: Record<string, string> = { fr: '\u{1F1EB}\u{1F1F7}', de: '\u{1F1E9}\u{1F1EA}', es: '\u{1F1EA}\u{1F1F8}', pt: '\u{1F1F5}\u{1F1F9}', it: '\u{1F1EE}\u{1F1F9}', zh: '\u{1F1E8}\u{1F1F3}', ja: '\u{1F1EF}\u{1F1F5}', ko: '\u{1F1F0}\u{1F1F7}', ru: '\u{1F1F7}\u{1F1FA}', ar: '\u{1F1F8}\u{1F1E6}', nl: '\u{1F1F3}\u{1F1F1}', hi: '\u{1F1EE}\u{1F1F3}' }
                     const lang = draft.sent_language || 'unknown'
                     return (
                       <div key={`sent-${draft.id}`} className="bg-green-50 border border-green-200 rounded-lg p-3 mt-2">
                         <div className="text-xs font-medium text-green-700 mb-1">Approved English draft:</div>
                         <p className="text-sm text-gray-700 mb-2 whitespace-pre-wrap">{draft.draft_body}</p>
                         <div className="border-t border-green-200 pt-2">
-                          <div className="text-xs font-medium text-green-700 mb-1">Sent in {langFlags[lang] || ''} {langNames[lang] || lang}:</div>
+                          <div className="text-xs font-medium text-green-700 mb-1">Sent in {LANG_FLAGS[lang] || ''} {LANG_NAMES[lang] || lang}:</div>
                           <p className="text-sm text-gray-600 whitespace-pre-wrap">{draft.translated_content}</p>
                         </div>
                       </div>
