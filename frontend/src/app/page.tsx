@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { toast, Toaster } from 'react-hot-toast'
 import { format, formatDistanceToNow } from 'date-fns'
 import {
@@ -361,6 +361,20 @@ function PendingActionsTab({ token, conversationFilter }: { token: string; conve
 // ── Help Panel ──
 function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   if (!isOpen) return null
+  // ExpandableSection sub-component for training content
+  const ExpandableSection = ({title, children}: {title: string, children: React.ReactNode}) => {
+    const [open, setOpen] = useState(false)
+    return (
+      <section>
+        <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between text-xs font-semibold uppercase tracking-wide mb-1" style={{color: '#6395ff'}}>
+          <span>{title}</span>
+          <span style={{color: '#64748b'}}>{open ? '▼' : '▶'}</span>
+        </button>
+        {open && <div className="mt-2 text-xs leading-relaxed" style={{color: '#94a3b8'}}>{children}</div>}
+      </section>
+    )
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
       <div className="absolute inset-0" style={{background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(2px)'}} />
@@ -493,6 +507,154 @@ function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
               Start with this OFF until you trust Judith&apos;s drafts
             </div>
           </section>
+
+          
+          {/* Team Training Sections */}
+          <ExpandableSection title="How confidence scores work">
+            <div className="space-y-2">
+              <p>Judith calculates confidence using a weighted formula:</p>
+              <div className="pl-2 space-y-1" style={{color: '#64748b'}}>
+                <div>• Base score: 75%</div>
+                <div>• Message type: +20% routine, -15% complaints</div>
+                <div>• Reservation context: +15% good, -10% missing</div>
+                <div>• Property knowledge: +10% relevant, -10% unknown</div>
+                <div>• Language: -5% non-English</div>
+                <div>• Complexity: -5% per extra question</div>
+              </div>
+              <div className="mt-3 space-y-2">
+                <div className="rounded p-2" style={{background: 'rgba(34,197,94,0.08)'}}>
+                  <div className="text-xs font-semibold" style={{color: '#4ade80'}}>Example: Routine WiFi question</div>
+                  <div className="text-xs mt-1" style={{color: '#64748b'}}>75% + 20% (routine) + 15% (good context) + 10% (property info) = 95%</div>
+                </div>
+                <div className="rounded p-2" style={{background: 'rgba(239,68,68,0.08)'}}>
+                  <div className="text-xs font-semibold" style={{color: '#f87171'}}>Example: Complex complaint</div>
+                  <div className="text-xs mt-1" style={{color: '#64748b'}}>75% - 15% (complaint) - 10% (missing context) - 10% (complex) = 40%</div>
+                </div>
+              </div>
+            </div>
+          </ExpandableSection>
+
+          <ExpandableSection title="How to help Judith learn">
+            <div className="space-y-2">
+              <p>Every interaction teaches Judith:</p>
+              <div className="space-y-1.5">
+                <div><span style={{color: '#4ade80', fontWeight: 500}}>Staff notes</span> — Context becomes part of future drafts</div>
+                <div><span style={{color: '#4ade80', fontWeight: 500}}>Revision instructions</span> — "Add WiFi password" improves similar responses</div>
+                <div><span style={{color: '#4ade80', fontWeight: 500}}>Rejections with reasons</span> — "Too formal" or "Missing empathy" refines tone</div>
+              </div>
+              <div className="mt-3 rounded-md p-2.5" style={{background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)'}}>
+                <div className="text-xs font-semibold mb-1" style={{color: '#f87171'}}>How NOT to teach</div>
+                <div className="space-y-1 text-xs" style={{color: '#94a3b8'}}>
+                  <div>❌ "This is wrong" (no specifics)</div>
+                  <div>❌ "Make it better" (too vague)</div>
+                  <div>❌ Approving bad drafts to save time</div>
+                  <div>❌ Rejecting without explanation</div>
+                </div>
+              </div>
+            </div>
+          </ExpandableSection>
+
+          <ExpandableSection title="What Judith can and can't do">
+            <div className="space-y-3">
+              <div>
+                <div className="text-xs font-semibold mb-1.5" style={{color: '#4ade80'}}>✅ What Judith CAN do</div>
+                <div className="space-y-1 text-xs pl-2" style={{color: '#94a3b8'}}>
+                  <div>• Draft personalized replies in guest's language</div>
+                  <div>• Detect complaint tone and urgency levels</div>
+                  <div>• Use property-specific knowledge (WiFi, amenities, directions)</div>
+                  <div>• Translate messages in 50+ languages</div>
+                  <div>• Track promises and create action items</div>
+                  <div>• Suggest empathetic responses for upset guests</div>
+                </div>
+              </div>
+              <div>
+                <div className="text-xs font-semibold mb-1.5" style={{color: '#f87171'}}>❌ What Judith CAN'T do (yet)</div>
+                <div className="space-y-1 text-xs pl-2" style={{color: '#94a3b8'}}>
+                  <div>• Send messages without human approval</div>
+                  <div>• Access Breezeway for maintenance requests</div>
+                  <div>• Modify reservations or booking details</div>
+                  <div>• Handle payments, refunds, or billing issues</div>
+                  <div>• Make decisions about property policies</div>
+                </div>
+              </div>
+            </div>
+          </ExpandableSection>
+
+          <ExpandableSection title="Escalation triggers">
+            <div className="space-y-2">
+              <p>Always escalate these to <span style={{color: '#6395ff', fontWeight: 500}}>@Ishant</span> immediately:</p>
+              <div className="space-y-1.5">
+                <div className="flex items-start gap-2 text-xs">
+                  <span style={{color: '#f87171'}}>⚠️</span>
+                  <span style={{color: '#94a3b8'}}>Refund requests over $100</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs">
+                  <span style={{color: '#f87171'}}>⚠️</span>
+                  <span style={{color: '#94a3b8'}}>Safety, security, or emergency situations</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs">
+                  <span style={{color: '#f87171'}}>⚠️</span>
+                  <span style={{color: '#94a3b8'}}>Legal threats or liability concerns</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs">
+                  <span style={{color: '#f87171'}}>⚠️</span>
+                  <span style={{color: '#94a3b8'}}>Guest injuries or medical incidents</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs">
+                  <span style={{color: '#f87171'}}>⚠️</span>
+                  <span style={{color: '#94a3b8'}}>Property damage reports</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs">
+                  <span style={{color: '#f87171'}}>⚠️</span>
+                  <span style={{color: '#94a3b8'}}>Discrimination or harassment allegations</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs">
+                  <span style={{color: '#f87171'}}>⚠️</span>
+                  <span style={{color: '#94a3b8'}}>Issues involving minors or child safety</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs">
+                  <span style={{color: '#f87171'}}>⚠️</span>
+                  <span style={{color: '#94a3b8'}}>Payment processing problems</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs">
+                  <span style={{color: '#f87171'}}>⚠️</span>
+                  <span style={{color: '#94a3b8'}}>Booking modifications affecting revenue</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs">
+                  <span style={{color: '#f87171'}}>⚠️</span>
+                  <span style={{color: '#94a3b8'}}>Noise complaints involving police</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs">
+                  <span style={{color: '#f87171'}}>⚠️</span>
+                  <span style={{color: '#94a3b8'}}>Threats of negative reviews over policy disputes</span>
+                </div>
+              </div>
+            </div>
+          </ExpandableSection>
+
+          <ExpandableSection title="The 'exception' pattern">
+            <div className="space-y-2">
+              <p>When granting special requests, use this proven formula:</p>
+              <div className="space-y-2 mt-3">
+                <div className="rounded-md p-2.5" style={{background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)'}}>
+                  <div className="text-xs font-semibold mb-1" style={{color: '#6395ff'}}>1. Grant the favor</div>
+                  <div className="text-xs italic" style={{color: '#94a3b8'}}>"I've arranged early check-in at 2 PM for you."</div>
+                </div>
+                <div className="rounded-md p-2.5" style={{background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)'}}>
+                  <div className="text-xs font-semibold mb-1" style={{color: '#6395ff'}}>2. Frame as exception</div>
+                  <div className="text-xs italic" style={{color: '#94a3b8'}}>"This is a special accommodation as our standard check-in is 4 PM."</div>
+                </div>
+                <div className="rounded-md p-2.5" style={{background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)'}}>
+                  <div className="text-xs font-semibold mb-1" style={{color: '#6395ff'}}>3. Ask for 5-star review</div>
+                  <div className="text-xs italic" style={{color: '#94a3b8'}}>"We'd be grateful if you could mention this flexibility in your review!"</div>
+                </div>
+              </div>
+              <div className="mt-3 text-xs" style={{color: '#64748b'}}>
+                This positions favors as value-adds while encouraging positive feedback.
+              </div>
+            </div>
+          </ExpandableSection>
+
 
           <div className="rounded-lg p-4 text-center" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)'}}>
             <div className="text-xs" style={{color: '#94a3b8'}}>Need help? Tag <span style={{color: '#6395ff', fontWeight: 500}}>@Ishant</span> in Slack</div>
