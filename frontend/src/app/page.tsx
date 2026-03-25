@@ -1126,11 +1126,41 @@ export default function MessageDashboard() {
 
   const fetchPropertyCard = async (code: string) => {
     setPropertyCard({ code, data: null, loading: true })
+    setCardEditHistory([])
     try {
       const data = await apiFetch('/api/properties/' + encodeURIComponent(code) + '/card')
       setPropertyCard({ code, data, loading: false })
+      // Load edit history
+      try {
+        const history = await apiFetch('/api/properties/' + encodeURIComponent(code) + '/card/history')
+        setCardEditHistory(Array.isArray(history) ? history : [])
+      } catch {}
     } catch {
       setPropertyCard({ code, data: { exists: false }, loading: false })
+    }
+  }
+
+  const savePropertyCard = async () => {
+    if (!propertyCard?.code || !cardEditData) return
+    setCardSaving(true)
+    try {
+      const parsed = JSON.parse(cardEditData)
+      await apiFetch('/api/properties/' + encodeURIComponent(propertyCard.code) + '/card', {
+        method: 'PUT',
+        body: JSON.stringify({ card: parsed, change_summary: 'Edited via dashboard' })
+      })
+      toast.success('Property card saved')
+      setCardEditing(false)
+      // Reload the card
+      fetchPropertyCard(propertyCard.code)
+    } catch (err: any) {
+      if (err instanceof SyntaxError) {
+        toast.error('Invalid JSON — please fix syntax errors')
+      } else {
+        toast.error('Failed to save: ' + err.message)
+      }
+    } finally {
+      setCardSaving(false)
     }
   }
 
@@ -1500,6 +1530,7 @@ export default function MessageDashboard() {
                 <textarea
                   value={cardEditData}
                   onChange={e => setCardEditData(e.target.value)}
+                  onKeyDown={e => e.stopPropagation()}
                   className="w-full rounded-lg p-3 text-xs font-mono"
                   style={{background: 'rgba(0,0,0,0.3)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', minHeight: '400px', resize: 'vertical'}}
                   spellCheck={false}
