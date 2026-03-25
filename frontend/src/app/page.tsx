@@ -1538,13 +1538,162 @@ export default function MessageDashboard() {
                 <p className="text-xs" style={{color: '#64748b'}}>Edit the JSON directly. All fields are editable: WiFi, access codes, descriptions, etc.</p>
               </div>
             ) : propertyCard.data?.exists && propertyCard.data?.card ? (
-              <div className="space-y-3">
-                {Object.entries(propertyCard.data.card).filter(([k]) => !k.startsWith('_')).map(([key, value]) => (
-                  <div key={key}>
-                    <div className="text-xs font-semibold uppercase mb-1" style={{color: '#6395ff', letterSpacing: '0.5px'}}>{key.replace(/_/g, ' ')}</div>
-                    <div className="text-sm whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}</div>
-                  </div>
-                ))}
+              <div className="space-y-4">
+                {(() => {
+                  const c = propertyCard.data.card;
+                  const copyBtn = (text: string, label?: string) => (
+                    <button onClick={() => { navigator.clipboard.writeText(text); toast.success((label || 'Copied') + ' copied!') }}
+                      className="ml-1.5 px-1.5 py-0.5 rounded text-xs flex-shrink-0" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>
+                      Copy
+                    </button>
+                  );
+                  const section = (title: string, children: any) => (
+                    <div>
+                      <div className="text-xs font-semibold uppercase mb-1.5 pb-1" style={{color: '#6395ff', letterSpacing: '0.5px', borderBottom: '1px solid rgba(99,149,255,0.15)'}}>{title}</div>
+                      <div className="space-y-1">{children}</div>
+                    </div>
+                  );
+                  const row = (label: string, value: any) => value ? (
+                    <div className="flex items-start text-sm"><span className="flex-shrink-0" style={{color: '#64748b', minWidth: '100px'}}>{label}:</span><span style={{color: '#e2e8f0'}}>{String(value)}</span></div>
+                  ) : null;
+
+                  return (<>
+                    {section('Property Overview', <>
+                      {c.full_name && <div className="text-sm font-medium mb-1" style={{color: '#f1f5f9'}}>{c.full_name}</div>}
+                      {row('Location', c.location)}
+                      {row('Type', c.property_type)}
+                      {row('Bedrooms', c.bedrooms)}
+                      {row('Bathrooms', c.bathrooms)}
+                      {row('Capacity', c.guest_capacity ? `${c.guest_capacity} guests` : null)}
+                    </>)}
+
+                    {c.quick_responses && section('Access & WiFi', <>
+                      {c.quick_responses.wifi && (
+                        <div className="p-2 rounded-lg" style={{background: 'rgba(255,255,255,0.04)'}}>
+                          <div className="flex items-center text-sm gap-2">
+                            <span style={{color: '#64748b', flexShrink: 0}}>WiFi:</span>
+                            <span className="font-mono text-xs" style={{color: '#22c55e'}}>{c.quick_responses.wifi.response}</span>
+                            {copyBtn(c.quick_responses.wifi.response, 'WiFi info')}
+                          </div>
+                        </div>
+                      )}
+                      {c.quick_responses.access && (
+                        <div className="p-2 rounded-lg" style={{background: 'rgba(255,255,255,0.04)'}}>
+                          <div className="flex items-center text-sm gap-2">
+                            <span style={{color: '#64748b', flexShrink: 0}}>Access:</span>
+                            <span className="font-mono text-xs" style={{color: '#fbbf24'}}>{c.quick_responses.access.response}</span>
+                            {copyBtn(c.quick_responses.access.response, 'Access codes')}
+                          </div>
+                        </div>
+                      )}
+                    </>)}
+
+                    {c.property_details && section('Check-in / Check-out', <>
+                      {row('Check-in', c.property_details.check_in_time)}
+                      {row('Check-out', c.property_details.check_out_time)}
+                      {c.quick_responses?.checkout && (
+                        <div className="text-xs mt-1 p-2 rounded" style={{background: 'rgba(255,255,255,0.03)', color: '#94a3b8'}}>
+                          {c.quick_responses.checkout.response}
+                        </div>
+                      )}
+                    </>)}
+
+                    {c.quick_responses && section('Quick Responses', <>
+                      {Object.entries(c.quick_responses as Record<string, any>).filter(([k]) => !['wifi', 'access', 'checkout'].includes(k)).map(([key, qr]: [string, any]) => (
+                        <div key={key} className="p-2 rounded-lg" style={{background: 'rgba(255,255,255,0.03)'}}>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium uppercase" style={{color: '#94a3b8'}}>{key.replace(/_/g, ' ')}</span>
+                            {copyBtn(qr.response, key)}
+                          </div>
+                          <div className="text-xs mt-1" style={{color: '#e2e8f0'}}>{qr.response}</div>
+                        </div>
+                      ))}
+                    </>)}
+
+                    {c.common_issues && c.common_issues.length > 0 && section('Common Issues', <>
+                      {(c.common_issues as string[]).map((issue: string, i: number) => (
+                        <div key={i} className="text-sm flex items-start gap-2" style={{color: '#e2e8f0'}}>
+                          <span style={{color: '#f59e0b'}}>{'•'}</span><span>{issue}</span>
+                        </div>
+                      ))}
+                    </>)}
+
+                    {c.building_intelligence && section('Building Intelligence', <>
+                      {c.building_intelligence.building_notes && row('Notes', c.building_intelligence.building_notes)}
+                      {c.building_intelligence.area_info && row('Area', c.building_intelligence.area_info)}
+                      {c.building_intelligence.common_questions && c.building_intelligence.common_questions.length > 0 && (
+                        <div className="mt-1">
+                          <span className="text-xs" style={{color: '#64748b'}}>Common questions:</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {(c.building_intelligence.common_questions as string[]).map((q: string, i: number) => (
+                              <span key={i} className="text-xs px-2 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{q}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {c.building_intelligence.things_to_avoid && c.building_intelligence.things_to_avoid.length > 0 && (
+                        <div className="mt-1">
+                          <span className="text-xs" style={{color: '#ef4444'}}>Things to avoid:</span>
+                          {(c.building_intelligence.things_to_avoid as string[]).map((t: string, i: number) => (
+                            <div key={i} className="text-xs mt-0.5" style={{color: '#f87171'}}>{'•'} {t}</div>
+                          ))}
+                        </div>
+                      )}
+                    </>)}
+
+                    {c.general_intelligence && section('Operational Intelligence', <>
+                      {c.general_intelligence.common_pain_points && c.general_intelligence.common_pain_points.length > 0 && (
+                        <div>
+                          <span className="text-xs" style={{color: '#64748b'}}>Common pain points:</span>
+                          {(c.general_intelligence.common_pain_points as string[]).map((p: string, i: number) => (
+                            <div key={i} className="text-xs mt-0.5" style={{color: '#e2e8f0'}}>{'•'} {p}</div>
+                          ))}
+                        </div>
+                      )}
+                      {c.general_intelligence.successful_patterns && c.general_intelligence.successful_patterns.length > 0 && (
+                        <div className="mt-1">
+                          <span className="text-xs" style={{color: '#64748b'}}>What works well:</span>
+                          {(c.general_intelligence.successful_patterns as string[]).map((p: string, i: number) => (
+                            <div key={i} className="text-xs mt-0.5" style={{color: '#22c55e'}}>{'✓'} {p}</div>
+                          ))}
+                        </div>
+                      )}
+                      {c.general_intelligence.services_to_mention && c.general_intelligence.services_to_mention.length > 0 && (
+                        <div className="mt-1">
+                          <span className="text-xs" style={{color: '#64748b'}}>Services to mention:</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {(c.general_intelligence.services_to_mention as string[]).map((s: string, i: number) => (
+                              <span key={i} className="text-xs px-2 py-0.5 rounded-full" style={{background: 'rgba(34,197,94,0.1)', color: '#4ade80'}}>{s}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>)}
+
+                    {c.property_details && section('Property Details', <>
+                      {row('Address', c.property_details.address)}
+                      {c.property_details.parking && <div className="text-xs mt-1" style={{color: '#94a3b8'}}><span style={{color: '#64748b'}}>Parking: </span>{typeof c.property_details.parking === 'string' ? c.property_details.parking : JSON.stringify(c.property_details.parking)}</div>}
+                      {c.property_details.amenities && (
+                        <div className="mt-1">
+                          <span className="text-xs" style={{color: '#64748b'}}>Amenities:</span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {(Array.isArray(c.property_details.amenities) ? c.property_details.amenities : [c.property_details.amenities]).slice(0, 15).map((a: string, i: number) => (
+                              <span key={i} className="text-xs px-1.5 py-0.5 rounded" style={{background: 'rgba(255,255,255,0.05)', color: '#94a3b8'}}>{a}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>)}
+
+                    {c.emergency_contact && section('Emergency', <>
+                      <div className="flex items-center text-sm gap-2">
+                        <span style={{color: '#64748b'}}>Contact:</span>
+                        <span className="font-mono" style={{color: '#ef4444'}}>{c.emergency_contact}</span>
+                        {copyBtn(c.emergency_contact, 'Emergency number')}
+                      </div>
+                    </>)}
+                  </>);
+                })()}
                 {cardEditHistory.length > 0 && (
                   <div className="mt-4 pt-3" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
                     <div className="text-xs font-semibold uppercase mb-2" style={{color: '#64748b'}}>Edit History</div>
