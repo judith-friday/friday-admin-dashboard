@@ -104,6 +104,7 @@ interface Conversation {
   auto_send_enabled?: boolean
   notes?: string
   sentiment?: string
+  next_steps?: string
   created_at: string
   updated_at: string
 }
@@ -833,6 +834,7 @@ export default function MessageDashboard() {
   const [selectedConvId, setSelectedConvId] = useState<string | null>(null)
   const [detail, setDetail] = useState<ConversationDetail | null>(null)
   const [stats, setStats] = useState<InboxStats | null>(null)
+  const [pollerStatus, setPollerStatus] = useState<{api_down: boolean, send_queue_length: number} | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'review' | 'open' | 'done' | 'actions'>('all')
   const [editingDraft, setEditingDraft] = useState<string | null>(null)
@@ -936,6 +938,8 @@ export default function MessageDashboard() {
     try {
       const data = await apiFetch('/api/stats/inbox')
       setStats(data)
+      // Fetch poller/system status
+      try { const ps = await apiFetch('/api/import/poller-status'); setPollerStatus(ps) } catch {}
     } catch { }
   }, [])
 
@@ -1698,6 +1702,12 @@ export default function MessageDashboard() {
                     {stats.pending_actions_count === 1 ? 'action' : 'actions'} {stats.overdue_actions_count > 0 && <span style={{color: '#f87171'}}>({stats.overdue_actions_count} overdue)</span>}
                   </div>
                 </div>
+                {pollerStatus && pollerStatus.api_down && (
+                  <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}} title="Guesty API is down — messages queued for browser fallback">⚠ API Down</span>
+                )}
+                {pollerStatus && pollerStatus.send_queue_length > 0 && (
+                  <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(251,191,36,0.15)', color: '#fbbf24'}} title={`${pollerStatus.send_queue_length} message(s) queued for sending`}>📤 {pollerStatus.send_queue_length} queued</span>
+                )}
                 <button onClick={() => { clearToken(); setTokenState(null) }}
                   className="text-xs ml-4" style={{color: '#64748b'}}>{displayName} · Logout</button>
                 <button onClick={toggleMute} className="ml-2 p-1 rounded" style={{color: '#64748b'}} title={isMuted ? 'Unmute' : 'Mute'}>
