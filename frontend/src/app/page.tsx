@@ -858,6 +858,7 @@ export default function MessageDashboard() {
   const [bugWhat, setBugWhat] = useState('')
   const [bugExpect, setBugExpect] = useState('')
   const [bugCopied, setBugCopied] = useState(false)
+  const [bugSubmitting, setBugSubmitting] = useState(false)
   const [rejectingDraft, setRejectingDraft] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState('')
   const [sendConfirm, setSendConfirm] = useState<{draftId: string; guestName: string; property: string; channel: string; preview: string} | null>(null)
@@ -1561,16 +1562,20 @@ export default function MessageDashboard() {
               <div>
                 <label className="text-xs font-medium mb-1 block" style={{color: '#94a3b8'}}>What happened? *</label>
                 <input type="text" value={bugWhat} onChange={e => setBugWhat(e.target.value)}
+                  onKeyDown={e => e.stopPropagation()}
+                  autoComplete="off"
                   placeholder="e.g. Draft didn't generate for new message"
                   className="w-full text-sm rounded-lg px-3 py-2 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9'}} />
               </div>
               <div>
                 <label className="text-xs font-medium mb-1 block" style={{color: '#94a3b8'}}>What did you expect? (optional)</label>
                 <input type="text" value={bugExpect} onChange={e => setBugExpect(e.target.value)}
+                  onKeyDown={e => e.stopPropagation()}
+                  autoComplete="off"
                   placeholder="e.g. A draft should have appeared in the review panel"
                   className="w-full text-sm rounded-lg px-3 py-2 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9'}} />
               </div>
-              {bugWhat.length > 0 && (
+              <div style={{display: bugWhat.length > 0 ? 'block' : 'none'}}>
                 <div>
                   <label className="text-xs font-medium mb-1 block" style={{color: '#94a3b8'}}>Bug Report (copy and paste in #fr-gms-feedback)</label>
                   <textarea readOnly value={[
@@ -1607,8 +1612,32 @@ export default function MessageDashboard() {
                     style={{background: bugCopied ? 'rgba(34,197,94,0.2)' : 'rgba(99,149,255,0.15)', color: bugCopied ? '#22c55e' : '#6395ff', border: bugCopied ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(99,149,255,0.3)'}}>
                     {bugCopied ? '\u2705 Copied! Paste in #fr-gms-feedback' : '📋 Copy to clipboard'}
                   </button>
+                  <button disabled={bugSubmitting} onClick={async () => {
+                    setBugSubmitting(true);
+                    try {
+                      await apiFetch('/api/bug-reports', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                          what: bugWhat,
+                          expected: bugExpect || null,
+                          page: typeof window !== 'undefined' ? window.location.href : 'unknown',
+                          conversation_id: selectedConvId || null,
+                          browser: typeof navigator !== 'undefined' ? navigator.userAgent.split(' ').slice(-2).join(' ') : 'unknown',
+                        })
+                      });
+                      toast.success('Bug report sent \u2014 Ishant has been notified');
+                      setBugReportOpen(false);
+                    } catch (err: any) {
+                      toast.error('Failed to submit: ' + err.message);
+                    } finally {
+                      setBugSubmitting(false);
+                    }
+                  }} className="mt-2 w-full px-3 py-2 rounded-lg text-sm font-medium transition-all"
+                    style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)', opacity: bugSubmitting ? 0.5 : 1}}>
+                    {bugSubmitting ? 'Sending...' : '\ud83d\udce8 Submit & Notify Ishant'}
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
