@@ -103,6 +103,7 @@ interface Conversation {
   first_response_minutes?: number
   auto_send_enabled?: boolean
   notes?: string
+  sentiment?: string
   created_at: string
   updated_at: string
 }
@@ -1762,8 +1763,9 @@ export default function MessageDashboard() {
                       <div className="flex items-center space-x-1.5 min-w-0">
                         {conv.is_unread && <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>}
                         <span className="text-sm truncate" style={{color: '#f1f5f9'}}>{conv.guest_name}</span>
-                        {conv.sentiment === 'frustrated' && <span title="Guest seems frustrated" style={{fontSize: '10px', marginLeft: '4px'}}>🟡</span>}
-                        {conv.sentiment === 'upset' && <span title="Guest is upset" style={{fontSize: '10px', marginLeft: '4px'}}>🔴</span>}
+                        {conv.sentiment && conv.sentiment !== 'neutral' && (
+                          <span title={conv.sentiment === 'upset' ? 'Guest is upset' : conv.sentiment === 'frustrated' ? 'Guest seems frustrated' : conv.sentiment === 'positive' ? 'Positive sentiment' : conv.sentiment} className="flex-shrink-0 inline-block w-2 h-2 rounded-full" style={{marginLeft: '4px', backgroundColor: conv.sentiment === 'upset' ? '#ef4444' : conv.sentiment === 'frustrated' ? '#f59e0b' : conv.sentiment === 'positive' ? '#22c55e' : '#64748b'}} />
+                        )}
                         {conv.channel && channelBadge(conv.channel)}
                       </div>
                       {conv.last_message_at && (
@@ -2039,6 +2041,14 @@ export default function MessageDashboard() {
                   {detail.conversation.check_out_date && <div>Check-out: {format(new Date(detail.conversation.check_out_date), 'MMM d, yyyy')}</div>}
                   {detail.conversation.num_guests && <div>{detail.conversation.num_guests} guest{detail.conversation.num_guests > 1 ? 's' : ''}</div>}
                   <div>{detail.conversation.inbound_count || 0} inbound messages</div>
+                  {detail.conversation.sentiment && detail.conversation.sentiment !== 'neutral' && (
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: detail.conversation.sentiment === 'upset' ? '#ef4444' : detail.conversation.sentiment === 'frustrated' ? '#f59e0b' : detail.conversation.sentiment === 'positive' ? '#22c55e' : '#64748b'}} />
+                      <span style={{color: detail.conversation.sentiment === 'upset' ? '#ef4444' : detail.conversation.sentiment === 'frustrated' ? '#f59e0b' : detail.conversation.sentiment === 'positive' ? '#22c55e' : '#94a3b8'}}>
+                        {detail.conversation.sentiment === 'upset' ? 'Guest is upset' : detail.conversation.sentiment === 'frustrated' ? 'Guest seems frustrated' : detail.conversation.sentiment === 'positive' ? 'Positive sentiment' : detail.conversation.sentiment}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Mark as Done / Reopen button */}
