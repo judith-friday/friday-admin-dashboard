@@ -854,6 +854,11 @@ export default function MessageDashboard() {
   const [cardEditHistory, setCardEditHistory] = useState<any[]>([])
   const [cardReviseInput, setCardReviseInput] = useState('')
   const [cardSaving, setCardSaving] = useState(false)
+  const [composeOpen, setComposeOpen] = useState(false)
+  const [composeMode, setComposeMode] = useState<'manual' | 'draft'>('manual')
+  const [composeText, setComposeText] = useState('')
+  const [composeInstruction, setComposeInstruction] = useState('')
+  const [composeSending, setComposeSending] = useState(false)
   const [bugReportOpen, setBugReportOpen] = useState(false)
   const [bugWhat, setBugWhat] = useState('')
   const [bugExpect, setBugExpect] = useState('')
@@ -1163,6 +1168,38 @@ export default function MessageDashboard() {
       setCardSaving(false)
     }
   }
+  const handleCompose = async () => {
+    if (!selectedConvId) return
+    setComposeSending(true)
+    try {
+      if (composeMode === 'manual') {
+        if (!composeText.trim()) { toast.error('Please write a message'); setComposeSending(false); return }
+        await apiFetch(`/api/conversations/${selectedConvId}/compose`, {
+          method: 'POST',
+          body: JSON.stringify({ mode: 'manual', body: composeText.trim() })
+        })
+        toast.success('Draft created - review and approve to send')
+        setComposeText('')
+        setComposeOpen(false)
+      } else {
+        if (!composeInstruction.trim()) { toast.error('Please describe what to draft'); setComposeSending(false); return }
+        await apiFetch(`/api/conversations/${selectedConvId}/compose`, {
+          method: 'POST',
+          body: JSON.stringify({ mode: 'draft', instruction: composeInstruction.trim() })
+        })
+        toast.success('Judith is drafting - will appear for review shortly')
+        setComposeInstruction('')
+        setComposeOpen(false)
+      }
+      // Refresh conversation detail to show new draft
+      setTimeout(() => { if (selectedConvId) fetchDetail(selectedConvId) }, 2000)
+    } catch (err: any) {
+      toast.error('Compose failed: ' + err.message)
+    } finally {
+      setComposeSending(false)
+    }
+  }
+
 
   const handleRevokeTeaching = async (id: string) => {
     try {
@@ -2132,6 +2169,58 @@ export default function MessageDashboard() {
                       <div className="text-xs pt-2" style={{borderTop: '1px solid rgba(239,68,68,0.1)', color: '#f87171'}}>Rejected by {draft.reviewed_by} · {draft.rejection_reason}</div>
                     </div>
                   ))}                </div>
+
+                {/* Compose button */}
+                <div className="flex-shrink-0 px-4 py-2" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
+                  {!composeOpen ? (
+                    <button onClick={() => { setComposeOpen(true); setComposeMode('manual'); setComposeText(''); setComposeInstruction('') }}
+                      className="w-full px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5"
+                      style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.2)'}}>
+                      <PencilSquareIcon className="h-4 w-4" /> Compose Message
+                    </button>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex gap-1">
+                          <button onClick={() => setComposeMode('manual')}
+                            className="px-2 py-1 rounded text-xs font-medium"
+                            style={{background: composeMode === 'manual' ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.06)', color: composeMode === 'manual' ? '#c084fc' : '#94a3b8'}}>
+                            Write manually
+                          </button>
+                          <button onClick={() => setComposeMode('draft')}
+                            className="px-2 py-1 rounded text-xs font-medium"
+                            style={{background: composeMode === 'draft' ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.06)', color: composeMode === 'draft' ? '#c084fc' : '#94a3b8'}}>
+                            Ask Judith to draft
+                          </button>
+                        </div>
+                        <button onClick={() => setComposeOpen(false)} className="text-xs" style={{color: '#64748b'}}>Cancel</button>
+                      </div>
+                      {composeMode === 'manual' ? (
+                        <textarea value={composeText} onChange={e => setComposeText(e.target.value)}
+                          onKeyDown={e => { e.stopPropagation(); if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleCompose() }}
+                          placeholder="Type your message to the guest..."
+                          className="w-full text-sm rounded-lg px-3 py-2 outline-none" rows={3}
+                          style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9', resize: 'vertical'}} />
+                      ) : (
+                        <textarea value={composeInstruction} onChange={e => setComposeInstruction(e.target.value)}
+                          onKeyDown={e => { e.stopPropagation(); if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleCompose() }}
+                          placeholder="e.g. Send check-in instructions for tomorrow, Follow up about the AC repair, Ask for flight details..."
+                          className="w-full text-sm rounded-lg px-3 py-2 outline-none" rows={2}
+                          style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9', resize: 'vertical'}} />
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs" style={{color: '#64748b'}}>
+                          {composeMode === 'manual' ? 'Creates a draft for review before sending' : 'Judith will draft using property knowledge + conversation history'}
+                        </span>
+                        <button onClick={handleCompose} disabled={composeSending}
+                          className="px-3 py-1.5 rounded-lg text-xs font-medium"
+                          style={{background: 'rgba(168,85,247,0.2)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)', opacity: composeSending ? 0.5 : 1}}>
+                          {composeSending ? 'Sending...' : composeMode === 'manual' ? 'Create Draft' : 'Ask Judith'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* Draft review section - pinned to bottom */}
                 {detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 1).map(draft => (
