@@ -186,8 +186,18 @@ export default function ConversationDetail({
             )}
             {showDraftHistory && olderSent.map(draft => (
               <div key={`sent-old-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(34,197,94,0.04)', border: '1px solid rgba(34,197,94,0.08)'}}>
-                <div className="text-xs font-medium mb-1" style={{color: '#4ade80', opacity: 0.7}}>{draft.translated_content ? 'Approved English draft:' : 'Sent:'}</div>
-                <p className="text-sm whitespace-pre-wrap" style={{color: '#e2e8f0', opacity: 0.7}}>{draft.draft_body}</p>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="text-xs font-medium" style={{color: '#4ade80', opacity: 0.7}}>
+                    {translatedDrafts.has(draft.id) ? `Sent in ${LANG_FLAGS[draft.sent_language || ''] || ''} ${LANG_NAMES[draft.sent_language || ''] || draft.sent_language}` : 'Sent:'}
+                  </div>
+                  {draft.translated_content && draft.sent_language && (
+                    <button onClick={() => setTranslatedDrafts(prev => { const next = new Set(prev); if (next.has(draft.id)) next.delete(draft.id); else next.add(draft.id); return next })}
+                      className="text-xs px-1.5 py-0.5 rounded" style={{background: 'rgba(34,197,94,0.08)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.1)'}}>
+                      {translatedDrafts.has(draft.id) ? 'Show English' : `${LANG_FLAGS[draft.sent_language] || ''} ${LANG_NAMES[draft.sent_language] || draft.sent_language}`}
+                    </button>
+                  )}
+                </div>
+                <p className="text-sm whitespace-pre-wrap" style={{color: '#e2e8f0', opacity: 0.7}}>{translatedDrafts.has(draft.id) ? draft.translated_content : draft.draft_body}</p>
                 <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.08)', color: '#64748b'}}>Approved by {draft.reviewed_by} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}</div>
               </div>
             ))}
