@@ -211,15 +211,6 @@ export default function ConversationDetail({
         composeSending={composeSending} handleCompose={handleCompose}
       />
 
-      {/* Handled indicator */}
-      {detail.messages.length > 0 &&
-       detail.messages[detail.messages.length - 1].direction === 'outbound' &&
-       detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).length === 0 && (
-        <div className="flex-shrink-0 px-4 py-2 text-center" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
-          <span className="text-xs" style={{color: '#4ade80'}}>{'\u2713'} Responded</span>
-        </div>
-      )}
-
       {/* Draft review */}
       <DraftPanel
         drafts={detail.drafts} revisionPending={revisionPending}
