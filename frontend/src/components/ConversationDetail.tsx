@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { format } from 'date-fns'
-import { LanguageIcon } from '@heroicons/react/24/outline'
+import { LanguageIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
 import { ConversationDetail as ConversationDetailType, Draft, apiFetch, LANG_FLAGS, LANG_NAMES } from './types'
 import { toast } from 'react-hot-toast'
 import ComposePanel from './ComposePanel'
@@ -70,73 +70,126 @@ export default function ConversationDetail({
   requestApproval, handleDraftAction, handleRevision, handleRejectWithReason,
   draftStateBadge,
 }: ConversationDetailProps) {
-  const [summaryOpen, setSummaryOpen] = useState(false)
-  const [translatedDrafts, setTranslatedDrafts] = useState<Set<string>>(new Set())
+  const [summaryExpanded, setSummaryExpanded] = useState(false)
+  // Track which sent drafts show translated version (by draft id)
+  const [showTranslated, setShowTranslated] = useState<Record<string, boolean>>({})
+  // Track which outbound messages show original language (by message id)
+  const [showMsgOriginal, setShowMsgOriginal] = useState<Record<string, boolean>>({})
+
+  const sentimentDot = (sentiment?: string) => {
+    if (!sentiment || sentiment === 'neutral') return null
+    const color = sentiment === 'upset' ? '#ef4444' : sentiment === 'frustrated' ? '#f59e0b' : sentiment === 'positive' ? '#22c55e' : '#64748b'
+    return <span className="inline-block w-2 h-2 rounded-full ml-1.5" style={{ backgroundColor: color }} title={sentiment} />
+  }
+
   return (
     <div className={`flex-1 flex flex-col min-w-0 ${mobileView === 'list' ? 'hidden md:flex' : ''}`}>
       {/* Mobile back button */}
       <div className="mobile-only mobile-nav-back" onClick={() => setMobileView('list')} style={{justifyContent: 'space-between'}}>
         <span>{'\u2190'} Back to inbox</span>
-        <button onClick={(e) => { e.stopPropagation(); setMobileView('info'); }} className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>Info</button>
         <button onClick={(e) => { e.stopPropagation(); setMobileView('info'); }} className="ml-auto px-2 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>{'\u2139\uFE0F'} Info</button>
       </div>
-      {/* Conversation header */}
-      <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-        <div className="flex justify-between items-start">
-          <div>
-            <h2 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>{detail.conversation.guest_name}</h2>
-            <div className="flex items-center space-x-3 text-xs mt-1" style={{color: '#64748b'}}>
-              {detail.conversation.property_name && <span onClick={() => fetchPropertyCard(detail.conversation.property_name)} style={{cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '2px'}}>{detail.conversation.property_name}</span>}
-              {detail.conversation.channel && channelBadge(detail.conversation.channel)}
-              {detail.conversation.check_in_date && detail.conversation.check_out_date && (
-                <span>{format(new Date(detail.conversation.check_in_date), 'MMM d')} - {format(new Date(detail.conversation.check_out_date), 'MMM d')}</span>
-              )}
-              {detail.conversation.num_guests && <span>{detail.conversation.num_guests} guests</span>}
-            </div>
+
+      {/* Compact conversation header with inline guest info */}
+      <div className="flex-shrink-0 px-3 py-2" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2 min-w-0">
+            <h2 className="text-base font-semibold truncate" style={{color: '#f1f5f9'}}>{detail.conversation.guest_name}</h2>
+            {sentimentDot(detail.conversation.sentiment)}
+            {detail.conversation.property_name && (
+              <span className="text-xs flex-shrink-0" onClick={() => fetchPropertyCard(detail.conversation.property_name)} style={{cursor: 'pointer', color: '#64748b', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '2px'}}>{detail.conversation.property_name}</span>
+            )}
+            {detail.conversation.channel && channelBadge(detail.conversation.channel)}
           </div>
-          {detail.conversation.first_response_minutes !== null && detail.conversation.first_response_minutes !== undefined && (
-            <span className="text-xs font-medium" style={{color: rtColor(detail.conversation.first_response_minutes)}}>
-              RT: {detail.conversation.first_response_minutes}m
-            </span>
-          )}
-        </div>
-        {detail.conversation.conversation_summary && (
-          <div className="mt-1">
-            <button onClick={() => setSummaryOpen(!summaryOpen)} className="flex items-center text-xs" style={{color: '#64748b'}}>
-              <span style={{transform: summaryOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', display: 'inline-block', marginRight: '4px'}}>\u25B6</span>
-              {summaryOpen ? 'Summary' : detail.conversation.conversation_summary.substring(0, 80) + (detail.conversation.conversation_summary.length > 80 ? '...' : '')}
-            </button>
-            {summaryOpen && (
-              <p className="text-xs mt-1 p-2 rounded" style={{color: '#94a3b8', background: 'rgba(255,255,255,0.03)'}}>{detail.conversation.conversation_summary}</p>
+          <div className="flex items-center gap-2 flex-shrink-0 text-xs" style={{color: '#64748b'}}>
+            {detail.conversation.check_in_date && detail.conversation.check_out_date && (
+              <span className="hidden sm:inline">{format(new Date(detail.conversation.check_in_date), 'MMM d')} - {format(new Date(detail.conversation.check_out_date), 'MMM d')}</span>
+            )}
+            {detail.conversation.num_guests && <span className="hidden sm:inline">{detail.conversation.num_guests}p</span>}
+            {detail.conversation.first_response_minutes !== null && detail.conversation.first_response_minutes !== undefined && (
+              <span className="font-medium" style={{color: rtColor(detail.conversation.first_response_minutes)}}>
+                RT: {detail.conversation.first_response_minutes}m
+              </span>
+            )}
+            {detail.messages.length > 0 && detail.messages[detail.messages.length - 1].direction === 'outbound' && !detail.drafts.some(d => ['draft_ready', 'under_review'].includes(d.state)) && (
+              <span style={{color: '#4ade80'}}>{'\u2713'}</span>
             )}
           </div>
+        </div>
+
+        {/* Collapsible summary — collapsed by default, one-line truncated */}
+        {detail.conversation.conversation_summary && (
+          <button
+            onClick={() => setSummaryExpanded(!summaryExpanded)}
+            className="flex items-start gap-1 text-xs w-full text-left mt-1"
+            style={{color: '#94a3b8'}}
+          >
+            {summaryExpanded ? <ChevronUpIcon className="h-3 w-3 flex-shrink-0 mt-0.5" /> : <ChevronDownIcon className="h-3 w-3 flex-shrink-0 mt-0.5" />}
+            <span className={summaryExpanded ? '' : 'truncate'}>{detail.conversation.conversation_summary}</span>
+          </button>
         )}
       </div>
 
-      {/* Messages */}
+      {/* Messages - dominant element */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar" style={{background: 'rgba(255,255,255,0.01)'}}>
-        {detail.messages.map(msg => (
-          <div key={msg.id} className={`flex ${msg.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}>
-            <div className="max-w-xl px-4 py-2.5 rounded-lg" style={{
-              background: msg.direction === 'outbound' ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.06)',
-              border: msg.direction === 'outbound' ? '1px solid rgba(34,197,94,0.15)' : '1px solid rgba(255,255,255,0.08)',
-              color: '#e2e8f0'
-            }}>
-              <p className="text-sm whitespace-pre-wrap" dir="auto">{msg.body}</p>
-              {msg.translated_body && msg.translated_body !== msg.body && (
-                <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8'}}>
-                  <LanguageIcon className="h-3 w-3 inline mr-1" /> <span dir="auto">{msg.translated_body}</span>
-                </div>
-              )}
-              <div className="text-xs mt-1" style={{color: '#64748b'}}>
-                {format(new Date(msg.created_at), 'HH:mm')} {msg.sender_name && `- ${msg.sender_name}`}
-                {msg.direction === 'inbound' && msg.original_language && msg.original_language !== 'en' && (
-                  <span className="ml-1">{LANG_FLAGS[msg.original_language] || ''} {LANG_NAMES[msg.original_language] || msg.original_language}</span>
+        {detail.messages.map(msg => {
+          const isOutbound = msg.direction === 'outbound'
+          const hasTranslation = msg.translated_body && msg.translated_body !== msg.body
+          const isNonEnglish = msg.original_language && msg.original_language !== 'en'
+          const showingOriginal = showMsgOriginal[msg.id]
+
+          // For outbound messages with translation: default to English (translated_body)
+          let displayBody = msg.body
+          if (isOutbound && hasTranslation && !showingOriginal) {
+            displayBody = msg.translated_body!
+          }
+
+          return (
+            <div key={msg.id} className={`flex ${isOutbound ? 'justify-end' : 'justify-start'}`}>
+              <div className="max-w-xl px-4 py-2.5 rounded-lg" style={{
+                background: isOutbound ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.06)',
+                border: isOutbound ? '1px solid rgba(34,197,94,0.15)' : '1px solid rgba(255,255,255,0.08)',
+                color: '#e2e8f0'
+              }}>
+                <p className="text-sm whitespace-pre-wrap" dir="auto">{displayBody}</p>
+
+                {/* Outbound with translation: "Sent in [language]" label + swap button */}
+                {isOutbound && hasTranslation && (
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="text-xs" style={{color: '#64748b'}}>
+                      {showingOriginal
+                        ? `Original (${LANG_FLAGS[msg.original_language!] || ''} ${LANG_NAMES[msg.original_language!] || msg.original_language})`
+                        : `Sent in ${LANG_FLAGS[msg.original_language!] || ''} ${LANG_NAMES[msg.original_language!] || msg.original_language}`
+                      }
+                    </span>
+                    <button
+                      onClick={() => setShowMsgOriginal(prev => ({ ...prev, [msg.id]: !prev[msg.id] }))}
+                      className="text-xs px-1.5 py-0.5 rounded"
+                      style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}
+                    >
+                      <LanguageIcon className="h-3 w-3 inline mr-0.5" />
+                      {showingOriginal ? 'English' : 'Original'}
+                    </button>
+                  </div>
                 )}
+
+                {/* Inbound with translation: show translated version below */}
+                {!isOutbound && hasTranslation && (
+                  <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8'}}>
+                    <LanguageIcon className="h-3 w-3 inline mr-1" /> <span dir="auto">{msg.translated_body}</span>
+                  </div>
+                )}
+
+                <div className="text-xs mt-1" style={{color: '#64748b'}}>
+                  {format(new Date(msg.created_at), 'HH:mm')} {msg.sender_name && `- ${msg.sender_name}`}
+                  {!isOutbound && isNonEnglish && (
+                    <span className="ml-1">{LANG_FLAGS[msg.original_language!] || ''} {LANG_NAMES[msg.original_language!] || msg.original_language}</span>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
 
         {/* Queued drafts - awaiting retry */}
         {detail.drafts.filter(d => d.state === "send_queued").map(draft => (
@@ -158,49 +211,61 @@ export default function ConversationDetail({
           </div>
         ))}
 
-        {/* Latest sent draft only */}
+        {/* Sent drafts - English by default with language swap */}
         {(() => {
           const sentDrafts = detail.drafts.filter(d => d.state === 'sent').sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
           const latestSent = sentDrafts[0]
           const olderSent = sentDrafts.slice(1)
           const rejectedDrafts = detail.drafts.filter(d => d.state === 'rejected')
           const hiddenCount = olderSent.length + rejectedDrafts.length
-          return (<>
-            {latestSent && (
-              <div key={`sent-${latestSent.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)'}}>
-                <div className="text-xs font-medium mb-1" style={{color: '#4ade80'}}>{latestSent.translated_content ? 'Approved English draft:' : 'Sent:'}</div>
-                <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{latestSent.draft_body}</p>
-                {latestSent.translated_content && latestSent.sent_language && (
-                  <div className="pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)'}}>
-                    <div className="text-xs font-medium mb-1" style={{color: '#4ade80'}}>Sent in {LANG_FLAGS[latestSent.sent_language] || ''} {LANG_NAMES[latestSent.sent_language] || latestSent.sent_language}:</div>
-                    <p className="text-sm whitespace-pre-wrap" style={{color: '#94a3b8'}}>{latestSent.translated_content}</p>
-                  </div>
-                )}
-                <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>Approved by {latestSent.reviewed_by} · {latestSent.sent_at ? format(new Date(latestSent.sent_at), 'MMM d HH:mm') : format(new Date(latestSent.updated_at), 'MMM d HH:mm')}</div>
+
+          const renderSentDraft = (draft: Draft, isOlder?: boolean) => {
+            const isShowingTranslated = showTranslated[draft.id] && draft.translated_content
+            const hasTranslation = draft.translated_content && draft.sent_language && draft.sent_language !== 'en'
+            return (
+              <div key={`sent-${draft.id}`} className="rounded-lg p-3 mt-2" style={{
+                background: isOlder ? 'rgba(34,197,94,0.04)' : 'rgba(34,197,94,0.06)',
+                border: isOlder ? '1px solid rgba(34,197,94,0.08)' : '1px solid rgba(34,197,94,0.1)',
+                opacity: isOlder ? 0.7 : 1,
+              }}>
+                <div className="flex items-center justify-between text-xs font-medium mb-1">
+                  <span style={{color: '#4ade80'}}>
+                    {isShowingTranslated
+                      ? `Sent in ${LANG_FLAGS[draft.sent_language!] || ''} ${LANG_NAMES[draft.sent_language!] || draft.sent_language}`
+                      : 'Sent'}
+                    {hasTranslation && !isShowingTranslated && (
+                      <span style={{color: '#64748b', fontWeight: 400}}> (in {LANG_FLAGS[draft.sent_language!] || ''} {LANG_NAMES[draft.sent_language!] || draft.sent_language})</span>
+                    )}
+                  </span>
+                  {hasTranslation && (
+                    <button
+                      onClick={() => setShowTranslated(prev => ({ ...prev, [draft.id]: !prev[draft.id] }))}
+                      className="flex items-center gap-1 px-1.5 py-0.5 rounded"
+                      style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}
+                    >
+                      <LanguageIcon className="h-3 w-3" />
+                      {isShowingTranslated ? 'Show English' : `Show ${LANG_NAMES[draft.sent_language!] || draft.sent_language}`}
+                    </button>
+                  )}
+                </div>
+                <p className="text-sm whitespace-pre-wrap" style={{color: '#e2e8f0'}} dir="auto">
+                  {isShowingTranslated ? draft.translated_content : draft.draft_body}
+                </p>
+                <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>
+                  Approved by {draft.reviewed_by} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}
+                </div>
               </div>
-            )}
+            )
+          }
+
+          return (<>
+            {latestSent && renderSentDraft(latestSent)}
             {hiddenCount > 0 && (
               <button onClick={() => setShowDraftHistory(!showDraftHistory)} className="text-xs px-2 py-1 rounded mx-4 mt-1" style={{color: '#64748b'}}>
                 {showDraftHistory ? 'Hide' : 'Show'} draft history ({hiddenCount} older)
               </button>
             )}
-            {showDraftHistory && olderSent.map(draft => (
-              <div key={`sent-old-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(34,197,94,0.04)', border: '1px solid rgba(34,197,94,0.08)'}}>
-                <div className="flex items-center justify-between mb-1">
-                  <div className="text-xs font-medium" style={{color: '#4ade80', opacity: 0.7}}>
-                    {translatedDrafts.has(draft.id) ? `Sent in ${LANG_FLAGS[draft.sent_language || ''] || ''} ${LANG_NAMES[draft.sent_language || ''] || draft.sent_language}` : 'Sent:'}
-                  </div>
-                  {draft.translated_content && draft.sent_language && (
-                    <button onClick={() => setTranslatedDrafts(prev => { const next = new Set(prev); if (next.has(draft.id)) next.delete(draft.id); else next.add(draft.id); return next })}
-                      className="text-xs px-1.5 py-0.5 rounded" style={{background: 'rgba(34,197,94,0.08)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.1)'}}>
-                      {translatedDrafts.has(draft.id) ? 'Show English' : `${LANG_FLAGS[draft.sent_language] || ''} ${LANG_NAMES[draft.sent_language] || draft.sent_language}`}
-                    </button>
-                  )}
-                </div>
-                <p className="text-sm whitespace-pre-wrap" style={{color: '#e2e8f0', opacity: 0.7}}>{translatedDrafts.has(draft.id) ? draft.translated_content : draft.draft_body}</p>
-                <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.08)', color: '#64748b'}}>Approved by {draft.reviewed_by} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}</div>
-              </div>
-            ))}
+            {showDraftHistory && olderSent.map(draft => renderSentDraft(draft, true))}
             {showDraftHistory && rejectedDrafts.map(draft => (
               <div key={`rejected-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.1)'}}>
                 <div className="text-xs font-medium mb-1" style={{color: '#f87171'}}>Rejected:</div>
@@ -213,25 +278,7 @@ export default function ConversationDetail({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Responded indicator */}
-      {detail.messages.length > 0 &&
-       detail.messages[detail.messages.length - 1].direction === 'outbound' &&
-       detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).length === 0 && (
-        <div className="flex-shrink-0 px-4 py-2 text-center" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
-          <span className="text-xs" style={{color: '#4ade80'}}>{'\u2713'} Responded</span>
-        </div>
-      )}
-
-      {/* Compose */}
-      <ComposePanel
-        composeOpen={composeOpen} setComposeOpen={setComposeOpen}
-        composeMode={composeMode} setComposeMode={setComposeMode}
-        composeText={composeText} setComposeText={setComposeText}
-        composeInstruction={composeInstruction} setComposeInstruction={setComposeInstruction}
-        composeSending={composeSending} handleCompose={handleCompose}
-      />
-
-      {/* Draft review */}
+      {/* Draft review - pinned above compose */}
       <DraftPanel
         drafts={detail.drafts} revisionPending={revisionPending}
         editingDraft={editingDraft} setEditingDraft={setEditingDraft}
@@ -245,6 +292,15 @@ export default function ConversationDetail({
         handleRevision={handleRevision} handleRejectWithReason={handleRejectWithReason}
         draftStateBadge={draftStateBadge}
         propertyName={detail.conversation.property_name}
+      />
+
+      {/* Compose - bottom chat bar */}
+      <ComposePanel
+        composeOpen={composeOpen} setComposeOpen={setComposeOpen}
+        composeMode={composeMode} setComposeMode={setComposeMode}
+        composeText={composeText} setComposeText={setComposeText}
+        composeInstruction={composeInstruction} setComposeInstruction={setComposeInstruction}
+        composeSending={composeSending} handleCompose={handleCompose}
       />
     </div>
   )

@@ -46,10 +46,10 @@ export default function DraftPanel({
 }: DraftPanelProps) {
   if (revisionPending) {
     return (
-      <div className="rounded-lg p-4 mx-4 mb-2 flex-shrink-0" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)'}}>
+      <div className="rounded-lg p-3 mx-3 mb-1 flex-shrink-0" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)'}}>
         <div className="flex items-center space-x-2">
-          <ArrowPathIcon className="h-4 w-4 animate-spin" style={{color: '#6395ff'}} />
-          <span className="text-sm" style={{color: '#94a3b8'}}>Judith is revising...</span>
+          <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" style={{color: '#6395ff'}} />
+          <span className="text-xs" style={{color: '#94a3b8'}}>Judith is revising...</span>
         </div>
       </div>
     )
@@ -65,10 +65,10 @@ export default function DraftPanel({
   return (
     <>
       {readyDrafts.map(draft => (
-        <div key={draft.id} className="rounded-lg p-4 mx-4 mb-2 flex-shrink-0" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', borderTop: '1px solid rgba(255,255,255,0.06)'}}>
-          <div className="flex items-center justify-between mb-2">
-            <h4 className="text-sm font-medium flex items-center" style={{color: '#94a3b8'}}>
-              <GlobeAltIcon className="h-4 w-4 mr-1.5" /> AI Draft
+        <div key={draft.id} className="rounded-lg p-3 mx-3 mb-1 flex-shrink-0" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', borderTop: '1px solid rgba(255,255,255,0.06)'}}>
+          <div className="flex items-center justify-between mb-1.5">
+            <h4 className="text-xs font-medium flex items-center" style={{color: '#94a3b8'}}>
+              <GlobeAltIcon className="h-3.5 w-3.5 mr-1" /> AI Draft
               {draft.confidence != null && (() => {
                 const c = Number(draft.confidence)
                 const dbg = c >= 80 ? 'rgba(34,197,94,0.15)' : c >= 60 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)'
@@ -92,7 +92,7 @@ export default function DraftPanel({
             </div>
           ) : (
             <>
-              <div className="max-h-[30vh] overflow-y-auto custom-scrollbar">
+              <div className="max-h-[20vh] overflow-y-auto custom-scrollbar">
               <div className="p-3 rounded text-sm mb-2 whitespace-pre-wrap" dir="auto" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#e2e8f0'}}>{draft.draft_body}</div>
               {draft.draft_translated && draft.draft_translated !== draft.draft_body && (
                 <div className="p-3 rounded text-sm mb-2" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)'}}>

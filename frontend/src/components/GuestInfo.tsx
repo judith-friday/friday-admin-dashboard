@@ -7,6 +7,8 @@ import {
   ArrowPathIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
 } from '@heroicons/react/24/outline'
 import { ConversationDetail, apiFetch } from './types'
 import PendingActionsTab from './PendingActions'
@@ -30,30 +32,55 @@ interface GuestInfoProps {
   draftStateBadge: (state?: string) => React.ReactNode
 }
 
+// Collapsible section component
+function CollapsibleSection({ title, defaultOpen = false, count, children }: {
+  title: string; defaultOpen?: boolean; count?: number; children: React.ReactNode
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <div style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between p-3 text-xs font-semibold"
+        style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}
+      >
+        <span className="flex items-center gap-1.5">
+          {open ? <ChevronDownIcon className="h-3 w-3" /> : <ChevronRightIcon className="h-3 w-3" />}
+          {title}
+          {count !== undefined && count > 0 && (
+            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>{count}</span>
+          )}
+        </span>
+      </button>
+      {open && children}
+    </div>
+  )
+}
+
 export default function GuestInfo({
   detail, token, selectedConvId, mobileView, setMobileView, setDetail,
   handleMarkDone, handleReopen, showDoneWarning, setShowDoneWarning,
   doneWarningCount, setActiveTab, staffNotes, handleNotesChange,
   notesTimerRef, draftStateBadge,
 }: GuestInfoProps) {
-  const [draftHistoryOpen, setDraftHistoryOpen] = useState(false)
   return (
     <div className={`w-72 overflow-y-auto custom-scrollbar ${mobileView === 'info' ? 'fixed inset-0 w-full z-40 md:relative md:w-72' : 'hidden md:block'}`} style={{background: 'rgba(255,255,255,0.05)', borderLeft: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
+      {/* Header with back button on mobile */}
       <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-        <div className="flex items-center justify-between"><h3 className="text-xs font-semibold" style={{color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px"}}>Guest Info</h3><button className="mobile-only text-xs px-2 py-0.5 rounded" style={{background: "rgba(99,149,255,0.15)", color: "#6395ff"}} onClick={() => setMobileView("detail")}>{'\u2190'} Back</button></div>
-      </div>
-      <div className="px-3 py-2 text-xs" style={{color: '#94a3b8', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-        <div className="flex flex-wrap gap-x-3 gap-y-1">
-          {detail.conversation.guest_email && <span>{detail.conversation.guest_email}</span>}
-          {detail.conversation.channel && detail.conversation.num_guests && (
-            <span>{detail.conversation.channel} \u00B7 {detail.conversation.num_guests} guest{detail.conversation.num_guests > 1 ? 's' : ''}</span>
-          )}
-          {!detail.conversation.num_guests && detail.conversation.channel && <span>{detail.conversation.channel}</span>}
-          {detail.conversation.check_in_date && detail.conversation.check_out_date && (
-            <span>{format(new Date(detail.conversation.check_in_date), 'MMM d')} \u2192 {format(new Date(detail.conversation.check_out_date), 'MMM d')}</span>
-          )}
-          <span>{detail.conversation.inbound_count || 0} msgs</span>
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold" style={{color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px"}}>Guest Info</h3>
+          <button className="mobile-only text-xs px-2 py-0.5 rounded" style={{background: "rgba(99,149,255,0.15)", color: "#6395ff"}} onClick={() => setMobileView("detail")}>{'\u2190'} Back</button>
         </div>
+      </div>
+
+      {/* Compact guest details */}
+      <div className="p-3 space-y-1.5 text-xs" style={{color: '#94a3b8', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+        {detail.conversation.guest_email && <div>Email: {detail.conversation.guest_email}</div>}
+        {detail.conversation.channel && <div>Channel: {detail.conversation.channel}</div>}
+        {detail.conversation.check_in_date && <div>Check-in: {format(new Date(detail.conversation.check_in_date), 'MMM d, yyyy')}</div>}
+        {detail.conversation.check_out_date && <div>Check-out: {format(new Date(detail.conversation.check_out_date), 'MMM d, yyyy')}</div>}
+        {detail.conversation.num_guests && <div>{detail.conversation.num_guests} guest{detail.conversation.num_guests > 1 ? 's' : ''}</div>}
+        <div>{detail.conversation.inbound_count || 0} inbound messages</div>
         {detail.conversation.sentiment && detail.conversation.sentiment !== 'neutral' && (
           <div className="flex items-center gap-1.5 mt-1">
             <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: detail.conversation.sentiment === 'upset' ? '#ef4444' : detail.conversation.sentiment === 'frustrated' ? '#f59e0b' : detail.conversation.sentiment === 'positive' ? '#22c55e' : '#64748b'}} />
@@ -125,7 +152,7 @@ export default function GuestInfo({
         <p className="text-xs mt-1" style={{color: '#64748b'}}>{detail.conversation.auto_send_enabled ? 'On \u2014 routine replies \u226585% send automatically' : 'Off \u2014 all drafts require review'}</p>
       </div>
 
-      {/* Staff notes */}
+      {/* Staff notes - always visible */}
       <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
         <h3 className="text-xs font-semibold mb-1" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Staff Notes</h3>
         <textarea value={staffNotes}
@@ -140,52 +167,42 @@ export default function GuestInfo({
             } catch { }
           }}
           placeholder="Add notes for Judith..."
-          className="w-full text-xs rounded px-2 py-1.5 resize-none outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} rows={3} />
+          className="w-full text-xs rounded px-2 py-1.5 resize-none outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} rows={2} />
       </div>
 
-      {/* Suggested next steps */}
+      {/* Suggested next steps - collapsible */}
       {detail.conversation.next_steps && (() => { try { const steps = JSON.parse(detail.conversation.next_steps); return steps.length > 0 ? (
-        <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-          <h3 className="text-xs font-semibold mb-2" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Suggested Next Steps</h3>
-          <div className="space-y-1.5">
+        <CollapsibleSection title="Next Steps" defaultOpen={true} count={steps.length}>
+          <div className="px-3 pb-3 space-y-1.5">
             {steps.map((s: any, i: number) => (
               <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#e2e8f0'}}>
                 <span>{s.icon || '\uD83D\uDCCB'}</span>
                 <span>{s.text}{s.who && <span style={{color: '#6395ff'}}> \u2014 {s.who}</span>}</span>
               </div>
             ))}
+            <p className="text-xs mt-1" style={{color: '#475569', fontStyle: 'italic'}}>Judith's suggestions based on conversation context</p>
           </div>
-          <p className="text-xs mt-2" style={{color: '#475569', fontStyle: 'italic'}}>Judith's suggestions based on conversation context</p>
-        </div>
+        </CollapsibleSection>
       ) : null; } catch { return null; } })()}
 
-      {/* Draft history */}
+      {/* Draft history - collapsible, collapsed by default */}
       {detail.drafts.length > 0 && (
-        <div style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-          <button className="w-full p-3 flex items-center justify-between" onClick={() => setDraftHistoryOpen(!draftHistoryOpen)}>
-            <h3 className="text-xs font-semibold" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Draft History ({detail.drafts.length})</h3>
-            <span className="text-xs" style={{color: '#64748b', transform: draftHistoryOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', display: 'inline-block'}}>\u25B6</span>
-          </button>
-          {draftHistoryOpen && (
-            <div className="px-3 pb-3 space-y-1.5">
-              {detail.drafts.map(d => (
-                <div key={d.id} className="flex items-center justify-between text-xs">
-                  <span style={{color: '#64748b'}}>{format(new Date(d.created_at), 'MMM d HH:mm')}</span>
-                  {draftStateBadge(d.state)}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <CollapsibleSection title="Draft History" defaultOpen={false} count={detail.drafts.length}>
+          <div className="px-3 pb-3 space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar">
+            {detail.drafts.map(d => (
+              <div key={d.id} className="flex items-center justify-between text-xs">
+                <span style={{color: '#64748b'}}>{format(new Date(d.created_at), 'MMM d HH:mm')}</span>
+                {draftStateBadge(d.state)}
+              </div>
+            ))}
+          </div>
+        </CollapsibleSection>
       )}
 
-      {/* Pending actions for this conversation */}
-      <div>
-        <div className="p-3 pb-1">
-          <h3 className="text-xs font-semibold" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Pending Actions</h3>
-        </div>
+      {/* Pending actions for this conversation - collapsible */}
+      <CollapsibleSection title="Pending Actions" defaultOpen={true}>
         <PendingActionsTab token={token} conversationFilter={selectedConvId} />
-      </div>
+      </CollapsibleSection>
     </div>
   )
 }
