@@ -135,6 +135,10 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                     className="px-2 py-1 text-xs rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Done</button>
                   <button onClick={() => handleAction(action.id, 'dismissed')}
                     className="px-2 py-1 text-xs rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Dismiss</button>
+                  <button onClick={async () => { try { await apiFetch('/api/action-feedback', { method: 'POST', body: JSON.stringify({ action_id: action.id, action_type: 'pending_action', feedback_type: 'teach', original_text: action.action_text }) }); toast.success('Taught: good action'); } catch { toast.error('Failed') } }}
+                    className="px-1.5 py-0.5 rounded text-[10px]" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}} title="Good detection">\u2713</button>
+                  <button onClick={async () => { try { await apiFetch('/api/action-feedback', { method: 'POST', body: JSON.stringify({ action_id: action.id, action_type: 'pending_action', feedback_type: 'reject', original_text: action.action_text }) }); toast.success('Rejected: bad detection'); } catch { toast.error('Failed') } }}
+                    className="px-1.5 py-0.5 rounded text-[10px]" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}} title="Bad detection">\u2717</button>
                 </div>
               </div>
             ) : (
