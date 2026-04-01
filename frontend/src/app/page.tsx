@@ -41,7 +41,6 @@ import LoginScreen from '../components/LoginScreen'
 import BugReport from '../components/BugReport'
 import PropertyCard from '../components/PropertyCard'
 import SendConfirmModal from '../components/SendConfirmModal'
-import SendConfirmModal from '../components/SendConfirmModal'
 
 export default function MessageDashboard() {
   const [token, setTokenState] = useState<string | null>(null)
