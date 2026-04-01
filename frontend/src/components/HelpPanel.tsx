@@ -19,7 +19,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex justify-end" data-testid="modal-help-panel" onClick={onClose}>
       <div className="absolute inset-0" style={{background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(2px)'}} />
       <div className="relative w-full md:w-[340px] h-full overflow-y-auto slide-in-right custom-scrollbar" 
            style={{background: 'rgba(15,25,50,0.97)', borderLeft: '1px solid rgba(255,255,255,0.08)'}}
@@ -29,7 +29,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
             <div className="text-base font-bold" style={{color: '#f1f5f9'}}>Friday GMS</div>
             <div className="text-xs" style={{color: '#64748b'}}>Quick guide</div>
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-md flex items-center justify-center" style={{background: 'rgba(255,255,255,0.06)', color: '#64748b'}}>✕</button>
+          <button onClick={onClose} className="w-7 h-7 rounded-md flex items-center justify-center" data-testid="btn-close-help" style={{background: 'rgba(255,255,255,0.06)', color: '#64748b'}}>✕</button>
         </div>
         <div className="px-6 py-5 space-y-6">
           <ExpandableSection title="Getting started">

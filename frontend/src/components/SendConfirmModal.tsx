@@ -36,7 +36,7 @@ export default function SendConfirmModal({
       {/* Send confirmation modal */}
       {sendConfirm && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}}>
-          <div className="rounded-xl p-6 max-w-md mx-4" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}}>
+          <div className="rounded-xl p-6 max-w-md mx-4" data-testid="modal-send-confirm" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}}>
             <div className="flex items-center mb-3">
               <PaperAirplaneIcon className="h-6 w-6 mr-2" style={{color: '#4ade80'}} />
               <h3 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>Confirm Send</h3>
@@ -62,10 +62,12 @@ export default function SendConfirmModal({
             </div>
             <div className="flex space-x-2">
               <button onClick={() => executeSend(sendConfirm.draftId)}
+                data-testid="btn-confirm-send"
                 className="flex-1 px-3 py-2 text-sm rounded-lg font-medium" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
                 Confirm Send
               </button>
               <button onClick={() => setSendConfirm(null)}
+                data-testid="btn-cancel-send"
                 className="flex-1 px-3 py-2 text-sm rounded-lg" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
                 Cancel
               </button>

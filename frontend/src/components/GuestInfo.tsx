@@ -64,7 +64,7 @@ export default function GuestInfo({
   notesTimerRef, draftStateBadge,
 }: GuestInfoProps) {
   return (
-    <div className={`w-72 overflow-y-auto custom-scrollbar ${mobileView === 'info' ? 'fixed inset-0 w-full z-40 md:relative md:w-72' : 'hidden md:block'}`} style={{background: 'rgba(255,255,255,0.05)', borderLeft: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
+    <div data-testid="section-guest-info" className={`w-72 overflow-y-auto custom-scrollbar ${mobileView === 'info' ? 'fixed inset-0 w-full z-40 md:relative md:w-72' : 'hidden md:block'}`} style={{background: 'rgba(255,255,255,0.05)', borderLeft: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
       {/* Header with back button on mobile */}
       <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
         <div className="flex items-center justify-between">
@@ -170,20 +170,14 @@ export default function GuestInfo({
           className="w-full text-xs rounded px-2 py-1.5 resize-none outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} rows={2} />
       </div>
 
-      {/* Suggested next steps - collapsible with feedback buttons */}
+      {/* Suggested next steps - collapsible */}
       {detail.conversation.next_steps && (() => { try { const steps = JSON.parse(detail.conversation.next_steps); return steps.length > 0 ? (
         <CollapsibleSection title="Next Steps" defaultOpen={true} count={steps.length}>
           <div className="px-3 pb-3 space-y-1.5">
             {steps.map((s: any, i: number) => (
-              <div key={i} className="flex items-start justify-between gap-2 text-xs" style={{color: '#e2e8f0'}}>
-                <div className="flex items-start gap-2">
-                  <span>{s.icon || '\uD83D\uDCCB'}</span>
-                  <span>{s.text}{s.who && <span style={{color: '#6395ff'}}> \u2014 {s.who}</span>}</span>
-                </div>
-                <div className="flex gap-1 flex-shrink-0">
-                  <button onClick={async () => { try { await apiFetch('/api/action-feedback', { method: 'POST', body: JSON.stringify({ action_type: 'suggested_step', feedback_type: 'teach', original_text: s.text }) }); toast.success('Marked as good suggestion'); } catch { toast.error('Failed') } }} className="px-1.5 py-0.5 rounded text-[10px]" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}} title="Correct suggestion">\u2713</button>
-                  <button onClick={async () => { try { await apiFetch('/api/action-feedback', { method: 'POST', body: JSON.stringify({ action_type: 'suggested_step', feedback_type: 'reject', original_text: s.text }) }); toast.success('Marked as wrong suggestion'); } catch { toast.error('Failed') } }} className="px-1.5 py-0.5 rounded text-[10px]" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}} title="Wrong suggestion">\u2717</button>
-                </div>
+              <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#e2e8f0'}}>
+                <span>{s.icon || '\uD83D\uDCCB'}</span>
+                <span>{s.text}{s.who && <span style={{color: '#6395ff'}}> \u2014 {s.who}</span>}</span>
               </div>
             ))}
             <p className="text-xs mt-1" style={{color: '#475569', fontStyle: 'italic'}}>Judith's suggestions based on conversation context</p>

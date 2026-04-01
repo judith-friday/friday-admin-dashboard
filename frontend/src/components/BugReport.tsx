@@ -24,15 +24,16 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
         className="fixed bottom-4 right-4 z-40 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
         style={{background: 'rgba(99,149,255,0.15)', border: '1px solid rgba(99,149,255,0.3)', color: '#6395ff', fontSize: '18px'}}
         title="Report a bug"
+        data-testid="btn-bug-report"
       >🐛</button>
 
       {/* Bug report modal */}
       {bugReportOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}} onClick={() => setBugReportOpen(false)}>
-          <div className="rounded-xl p-6 max-w-md mx-4 w-full" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}} onClick={e => e.stopPropagation()}>
+          <div className="rounded-xl p-6 max-w-md mx-4 w-full" data-testid="modal-bug-report" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>🐛 Report a Bug</h3>
-              <button onClick={() => setBugReportOpen(false)} className="text-sm" style={{color: '#64748b'}}>✕</button>
+              <button onClick={() => setBugReportOpen(false)} className="text-sm" data-testid="btn-close-bug" style={{color: '#64748b'}}>✕</button>
             </div>
             <div className="space-y-3">
               <div>
@@ -40,6 +41,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
                 <input type="text" value={bugWhat} onChange={e => setBugWhat(e.target.value)}
                   onKeyDown={e => e.stopPropagation()}
                   autoComplete="off"
+                  data-testid="input-bug-what"
                   placeholder="e.g. Draft didn't generate for new message"
                   className="w-full text-sm rounded-lg px-3 py-2 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9'}} />
               </div>
@@ -48,6 +50,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
                 <input type="text" value={bugExpect} onChange={e => setBugExpect(e.target.value)}
                   onKeyDown={e => e.stopPropagation()}
                   autoComplete="off"
+                  data-testid="input-bug-expect"
                   placeholder="e.g. A draft should have appeared in the review panel"
                   className="w-full text-sm rounded-lg px-3 py-2 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9'}} />
               </div>
@@ -88,7 +91,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
                     style={{background: bugCopied ? 'rgba(34,197,94,0.2)' : 'rgba(99,149,255,0.15)', color: bugCopied ? '#22c55e' : '#6395ff', border: bugCopied ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(99,149,255,0.3)'}}>
                     {bugCopied ? '✅ Copied! Paste in #fr-gms-feedback' : '📋 Copy to clipboard'}
                   </button>
-                  <button disabled={bugSubmitting} onClick={async () => {
+                  <button disabled={bugSubmitting} data-testid="btn-submit-bug" onClick={async () => {
                     setBugSubmitting(true);
                     try {
                       await apiFetch('/api/bug-reports', {

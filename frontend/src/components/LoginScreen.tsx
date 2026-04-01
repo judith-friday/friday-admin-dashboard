@@ -118,7 +118,7 @@ export default function LoginScreen({ onLogin }: { onLogin: (token: string) => v
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{background: 'linear-gradient(135deg, #0d1117 0%, #0f1d35 50%, #0d1117 100%)', animation: 'gradientShift 20s ease infinite', backgroundSize: '200% 200%'}}>
+    <div className="min-h-screen flex items-center justify-center" data-testid="container-login-screen" style={{background: 'linear-gradient(135deg, #0d1117 0%, #0f1d35 50%, #0d1117 100%)', animation: 'gradientShift 20s ease infinite', backgroundSize: '200% 200%'}}>
       <form onSubmit={handleSubmit} className="p-8 rounded-xl w-full max-w-sm" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)'}}>
         <h1 className="text-2xl font-bold mb-1" style={{color: '#f1f5f9'}}>Friday GMS</h1>
         <p className="text-sm mb-6 h-5" style={{color: '#6395ff', opacity: 0.8}}>{tagline}</p>
@@ -126,8 +126,10 @@ export default function LoginScreen({ onLogin }: { onLogin: (token: string) => v
         <input type="email" placeholder="Email" value={username} onChange={e => setUsername(e.target.value)}
           className="w-full mb-3 px-4 py-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-200" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} autoFocus />
         <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}
+          data-testid="input-login-password"
           className="w-full mb-4 px-4 py-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-200" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
         <button type="submit" disabled={loading}
+          data-testid="btn-login"
           className="w-full py-2 rounded-lg font-medium disabled:opacity-50" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>
           {loading ? 'Signing in...' : 'Sign In'}
         </button>

@@ -725,7 +725,7 @@ export default function MessageDashboard() {
         setShowHelp={setShowHelp}
       />
 
-      <div className="flex h-[calc(100vh-72px)] relative">
+      <div className="flex h-[calc(100vh-72px)] relative" data-testid="nav-conversation-list">
         <ConversationList
           conversations={conversations}
           filteredConversations={filteredConversations}

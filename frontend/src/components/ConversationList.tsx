@@ -33,7 +33,7 @@ export default function ConversationList({
   statusBadge, channelBadge,
 }: ConversationListProps) {
   return (
-    <div className={`w-80 flex flex-col ${mobileView !== 'list' ? 'hidden md:flex' : 'w-full md:w-80'}`} style={{background: 'rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
+    <div data-testid="container-inbox" className={`w-80 flex flex-col ${mobileView !== 'list' ? 'hidden md:flex' : 'w-full md:w-80'}`} style={{background: 'rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
       {/* Tabs */}
       <div className="flex text-xs tabs-scroll" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
         {([
@@ -70,7 +70,7 @@ export default function ConversationList({
             </div>
           ) : (
             filteredConversations.map(conv => (
-              <div key={conv.id} onClick={() => selectConversation(conv)}
+              <div key={conv.id} data-testid={`conversation-${conv.id}`} onClick={() => selectConversation(conv)}
                 className="group relative p-3 cursor-pointer transition-all duration-200 ease-in-out" style={{borderBottom: '1px solid rgba(255,255,255,0.03)', background: selectedConvId === conv.id ? 'linear-gradient(90deg, rgba(30,58,95,0.4), transparent)' : 'transparent', borderLeft: selectedConvId === conv.id ? '2px solid #6395ff' : '2px solid transparent', fontWeight: conv.is_unread ? 600 : 400}}>
                 {/* Hover action: mark as unread */}
                 {!conv.is_unread && (

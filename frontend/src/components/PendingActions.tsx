@@ -80,11 +80,11 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
   if (loading) return <div className="p-4 text-center" style={{color: '#64748b'}}>Loading actions...</div>
 
   return (
-    <div className="flex-1 overflow-y-auto custom-scrollbar">
+    <div data-testid="section-pending-actions" className="flex-1 overflow-y-auto custom-scrollbar">
       {!conversationFilter && (
         <div className="p-3 flex justify-between items-center" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
           <span className="text-sm font-medium" style={{color: '#94a3b8'}}>{actions.length} pending action{actions.length !== 1 ? 's' : ''}</span>
-          <button onClick={() => setShowAddForm(!showAddForm)} className="flex items-center text-sm" style={{color: '#6395ff'}}>
+          <button data-testid="btn-add-action" onClick={() => setShowAddForm(!showAddForm)} className="flex items-center text-sm" style={{color: '#6395ff'}}>
             <PlusIcon className="h-4 w-4 mr-1" /> Add
           </button>
         </div>
@@ -104,8 +104,8 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
             onChange={e => setNewAction({ ...newAction, due_by: e.target.value })}
             className="w-full text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
           <div className="flex space-x-2">
-            <button type="submit" className="px-3 py-1 text-xs rounded" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>Create</button>
-            <button type="button" onClick={() => setShowAddForm(false)} className="px-3 py-1 text-xs rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Cancel</button>
+            <button data-testid="btn-create-action" type="submit" className="px-3 py-1 text-xs rounded" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>Create</button>
+            <button data-testid="btn-cancel-add-action" type="button" onClick={() => setShowAddForm(false)} className="px-3 py-1 text-xs rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Cancel</button>
           </div>
         </form>
       )}
@@ -131,14 +131,10 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                   onChange={e => setCompletionNotes({ ...completionNotes, [action.id]: e.target.value })}
                   className="w-full text-xs rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
                 <div className="flex space-x-2">
-                  <button onClick={() => handleAction(action.id, 'completed')}
+                  <button data-testid={`btn-action-done-${action.id}`} onClick={() => handleAction(action.id, 'completed')}
                     className="px-2 py-1 text-xs rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Done</button>
-                  <button onClick={() => handleAction(action.id, 'dismissed')}
+                  <button data-testid={`btn-action-dismiss-${action.id}`} onClick={() => handleAction(action.id, 'dismissed')}
                     className="px-2 py-1 text-xs rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Dismiss</button>
-                  <button onClick={async () => { try { await apiFetch('/api/action-feedback', { method: 'POST', body: JSON.stringify({ action_id: action.id, action_type: 'pending_action', feedback_type: 'teach', original_text: action.action_text }) }); toast.success('Taught: good action'); } catch { toast.error('Failed') } }}
-                    className="px-1.5 py-0.5 rounded text-[10px]" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}} title="Good detection">\u2713</button>
-                  <button onClick={async () => { try { await apiFetch('/api/action-feedback', { method: 'POST', body: JSON.stringify({ action_id: action.id, action_type: 'pending_action', feedback_type: 'reject', original_text: action.action_text }) }); toast.success('Rejected: bad detection'); } catch { toast.error('Failed') } }}
-                    className="px-1.5 py-0.5 rounded text-[10px]" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}} title="Bad detection">\u2717</button>
                 </div>
               </div>
             ) : (

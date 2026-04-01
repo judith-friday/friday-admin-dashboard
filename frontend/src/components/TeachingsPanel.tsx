@@ -33,13 +33,13 @@ export default function TeachingsPanel({
   if (!showTeachingsPanel) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex">
+    <div className="fixed inset-0 z-50 flex" data-testid="modal-teachings-panel">
       <div className="flex-1" style={{background: 'rgba(0,0,0,0.4)'}} onClick={() => setShowTeachingsPanel(false)} />
       <div className="w-[480px] h-full overflow-y-auto custom-scrollbar" style={{background: '#0d1117', borderLeft: '1px solid rgba(255,255,255,0.08)'}}>
         <div className="p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>🧠 Teachings</h2>
-            <button onClick={() => setShowTeachingsPanel(false)} className="text-sm" style={{color: '#64748b'}}>✕</button>
+            <button onClick={() => setShowTeachingsPanel(false)} className="text-sm" data-testid="btn-close-teachings" style={{color: '#64748b'}}>✕</button>
           </div>
           <p className="text-xs mt-1" style={{color: '#64748b'}}>Instructions Judith has learned from revisions</p>
         </div>
@@ -49,9 +49,11 @@ export default function TeachingsPanel({
           <div className="flex space-x-2">
             <input type="text" value={newTeachingText} onChange={e => setNewTeachingText(e.target.value)}
               placeholder="Add a teaching..."
+              data-testid="input-teaching-text"
               className="flex-1 text-sm rounded px-2 py-1.5 outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
               onKeyDown={e => { if (e.key === 'Enter') handleAddTeaching() }} />
             <button onClick={handleAddTeaching} disabled={!newTeachingText.trim()}
+              data-testid="btn-add-teaching"
               className="px-3 py-1.5 text-xs rounded disabled:opacity-50" style={{background: 'rgba(168,85,247,0.2)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)'}}>
               Add
             </button>
@@ -89,7 +91,7 @@ export default function TeachingsPanel({
                     <button onClick={() => setRevokeId(null)} className="text-xs" style={{color: '#64748b'}}>✕</button>
                   </div>
                 ) : (
-                  <button onClick={() => setRevokeId(t.id)} className="text-xs" style={{color: '#f87171'}}>Revoke</button>
+                  <button onClick={() => setRevokeId(t.id)} className="text-xs" data-testid={`btn-revoke-teaching-${t.id}`} style={{color: '#f87171'}}>Revoke</button>
                 )}
               </div>
             </div>

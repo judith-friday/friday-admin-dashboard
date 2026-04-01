@@ -83,9 +83,9 @@ export default function ConversationDetail({
   }
 
   return (
-    <div className={`flex-1 flex flex-col min-w-0 ${mobileView === 'list' ? 'hidden md:flex' : ''}`}>
+    <div data-testid="container-conversation-detail" className={`flex-1 flex flex-col min-w-0 ${mobileView === 'list' ? 'hidden md:flex' : ''}`}>
       {/* Mobile back button */}
-      <div className="mobile-only mobile-nav-back" onClick={() => setMobileView('list')} style={{justifyContent: 'space-between'}}>
+      <div data-testid="nav-back-button" className="mobile-only mobile-nav-back" onClick={() => setMobileView('list')} style={{justifyContent: 'space-between'}}>
         <span>{'\u2190'} Back to inbox</span>
         <button onClick={(e) => { e.stopPropagation(); setMobileView('info'); }} className="ml-auto px-2 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>{'\u2139\uFE0F'} Info</button>
       </div>
@@ -120,6 +120,7 @@ export default function ConversationDetail({
         {/* Collapsible summary — collapsed by default, one-line truncated */}
         {detail.conversation.conversation_summary && (
           <button
+            data-testid="section-summary"
             onClick={() => setSummaryExpanded(!summaryExpanded)}
             className="flex items-start gap-1 text-xs w-full text-left mt-1"
             style={{color: '#94a3b8'}}
@@ -131,7 +132,7 @@ export default function ConversationDetail({
       </div>
 
       {/* Messages - dominant element */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar" style={{background: 'rgba(255,255,255,0.01)'}}>
+      <div data-testid="section-messages" className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar" style={{background: 'rgba(255,255,255,0.01)'}}>
         {detail.messages.map(msg => {
           const isOutbound = msg.direction === 'outbound'
           const hasTranslation = msg.translated_body && msg.translated_body !== msg.body
