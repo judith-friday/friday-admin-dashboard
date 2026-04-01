@@ -838,6 +838,8 @@ export default function MessageDashboard() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'review' | 'open' | 'done' | 'actions'>('all')
   const [editingDraft, setEditingDraft] = useState<string | null>(null)
+  const isEditingRef = useRef(false)
+  const [revisionPending, setRevisionPending] = useState(false)
   const [editBody, setEditBody] = useState('')
   const [revisionText, setRevisionText] = useState('')
   const [revisingDraft, setRevisingDraft] = useState<string | null>(null)
@@ -951,6 +953,7 @@ export default function MessageDashboard() {
 
   // Fetch conversation detail
   const fetchDetail = useCallback(async (convId: string) => {
+    if (isEditingRef.current) return
     try {
       const data = await apiFetch(`/api/conversations/${convId}`)
       setDetail(data)
@@ -981,7 +984,14 @@ export default function MessageDashboard() {
           fetchConversations()
           fetchStats()
           if (selectedConvId && (data.data?.conversationId === selectedConvId || data.data?.conversation_id === selectedConvId)) {
-            fetchDetail(selectedConvId)
+            if (!isEditingRef.current) {
+              if (data.type === 'draft_ready' && revisionPending) {
+                fetchDetail(selectedConvId)
+                setRevisionPending(false)
+              } else if (!revisionPending || data.type !== 'draft_ready') {
+                fetchDetail(selectedConvId)
+              }
+            }
           }
           if (data.type === 'new_message') {
             toast.success('New message received')
@@ -996,7 +1006,7 @@ export default function MessageDashboard() {
     }
 
     return () => es.close()
-  }, [token, selectedConvId, fetchConversations, fetchStats, fetchDetail, isMuted, playChime])
+  }, [token, selectedConvId, fetchConversations, fetchStats, fetchDetail, isMuted, playChime, revisionPending])
 
   // Auto-refresh every 30s
   useEffect(() => {
@@ -1091,6 +1101,7 @@ export default function MessageDashboard() {
         toast.success('Draft rejected')
       }
       setEditingDraft(null)
+      isEditingRef.current = false
       // For reject, refresh immediately. For approve, handled in executeSend.
       if (action === 'reject') {
         if (selectedConvId) fetchDetail(selectedConvId)
@@ -1113,8 +1124,7 @@ export default function MessageDashboard() {
       toast.success(msgs[mode])
       setRevisionText('')
       setShowTeachPrompt(null)
-      setTimeout(() => { if (selectedConvId) fetchDetail(selectedConvId) }, 3000)
-      setTimeout(() => { if (selectedConvId) fetchDetail(selectedConvId) }, 8000)
+      setRevisionPending(true)
     } catch (err: any) {
       toast.error(err.message)
     } finally {
@@ -2223,7 +2233,14 @@ export default function MessageDashboard() {
                 </div>
 
                 {/* Draft review section - pinned to bottom */}
-                {detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 1).map(draft => (
+                {revisionPending ? (
+                  <div className="rounded-lg p-4 mx-4 mb-2 flex-shrink-0" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)'}}>
+                    <div className="flex items-center space-x-2">
+                      <ArrowPathIcon className="h-4 w-4 animate-spin" style={{color: '#6395ff'}} />
+                      <span className="text-sm" style={{color: '#94a3b8'}}>Judith is revising...</span>
+                    </div>
+                  </div>
+                ) : detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 1).map(draft => (
                     <div key={draft.id} className="rounded-lg p-4 mx-4 mb-2 flex-shrink-0 max-h-[40vh] overflow-y-auto custom-scrollbar" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', borderTop: '1px solid rgba(255,255,255,0.06)'}}>
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="text-sm font-medium flex items-center" style={{color: '#94a3b8'}}>
@@ -2245,7 +2262,7 @@ export default function MessageDashboard() {
                           <div className="flex space-x-2">
                             <button onClick={() => { handleDraftAction(draft.id, 'approve', editBody) }}
                               className="px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Save and Send</button>
-                            <button onClick={() => setEditingDraft(null)}
+                            <button onClick={() => { setEditingDraft(null); isEditingRef.current = false }}
                               className="px-3 py-1.5 text-sm rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Cancel</button>
                           </div>
                         </div>
@@ -2264,7 +2281,7 @@ export default function MessageDashboard() {
                               className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
                               <PaperAirplaneIcon className="h-4 w-4 mr-1" /> Approve & Send
                             </button>
-                            <button onClick={() => { setEditingDraft(draft.id); setEditBody(draft.draft_body) }}
+                            <button onClick={() => { setEditingDraft(draft.id); isEditingRef.current = true; setEditBody(draft.draft_body) }}
                               className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
                               <PencilSquareIcon className="h-4 w-4 mr-1" /> Edit
                             </button>
