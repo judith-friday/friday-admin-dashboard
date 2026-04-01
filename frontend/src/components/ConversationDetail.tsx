@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { format } from 'date-fns'
 import { LanguageIcon } from '@heroicons/react/24/outline'
 import { ConversationDetail as ConversationDetailType, Draft, apiFetch, LANG_FLAGS, LANG_NAMES } from './types'
@@ -70,6 +70,8 @@ export default function ConversationDetail({
   requestApproval, handleDraftAction, handleRevision, handleRejectWithReason,
   draftStateBadge,
 }: ConversationDetailProps) {
+  const [summaryOpen, setSummaryOpen] = useState(false)
+  const [translatedDrafts, setTranslatedDrafts] = useState<Set<string>>(new Set())
   return (
     <div className={`flex-1 flex flex-col min-w-0 ${mobileView === 'list' ? 'hidden md:flex' : ''}`}>
       {/* Mobile back button */}
@@ -99,7 +101,15 @@ export default function ConversationDetail({
           )}
         </div>
         {detail.conversation.conversation_summary && (
-          <p className="text-xs mt-2 p-2 rounded" style={{color: '#94a3b8', background: 'rgba(255,255,255,0.03)'}}>{detail.conversation.conversation_summary}</p>
+          <div className="mt-1">
+            <button onClick={() => setSummaryOpen(!summaryOpen)} className="flex items-center text-xs" style={{color: '#64748b'}}>
+              <span style={{transform: summaryOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', display: 'inline-block', marginRight: '4px'}}>\u25B6</span>
+              {summaryOpen ? 'Summary' : detail.conversation.conversation_summary.substring(0, 80) + (detail.conversation.conversation_summary.length > 80 ? '...' : '')}
+            </button>
+            {summaryOpen && (
+              <p className="text-xs mt-1 p-2 rounded" style={{color: '#94a3b8', background: 'rgba(255,255,255,0.03)'}}>{detail.conversation.conversation_summary}</p>
+            )}
+          </div>
         )}
       </div>
 
