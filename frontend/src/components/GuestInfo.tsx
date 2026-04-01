@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { format } from 'date-fns'
 import {
@@ -36,6 +36,7 @@ export default function GuestInfo({
   doneWarningCount, setActiveTab, staffNotes, handleNotesChange,
   notesTimerRef, draftStateBadge,
 }: GuestInfoProps) {
+  const [draftHistoryOpen, setDraftHistoryOpen] = useState(false)
   return (
     <div className={`w-72 overflow-y-auto custom-scrollbar ${mobileView === 'info' ? 'fixed inset-0 w-full z-40 md:relative md:w-72' : 'hidden md:block'}`} style={{background: 'rgba(255,255,255,0.05)', borderLeft: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
       <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
@@ -161,17 +162,20 @@ export default function GuestInfo({
       {/* Draft history */}
       {detail.drafts.length > 0 && (
         <div style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-          <div className="p-3 pb-1">
-            <h3 className="text-xs font-semibold" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Draft History</h3>
-          </div>
-          <div className="p-3 pt-1 space-y-1.5">
-            {detail.drafts.map(d => (
-              <div key={d.id} className="flex items-center justify-between text-xs">
-                <span style={{color: '#64748b'}}>{format(new Date(d.created_at), 'MMM d HH:mm')}</span>
-                {draftStateBadge(d.state)}
-              </div>
-            ))}
-          </div>
+          <button className="w-full p-3 flex items-center justify-between" onClick={() => setDraftHistoryOpen(!draftHistoryOpen)}>
+            <h3 className="text-xs font-semibold" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Draft History ({detail.drafts.length})</h3>
+            <span className="text-xs" style={{color: '#64748b', transform: draftHistoryOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', display: 'inline-block'}}>\u25B6</span>
+          </button>
+          {draftHistoryOpen && (
+            <div className="px-3 pb-3 space-y-1.5">
+              {detail.drafts.map(d => (
+                <div key={d.id} className="flex items-center justify-between text-xs">
+                  <span style={{color: '#64748b'}}>{format(new Date(d.created_at), 'MMM d HH:mm')}</span>
+                  {draftStateBadge(d.state)}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
