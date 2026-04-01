@@ -2,34 +2,12 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { toast, Toaster } from 'react-hot-toast'
-import { format, formatDistanceToNow } from 'date-fns'
-import {
-  ChatBubbleLeftRightIcon,
-  PaperAirplaneIcon,
-  CheckIcon,
-  XMarkIcon,
-  PencilSquareIcon,
-  UserIcon,
-  CalendarIcon,
-  HomeIcon,
-  GlobeAltIcon,
-  ClockIcon,
-  ExclamationCircleIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
-  LanguageIcon,
-  ArrowPathIcon,
-  PlusIcon,
-  ArchiveBoxIcon,
-  EyeSlashIcon,
-  QuestionMarkCircleIcon,
-  SpeakerWaveIcon,
-  SpeakerXMarkIcon,
-} from '@heroicons/react/24/outline'
+import { format } from 'date-fns'
+import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 
 // Shared types and utilities
 import {
-  API_BASE, LANG_NAMES, LANG_FLAGS, RTL_LANGS,
+  API_BASE, LANG_NAMES, LANG_FLAGS,
   getToken, setToken, clearToken, apiFetch,
   Conversation, ConversationDetail, MessageItem, Draft, PendingAction, InboxStats,
 } from '../components/types'
@@ -41,6 +19,11 @@ import LoginScreen from '../components/LoginScreen'
 import BugReport from '../components/BugReport'
 import PropertyCard from '../components/PropertyCard'
 import SendConfirmModal from '../components/SendConfirmModal'
+import TeachingsPanel from '../components/TeachingsPanel'
+import DashboardStats from '../components/DashboardStats'
+import ConversationList from '../components/ConversationList'
+import ConversationDetailView from '../components/ConversationDetail'
+import GuestInfo from '../components/GuestInfo'
 
 export default function MessageDashboard() {
   const [token, setTokenState] = useState<string | null>(null)
@@ -95,6 +78,7 @@ export default function MessageDashboard() {
   const [showDraftHistory, setShowDraftHistory] = useState(false)
   const revisionInputRef = useRef<HTMLInputElement>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
   // Init auth
   useEffect(() => {
@@ -254,7 +238,6 @@ export default function MessageDashboard() {
     if (!detail) return
     const draft = detail.drafts.find(d => d.id === draftId)
     if (!draft) return
-    // Smart channel default: conversation channel for OTA bookings, whatsapp for direct
     const convChannel = detail?.conversation.channel || ''
     if (convChannel === 'direct' || convChannel === 'manual' || convChannel === 'unknown') {
       setSendChannel('whatsapp')
@@ -276,7 +259,6 @@ export default function MessageDashboard() {
     setUndoDraftId(draftId)
     setUndoCountdown(5)
 
-    // Start countdown
     const interval = setInterval(() => {
       setUndoCountdown(prev => {
         if (prev <= 1) {
@@ -288,7 +270,6 @@ export default function MessageDashboard() {
     }, 1000)
     undoIntervalRef.current = interval
 
-    // Schedule actual send after 5 seconds
     const timer = setTimeout(async () => {
       setUndoDraftId(null)
       setUndoCountdown(0)
@@ -331,7 +312,6 @@ export default function MessageDashboard() {
       }
       setEditingDraft(null)
       isEditingRef.current = false
-      // For reject, refresh immediately. For approve, handled in executeSend.
       if (action === 'reject') {
         if (selectedConvId) fetchDetail(selectedConvId)
         fetchConversations()
@@ -374,7 +354,6 @@ export default function MessageDashboard() {
     try {
       const data = await apiFetch('/api/properties/' + encodeURIComponent(code) + '/card')
       setPropertyCard({ code, data, loading: false })
-      // Load edit history
       try {
         const history = await apiFetch('/api/properties/' + encodeURIComponent(code) + '/card/history')
         setCardEditHistory(Array.isArray(history) ? history : [])
@@ -395,7 +374,6 @@ export default function MessageDashboard() {
       })
       toast.success('Property card saved')
       setCardEditing(false)
-      // Reload the card
       fetchPropertyCard(propertyCard.code)
     } catch (err: any) {
       if (err instanceof SyntaxError) {
@@ -407,6 +385,7 @@ export default function MessageDashboard() {
       setCardSaving(false)
     }
   }
+
   const handleCompose = async () => {
     if (!selectedConvId) return
     setComposeSending(true)
@@ -430,7 +409,6 @@ export default function MessageDashboard() {
         setComposeInstruction('')
         setComposeOpen(false)
       }
-      // Refresh conversation detail to show new draft
       setTimeout(() => { if (selectedConvId) fetchDetail(selectedConvId) }, 2000)
     } catch (err: any) {
       toast.error('Compose failed: ' + err.message)
@@ -438,7 +416,6 @@ export default function MessageDashboard() {
       setComposeSending(false)
     }
   }
-
 
   const handleRevokeTeaching = async (id: string) => {
     try {
@@ -566,7 +543,7 @@ export default function MessageDashboard() {
     const handler = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName
       const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
-      
+
       // Cmd+Enter: approve & send current draft
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
         e.preventDefault()
@@ -615,7 +592,6 @@ export default function MessageDashboard() {
 
       // Enter: open selected conversation (already selected via arrows)
       if (e.key === 'Enter' && selectedConvId) {
-        // Already open, no-op needed
         return
       }
     }
@@ -646,7 +622,6 @@ export default function MessageDashboard() {
       email: { label: 'Email', bg: 'rgba(251,191,36,0.15)', color: '#fbbf24' },
       vrbo: { label: 'Vrbo', bg: 'rgba(14,165,233,0.15)', color: '#38bdf8' },
     }
-    // Show raw value for unknown channels instead of 'Other'
     const c = channels[ch.toLowerCase()] || { label: ch.charAt(0).toUpperCase() + ch.slice(1), bg: 'rgba(255,255,255,0.08)', color: '#94a3b8' }
     return <span className="px-1.5 py-0.5 rounded-full" style={{background: c.bg, color: c.color, fontSize: '10px', fontWeight: 500}}>{c.label}</span>
   }
@@ -694,90 +669,20 @@ export default function MessageDashboard() {
       <Toaster position="top-right" />
       <HelpPanel isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
-      
-      {/* Teachings panel */}
-      {showTeachingsPanel && (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="flex-1" style={{background: 'rgba(0,0,0,0.4)'}} onClick={() => setShowTeachingsPanel(false)} />
-          <div className="w-[480px] h-full overflow-y-auto custom-scrollbar" style={{background: '#0d1117', borderLeft: '1px solid rgba(255,255,255,0.08)'}}>
-            <div className="p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>🧠 Teachings</h2>
-                <button onClick={() => setShowTeachingsPanel(false)} className="text-sm" style={{color: '#64748b'}}>✕</button>
-              </div>
-              <p className="text-xs mt-1" style={{color: '#64748b'}}>Instructions Judith has learned from revisions</p>
-            </div>
+      <TeachingsPanel
+        showTeachingsPanel={showTeachingsPanel}
+        setShowTeachingsPanel={setShowTeachingsPanel}
+        teachings={teachings}
+        newTeachingText={newTeachingText}
+        setNewTeachingText={setNewTeachingText}
+        handleAddTeaching={handleAddTeaching}
+        revokeId={revokeId}
+        setRevokeId={setRevokeId}
+        revokeReason={revokeReason}
+        setRevokeReason={setRevokeReason}
+        handleRevokeTeaching={handleRevokeTeaching}
+      />
 
-            {/* Add new teaching */}
-            <div className="p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-              <div className="flex space-x-2">
-                <input type="text" value={newTeachingText} onChange={e => setNewTeachingText(e.target.value)}
-                  placeholder="Add a teaching..."
-                  className="flex-1 text-sm rounded px-2 py-1.5 outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
-                  onKeyDown={e => { if (e.key === 'Enter') handleAddTeaching() }} />
-                <button onClick={handleAddTeaching} disabled={!newTeachingText.trim()}
-                  className="px-3 py-1.5 text-xs rounded disabled:opacity-50" style={{background: 'rgba(168,85,247,0.2)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)'}}>
-                  Add
-                </button>
-              </div>
-            </div>
-
-            {/* Active teachings */}
-            <div className="p-4">
-              <h3 className="text-xs font-semibold mb-3" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Active</h3>
-              {teachings.filter(t => t.status === 'active').length === 0 && (
-                <p className="text-xs" style={{color: '#64748b'}}>No active teachings yet. Teachings are created from revision patterns or manually.</p>
-              )}
-              {teachings.filter(t => t.status === 'active').map(t => (
-                <div key={t.id} className="p-3 rounded-lg mb-2" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)'}}>
-                  <p className="text-sm" style={{color: '#e2e8f0'}}>{t.instruction}</p>
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs px-1.5 py-0.5 rounded" style={{background: t.scope === 'global' ? 'rgba(99,149,255,0.15)' : 'rgba(245,158,11,0.15)', color: t.scope === 'global' ? '#6395ff' : '#fbbf24'}}>
-                        {t.scope === 'global' ? '🌐 Global' : `📍 ${t.property_code}`}
-                      </span>
-                      <span className="text-xs" style={{color: '#64748b'}}>
-                        {t.source === 'auto_pattern' ? '🔄 Auto' : t.source === 'manual' ? '✏️ Manual' : '💬 Direct'}
-                      </span>
-                      <span className="text-xs" style={{color: '#64748b'}}>
-                        {t.taught_by ? `Taught by ${t.taught_by}` : 'Taught by Unknown'}{t.taught_at ? ` · ${format(new Date(t.taught_at), 'MMM d, yyyy')}` : ''}
-                      </span>
-                    </div>
-                    {revokeId === t.id ? (
-                      <div className="flex items-center space-x-1">
-                        <input type="text" value={revokeReason} onChange={e => setRevokeReason(e.target.value)}
-                          placeholder="Why?" className="text-xs rounded px-1.5 py-0.5 w-32 outline-none"
-                          style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
-                          onKeyDown={e => { if (e.key === 'Enter') handleRevokeTeaching(t.id) }} />
-                        <button onClick={() => handleRevokeTeaching(t.id)} className="text-xs px-1.5 py-0.5 rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171'}}>OK</button>
-                        <button onClick={() => setRevokeId(null)} className="text-xs" style={{color: '#64748b'}}>✕</button>
-                      </div>
-                    ) : (
-                      <button onClick={() => setRevokeId(t.id)} className="text-xs" style={{color: '#f87171'}}>Revoke</button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Revoked teachings */}
-            {teachings.filter(t => t.status === 'revoked').length > 0 && (
-              <div className="p-4" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
-                <h3 className="text-xs font-semibold mb-3" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Revoked</h3>
-                {teachings.filter(t => t.status === 'revoked').map(t => (
-                  <div key={t.id} className="p-3 rounded-lg mb-2 opacity-50" style={{background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)'}}>
-                    <p className="text-sm line-through" style={{color: '#64748b'}}>{t.instruction}</p>
-                    <p className="text-xs mt-1" style={{color: '#475569'}}>{t.taught_by ? `Taught by ${t.taught_by}` : ''}{t.revoked_by ? ` · Revoked by ${t.revoked_by}` : ''}</p>
-                    {t.revoke_reason && <p className="text-xs mt-1" style={{color: '#f87171'}}>Reason: {t.revoke_reason}</p>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Property card popup */}
       {propertyCard && (
         <PropertyCard
           propertyCard={propertyCard}
@@ -796,7 +701,6 @@ export default function MessageDashboard() {
 
       <BugReport selectedConvId={selectedConvId} displayName={displayName} />
 
-
       <SendConfirmModal
         sendConfirm={sendConfirm}
         setSendConfirm={setSendConfirm}
@@ -808,606 +712,105 @@ export default function MessageDashboard() {
         cancelSend={cancelSend}
       />
 
-      {/* Header */}
-      <header style={{background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-        <div className="px-6 py-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold" style={{color: '#f1f5f9'}}>Friday GMS</h1>
-              <p className="text-xs" style={{color: '#64748b'}}>Guest Messaging System</p>
-            </div>
-
-            {stats && (
-              <div className="flex space-x-5 items-center flex-wrap gap-y-1">
-                <div className="text-center">
-                  <div className="text-lg font-bold" style={{color: '#fbbf24'}}>{stats.needs_review_count}</div>
-                  <div className="text-xs" style={{color: '#64748b'}}>to review</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold" style={{color: stats.avg_response_time_minutes != null ? rtColor(stats.avg_response_time_minutes) : '#64748b'}}>
-                    {stats.avg_response_time_minutes != null ? `${stats.avg_response_time_minutes} min` : '—'}
-                  </div>
-                  <div className="text-xs" style={{color: '#64748b'}}>avg response</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold" style={{color: '#6395ff'}}>{stats.messages_today}</div>
-                  <div className="text-xs" style={{color: '#64748b'}}>new today</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-bold" style={{color: stats.overdue_actions_count > 0 ? '#f87171' : stats.pending_actions_count > 0 ? '#fbbf24' : '#4ade80'}}>
-                    {stats.pending_actions_count}
-                  </div>
-                  <div className="text-xs" style={{color: '#64748b'}}>
-                    {stats.pending_actions_count === 1 ? 'action' : 'actions'} {stats.overdue_actions_count > 0 && <span style={{color: '#f87171'}}>({stats.overdue_actions_count} overdue)</span>}
-                  </div>
-                </div>
-                {pollerStatus && pollerStatus.api_down && (
-                  <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}} title="Guesty API is down — messages queued for browser fallback">⚠ API Down</span>
-                )}
-                {pollerStatus && pollerStatus.send_queue_length > 0 && (
-                  <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(251,191,36,0.15)', color: '#fbbf24'}} title={`${pollerStatus.send_queue_length} message(s) queued for sending`}>📤 {pollerStatus.send_queue_length} queued</span>
-                )}
-                <button onClick={() => { clearToken(); setTokenState(null) }}
-                  className="text-xs ml-4" style={{color: '#64748b'}}>{displayName} · Logout</button>
-                <button onClick={toggleMute} className="ml-2 p-1 rounded" style={{color: '#64748b'}} title={isMuted ? 'Unmute' : 'Mute'}>
-                  {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
-                </button>
-                <button onClick={() => { setShowTeachingsPanel(!showTeachingsPanel); if (!showTeachingsPanel) fetchTeachings() }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc'}} title="Teachings">🧠</button><button onClick={() => setShowHelp(true)} className="ml-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>?</button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+      <DashboardStats
+        stats={stats}
+        pollerStatus={pollerStatus}
+        displayName={displayName}
+        setTokenState={setTokenState}
+        toggleMute={toggleMute}
+        isMuted={isMuted}
+        showTeachingsPanel={showTeachingsPanel}
+        setShowTeachingsPanel={setShowTeachingsPanel}
+        fetchTeachings={fetchTeachings}
+        setShowHelp={setShowHelp}
+      />
 
       <div className="flex h-[calc(100vh-72px)] relative">
-        {/* Left sidebar - conversation list */}
-        <div className={`w-80 flex flex-col ${mobileView !== 'list' ? 'hidden md:flex' : 'w-full md:w-80'}`} style={{background: 'rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
-          {/* Tabs */}
-          <div className="flex text-xs tabs-scroll" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-            {([
-              ['all', 'All'],
-              ['unread', 'Unread'],
-              ['review', 'Review'],
-              ['open', 'Open'],
-              ['done', 'Done'],
-              ['actions', 'Actions'],
-            ] as [string, string][]).map(([key, label]) => (
-              <button key={key} onClick={() => setActiveTab(key as any)}
-                className="flex-1 py-2 text-center transition-all duration-200 ease-in-out hover:bg-white/5" style={{borderBottom: activeTab === key ? '2px solid #6395ff' : '2px solid transparent', color: activeTab === key ? '#6395ff' : '#64748b', fontWeight: activeTab === key ? 500 : 400}}>
-                {label}
-                {key === 'unread' && unreadCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs" style={{background: '#3b82f6', color: 'white'}}>{unreadCount}</span>
-                )}
-                {key === 'actions' && stats && stats.pending_actions_count > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs" style={{background: stats.overdue_actions_count > 0 ? '#ef4444' : 'rgba(245,158,11,0.15)', color: stats.overdue_actions_count > 0 ? 'white' : '#fbbf24'}}>
-                    {stats.pending_actions_count}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {activeTab === 'actions' ? (
-            <PendingActionsTab token={token} />
-          ) : (
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
-              {filteredConversations.length === 0 ? (
-                <div className="p-4 text-center" style={{color: '#64748b'}}>
-                  <ChatBubbleLeftRightIcon className="h-12 w-12 mx-auto mb-2" style={{color: '#334155'}} />
-                  <p>No conversations</p>
-                </div>
-              ) : (
-                filteredConversations.map(conv => (
-                  <div key={conv.id} onClick={() => selectConversation(conv)}
-                    className="group relative p-3 cursor-pointer transition-all duration-200 ease-in-out" style={{borderBottom: '1px solid rgba(255,255,255,0.03)', background: selectedConvId === conv.id ? 'linear-gradient(90deg, rgba(30,58,95,0.4), transparent)' : 'transparent', borderLeft: selectedConvId === conv.id ? '2px solid #6395ff' : '2px solid transparent', fontWeight: conv.is_unread ? 600 : 400}}>
-                    {/* Hover action: mark as unread */}
-                    {!conv.is_unread && (
-                      <button onClick={(e) => handleMarkUnread(conv.id, e)}
-                        title="Mark as unread"
-                        className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full z-10" style={{background: 'rgba(255,255,255,0.06)'}}>
-                        <EyeSlashIcon className="h-3.5 w-3.5" style={{color: '#64748b'}} />
-                      </button>
-                    )}
-                    <div className="flex justify-between items-start mb-1">
-                      <div className="flex items-center space-x-1.5 min-w-0">
-                        {conv.is_unread && <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>}
-                        <span className="text-sm truncate" style={{color: '#f1f5f9'}}>{conv.guest_name}</span>
-                        {conv.sentiment && conv.sentiment !== 'neutral' && (
-                          <span title={conv.sentiment === 'upset' ? 'Guest is upset' : conv.sentiment === 'frustrated' ? 'Guest seems frustrated' : conv.sentiment === 'positive' ? 'Positive sentiment' : conv.sentiment} className="flex-shrink-0 inline-block w-2 h-2 rounded-full" style={{marginLeft: '4px', backgroundColor: conv.sentiment === 'upset' ? '#ef4444' : conv.sentiment === 'frustrated' ? '#f59e0b' : conv.sentiment === 'positive' ? '#22c55e' : '#64748b'}} />
-                        )}
-                        {conv.channel && channelBadge(conv.channel)}
-                      </div>
-                      {conv.last_message_at && (
-                        <span className="text-xs flex-shrink-0 ml-1" style={{color: '#64748b'}}>
-                          {formatDistanceToNow(new Date(conv.last_message_at), { addSuffix: true })}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center space-x-1.5 mb-1">
-                      {conv.property_name && (
-                        <span className="text-xs" style={{color: '#94a3b8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '2px'}} onClick={(e) => { e.stopPropagation(); fetchPropertyCard(conv.property_name); }}>{conv.property_name}</span>
-                      )}
-                      {statusBadge(conv)}
-                      {conv.latest_draft_confidence && (() => {
-                        const c = Number(conv.latest_draft_confidence)
-                        const cbg = c >= 80 ? 'rgba(34,197,94,0.15)' : c >= 60 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)'
-                        const cclr = c >= 80 ? '#4ade80' : c >= 60 ? '#fbbf24' : '#f87171'
-                        return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: cbg, color: cclr}}>{c}%</span>
-                      })()}
-                    </div>
-                    {conv.last_message_body && (
-                      <p className="text-xs truncate" style={{color: '#64748b'}}>
-                        {conv.last_message_direction === 'outbound' ? '> ' : ''}{conv.last_message_body}
-                      </p>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-        </div>
+        <ConversationList
+          conversations={conversations}
+          filteredConversations={filteredConversations}
+          selectedConvId={selectedConvId}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          unreadCount={unreadCount}
+          stats={stats}
+          token={token}
+          mobileView={mobileView}
+          selectConversation={selectConversation}
+          handleMarkUnread={handleMarkUnread}
+          fetchPropertyCard={fetchPropertyCard}
+          statusBadge={statusBadge}
+          channelBadge={channelBadge}
+        />
 
         {/* Main content area */}
         <div className="flex-1 flex">
           {selectedConvId && detail ? (
             <>
-              {/* Center - messages + drafts */}
-              <div className={`flex-1 flex flex-col min-w-0 ${mobileView === 'list' ? 'hidden md:flex' : ''}`}>
-                {/* Mobile back button */}
-                <div className="mobile-only mobile-nav-back" onClick={() => setMobileView('list')} style={{justifyContent: 'space-between'}}>
-                  <span>\u2190 Back to inbox</span>
-                  <button onClick={(e) => { e.stopPropagation(); setMobileView('info'); }} className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>Info</button>
-                  <button onClick={(e) => { e.stopPropagation(); setMobileView('info'); }} className="ml-auto px-2 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>\u2139\uFE0F Info</button>
-                </div>
-                {/* Conversation header */}
-                <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h2 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>{detail.conversation.guest_name}</h2>
-                      <div className="flex items-center space-x-3 text-xs mt-1" style={{color: '#64748b'}}>
-                        {detail.conversation.property_name && <span onClick={() => fetchPropertyCard(detail.conversation.property_name)} style={{cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '2px'}}>{detail.conversation.property_name}</span>}
-                        {detail.conversation.channel && channelBadge(detail.conversation.channel)}
-                        {detail.conversation.check_in_date && detail.conversation.check_out_date && (
-                          <span>{format(new Date(detail.conversation.check_in_date), 'MMM d')} - {format(new Date(detail.conversation.check_out_date), 'MMM d')}</span>
-                        )}
-                        {detail.conversation.num_guests && <span>{detail.conversation.num_guests} guests</span>}
-                      </div>
-                    </div>
-                    {detail.conversation.first_response_minutes !== null && detail.conversation.first_response_minutes !== undefined && (
-                      <span className="text-xs font-medium" style={{color: rtColor(detail.conversation.first_response_minutes)}}>
-                        RT: {detail.conversation.first_response_minutes}m
-                      </span>
-                    )}
-                  </div>
-                  {detail.conversation.conversation_summary && (
-                    <p className="text-xs mt-2 p-2 rounded" style={{color: '#94a3b8', background: 'rgba(255,255,255,0.03)'}}>{detail.conversation.conversation_summary}</p>
-                  )}
-                </div>
+              <ConversationDetailView
+                detail={detail}
+                mobileView={mobileView}
+                setMobileView={setMobileView}
+                fetchPropertyCard={fetchPropertyCard}
+                channelBadge={channelBadge}
+                displayName={displayName}
+                selectedConvId={selectedConvId}
+                fetchDetail={fetchDetail}
+                fetchConversations={fetchConversations}
+                showDraftHistory={showDraftHistory}
+                setShowDraftHistory={setShowDraftHistory}
+                messagesEndRef={messagesEndRef}
+                rtColor={rtColor}
+                composeOpen={composeOpen}
+                setComposeOpen={setComposeOpen}
+                composeMode={composeMode}
+                setComposeMode={setComposeMode}
+                composeText={composeText}
+                setComposeText={setComposeText}
+                composeInstruction={composeInstruction}
+                setComposeInstruction={setComposeInstruction}
+                composeSending={composeSending}
+                handleCompose={handleCompose}
+                revisionPending={revisionPending}
+                editingDraft={editingDraft}
+                setEditingDraft={setEditingDraft}
+                isEditingRef={isEditingRef}
+                editBody={editBody}
+                setEditBody={setEditBody}
+                revisionText={revisionText}
+                setRevisionText={setRevisionText}
+                revisingDraft={revisingDraft}
+                rejectingDraft={rejectingDraft}
+                setRejectingDraft={setRejectingDraft}
+                rejectReason={rejectReason}
+                setRejectReason={setRejectReason}
+                showTeachPrompt={showTeachPrompt}
+                setShowTeachPrompt={setShowTeachPrompt}
+                requestApproval={requestApproval}
+                handleDraftAction={handleDraftAction}
+                handleRevision={handleRevision}
+                handleRejectWithReason={handleRejectWithReason}
+                draftStateBadge={draftStateBadge}
+              />
 
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar" style={{background: 'rgba(255,255,255,0.01)'}}>
-                  {detail.messages.map(msg => (
-                    <div key={msg.id} className={`flex ${msg.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}>
-                      <div className="max-w-xl px-4 py-2.5 rounded-lg" style={{
-                        background: msg.direction === 'outbound' ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.06)',
-                        border: msg.direction === 'outbound' ? '1px solid rgba(34,197,94,0.15)' : '1px solid rgba(255,255,255,0.08)',
-                        color: '#e2e8f0'
-                      }}>
-                        <p className="text-sm whitespace-pre-wrap" dir="auto">{msg.body}</p>
-                        {msg.translated_body && msg.translated_body !== msg.body && (
-                          <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8'}}>
-                            <LanguageIcon className="h-3 w-3 inline mr-1" /> <span dir="auto">{msg.translated_body}</span>
-                          </div>
-                        )}
-                        <div className="text-xs mt-1" style={{color: '#64748b'}}>
-                          {format(new Date(msg.created_at), 'HH:mm')} {msg.sender_name && `- ${msg.sender_name}`}
-                          {msg.direction === 'inbound' && msg.original_language && msg.original_language !== 'en' && (
-                            <span className="ml-1">{LANG_FLAGS[msg.original_language] || ''} {LANG_NAMES[msg.original_language] || msg.original_language}</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Queued drafts - awaiting retry */}
-                  {detail.drafts.filter(d => d.state === "send_queued").map(draft => (
-                    <div key={draft.id} className="rounded-lg p-3 mt-2" style={{background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)"}}>
-                      <div className="flex items-center justify-between text-xs font-medium mb-1" style={{color: "#fbbf24"}}>
-                        <span><span className="mr-1.5">⏳</span> Queued — Guesty API unavailable. Will retry automatically.</span>
-                        <div className="flex space-x-1">
-                          <button onClick={async () => { try { await apiFetch('/api/drafts/' + draft.id + '/retry', { method: 'POST', body: JSON.stringify({ reviewed_by: displayName }) }); toast.success('Retry successful — message sent!'); if (selectedConvId) fetchDetail(selectedConvId); fetchConversations(); } catch (e: any) { toast.error('Retry failed: ' + e.message); } }}
-                            className="px-2 py-0.5 rounded text-[10px] font-semibold" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
-                            Retry Now
-                          </button>
-                          <button onClick={async () => { try { await apiFetch('/api/drafts/' + draft.id + '/fail', { method: 'POST' }); toast('Marked as failed'); if (selectedConvId) fetchDetail(selectedConvId); } catch {} }}
-                            className="px-2 py-0.5 rounded text-[10px]" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)'}}>
-                            Mark Failed
-                          </button>
-                        </div>
-                      </div>
-                      <p className="text-sm whitespace-pre-wrap" style={{color: "#e2e8f0"}}>{draft.draft_body}</p>
-                    </div>
-                  ))}
-
-                  {/* Latest sent draft only */}
-                  {(() => {
-                    const sentDrafts = detail.drafts.filter(d => d.state === 'sent').sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-                    const latestSent = sentDrafts[0]
-                    const olderSent = sentDrafts.slice(1)
-                    const rejectedDrafts = detail.drafts.filter(d => d.state === 'rejected')
-                    const hiddenCount = olderSent.length + rejectedDrafts.length
-                    return (<>
-                      {latestSent && (
-                        <div key={`sent-${latestSent.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)'}}>
-                          <div className="text-xs font-medium mb-1" style={{color: '#4ade80'}}>{latestSent.translated_content ? 'Approved English draft:' : 'Sent:'}</div>
-                          <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{latestSent.draft_body}</p>
-                          {latestSent.translated_content && latestSent.sent_language && (
-                            <div className="pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)'}}>
-                              <div className="text-xs font-medium mb-1" style={{color: '#4ade80'}}>Sent in {LANG_FLAGS[latestSent.sent_language] || ''} {LANG_NAMES[latestSent.sent_language] || latestSent.sent_language}:</div>
-                              <p className="text-sm whitespace-pre-wrap" style={{color: '#94a3b8'}}>{latestSent.translated_content}</p>
-                            </div>
-                          )}
-                          <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>Approved by {latestSent.reviewed_by} · {latestSent.sent_at ? format(new Date(latestSent.sent_at), 'MMM d HH:mm') : format(new Date(latestSent.updated_at), 'MMM d HH:mm')}</div>
-                        </div>
-                      )}
-                      {hiddenCount > 0 && (
-                        <button onClick={() => setShowDraftHistory(!showDraftHistory)} className="text-xs px-2 py-1 rounded mx-4 mt-1" style={{color: '#64748b'}}>
-                          {showDraftHistory ? 'Hide' : 'Show'} draft history ({hiddenCount} older)
-                        </button>
-                      )}
-                      {showDraftHistory && olderSent.map(draft => (
-                        <div key={`sent-old-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(34,197,94,0.04)', border: '1px solid rgba(34,197,94,0.08)'}}>
-                          <div className="text-xs font-medium mb-1" style={{color: '#4ade80', opacity: 0.7}}>{draft.translated_content ? 'Approved English draft:' : 'Sent:'}</div>
-                          <p className="text-sm whitespace-pre-wrap" style={{color: '#e2e8f0', opacity: 0.7}}>{draft.draft_body}</p>
-                          <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.08)', color: '#64748b'}}>Approved by {draft.reviewed_by} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}</div>
-                        </div>
-                      ))}
-                      {showDraftHistory && rejectedDrafts.map(draft => (
-                        <div key={`rejected-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.1)'}}>
-                          <div className="text-xs font-medium mb-1" style={{color: '#f87171'}}>Rejected:</div>
-                          <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{draft.draft_body}</p>
-                          <div className="text-xs pt-2" style={{borderTop: '1px solid rgba(239,68,68,0.1)', color: '#f87171'}}>Rejected by {draft.reviewed_by} · {draft.rejection_reason}</div>
-                        </div>
-                      ))}
-                    </>)
-                  })()}                </div>
-
-                {/* Responded indicator */}
-                {detail.messages.length > 0 && 
-                 detail.messages[detail.messages.length - 1].direction === 'outbound' && 
-                 detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).length === 0 && (
-                  <div className="flex-shrink-0 px-4 py-2 text-center" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
-                    <span className="text-xs" style={{color: '#4ade80'}}>✓ Responded</span>
-                  </div>
-                )}
-
-                {/* Compose button */}
-                <div className="flex-shrink-0 px-4 py-2" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
-                  {!composeOpen ? (
-                    <button onClick={() => { setComposeOpen(true); setComposeMode('manual'); setComposeText(''); setComposeInstruction('') }}
-                      className="w-full px-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1.5"
-                      style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.2)'}}>
-                      <PencilSquareIcon className="h-4 w-4" /> Compose Message
-                    </button>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex gap-1">
-                          <button onClick={() => setComposeMode('manual')}
-                            className="px-2 py-1 rounded text-xs font-medium"
-                            style={{background: composeMode === 'manual' ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.06)', color: composeMode === 'manual' ? '#c084fc' : '#94a3b8'}}>
-                            Write manually
-                          </button>
-                          <button onClick={() => setComposeMode('draft')}
-                            className="px-2 py-1 rounded text-xs font-medium"
-                            style={{background: composeMode === 'draft' ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.06)', color: composeMode === 'draft' ? '#c084fc' : '#94a3b8'}}>
-                            Ask Judith to draft
-                          </button>
-                        </div>
-                        <button onClick={() => setComposeOpen(false)} className="text-xs" style={{color: '#64748b'}}>Cancel</button>
-                      </div>
-                      {composeMode === 'manual' ? (
-                        <textarea value={composeText} onChange={e => setComposeText(e.target.value)}
-                          onKeyDown={e => { e.stopPropagation(); if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleCompose() }}
-                          placeholder="Type your message to the guest..."
-                          className="w-full text-sm rounded-lg px-3 py-2 outline-none" rows={3}
-                          style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9', resize: 'vertical'}} />
-                      ) : (
-                        <textarea value={composeInstruction} onChange={e => setComposeInstruction(e.target.value)}
-                          onKeyDown={e => { e.stopPropagation(); if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleCompose() }}
-                          placeholder="e.g. Send check-in instructions for tomorrow, Follow up about the AC repair, Ask for flight details..."
-                          className="w-full text-sm rounded-lg px-3 py-2 outline-none" rows={2}
-                          style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9', resize: 'vertical'}} />
-                      )}
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs" style={{color: '#64748b'}}>
-                          {composeMode === 'manual' ? 'Creates a draft for review before sending' : 'Judith will draft using property knowledge + conversation history'}
-                        </span>
-                        <button onClick={handleCompose} disabled={composeSending}
-                          className="px-3 py-1.5 rounded-lg text-xs font-medium"
-                          style={{background: 'rgba(168,85,247,0.2)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)', opacity: composeSending ? 0.5 : 1}}>
-                          {composeSending ? 'Sending...' : composeMode === 'manual' ? 'Create Draft' : 'Ask Judith'}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Handled indicator */}
-                {detail.messages.length > 0 && 
-                 detail.messages[detail.messages.length - 1].direction === 'outbound' && 
-                 detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).length === 0 && (
-                  <div className="flex-shrink-0 px-4 py-2 text-center" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
-                    <span className="text-xs" style={{color: '#4ade80'}}>✓ Responded</span>
-                  </div>
-                )}
-
-                {/* Draft review section - pinned to bottom */}
-                {revisionPending ? (
-                  <div className="rounded-lg p-4 mx-4 mb-2 flex-shrink-0" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)'}}>
-                    <div className="flex items-center space-x-2">
-                      <ArrowPathIcon className="h-4 w-4 animate-spin" style={{color: '#6395ff'}} />
-                      <span className="text-sm" style={{color: '#94a3b8'}}>Judith is revising...</span>
-                    </div>
-                  </div>
-                ) : detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 1).map(draft => (
-                    <div key={draft.id} className="rounded-lg p-4 mx-4 mb-2 flex-shrink-0" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', borderTop: '1px solid rgba(255,255,255,0.06)'}}>
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-medium flex items-center" style={{color: '#94a3b8'}}>
-                          <GlobeAltIcon className="h-4 w-4 mr-1.5" /> AI Draft
-                          {draft.confidence != null && (() => {
-                            const c = Number(draft.confidence)
-                            const dbg = c >= 80 ? 'rgba(34,197,94,0.15)' : c >= 60 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)'
-                            const dclr = c >= 80 ? '#4ade80' : c >= 60 ? '#fbbf24' : '#f87171'
-                            return <span className="ml-2 px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: dbg, color: dclr}}>{c}%</span>
-                          })()}
-                        </h4>
-                        {draftStateBadge(draft.state)}
-                      </div>
-
-                      {editingDraft === draft.id ? (
-                        <div className="space-y-2">
-                          <textarea value={editBody} onChange={e => setEditBody(e.target.value)}
-                            className="w-full px-3 py-2 rounded text-sm outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} rows={4} />
-                          <div className="flex space-x-2">
-                            <button onClick={() => { handleDraftAction(draft.id, 'approve', editBody) }}
-                              className="px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Save and Send</button>
-                            <button onClick={() => { setEditingDraft(null); isEditingRef.current = false }}
-                              className="px-3 py-1.5 text-sm rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Cancel</button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="max-h-[30vh] overflow-y-auto custom-scrollbar">
-                          <div className="p-3 rounded text-sm mb-2 whitespace-pre-wrap" dir="auto" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#e2e8f0'}}>{draft.draft_body}</div>
-                          {draft.draft_translated && draft.draft_translated !== draft.draft_body && (
-                            <div className="p-3 rounded text-sm mb-2" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)'}}>
-                              <LanguageIcon className="h-3 w-3 inline mr-1" style={{color: '#6395ff'}} />
-                              <span className="text-xs font-medium" style={{color: '#6395ff'}}>Translated:</span>
-                              <p className="mt-1 whitespace-pre-wrap" dir="auto">{draft.draft_translated}</p>
-                            </div>
-                          )}
-                          </div>
-                          <div className="flex space-x-2">
-                            <button onClick={() => requestApproval(draft.id)}
-                              className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
-                              <PaperAirplaneIcon className="h-4 w-4 mr-1" /> Approve & Send
-                            </button>
-                            <button onClick={() => { setEditingDraft(draft.id); isEditingRef.current = true; setEditBody(draft.draft_body) }}
-                              className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
-                              <PencilSquareIcon className="h-4 w-4 mr-1" /> Edit
-                            </button>
-                            <button onClick={() => { setRejectingDraft(rejectingDraft === draft.id ? null : draft.id); setRejectReason('') }}
-                              className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)'}}>
-                              <XMarkIcon className="h-4 w-4 mr-1" /> Reject
-                            </button>
-                          </div>
-
-                          {/* Rejection reason */}
-                          {rejectingDraft === draft.id && (
-                            <div className="mt-2 space-y-2">
-                              <div className="flex space-x-2">
-                                <input type="text" value={rejectReason} onChange={e => setRejectReason(e.target.value)}
-                                  placeholder="Why? (optional — helps Judith learn)"
-                                  className="flex-1 text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
-                                  onKeyDown={e => { if (e.key === 'Enter') handleRejectWithReason(draft.id) }} />
-                                <button onClick={() => handleRejectWithReason(draft.id)}
-                                  className="px-3 py-1 text-xs rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>{rejectReason.trim() ? 'Reject with feedback' : 'Dismiss'}</button>
-                              </div>
-                              <p className="text-xs" style={{color: '#64748b'}}>{rejectReason.trim() ? 'Judith will learn from your feedback' : 'Dismissing without feedback — no learning'}</p>
-                            </div>
-                          )}
-
-                          {/* Revision input */}
-                          <div className="mt-3">
-                            <div className="flex space-x-2">
-                              <input type="text" value={revisionText} onChange={e => setRevisionText(e.target.value)}
-                                placeholder="Ask Judith to adjust... (e.g. 'make it shorter', 'add WiFi password')"
-                                className="flex-1 text-sm rounded px-2 py-1.5 outline-none revision-input" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
-                                disabled={revisingDraft === draft.id}
-                                onKeyDown={e => { if (e.key === 'Enter') handleRevision(draft.id, 'standard') }} />
-                            </div>
-                            <div className="flex items-center space-x-2 mt-2">
-                              <button onClick={() => handleRevision(draft.id, 'standard')}
-                                disabled={revisingDraft === draft.id || !revisionText.trim()}
-                                className="px-3 py-1 text-xs rounded disabled:opacity-50" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>
-                                {revisingDraft === draft.id ? 'Revising...' : 'Revise'}
-                              </button>
-                              <button onClick={() => { if (!revisionText.trim()) return; setShowTeachPrompt(showTeachPrompt === draft.id ? null : draft.id) }}
-                                disabled={revisingDraft === draft.id || !revisionText.trim()}
-                                className="px-3 py-1 text-xs rounded disabled:opacity-50 flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
-                                <span className="mr-1">🧠</span> Revise & teach
-                              </button>
-                              <button onClick={() => handleRevision(draft.id, 'one_time')}
-                                disabled={revisingDraft === draft.id || !revisionText.trim()}
-                                className="text-xs disabled:opacity-50" style={{color: '#64748b'}}>
-                                one-time
-                              </button>
-                            </div>
-                            {showTeachPrompt === draft.id && (
-                              <div className="mt-2 p-2 rounded" style={{background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.15)'}}>
-                                <div className="text-xs mb-1.5" style={{color: '#c084fc'}}>Save this teaching to:</div>
-                                <div className="flex space-x-2">
-                                  <button onClick={() => handleRevision(draft.id, 'teach', 'property', detail?.conversation.property_name || undefined)}
-                                    className="px-2 py-1 text-xs rounded" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
-                                    📍 {detail?.conversation.property_name || 'This property'} only
-                                  </button>
-                                  <button onClick={() => handleRevision(draft.id, 'teach', 'global')}
-                                    className="px-2 py-1 text-xs rounded" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
-                                    🌐 All properties
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  ))}
-              </div>
-
-              {/* Right sidebar - conversation info + pending actions */}
-              <div className={`w-72 overflow-y-auto custom-scrollbar ${mobileView === 'info' ? 'fixed inset-0 w-full z-40 md:relative md:w-72' : 'hidden md:block'}`} style={{background: 'rgba(255,255,255,0.05)', borderLeft: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
-                <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-                  <div className="flex items-center justify-between"><h3 className="text-xs font-semibold" style={{color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px"}}>Guest Info</h3><button className="mobile-only text-xs px-2 py-0.5 rounded" style={{background: "rgba(99,149,255,0.15)", color: "#6395ff"}} onClick={() => setMobileView("detail")}>← Back</button></div>
-                </div>
-                <div className="p-3 space-y-2 text-xs" style={{color: '#94a3b8', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-                  {detail.conversation.guest_email && <div>Email: {detail.conversation.guest_email}</div>}
-                  {detail.conversation.channel && <div>Channel: {detail.conversation.channel}</div>}
-                  {detail.conversation.check_in_date && <div>Check-in: {format(new Date(detail.conversation.check_in_date), 'MMM d, yyyy')}</div>}
-                  {detail.conversation.check_out_date && <div>Check-out: {format(new Date(detail.conversation.check_out_date), 'MMM d, yyyy')}</div>}
-                  {detail.conversation.num_guests && <div>{detail.conversation.num_guests} guest{detail.conversation.num_guests > 1 ? 's' : ''}</div>}
-                  <div>{detail.conversation.inbound_count || 0} inbound messages</div>
-                  {detail.conversation.sentiment && detail.conversation.sentiment !== 'neutral' && (
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <span className="inline-block w-2 h-2 rounded-full" style={{backgroundColor: detail.conversation.sentiment === 'upset' ? '#ef4444' : detail.conversation.sentiment === 'frustrated' ? '#f59e0b' : detail.conversation.sentiment === 'positive' ? '#22c55e' : '#64748b'}} />
-                      <span style={{color: detail.conversation.sentiment === 'upset' ? '#ef4444' : detail.conversation.sentiment === 'frustrated' ? '#f59e0b' : detail.conversation.sentiment === 'positive' ? '#22c55e' : '#94a3b8'}}>
-                        {detail.conversation.sentiment === 'upset' ? 'Guest is upset' : detail.conversation.sentiment === 'frustrated' ? 'Guest seems frustrated' : detail.conversation.sentiment === 'positive' ? 'Positive sentiment' : detail.conversation.sentiment}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Mark as Done / Reopen button */}
-                <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-                  {detail.conversation.status === 'done' ? (
-                    <button onClick={() => handleReopen(detail.conversation.id)}
-                      className="w-full flex items-center justify-center px-3 py-2 text-sm rounded-lg" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>
-                      <ArrowPathIcon className="h-4 w-4 mr-1.5" /> Reopen Conversation
-                    </button>
-                  ) : (
-                    <button onClick={() => handleMarkDone(detail.conversation.id)}
-                      className="w-full flex items-center justify-center px-3 py-2 text-sm rounded-lg" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
-                      <CheckCircleIcon className="h-4 w-4 mr-1.5" /> Mark as Done
-                    </button>
-                  )}
-                </div>
-
-                {/* Pending actions warning modal */}
-                {showDoneWarning && (
-                  <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}}>
-                    <div className="rounded-xl p-6 max-w-sm mx-4" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}}>
-                      <div className="flex items-center mb-3">
-                        <ExclamationTriangleIcon className="h-6 w-6 mr-2" style={{color: '#fbbf24'}} />
-                        <h3 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>Open Actions</h3>
-                      </div>
-                      <p className="text-sm mb-4" style={{color: '#94a3b8'}}>
-                        This conversation has <strong>{doneWarningCount}</strong> open action{doneWarningCount !== 1 ? 's' : ''}. Complete or dismiss them first.
-                      </p>
-                      <div className="flex space-x-2">
-                        <button onClick={() => { setShowDoneWarning(false); setActiveTab('actions') }}
-                          className="flex-1 px-3 py-2 text-sm rounded-lg" style={{background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)'}}>
-                          View Actions
-                        </button>
-                        <button onClick={() => setShowDoneWarning(false)}
-                          className="flex-1 px-3 py-2 text-sm rounded-lg" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Auto-send toggle */}
-                <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Auto-send</span>
-                    <button onClick={async () => {
-                      const newVal = !detail.conversation.auto_send_enabled
-                      try {
-                        await apiFetch(`/api/conversations/${detail.conversation.id}`, {
-                          method: 'PATCH',
-                          body: JSON.stringify({ auto_send_enabled: newVal }),
-                        })
-                        setDetail(prev => prev ? { ...prev, conversation: { ...prev.conversation, auto_send_enabled: newVal } } : null)
-                        toast.success(`Auto-send ${newVal ? 'enabled' : 'disabled'}`)
-                      } catch (err: any) { toast.error(err.message) }
-                    }} className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors" style={{background: detail.conversation.auto_send_enabled ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.1)'}}>
-                      <span className="inline-block h-3.5 w-3.5 transform rounded-full transition-transform" style={{background: detail.conversation.auto_send_enabled ? '#4ade80' : '#64748b', transform: detail.conversation.auto_send_enabled ? 'translateX(18px)' : 'translateX(2px)'}} />
-                    </button>
-                  </div>
-                  <p className="text-xs mt-1" style={{color: '#64748b'}}>{detail.conversation.auto_send_enabled ? 'On — routine replies ≥85% send automatically' : 'Off — all drafts require review'}</p>
-                </div>
-
-                {/* Staff notes */}
-                <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-                  <h3 className="text-xs font-semibold mb-1" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Staff Notes</h3>
-                  <textarea value={staffNotes}
-                    onChange={e => handleNotesChange(e.target.value, detail.conversation.id)}
-                    onBlur={async () => {
-                      if (notesTimerRef.current) clearTimeout(notesTimerRef.current)
-                      try {
-                        await apiFetch(`/api/conversations/${detail.conversation.id}`, {
-                          method: 'PATCH',
-                          body: JSON.stringify({ notes: staffNotes }),
-                        })
-                      } catch { }
-                    }}
-                    placeholder="Add notes for Judith..."
-                    className="w-full text-xs rounded px-2 py-1.5 resize-none outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} rows={3} />
-                </div>
-
-                {/* Suggested next steps */}
-                {detail.conversation.next_steps && (() => { try { const steps = JSON.parse(detail.conversation.next_steps); return steps.length > 0 ? (
-                  <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-                    <h3 className="text-xs font-semibold mb-2" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Suggested Next Steps</h3>
-                    <div className="space-y-1.5">
-                      {steps.map((s: any, i: number) => (
-                        <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#e2e8f0'}}>
-                          <span>{s.icon || '📋'}</span>
-                          <span>{s.text}{s.who && <span style={{color: '#6395ff'}}> — {s.who}</span>}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <p className="text-xs mt-2" style={{color: '#475569', fontStyle: 'italic'}}>Judith's suggestions based on conversation context</p>
-                  </div>
-                ) : null; } catch { return null; } })()}
-
-                {/* Draft history */}
-                {detail.drafts.length > 0 && (
-                  <div style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-                    <div className="p-3 pb-1">
-                      <h3 className="text-xs font-semibold" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Draft History</h3>
-                    </div>
-                    <div className="p-3 pt-1 space-y-1.5">
-                      {detail.drafts.map(d => (
-                        <div key={d.id} className="flex items-center justify-between text-xs">
-                          <span style={{color: '#64748b'}}>{format(new Date(d.created_at), 'MMM d HH:mm')}</span>
-                          {draftStateBadge(d.state)}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Pending actions for this conversation */}
-                <div>
-                  <div className="p-3 pb-1">
-                    <h3 className="text-xs font-semibold" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Pending Actions</h3>
-                  </div>
-                  <PendingActionsTab token={token} conversationFilter={selectedConvId} />
-                </div>
-              </div>
+              <GuestInfo
+                detail={detail}
+                token={token}
+                selectedConvId={selectedConvId}
+                mobileView={mobileView}
+                setMobileView={setMobileView}
+                setDetail={setDetail}
+                handleMarkDone={handleMarkDone}
+                handleReopen={handleReopen}
+                showDoneWarning={showDoneWarning}
+                setShowDoneWarning={setShowDoneWarning}
+                doneWarningCount={doneWarningCount}
+                setActiveTab={setActiveTab}
+                staffNotes={staffNotes}
+                handleNotesChange={handleNotesChange}
+                notesTimerRef={notesTimerRef}
+                draftStateBadge={draftStateBadge}
+              />
             </>
           ) : (
             <div className="flex-1 flex items-center justify-center" style={{background: 'rgba(255,255,255,0.01)'}}>
