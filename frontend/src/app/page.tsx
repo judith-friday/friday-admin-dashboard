@@ -35,9 +35,9 @@ import {
 } from '../components/types'
 
 // Extracted components
-import { HelpPanel } from '../components/HelpPanel'
-import { PendingActionsTab } from '../components/PendingActions'
-import { LoginScreen } from '../components/LoginScreen'
+import HelpPanel from '../components/HelpPanel'
+import PendingActionsTab from '../components/PendingActions'
+import LoginScreen from '../components/LoginScreen'
 
 export default function MessageDashboard() {
   const [token, setTokenState] = useState<string | null>(null)
