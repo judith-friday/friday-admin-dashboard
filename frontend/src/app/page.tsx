@@ -2180,6 +2180,15 @@ export default function MessageDashboard() {
                     </div>
                   ))}                </div>
 
+                {/* Responded indicator */}
+                {detail.messages.length > 0 && 
+                 detail.messages[detail.messages.length - 1].direction === 'outbound' && 
+                 detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).length === 0 && (
+                  <div className="flex-shrink-0 px-4 py-2 text-center" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
+                    <span className="text-xs" style={{color: '#4ade80'}}>✓ Responded</span>
+                  </div>
+                )}
+
                 {/* Compose button */}
                 <div className="flex-shrink-0 px-4 py-2" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
                   {!composeOpen ? (
@@ -2231,6 +2240,15 @@ export default function MessageDashboard() {
                     </div>
                   )}
                 </div>
+
+                {/* Handled indicator */}
+                {detail.messages.length > 0 && 
+                 detail.messages[detail.messages.length - 1].direction === 'outbound' && 
+                 detail.drafts.filter(d => ['draft_ready', 'under_review'].includes(d.state)).length === 0 && (
+                  <div className="flex-shrink-0 px-4 py-2 text-center" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
+                    <span className="text-xs" style={{color: '#4ade80'}}>✓ Responded</span>
+                  </div>
+                )}
 
                 {/* Draft review section - pinned to bottom */}
                 {revisionPending ? (
