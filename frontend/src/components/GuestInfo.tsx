@@ -32,17 +32,20 @@ interface GuestInfoProps {
   draftStateBadge: (state?: string) => React.ReactNode
 }
 
-// Collapsible section component
+// Collapsible section component — collapsed by default on mobile
 function CollapsibleSection({ title, defaultOpen = false, count, children }: {
   title: string; defaultOpen?: boolean; count?: number; children: React.ReactNode
 }) {
-  const [open, setOpen] = useState(defaultOpen)
+  const [open, setOpen] = useState(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 640) return false
+    return defaultOpen
+  })
   return (
     <div style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between p-3 text-xs font-semibold"
-        style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}
+        style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', minHeight: '44px'}}
       >
         <span className="flex items-center gap-1.5">
           {open ? <ChevronDownIcon className="h-3 w-3" /> : <ChevronRightIcon className="h-3 w-3" />}
