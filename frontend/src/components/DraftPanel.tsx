@@ -46,6 +46,16 @@ export default function DraftPanel({
   requestApproval, handleDraftAction, handleRevision, handleRejectWithReason,
   draftStateBadge, propertyName,
 }: DraftPanelProps) {
+  const [mobileExpanded, setMobileExpanded] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
   if (revisionPending) {
     return (
       <div className="rounded-lg p-3 mx-3 mb-1 flex-shrink-0" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)'}}>
@@ -56,16 +66,6 @@ export default function DraftPanel({
       </div>
     )
   }
-
-  const [mobileExpanded, setMobileExpanded] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 640)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
 
   const readyDrafts = drafts
     .filter(d => ['draft_ready', 'under_review'].includes(d.state))

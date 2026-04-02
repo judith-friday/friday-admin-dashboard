@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import { format } from 'date-fns'
 import {
@@ -36,10 +36,12 @@ interface GuestInfoProps {
 function CollapsibleSection({ title, defaultOpen = false, count, children }: {
   title: string; defaultOpen?: boolean; count?: number; children: React.ReactNode
 }) {
-  const [open, setOpen] = useState(() => {
-    if (typeof window !== 'undefined' && window.innerWidth < 640) return false
-    return defaultOpen
-  })
+  const [open, setOpen] = useState(defaultOpen)
+
+  // After hydration, force-collapse on mobile regardless of defaultOpen
+  useEffect(() => {
+    if (window.innerWidth < 640) setOpen(false)
+  }, [])
   return (
     <div style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
       <button
