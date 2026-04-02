@@ -53,6 +53,8 @@ export default function MessageDashboard() {
   const [revokeId, setRevokeId] = useState<string | null>(null)
   const [revokeReason, setRevokeReason] = useState('')
   const [newTeachingText, setNewTeachingText] = useState('')
+  const [pendingCandidates, setPendingCandidates] = useState<any[]>([])
+  const [pendingTeachings, setPendingTeachings] = useState<any[]>([])
   const [propertyCard, setPropertyCard] = useState<{code: string; data: any; loading: boolean} | null>(null)
   const [cardEditing, setCardEditing] = useState(false)
   const [cardEditData, setCardEditData] = useState<string>('')
@@ -258,6 +260,9 @@ export default function MessageDashboard() {
     fetchConversations()
     fetchStats()
     fetchFilterOptions()
+    fetchTeachings()
+    fetchPendingCandidates()
+    fetchPendingTeachings()
   }, [token, fetchConversations, fetchStats, fetchFilterOptions])
 
   // SSE connection
@@ -430,6 +435,54 @@ export default function MessageDashboard() {
       const data = await apiFetch('/api/teachings')
       setTeachings(data.teachings || [])
     } catch {}
+  }
+
+  const fetchPendingCandidates = async () => {
+    try {
+      const data = await apiFetch('/api/learning/candidates?status=pending_review')
+      setPendingCandidates(data.candidates || data || [])
+    } catch {}
+  }
+
+  const fetchPendingTeachings = async () => {
+    try {
+      const data = await apiFetch('/api/teachings?status=pending_review')
+      setPendingTeachings(data.teachings || [])
+    } catch {}
+  }
+
+  const handleApproveCandidate = async (id: string) => {
+    try {
+      await apiFetch('/api/learning/candidates/' + id, { method: 'PATCH', body: JSON.stringify({ action: 'approve' }) })
+      toast.success('Candidate approved')
+      fetchPendingCandidates()
+      fetchTeachings()
+    } catch (err: any) { toast.error(err.message) }
+  }
+
+  const handleRejectCandidate = async (id: string, reason: string) => {
+    try {
+      await apiFetch('/api/learning/candidates/' + id, { method: 'PATCH', body: JSON.stringify({ action: 'reject', reason }) })
+      toast.success('Candidate rejected')
+      fetchPendingCandidates()
+    } catch (err: any) { toast.error(err.message) }
+  }
+
+  const handleApprovePendingTeaching = async (id: string) => {
+    try {
+      await apiFetch('/api/teachings/' + id + '/approve', { method: 'POST' })
+      toast.success('Teaching approved')
+      fetchPendingTeachings()
+      fetchTeachings()
+    } catch (err: any) { toast.error(err.message) }
+  }
+
+  const handleRejectPendingTeaching = async (id: string, reason: string) => {
+    try {
+      await apiFetch('/api/teachings/' + id + '/reject', { method: 'POST', body: JSON.stringify({ reason }) })
+      toast.success('Teaching rejected')
+      fetchPendingTeachings()
+    } catch (err: any) { toast.error(err.message) }
   }
 
   const fetchPropertyCard = async (code: string) => {
@@ -768,9 +821,13 @@ export default function MessageDashboard() {
         revokeReason={revokeReason}
         setRevokeReason={setRevokeReason}
         handleRevokeTeaching={handleRevokeTeaching}
-      />
-
-      {propertyCard && (
+        pendingCandidates={pendingCandidates}
+        pendingTeachings={pendingTeachings}
+        onApproveCandidate={handleApproveCandidate}
+        onRejectCandidate={handleRejectCandidate}
+        onApproveTeaching={handleApprovePendingTeaching}
+        onRejectTeaching={handleRejectPendingTeaching}
+      />{propertyCard && (
         <PropertyCard
           propertyCard={propertyCard}
           setPropertyCard={setPropertyCard}
