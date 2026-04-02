@@ -60,8 +60,7 @@ export default function DashboardStats({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div>
-              <h1 className="text-base sm:text-xl font-bold" style={{color: '#f1f5f9'}}>Friday Admin</h1>
-              <p className="text-xs hidden sm:block" style={{color: '#64748b'}}>Admin Dashboard</p>
+              <h1 className="text-base sm:text-xl font-bold" style={{color: '#f1f5f9'}}>Friday Admin Dashboard</h1>
             </div>
             {/* Mobile compact stats: just the review count inline */}
             {stats && (
