@@ -24,6 +24,7 @@ import DashboardStats from '../components/DashboardStats'
 import ConversationList from '../components/ConversationList'
 import ConversationDetailView from '../components/ConversationDetail'
 import GuestInfo from '../components/GuestInfo'
+import InstallPrompt from '../components/InstallPrompt'
 
 export default function MessageDashboard() {
   const [token, setTokenState] = useState<string | null>(null)
@@ -916,6 +917,7 @@ export default function MessageDashboard() {
           )}
         </div>
       </div>
+      <InstallPrompt />
     </div>
   )
 }
