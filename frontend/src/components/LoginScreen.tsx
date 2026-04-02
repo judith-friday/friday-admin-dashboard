@@ -123,7 +123,7 @@ export default function LoginScreen({ onLogin }: { onLogin: (token: string) => v
         <h1 className="text-2xl font-bold mb-1" style={{color: '#f1f5f9'}}>Friday Admin</h1>
         <p className="text-sm mb-6 h-5" style={{color: '#6395ff', opacity: 0.8}}>{tagline}</p>
         {error && <div className="mb-4 p-3 rounded text-sm" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>{error}</div>}
-        <input type="text" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)}
+        <input type="text" placeholder="Email (e.g. ishant@friday.mu)" value={username} onChange={e => setUsername(e.target.value)}
           className="w-full mb-3 px-4 py-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-200" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} autoFocus />
         <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}
           data-testid="input-login-password"
