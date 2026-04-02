@@ -133,7 +133,20 @@ export default function ConversationDetail({
 
       {/* Messages - dominant element */}
       <div data-testid="section-messages" className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar" style={{background: 'rgba(255,255,255,0.01)'}}>
-        {detail.messages.map(msg => {
+        {(() => {
+          // Deduplicate messages by ID, then exclude messages that are already shown as sent drafts
+          const sentDraftMessageIds = new Set(detail.drafts.filter(d => d.state === 'sent' && d.message_id).map(d => d.message_id))
+          const seen = new Set<string>()
+          const dedupedMessages = detail.messages.filter(msg => {
+            if (seen.has(msg.id)) return false
+            seen.add(msg.id)
+            if (sentDraftMessageIds.has(msg.id)) return false
+            return true
+          })
+          // Sort chronologically — oldest first
+          dedupedMessages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+          return dedupedMessages
+        })().map(msg => {
           const isOutbound = msg.direction === 'outbound'
           const hasTranslation = msg.translated_body && msg.translated_body !== msg.body
           const isNonEnglish = msg.original_language && msg.original_language !== 'en'

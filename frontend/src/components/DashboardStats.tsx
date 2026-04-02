@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { InboxStats, clearToken } from './types'
 import { useInstallPrompt } from './useInstallPrompt'
+import { toast } from 'react-hot-toast'
 
 interface DashboardStatsProps {
   stats: InboxStats | null
@@ -54,7 +55,7 @@ export default function DashboardStats({
   const { canInstall, installed, triggerInstall, resetDismissal } = useInstallPrompt()
 
   return (
-    <header data-testid="container-stats-bar" style={{background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+    <header data-testid="container-stats-bar" style={{background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', zIndex: 50}}>
       <div className="px-4 sm:px-6 py-2 sm:py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -121,7 +122,7 @@ export default function DashboardStats({
               <button onClick={() => setShowLearningQueue(!showLearningQueue)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(34,197,94,0.1)', color: '#4ade80'}} title="Learning Queue">{'\u{1F9EA}'}</button>
               <button data-testid="btn-help" onClick={() => setShowHelp(true)} className="ml-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>?</button>
               {!installed && (
-                <button onClick={async () => { resetDismissal(); if (canInstall) await triggerInstall() }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(14,165,233,0.1)', color: '#38bdf8'}} title="Install App">{'\u{1F4F2}'}</button>
+                <button onClick={async () => { resetDismissal(); if (canInstall) { await triggerInstall() } else { toast('Open in Chrome/Edge on mobile to install as an app', { icon: '📲' }) } }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(14,165,233,0.1)', color: '#38bdf8'}} title="Install App">{'\u{1F4F2}'}</button>
               )}
             </div>
           )}

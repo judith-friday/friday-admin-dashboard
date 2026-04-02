@@ -41,6 +41,7 @@ export default function MessageDashboard() {
   const [editingDraft, setEditingDraft] = useState<string | null>(null)
   const isEditingRef = useRef(false)
   const [revisionPending, setRevisionPending] = useState(false)
+  const revisionPendingRef = useRef(false)
   const [editBody, setEditBody] = useState('')
   const [revisionText, setRevisionText] = useState('')
   const [revisingDraft, setRevisingDraft] = useState<string | null>(null)
@@ -279,10 +280,11 @@ export default function MessageDashboard() {
           fetchStats()
           if (selectedConvId && (data.data?.conversationId === selectedConvId || data.data?.conversation_id === selectedConvId)) {
             if (!isEditingRef.current) {
-              if (data.type === 'draft_ready' && revisionPending) {
+              if (data.type === 'draft_ready' && revisionPendingRef.current) {
                 fetchDetail(selectedConvId)
                 setRevisionPending(false)
-              } else if (!revisionPending || data.type !== 'draft_ready') {
+                revisionPendingRef.current = false
+              } else if (!revisionPendingRef.current || data.type !== 'draft_ready') {
                 fetchDetail(selectedConvId)
               }
             }
@@ -308,7 +310,18 @@ export default function MessageDashboard() {
     es.onopen = () => { errorCount = 0 }
 
     return () => es.close()
-  }, [token, selectedConvId, fetchConversations, fetchStats, fetchDetail, isMuted, playChime, revisionPending])
+  }, [token, selectedConvId, fetchConversations, fetchStats, fetchDetail, isMuted, playChime])
+
+  // Timeout fallback: clear revisionPending after 30s to prevent stuck state
+  useEffect(() => {
+    if (!revisionPending) return
+    const timer = setTimeout(() => {
+      setRevisionPending(false)
+      revisionPendingRef.current = false
+      if (selectedConvId) fetchDetail(selectedConvId)
+    }, 30000)
+    return () => clearTimeout(timer)
+  }, [revisionPending, selectedConvId, fetchDetail])
 
   // Auto-refresh every 30s
   useEffect(() => {
@@ -423,6 +436,7 @@ export default function MessageDashboard() {
       setRevisionText('')
       setShowTeachPrompt(null)
       setRevisionPending(true)
+      revisionPendingRef.current = true
     } catch (err: any) {
       toast.error(err.message)
     } finally {
@@ -806,7 +820,7 @@ export default function MessageDashboard() {
 
   return (
     <div className="min-h-screen" style={{background: '#0d1117', color: '#f1f5f9'}}>
-      <Toaster position="top-right" containerStyle={{ zIndex: 99999 }} toastOptions={{ duration: 4000, style: { background: 'rgba(15,25,50,0.95)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)' } }} />
+      <Toaster position="top-right" containerStyle={{ zIndex: 99999, pointerEvents: 'none' }} toastOptions={{ duration: 4000, style: { background: 'rgba(15,25,50,0.95)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', pointerEvents: 'auto' } }} />
       <HelpPanel isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
       <TeachingsPanel

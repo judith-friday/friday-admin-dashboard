@@ -96,13 +96,13 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
   return (
     <>
       {/* Floating bug report button */}
-      <button
+      {!bugReportOpen && <button
         onClick={captureAndOpen}
-        className="fixed bottom-4 right-4 z-40 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+        className="fixed bottom-4 right-4 z-[9999] w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
         style={{background: 'rgba(99,149,255,0.15)', border: '1px solid rgba(99,149,255,0.3)', color: '#6395ff', fontSize: '18px'}}
         title="Report a bug"
         data-testid="btn-bug-report"
-      >🐛</button>
+      >🐛</button>}
 
       {/* Bug report modal */}
       {bugReportOpen && (
