@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { toast } from 'react-hot-toast'
 import { apiFetch } from './types'
 
@@ -37,34 +37,30 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
   const [capturing, setCapturing] = useState(false)
   const imgRef = useRef<HTMLDivElement>(null)
 
-  // Capture screenshot when modal opens
-  useEffect(() => {
-    if (!bugReportOpen) return
-    let cancelled = false
-    setCapturing(true)
+  // Capture screenshot BEFORE opening modal (so the modal overlay isn't in the capture)
+  const captureAndOpen = async () => {
+    setBugWhat('')
+    setBugExpect('')
     setScreenshotData(null)
+    setCapturing(true)
+    setBugReportOpen(true)
 
-    // Dynamic import to avoid SSR issues
-    import('html2canvas').then(({ default: html2canvas }) => {
-      html2canvas(document.body, {
+    try {
+      const { default: html2canvas } = await import('html2canvas')
+      const canvas = await html2canvas(document.body, {
         useCORS: true,
-        scale: 0.5, // Half resolution to reduce payload
+        scale: 0.5,
         logging: false,
         backgroundColor: '#0d1117',
-      }).then(canvas => {
-        if (!cancelled) {
-          setScreenshotData(canvas.toDataURL('image/jpeg', 0.6))
-          setCapturing(false)
-        }
-      }).catch(() => {
-        if (!cancelled) setCapturing(false)
+        ignoreElements: (el) => el.getAttribute('data-testid') === 'bug-report-backdrop',
       })
-    }).catch(() => {
-      if (!cancelled) setCapturing(false)
-    })
-
-    return () => { cancelled = true }
-  }, [bugReportOpen])
+      setScreenshotData(canvas.toDataURL('image/jpeg', 0.6))
+    } catch (err) {
+      console.error('[BugReport] Screenshot capture failed:', err)
+    } finally {
+      setCapturing(false)
+    }
+  }
 
   const handleSubmit = async () => {
     if (!bugWhat.trim()) return
@@ -96,7 +92,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
     <>
       {/* Floating bug report button */}
       <button
-        onClick={() => { setBugReportOpen(true); setBugWhat(''); setBugExpect(''); }}
+        onClick={captureAndOpen}
         className="fixed bottom-4 right-4 z-40 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
         style={{background: 'rgba(99,149,255,0.15)', border: '1px solid rgba(99,149,255,0.3)', color: '#6395ff', fontSize: '18px'}}
         title="Report a bug"
@@ -105,7 +101,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
 
       {/* Bug report modal */}
       {bugReportOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}} onClick={() => setBugReportOpen(false)}>
+        <div data-testid="bug-report-backdrop" className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}} onClick={() => setBugReportOpen(false)}>
           <div className="rounded-xl p-6 max-w-lg mx-4 w-full max-h-[90vh] overflow-y-auto" data-testid="modal-bug-report" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>🐛 Report a Bug</h3>

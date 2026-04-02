@@ -740,7 +740,7 @@ export default function MessageDashboard() {
 
   return (
     <div className="min-h-screen" style={{background: '#0d1117', color: '#f1f5f9'}}>
-      <Toaster position="top-right" />
+      <Toaster position="top-right" containerStyle={{ zIndex: 99999 }} toastOptions={{ duration: 4000, style: { background: 'rgba(15,25,50,0.95)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)' } }} />
       <HelpPanel isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
       <TeachingsPanel
