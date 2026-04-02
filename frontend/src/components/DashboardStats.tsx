@@ -10,6 +10,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { InboxStats, clearToken } from './types'
+import { useInstallPrompt } from './useInstallPrompt'
 
 interface DashboardStatsProps {
   stats: InboxStats | null
@@ -50,6 +51,7 @@ export default function DashboardStats({
 }: DashboardStatsProps) {
   const [mobileStatsOpen, setMobileStatsOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { canInstall, installed, triggerInstall, resetDismissal } = useInstallPrompt()
 
   return (
     <header data-testid="container-stats-bar" style={{background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
@@ -118,6 +120,9 @@ export default function DashboardStats({
               <button onClick={() => setShowBugReportsPanel(!showBugReportsPanel)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171'}} title="Bug Reports">{'\u{1F41B}'}</button>
               <button onClick={() => setShowLearningQueue(!showLearningQueue)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(34,197,94,0.1)', color: '#4ade80'}} title="Learning Queue">{'\u{1F9EA}'}</button>
               <button data-testid="btn-help" onClick={() => setShowHelp(true)} className="ml-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>?</button>
+              {!installed && (
+                <button onClick={async () => { resetDismissal(); if (canInstall) await triggerInstall() }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(14,165,233,0.1)', color: '#38bdf8'}} title="Install App">{'\u{1F4F2}'}</button>
+              )}
             </div>
           )}
 
@@ -144,6 +149,11 @@ export default function DashboardStats({
                 <button onClick={() => { setShowHelp(true); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#6395ff'}}>
                   <span>?</span> Help
                 </button>
+                {!installed && (
+                  <button onClick={async () => { resetDismissal(); if (canInstall) await triggerInstall(); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#38bdf8'}}>
+                    <span>{'\u{1F4F2}'}</span> Install App
+                  </button>
+                )}
                 <div style={{borderTop: '1px solid rgba(255,255,255,0.06)', margin: '0.25rem 0'}} />
                 <button onClick={() => { clearToken(); setTokenState(null) }} className="w-full text-left px-4 py-2.5 text-sm" style={{color: '#f87171'}}>
                   Logout

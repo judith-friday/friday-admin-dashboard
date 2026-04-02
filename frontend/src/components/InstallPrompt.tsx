@@ -1,38 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
-}
+import { useInstallPrompt } from './useInstallPrompt'
 
 export default function InstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [dismissed, setDismissed] = useState(false)
+  const { canInstall, bannerDismissed, triggerInstall, dismissBanner } = useInstallPrompt()
 
-  useEffect(() => {
-    if (localStorage.getItem('pwa-install-dismissed')) return
-
-    const handler = (e: Event) => {
-      e.preventDefault()
-      setDeferredPrompt(e as BeforeInstallPromptEvent)
-    }
-    window.addEventListener('beforeinstallprompt', handler)
-    return () => window.removeEventListener('beforeinstallprompt', handler)
-  }, [])
-
-  if (!deferredPrompt || dismissed) return null
+  if (!canInstall || bannerDismissed) return null
 
   const handleInstall = async () => {
-    await deferredPrompt.prompt()
-    const { outcome } = await deferredPrompt.userChoice
-    if (outcome === 'accepted') setDeferredPrompt(null)
-  }
-
-  const handleDismiss = () => {
-    setDismissed(true)
-    localStorage.setItem('pwa-install-dismissed', '1')
+    const outcome = await triggerInstall()
+    if (outcome === 'unavailable') {
+      // prompt failed — banner stays visible, user can retry
+    }
+    // 'accepted' → installed flag hides banner via canInstall
+    // 'dismissed' → user cancelled native prompt, banner stays so they can try again
   }
 
   return (
@@ -82,7 +63,7 @@ export default function InstallPrompt() {
         Install
       </button>
       <button
-        onClick={handleDismiss}
+        onClick={dismissBanner}
         aria-label="Dismiss"
         style={{
           background: 'none',
