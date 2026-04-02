@@ -76,6 +76,15 @@ export default function MessageDashboard() {
   const [mobileView, setMobileView] = useState<'list' | 'detail' | 'info'>('list')
   const [isMuted, setIsMuted] = useState(false)
   const [showDraftHistory, setShowDraftHistory] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Conversation[] | null>(null)
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [filterProperty, setFilterProperty] = useState('')
+  const [filterChannel, setFilterChannel] = useState('')
+  const [filterDateFrom, setFilterDateFrom] = useState('')
+  const [filterDateTo, setFilterDateTo] = useState('')
+  const [filterOptions, setFilterOptions] = useState<{properties: string[], channels: string[], statuses: string[]}>({properties: [], channels: [], statuses: []})
+  const searchTimerRef = useRef<NodeJS.Timeout | null>(null)
   const revisionInputRef = useRef<HTMLInputElement>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
@@ -177,12 +186,74 @@ export default function MessageDashboard() {
     }
   }, [])
 
+  // Fetch filter options
+  const fetchFilterOptions = useCallback(async () => {
+    try {
+      const data = await apiFetch('/api/conversations/filters')
+      setFilterOptions(data)
+    } catch {}
+  }, [])
+
+  // Search conversations (debounced call)
+  const executeSearch = useCallback(async (q: string, prop: string, ch: string, df: string, dt: string) => {
+    const hasFilters = q.trim() || prop || ch || df || dt
+    if (!hasFilters) {
+      setSearchResults(null)
+      setSearchLoading(false)
+      return
+    }
+    setSearchLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (q.trim()) params.set('q', q.trim())
+      if (prop) params.set('property', prop)
+      if (ch) params.set('channel', ch)
+      if (df) params.set('dateFrom', df)
+      if (dt) params.set('dateTo', dt)
+      const data = await apiFetch(`/api/conversations/search?${params.toString()}`)
+      setSearchResults(data.conversations || [])
+    } catch {
+      setSearchResults([])
+    } finally {
+      setSearchLoading(false)
+    }
+  }, [])
+
+  // Debounced search trigger
+  const triggerSearch = useCallback((q: string, prop: string, ch: string, df: string, dt: string) => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
+    searchTimerRef.current = setTimeout(() => executeSearch(q, prop, ch, df, dt), 300)
+  }, [executeSearch])
+
+  const handleSearchChange = useCallback((q: string) => {
+    setSearchQuery(q)
+    triggerSearch(q, filterProperty, filterChannel, filterDateFrom, filterDateTo)
+  }, [triggerSearch, filterProperty, filterChannel, filterDateFrom, filterDateTo])
+
+  const handleFilterChange = useCallback((prop: string, ch: string, df: string, dt: string) => {
+    setFilterProperty(prop)
+    setFilterChannel(ch)
+    setFilterDateFrom(df)
+    setFilterDateTo(dt)
+    triggerSearch(searchQuery, prop, ch, df, dt)
+  }, [triggerSearch, searchQuery])
+
+  const clearSearch = useCallback(() => {
+    setSearchQuery('')
+    setFilterProperty('')
+    setFilterChannel('')
+    setFilterDateFrom('')
+    setFilterDateTo('')
+    setSearchResults(null)
+  }, [])
+
   // Initial load
   useEffect(() => {
     if (!token) return
     fetchConversations()
     fetchStats()
-  }, [token, fetchConversations, fetchStats])
+    fetchFilterOptions()
+  }, [token, fetchConversations, fetchStats, fetchFilterOptions])
 
   // SSE connection
   useEffect(() => {
@@ -526,8 +597,11 @@ export default function MessageDashboard() {
     }
   }, [detail?.conversation?.id])
 
-  // Filter conversations
-  const filteredConversations = conversations.filter(c => {
+  // Filter conversations — use search results when search is active
+  const isSearchActive = searchResults !== null
+  const baseConversations = isSearchActive ? searchResults : conversations
+  const filteredConversations = baseConversations.filter(c => {
+    if (isSearchActive) return true // search API already filtered
     if (activeTab === 'unread') return c.is_unread === true
     if (activeTab === 'review') return c.latest_draft_state === 'draft_ready'
     if (activeTab === 'open') return c.status === 'active' && c.latest_draft_state !== 'sent'
@@ -741,6 +815,17 @@ export default function MessageDashboard() {
           fetchPropertyCard={fetchPropertyCard}
           statusBadge={statusBadge}
           channelBadge={channelBadge}
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          searchLoading={searchLoading}
+          isSearchActive={isSearchActive}
+          clearSearch={clearSearch}
+          filterProperty={filterProperty}
+          filterChannel={filterChannel}
+          filterDateFrom={filterDateFrom}
+          filterDateTo={filterDateTo}
+          filterOptions={filterOptions}
+          onFilterChange={handleFilterChange}
         />
 
         {/* Main content area */}

@@ -1,10 +1,13 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import {
   ChatBubbleLeftRightIcon,
   EyeSlashIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
+  FunnelIcon,
 } from '@heroicons/react/24/outline'
 import { Conversation, InboxStats } from './types'
 import PendingActionsTab from './PendingActions'
@@ -24,6 +27,17 @@ interface ConversationListProps {
   fetchPropertyCard: (code: string | undefined) => void
   statusBadge: (conv: Conversation) => React.ReactNode
   channelBadge: (ch?: string) => React.ReactNode
+  searchQuery: string
+  onSearchChange: (q: string) => void
+  searchLoading: boolean
+  isSearchActive: boolean
+  clearSearch: () => void
+  filterProperty: string
+  filterChannel: string
+  filterDateFrom: string
+  filterDateTo: string
+  filterOptions: { properties: string[]; channels: string[]; statuses: string[] }
+  onFilterChange: (prop: string, ch: string, df: string, dt: string) => void
 }
 
 export default function ConversationList({
@@ -31,42 +45,164 @@ export default function ConversationList({
   unreadCount, stats, token, mobileView,
   selectConversation, handleMarkUnread, fetchPropertyCard,
   statusBadge, channelBadge,
+  searchQuery, onSearchChange, searchLoading, isSearchActive, clearSearch,
+  filterProperty, filterChannel, filterDateFrom, filterDateTo, filterOptions, onFilterChange,
 }: ConversationListProps) {
+  const [showFilters, setShowFilters] = useState(false)
+
+  const activeFilterCount = [filterProperty, filterChannel, filterDateFrom, filterDateTo].filter(Boolean).length
+
   return (
     <div data-testid="container-inbox" className={`w-80 flex flex-col ${mobileView !== 'list' ? 'hidden md:flex' : 'w-full md:w-80'}`} style={{background: 'rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
-      {/* Tabs */}
-      <div className="flex text-xs tabs-scroll" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-        {([
-          ['all', 'All'],
-          ['unread', 'Unread'],
-          ['review', 'Review'],
-          ['open', 'Open'],
-          ['done', 'Done'],
-          ['actions', 'Actions'],
-        ] as [string, string][]).map(([key, label]) => (
-          <button key={key} onClick={() => setActiveTab(key as any)}
-            className="flex-1 py-2 text-center transition-all duration-200 ease-in-out hover:bg-white/5" style={{borderBottom: activeTab === key ? '2px solid #6395ff' : '2px solid transparent', color: activeTab === key ? '#6395ff' : '#64748b', fontWeight: activeTab === key ? 500 : 400}}>
-            {label}
-            {key === 'unread' && unreadCount > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs" style={{background: '#3b82f6', color: 'white'}}>{unreadCount}</span>
+      {/* Search bar */}
+      <div className="px-2 pt-2 pb-1" style={{borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
+        <div className="relative flex items-center">
+          <MagnifyingGlassIcon className="absolute left-2.5 h-4 w-4 pointer-events-none" style={{color: '#64748b'}} />
+          <input
+            type="text"
+            placeholder="Search guests, properties, messages..."
+            value={searchQuery}
+            onChange={e => onSearchChange(e.target.value)}
+            className="w-full pl-8 pr-16 py-1.5 text-xs rounded-md outline-none transition-colors"
+            style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}
+          />
+          <div className="absolute right-1 flex items-center space-x-0.5">
+            {searchLoading && (
+              <div className="w-3.5 h-3.5 border-2 rounded-full animate-spin" style={{borderColor: 'rgba(99,149,255,0.3)', borderTopColor: '#6395ff'}} />
             )}
-            {key === 'actions' && stats && stats.pending_actions_count > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs" style={{background: stats.overdue_actions_count > 0 ? '#ef4444' : 'rgba(245,158,11,0.15)', color: stats.overdue_actions_count > 0 ? 'white' : '#fbbf24'}}>
-                {stats.pending_actions_count}
-              </span>
+            {(searchQuery || isSearchActive) && (
+              <button onClick={clearSearch} className="p-0.5 rounded hover:bg-white/10" title="Clear search">
+                <XMarkIcon className="h-3.5 w-3.5" style={{color: '#94a3b8'}} />
+              </button>
             )}
-          </button>
-        ))}
+            <button onClick={() => setShowFilters(!showFilters)} className="p-0.5 rounded hover:bg-white/10 relative" title="Filters">
+              <FunnelIcon className="h-3.5 w-3.5" style={{color: showFilters || activeFilterCount > 0 ? '#6395ff' : '#64748b'}} />
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-[8px] flex items-center justify-center" style={{background: '#6395ff', color: 'white'}}>{activeFilterCount}</span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Filter row */}
+        {showFilters && (
+          <div className="mt-1.5 space-y-1.5 pb-1">
+            <div className="flex space-x-1.5">
+              <select
+                value={filterProperty}
+                onChange={e => onFilterChange(e.target.value, filterChannel, filterDateFrom, filterDateTo)}
+                className="flex-1 text-xs py-1 px-1.5 rounded outline-none"
+                style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}
+              >
+                <option value="">All properties</option>
+                {filterOptions.properties.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+              <select
+                value={filterChannel}
+                onChange={e => onFilterChange(filterProperty, e.target.value, filterDateFrom, filterDateTo)}
+                className="flex-1 text-xs py-1 px-1.5 rounded outline-none"
+                style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}
+              >
+                <option value="">All channels</option>
+                {filterOptions.channels.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+              </select>
+            </div>
+            <div className="flex space-x-1.5">
+              <input
+                type="date"
+                value={filterDateFrom}
+                onChange={e => onFilterChange(filterProperty, filterChannel, e.target.value, filterDateTo)}
+                placeholder="From"
+                className="flex-1 text-xs py-1 px-1.5 rounded outline-none"
+                style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}
+              />
+              <input
+                type="date"
+                value={filterDateTo}
+                onChange={e => onFilterChange(filterProperty, filterChannel, filterDateFrom, e.target.value)}
+                placeholder="To"
+                className="flex-1 text-xs py-1 px-1.5 rounded outline-none"
+                style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}
+              />
+            </div>
+            {activeFilterCount > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {filterProperty && (
+                  <span className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
+                    {filterProperty}
+                    <button onClick={() => onFilterChange('', filterChannel, filterDateFrom, filterDateTo)} className="ml-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
+                  </span>
+                )}
+                {filterChannel && (
+                  <span className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
+                    {filterChannel}
+                    <button onClick={() => onFilterChange(filterProperty, '', filterDateFrom, filterDateTo)} className="ml-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
+                  </span>
+                )}
+                {filterDateFrom && (
+                  <span className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
+                    From {filterDateFrom}
+                    <button onClick={() => onFilterChange(filterProperty, filterChannel, '', filterDateTo)} className="ml-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
+                  </span>
+                )}
+                {filterDateTo && (
+                  <span className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
+                    To {filterDateTo}
+                    <button onClick={() => onFilterChange(filterProperty, filterChannel, filterDateFrom, '')} className="ml-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {activeTab === 'actions' ? (
+      {/* Search results indicator */}
+      {isSearchActive && (
+        <div className="flex items-center justify-between px-3 py-1.5 text-xs" style={{background: 'rgba(99,149,255,0.08)', color: '#93b4ff', borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
+          <span>{filteredConversations.length} result{filteredConversations.length !== 1 ? 's' : ''}</span>
+          <button onClick={clearSearch} className="underline hover:text-white">Clear</button>
+        </div>
+      )}
+
+      {/* Tabs */}
+      {!isSearchActive && (
+        <div className="flex text-xs tabs-scroll" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+          {([
+            ['all', 'All'],
+            ['unread', 'Unread'],
+            ['review', 'Review'],
+            ['open', 'Open'],
+            ['done', 'Done'],
+            ['actions', 'Actions'],
+          ] as [string, string][]).map(([key, label]) => (
+            <button key={key} onClick={() => setActiveTab(key as any)}
+              className="flex-1 py-2 text-center transition-all duration-200 ease-in-out hover:bg-white/5" style={{borderBottom: activeTab === key ? '2px solid #6395ff' : '2px solid transparent', color: activeTab === key ? '#6395ff' : '#64748b', fontWeight: activeTab === key ? 500 : 400}}>
+              {label}
+              {key === 'unread' && unreadCount > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs" style={{background: '#3b82f6', color: 'white'}}>{unreadCount}</span>
+              )}
+              {key === 'actions' && stats && stats.pending_actions_count > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs" style={{background: stats.overdue_actions_count > 0 ? '#ef4444' : 'rgba(245,158,11,0.15)', color: stats.overdue_actions_count > 0 ? 'white' : '#fbbf24'}}>
+                  {stats.pending_actions_count}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {activeTab === 'actions' && !isSearchActive ? (
         <PendingActionsTab token={token} />
       ) : (
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {filteredConversations.length === 0 ? (
             <div className="p-4 text-center" style={{color: '#64748b'}}>
               <ChatBubbleLeftRightIcon className="h-12 w-12 mx-auto mb-2" style={{color: '#334155'}} />
-              <p>No conversations</p>
+              <p>{isSearchActive ? 'No results found' : 'No conversations'}</p>
+              {isSearchActive && (
+                <button onClick={clearSearch} className="mt-2 text-xs underline" style={{color: '#6395ff'}}>Clear search</button>
+              )}
             </div>
           ) : (
             filteredConversations.map(conv => (
