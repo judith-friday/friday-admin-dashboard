@@ -1,9 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-
-// VAPID public key — replace with your actual key when backend push is set up
-const VAPID_PUBLIC_KEY = ''
+import { API_BASE } from './types'
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
@@ -27,18 +25,39 @@ export function usePushNotifications() {
     const result = await Notification.requestPermission()
     setPermission(result)
 
-    if (result !== 'granted' || !VAPID_PUBLIC_KEY) return result === 'granted'
+    if (result !== 'granted') return false
 
-    // Subscribe to push if VAPID key is configured
+    // Fetch VAPID public key from backend
+    let vapidKey = ''
+    try {
+      const resp = await fetch(`${API_BASE}/api/push/vapid-key`)
+      const data = await resp.json()
+      vapidKey = data.publicKey
+    } catch (err) {
+      console.error('[Push] Failed to fetch VAPID key:', err)
+      return true
+    }
+
+    if (!vapidKey) return true
+
+    // Subscribe to push
     const registration = await navigator.serviceWorker.ready
     const sub = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      applicationServerKey: urlBase64ToUint8Array(vapidKey),
     })
     setSubscription(sub)
 
-    // TODO: Send subscription to backend via POST /api/push/subscribe
-    // await fetch('/api/push/subscribe', { method: 'POST', body: JSON.stringify(sub), headers: { 'Content-Type': 'application/json' } })
+    // Send subscription to backend
+    const token = localStorage.getItem('token')
+    await fetch(`${API_BASE}/api/push/subscribe`, {
+      method: 'POST',
+      body: JSON.stringify(sub),
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    })
 
     return true
   }
