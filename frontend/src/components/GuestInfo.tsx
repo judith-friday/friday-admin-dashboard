@@ -69,12 +69,17 @@ export default function GuestInfo({
   notesTimerRef, draftStateBadge,
 }: GuestInfoProps) {
   return (
-    <div data-testid="section-guest-info" className={`w-72 overflow-y-auto custom-scrollbar ${mobileView === 'info' ? 'fixed inset-0 w-full z-40 md:relative md:w-72' : 'hidden md:block'}`} style={{background: 'rgba(255,255,255,0.05)', borderLeft: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
-      {/* Header with back button on mobile */}
-      <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+    <>
+      {/* Backdrop overlay on mobile */}
+      {mobileView === 'info' && (
+        <div className="fixed inset-0 z-40 md:hidden" style={{background: 'rgba(0,0,0,0.5)'}} onClick={() => setMobileView('detail')} />
+      )}
+    <div data-testid="section-guest-info" className={`w-72 overflow-y-auto custom-scrollbar ${mobileView === 'info' ? 'fixed inset-0 w-full z-50 md:relative md:w-72 pt-0' : 'hidden md:block'}`} style={{background: mobileView === 'info' ? '#0d1117' : 'rgba(255,255,255,0.05)', borderLeft: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
+      {/* Header with close button on mobile */}
+      <div className="p-3 sticky top-0 z-10" style={{borderBottom: '1px solid rgba(255,255,255,0.06)', background: mobileView === 'info' ? '#0d1117' : 'transparent'}}>
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-semibold" style={{color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px"}}>Guest Info</h3>
-          <button className="mobile-only text-xs px-2 py-0.5 rounded" style={{background: "rgba(99,149,255,0.15)", color: "#6395ff"}} onClick={() => setMobileView("detail")}>{'\u2190'} Back</button>
+          <button className="mobile-only text-sm px-3 py-1.5 rounded-lg flex items-center gap-1" style={{background: "rgba(99,149,255,0.15)", color: "#6395ff", border: '1px solid rgba(99,149,255,0.2)'}} onClick={() => setMobileView("detail")}>{'\u2190'} Back to conversation</button>
         </div>
       </div>
 
@@ -211,5 +216,6 @@ export default function GuestInfo({
       )}
 
     </div>
+    </>
   )
 }

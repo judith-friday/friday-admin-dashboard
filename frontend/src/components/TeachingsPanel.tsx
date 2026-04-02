@@ -147,10 +147,10 @@ export default function TeachingsPanel({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex" data-testid="modal-teachings-panel">
-      <div className="flex-1" style={{background: 'rgba(0,0,0,0.4)'}} onClick={() => setShowTeachingsPanel(false)} />
-      <div className="w-[480px] h-full overflow-y-auto custom-scrollbar" style={{background: '#0d1117', borderLeft: '1px solid rgba(255,255,255,0.08)'}}>
-        <div className="p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+    <div className="fixed inset-0 z-[60] flex" data-testid="modal-teachings-panel">
+      <div className="flex-1 hidden md:block" style={{background: 'rgba(0,0,0,0.4)'}} onClick={() => setShowTeachingsPanel(false)} />
+      <div className="w-full md:w-[480px] h-full overflow-y-auto custom-scrollbar" style={{background: '#0d1117', borderLeft: '1px solid rgba(255,255,255,0.08)'}}>
+        <div className="sticky top-0 z-10 p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#0d1117'}}>
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>🧠 Teachings</h2>
             <button onClick={() => setShowTeachingsPanel(false)} className="text-sm" data-testid="btn-close-teachings" style={{color: '#64748b'}}>✕</button>

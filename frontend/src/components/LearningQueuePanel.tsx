@@ -175,7 +175,7 @@ export default function LearningQueuePanel({ show, onClose }: LearningQueuePanel
   const corrections = candidates.filter(c => c.property_card_update)
 
   return (
-    <div className="fixed inset-0 z-50 flex" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }} onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }} onClick={onClose}>
       <div
         className="ml-auto w-full max-w-2xl h-full overflow-y-auto"
         style={{ background: '#0d1220', borderLeft: '1px solid rgba(255,255,255,0.08)' }}
