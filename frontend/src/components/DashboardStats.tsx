@@ -31,6 +31,13 @@ function rtColor(mins?: number) {
   return '#f87171'
 }
 
+function formatResponseTime(mins: number): string {
+  if (mins < 60) return `${mins}m`
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return m > 0 ? `${h}h ${m}m` : `${h}h`
+}
+
 export default function DashboardStats({
   stats, pollerStatus, displayName, setTokenState,
   toggleMute, isMuted, showTeachingsPanel, setShowTeachingsPanel,
@@ -75,7 +82,7 @@ export default function DashboardStats({
               </div>
               <div className="text-center">
                 <div className="text-lg font-bold" style={{color: stats.avg_response_time_minutes != null ? rtColor(stats.avg_response_time_minutes) : '#64748b'}}>
-                  {stats.avg_response_time_minutes != null ? `${stats.avg_response_time_minutes} min` : '\u2014'}
+                  {stats.avg_response_time_minutes != null ? formatResponseTime(stats.avg_response_time_minutes) : '\u2014'}
                 </div>
                 <div className="text-xs" style={{color: '#64748b'}}>avg response</div>
               </div>
@@ -142,7 +149,7 @@ export default function DashboardStats({
             </div>
             <div>
               <div className="text-sm font-bold" style={{color: stats.avg_response_time_minutes != null ? rtColor(stats.avg_response_time_minutes) : '#64748b'}}>
-                {stats.avg_response_time_minutes != null ? `${stats.avg_response_time_minutes}m` : '\u2014'}
+                {stats.avg_response_time_minutes != null ? formatResponseTime(stats.avg_response_time_minutes) : '\u2014'}
               </div>
               <div className="text-[10px]" style={{color: '#64748b'}}>avg RT</div>
             </div>
