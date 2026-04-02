@@ -96,6 +96,8 @@ export default function MessageDashboard() {
   const revisionInputRef = useRef<HTMLInputElement>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const [leftCollapsed, setLeftCollapsed] = useState(false)
+  const [rightCollapsed, setRightCollapsed] = useState(false)
 
   // Init auth
   useEffect(() => {
@@ -683,7 +685,7 @@ export default function MessageDashboard() {
   const filteredConversations = baseConversations.filter(c => {
     if (isSearchActive) return true // search API already filtered
     if (activeTab === 'unread') return c.is_unread === true
-    if (activeTab === 'review') return c.latest_draft_state === 'draft_ready'
+    if (activeTab === 'review') return c.latest_draft_state === 'draft_ready' && c.last_message_direction !== 'outbound'
     if (activeTab === 'open') return c.status === 'active' && c.latest_draft_state !== 'sent'
     if (activeTab === 'done') return c.status === 'done'
     return true
@@ -755,8 +757,8 @@ export default function MessageDashboard() {
 
   const statusBadge = (conv: Conversation) => {
     if (conv.status === 'done') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(255,255,255,0.06)', color: '#64748b'}}>Done</span>
-    if (conv.latest_draft_state === 'draft_ready') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>Review</span>
-    if (conv.latest_draft_state === 'sent') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>Sent</span>
+    if (conv.latest_draft_state === 'draft_ready' && conv.last_message_direction !== 'outbound') return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>Review</span>
+    if (conv.latest_draft_state === 'sent' || (conv.latest_draft_state === 'draft_ready' && conv.last_message_direction === 'outbound')) return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>Sent</span>
     return <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>Open</span>
   }
 
@@ -890,6 +892,18 @@ export default function MessageDashboard() {
       />
 
       <div className="flex h-[calc(100vh-52px)] sm:h-[calc(100vh-72px)] relative" data-testid="nav-conversation-list">
+        {/* Left panel collapse toggle */}
+        {!leftCollapsed && (
+          <button onClick={() => setLeftCollapsed(true)} className="absolute top-1 left-[280px] z-10 hidden md:flex items-center justify-center w-5 h-5 rounded-full" style={{background: 'rgba(255,255,255,0.08)', color: '#64748b', fontSize: '10px'}} title="Collapse sidebar">{String.fromCharCode(171)}</button>
+        )}
+        {!rightCollapsed && selectedConvId && detail && (
+          <button onClick={() => setRightCollapsed(true)} className="absolute top-1 right-[280px] z-10 hidden md:flex items-center justify-center w-5 h-5 rounded-full" style={{background: 'rgba(255,255,255,0.08)', color: '#64748b', fontSize: '10px'}} title="Collapse info panel">{String.fromCharCode(187)}</button>
+        )}
+        {leftCollapsed ? (
+          <div className="flex-shrink-0 flex flex-col items-center py-3 cursor-pointer hidden md:flex" style={{width: '32px', background: 'rgba(255,255,255,0.03)', borderRight: '1px solid rgba(255,255,255,0.06)'}} onClick={() => setLeftCollapsed(false)} title="Expand sidebar">
+            <span style={{color: '#64748b', fontSize: '14px'}}>{String.fromCharCode(187)}</span>
+          </div>
+        ) : (
         <ConversationList
           conversations={conversations}
           filteredConversations={filteredConversations}
@@ -917,6 +931,7 @@ export default function MessageDashboard() {
           filterOptions={filterOptions}
           onFilterChange={handleFilterChange}
         />
+        )}
 
         {/* Main content area */}
         <div className="flex-1 flex min-w-0 overflow-hidden">
@@ -968,6 +983,7 @@ export default function MessageDashboard() {
                 draftStateBadge={draftStateBadge}
               />
 
+              {!rightCollapsed ? (
               <GuestInfo
                 detail={detail}
                 token={token}
@@ -986,6 +1002,11 @@ export default function MessageDashboard() {
                 notesTimerRef={notesTimerRef}
                 draftStateBadge={draftStateBadge}
               />
+              ) : (
+                <div className="flex-shrink-0 flex flex-col items-center py-3 cursor-pointer hidden md:flex" style={{width: '32px', background: 'rgba(255,255,255,0.03)', borderLeft: '1px solid rgba(255,255,255,0.06)'}} onClick={() => setRightCollapsed(false)} title="Expand info panel">
+                  <span style={{color: '#64748b', fontSize: '14px'}}>{String.fromCharCode(171)}</span>
+                </div>
+              )}
             </>
           ) : (
             <div className="flex-1 hidden md:flex items-center justify-center" style={{background: 'rgba(255,255,255,0.01)'}}>

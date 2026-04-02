@@ -106,7 +106,14 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
 
       {/* Bug report modal */}
       {bugReportOpen && (
-        <div data-testid="bug-report-backdrop" className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}} onClick={() => setBugReportOpen(false)}>
+        <div data-testid="bug-report-backdrop" className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}} onClick={() => {
+          const hasContent = bugWhat.trim() || bugExpect.trim()
+          if (hasContent) {
+            if (window.confirm('Discard unsaved bug report?')) setBugReportOpen(false)
+          } else {
+            setBugReportOpen(false)
+          }
+        }}>
           <div className="rounded-xl p-6 max-w-lg mx-4 w-full max-h-[90vh] overflow-y-auto" data-testid="modal-bug-report" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>🐛 Report a Bug</h3>

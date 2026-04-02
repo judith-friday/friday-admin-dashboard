@@ -136,6 +136,24 @@ export default function GuestInfo({
         </div>
       )}
 
+      {/* Staff notes - always visible */}
+      <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+        <h3 className="text-xs font-semibold mb-1" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Staff Notes</h3>
+        <textarea value={staffNotes}
+          onChange={e => handleNotesChange(e.target.value, detail.conversation.id)}
+          onBlur={async () => {
+            if (notesTimerRef.current) clearTimeout(notesTimerRef.current)
+            try {
+              await apiFetch(`/api/conversations/${detail.conversation.id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ notes: staffNotes }),
+              })
+            } catch { }
+          }}
+          placeholder="Add notes for Judith..."
+          className="w-full text-xs rounded px-2 py-1.5 resize-none outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} rows={2} />
+      </div>
+
       {/* Auto-send toggle */}
       <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
         <div className="flex items-center justify-between">
@@ -157,24 +175,6 @@ export default function GuestInfo({
         <p className="text-xs mt-1" style={{color: '#64748b'}}>{detail.conversation.auto_send_enabled ? 'On \u2014 routine replies \u226585% send automatically' : 'Off \u2014 all drafts require review'}</p>
       </div>
 
-      {/* Staff notes - always visible */}
-      <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-        <h3 className="text-xs font-semibold mb-1" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Staff Notes</h3>
-        <textarea value={staffNotes}
-          onChange={e => handleNotesChange(e.target.value, detail.conversation.id)}
-          onBlur={async () => {
-            if (notesTimerRef.current) clearTimeout(notesTimerRef.current)
-            try {
-              await apiFetch(`/api/conversations/${detail.conversation.id}`, {
-                method: 'PATCH',
-                body: JSON.stringify({ notes: staffNotes }),
-              })
-            } catch { }
-          }}
-          placeholder="Add notes for Judith..."
-          className="w-full text-xs rounded px-2 py-1.5 resize-none outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} rows={2} />
-      </div>
-
       {/* Suggested next steps - collapsible */}
       {detail.conversation.next_steps && (() => { try { const steps = JSON.parse(detail.conversation.next_steps); return steps.length > 0 ? (
         <CollapsibleSection title="Next Steps" defaultOpen={true} count={steps.length}>
@@ -190,6 +190,12 @@ export default function GuestInfo({
         </CollapsibleSection>
       ) : null; } catch { return null; } })()}
 
+      {/* Pending actions for this conversation - collapsible */}
+      <CollapsibleSection title="Pending Actions" defaultOpen={true}>
+        <PendingActionsTab token={token} conversationFilter={selectedConvId} />
+      </CollapsibleSection>
+
+
       {/* Draft history - collapsible, collapsed by default */}
       {detail.drafts.length > 0 && (
         <CollapsibleSection title="Draft History" defaultOpen={false} count={detail.drafts.length}>
@@ -204,10 +210,6 @@ export default function GuestInfo({
         </CollapsibleSection>
       )}
 
-      {/* Pending actions for this conversation - collapsible */}
-      <CollapsibleSection title="Pending Actions" defaultOpen={true}>
-        <PendingActionsTab token={token} conversationFilter={selectedConvId} />
-      </CollapsibleSection>
     </div>
   )
 }
