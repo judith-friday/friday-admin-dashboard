@@ -57,7 +57,7 @@ export default function DashboardStats({
   const { canInstall, installed, triggerInstall, resetDismissal } = useInstallPrompt()
 
   return (
-    <header data-testid="container-stats-bar" style={{background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', zIndex: 50}}>
+    <header data-testid="container-stats-bar" style={{background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', zIndex: 50, overflow: 'visible'}}>
       <div className="px-4 sm:px-6 py-2 sm:py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
