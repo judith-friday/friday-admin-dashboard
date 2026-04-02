@@ -17,6 +17,7 @@ import HelpPanel from '../components/HelpPanel'
 import PendingActionsTab from '../components/PendingActions'
 import LoginScreen from '../components/LoginScreen'
 import BugReport from '../components/BugReport'
+import BugReportsPanel from '../components/BugReportsPanel'
 import PropertyCard from '../components/PropertyCard'
 import SendConfirmModal from '../components/SendConfirmModal'
 import TeachingsPanel from '../components/TeachingsPanel'
@@ -45,6 +46,7 @@ export default function MessageDashboard() {
   const [showTeachPrompt, setShowTeachPrompt] = useState<string | null>(null)
   const [teachScope, setTeachScope] = useState<'global' | 'property'>('global')
   const [showTeachingsPanel, setShowTeachingsPanel] = useState(false)
+  const [showBugReportsPanel, setShowBugReportsPanel] = useState(false)
   const [teachings, setTeachings] = useState<any[]>([])
   const [revokeId, setRevokeId] = useState<string | null>(null)
   const [revokeReason, setRevokeReason] = useState('')
@@ -783,6 +785,7 @@ export default function MessageDashboard() {
       )}
 
       <BugReport selectedConvId={selectedConvId} displayName={displayName} />
+      <BugReportsPanel show={showBugReportsPanel} onClose={() => setShowBugReportsPanel(false)} />
 
       <SendConfirmModal
         sendConfirm={sendConfirm}
@@ -806,6 +809,8 @@ export default function MessageDashboard() {
         setShowTeachingsPanel={setShowTeachingsPanel}
         fetchTeachings={fetchTeachings}
         setShowHelp={setShowHelp}
+        showBugReportsPanel={showBugReportsPanel}
+        setShowBugReportsPanel={setShowBugReportsPanel}
       />
 
       <div className="flex h-[calc(100vh-52px)] sm:h-[calc(100vh-72px)] relative" data-testid="nav-conversation-list">

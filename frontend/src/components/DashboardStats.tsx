@@ -22,6 +22,8 @@ interface DashboardStatsProps {
   setShowTeachingsPanel: (v: boolean) => void
   fetchTeachings: () => void
   setShowHelp: (v: boolean) => void
+  showBugReportsPanel: boolean
+  setShowBugReportsPanel: (v: boolean) => void
 }
 
 function rtColor(mins?: number) {
@@ -41,7 +43,7 @@ function formatResponseTime(mins: number): string {
 export default function DashboardStats({
   stats, pollerStatus, displayName, setTokenState,
   toggleMute, isMuted, showTeachingsPanel, setShowTeachingsPanel,
-  fetchTeachings, setShowHelp,
+  fetchTeachings, setShowHelp, showBugReportsPanel, setShowBugReportsPanel,
 }: DashboardStatsProps) {
   const [mobileStatsOpen, setMobileStatsOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -110,6 +112,7 @@ export default function DashboardStats({
                 {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
               </button>
               <button onClick={() => { setShowTeachingsPanel(!showTeachingsPanel); if (!showTeachingsPanel) fetchTeachings() }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc'}} title="Teachings">{'\uD83E\uDDE0'}</button>
+              <button onClick={() => setShowBugReportsPanel(!showBugReportsPanel)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171'}} title="Bug Reports">{'\u{1F41B}'}</button>
               <button data-testid="btn-help" onClick={() => setShowHelp(true)} className="ml-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>?</button>
             </div>
           )}
@@ -127,6 +130,9 @@ export default function DashboardStats({
                 </button>
                 <button onClick={() => { setShowTeachingsPanel(!showTeachingsPanel); if (!showTeachingsPanel) fetchTeachings(); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#c084fc'}}>
                   <span>{'\uD83E\uDDE0'}</span> Teachings
+                </button>
+                <button onClick={() => { setShowBugReportsPanel(!showBugReportsPanel); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#f87171'}}>
+                  <span>{'\u{1F41B}'}</span> Bug Reports
                 </button>
                 <button onClick={() => { setShowHelp(true); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#6395ff'}}>
                   <span>?</span> Help

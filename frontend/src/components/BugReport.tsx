@@ -32,6 +32,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
   const [bugReportOpen, setBugReportOpen] = useState(false)
   const [bugWhat, setBugWhat] = useState('')
   const [bugExpect, setBugExpect] = useState('')
+  const [bugSeverity, setBugSeverity] = useState<'low' | 'medium' | 'high' | 'critical'>('medium')
   const [bugSubmitting, setBugSubmitting] = useState(false)
   const [screenshotData, setScreenshotData] = useState<string | null>(null)
   const [capturing, setCapturing] = useState(false)
@@ -41,6 +42,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
   const captureAndOpen = async () => {
     setBugWhat('')
     setBugExpect('')
+    setBugSeverity('medium')
     setScreenshotData(null)
     setCapturing(true)
     setBugReportOpen(true)
@@ -73,6 +75,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
         body: JSON.stringify({
           what: bugWhat,
           expected: bugExpect || null,
+          severity: bugSeverity,
           page: typeof window !== 'undefined' ? window.location.href : 'unknown',
           conversation_id: selectedConvId || null,
           browser: typeof navigator !== 'undefined' ? navigator.userAgent.split(' ').slice(-2).join(' ') : 'unknown',
@@ -144,6 +147,24 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
                   data-testid="input-bug-expect"
                   placeholder="e.g. A draft should have appeared in the review panel"
                   className="w-full text-sm rounded-lg px-3 py-2 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9'}} />
+              </div>
+
+              {/* Severity */}
+              <div>
+                <label className="text-xs font-medium mb-1 block" style={{color: '#94a3b8'}}>Severity</label>
+                <div className="flex gap-2">
+                  {(['low', 'medium', 'high', 'critical'] as const).map(s => (
+                    <button key={s} type="button" onClick={() => setBugSeverity(s)}
+                      className="flex-1 text-xs py-1.5 rounded-lg transition-all"
+                      style={{
+                        background: bugSeverity === s ? (s === 'critical' ? 'rgba(239,68,68,0.2)' : s === 'high' ? 'rgba(249,115,22,0.2)' : s === 'medium' ? 'rgba(234,179,8,0.2)' : 'rgba(34,197,94,0.2)') : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${bugSeverity === s ? (s === 'critical' ? 'rgba(239,68,68,0.4)' : s === 'high' ? 'rgba(249,115,22,0.4)' : s === 'medium' ? 'rgba(234,179,8,0.4)' : 'rgba(34,197,94,0.4)') : 'rgba(255,255,255,0.08)'}`,
+                        color: bugSeverity === s ? '#f1f5f9' : '#64748b',
+                      }}>
+                      {s === 'critical' ? '\u{1F534}' : s === 'high' ? '\u{1F7E0}' : s === 'medium' ? '\u{1F7E1}' : '\u{1F7E2}'} {s}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Context info */}
