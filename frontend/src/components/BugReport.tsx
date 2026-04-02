@@ -46,15 +46,17 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
     setBugReportOpen(true)
 
     try {
-      const { default: html2canvas } = await import('html2canvas')
-      const canvas = await html2canvas(document.body, {
-        useCORS: true,
-        scale: 0.5,
-        logging: false,
+      const { toJpeg } = await import('html-to-image')
+      // Hide the bug report backdrop before capture
+      const backdrop = document.querySelector('[data-testid="bug-report-backdrop"]') as HTMLElement | null
+      if (backdrop) backdrop.style.display = 'none'
+      const dataUrl = await toJpeg(document.body, {
+        quality: 0.6,
+        pixelRatio: 0.5,
         backgroundColor: '#0d1117',
-        ignoreElements: (el) => el.getAttribute('data-testid') === 'bug-report-backdrop',
       })
-      setScreenshotData(canvas.toDataURL('image/jpeg', 0.6))
+      if (backdrop) backdrop.style.display = ''
+      setScreenshotData(dataUrl)
     } catch (err) {
       console.error('[BugReport] Screenshot capture failed:', err)
     } finally {
