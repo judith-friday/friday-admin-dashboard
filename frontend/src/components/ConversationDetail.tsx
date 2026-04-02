@@ -296,30 +296,31 @@ export default function ConversationDetail({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Draft review - pinned above compose */}
-      <DraftPanel
-        drafts={detail.drafts} revisionPending={revisionPending}
-        editingDraft={editingDraft} setEditingDraft={setEditingDraft}
-        isEditingRef={isEditingRef} editBody={editBody} setEditBody={setEditBody}
-        revisionText={revisionText} setRevisionText={setRevisionText}
-        revisingDraft={revisingDraft}
-        rejectingDraft={rejectingDraft} setRejectingDraft={setRejectingDraft}
-        rejectReason={rejectReason} setRejectReason={setRejectReason}
-        showTeachPrompt={showTeachPrompt} setShowTeachPrompt={setShowTeachPrompt}
-        requestApproval={requestApproval} handleDraftAction={handleDraftAction}
-        handleRevision={handleRevision} handleRejectWithReason={handleRejectWithReason}
-        draftStateBadge={draftStateBadge}
-        propertyName={detail.conversation.property_name}
-      />
-
-      {/* Compose - bottom chat bar */}
-      <ComposePanel
-        composeOpen={composeOpen} setComposeOpen={setComposeOpen}
-        composeMode={composeMode} setComposeMode={setComposeMode}
-        composeText={composeText} setComposeText={setComposeText}
-        composeInstruction={composeInstruction} setComposeInstruction={setComposeInstruction}
-        composeSending={composeSending} handleCompose={handleCompose}
-      />
+      {/* Show DraftPanel when there is a pending AI draft, otherwise show ComposePanel */}
+      {revisionPending || detail.drafts.some(d => ['draft_ready', 'under_review'].includes(d.state)) ? (
+        <DraftPanel
+          drafts={detail.drafts} revisionPending={revisionPending}
+          editingDraft={editingDraft} setEditingDraft={setEditingDraft}
+          isEditingRef={isEditingRef} editBody={editBody} setEditBody={setEditBody}
+          revisionText={revisionText} setRevisionText={setRevisionText}
+          revisingDraft={revisingDraft}
+          rejectingDraft={rejectingDraft} setRejectingDraft={setRejectingDraft}
+          rejectReason={rejectReason} setRejectReason={setRejectReason}
+          showTeachPrompt={showTeachPrompt} setShowTeachPrompt={setShowTeachPrompt}
+          requestApproval={requestApproval} handleDraftAction={handleDraftAction}
+          handleRevision={handleRevision} handleRejectWithReason={handleRejectWithReason}
+          draftStateBadge={draftStateBadge}
+          propertyName={detail.conversation.property_name}
+        />
+      ) : (
+        <ComposePanel
+          composeOpen={composeOpen} setComposeOpen={setComposeOpen}
+          composeMode={composeMode} setComposeMode={setComposeMode}
+          composeText={composeText} setComposeText={setComposeText}
+          composeInstruction={composeInstruction} setComposeInstruction={setComposeInstruction}
+          composeSending={composeSending} handleCompose={handleCompose}
+        />
+      )}
     </div>
   )
 }

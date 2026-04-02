@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   PaperAirplaneIcon,
   XMarkIcon,
@@ -46,15 +46,7 @@ export default function DraftPanel({
   requestApproval, handleDraftAction, handleRevision, handleRejectWithReason,
   draftStateBadge, propertyName,
 }: DraftPanelProps) {
-  const [mobileExpanded, setMobileExpanded] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
-    check()
-    window.addEventListener('resize', check)
-    return () => window.removeEventListener('resize', check)
-  }, [])
+  const [collapsed, setCollapsed] = useState(false)
 
   if (revisionPending) {
     return (
@@ -77,8 +69,8 @@ export default function DraftPanel({
   return (
     <>
       {readyDrafts.map(draft => (
-        <div key={draft.id} data-testid="container-draft-panel" className="rounded-lg p-3 mx-3 mb-1 flex-shrink-0" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', borderTop: '1px solid rgba(255,255,255,0.06)'}}>
-          <div className="flex items-center justify-between mb-1.5" onClick={() => isMobile && setMobileExpanded(!mobileExpanded)} style={{cursor: isMobile ? 'pointer' : 'default'}}>
+        <div key={draft.id} data-testid="container-draft-panel" className="rounded-lg p-3 mx-3 mb-1 flex-shrink-0" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', borderTop: '1px solid rgba(255,255,255,0.06)', maxHeight: collapsed ? 'auto' : '40vh', overflowY: collapsed ? 'hidden' : 'auto'}}>
+          <div className="flex items-center justify-between mb-1.5" onClick={() => setCollapsed(!collapsed)} style={{cursor: 'pointer'}}>
             <h4 className="text-xs font-medium flex items-center" style={{color: '#94a3b8'}}>
               <GlobeAltIcon className="h-3.5 w-3.5 mr-1" /> AI Draft
               {draft.confidence != null && (() => {
@@ -89,10 +81,12 @@ export default function DraftPanel({
               })()}
             </h4>
             {draftStateBadge(draft.state)}
-            {isMobile && (mobileExpanded ? <ChevronUpIcon className="h-4 w-4 ml-1" style={{color: '#64748b'}} /> : <ChevronDownIcon className="h-4 w-4 ml-1" style={{color: '#64748b'}} />)}
+            {collapsed ? <ChevronDownIcon className="h-4 w-4 ml-1" style={{color: '#64748b'}} /> : <ChevronUpIcon className="h-4 w-4 ml-1" style={{color: '#64748b'}} />}
           </div>
 
-          {(!isMobile || mobileExpanded) && (editingDraft === draft.id ? (
+          {collapsed ? (
+            <div className="text-xs" style={{color: '#94a3b8'}}>AI Draft ready — click to expand</div>
+          ) : (editingDraft === draft.id ? (
             <div className="space-y-2">
               <textarea value={editBody} onChange={e => setEditBody(e.target.value)}
                 className="w-full px-3 py-2 rounded text-sm outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', overflowWrap: 'break-word', maxWidth: '100%'}} rows={4} />
