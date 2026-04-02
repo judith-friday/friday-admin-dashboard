@@ -36,6 +36,7 @@ interface DraftPanelProps {
   handleRejectWithReason: (draftId: string) => void
   draftStateBadge: (state?: string) => React.ReactNode
   propertyName?: string
+  children?: React.ReactNode
 }
 
 export default function DraftPanel({
@@ -44,7 +45,7 @@ export default function DraftPanel({
   rejectingDraft, setRejectingDraft, rejectReason, setRejectReason,
   showTeachPrompt, setShowTeachPrompt,
   requestApproval, handleDraftAction, handleRevision, handleRejectWithReason,
-  draftStateBadge, propertyName,
+  draftStateBadge, propertyName, children,
 }: DraftPanelProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -64,7 +65,7 @@ export default function DraftPanel({
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 1)
 
-  if (readyDrafts.length === 0) return null
+  if (readyDrafts.length === 0) return <>{children}</>
 
   return (
     <>

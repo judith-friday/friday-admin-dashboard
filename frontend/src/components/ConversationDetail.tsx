@@ -321,7 +321,15 @@ export default function ConversationDetail({
           handleRevision={handleRevision} handleRejectWithReason={handleRejectWithReason}
           draftStateBadge={draftStateBadge}
           propertyName={detail.conversation.property_name}
-        />
+        >
+          <ComposePanel
+            composeOpen={composeOpen} setComposeOpen={setComposeOpen}
+            composeMode={composeMode} setComposeMode={setComposeMode}
+            composeText={composeText} setComposeText={setComposeText}
+            composeInstruction={composeInstruction} setComposeInstruction={setComposeInstruction}
+            composeSending={composeSending} handleCompose={handleCompose}
+          />
+        </DraftPanel>
       ) : (
         <ComposePanel
           composeOpen={composeOpen} setComposeOpen={setComposeOpen}
