@@ -123,7 +123,7 @@ export default function ConversationDetail({
             data-testid="section-summary"
             onClick={() => setSummaryExpanded(!summaryExpanded)}
             className="flex items-start gap-1 text-xs w-full text-left mt-1"
-            style={{color: '#94a3b8', minHeight: '44px', paddingTop: '0.5rem', paddingBottom: '0.5rem'}}
+            style={{color: '#94a3b8', minHeight: summaryExpanded ? '44px' : 'auto', paddingTop: summaryExpanded ? '0.5rem' : '0.25rem', paddingBottom: summaryExpanded ? '0.5rem' : '0.25rem'}}
           >
             {summaryExpanded ? <ChevronUpIcon className="h-3 w-3 flex-shrink-0 mt-0.5" /> : <ChevronDownIcon className="h-3 w-3 flex-shrink-0 mt-0.5" />}
             <span className={summaryExpanded ? '' : 'truncate'}>{detail.conversation.conversation_summary.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1')}</span>
@@ -150,7 +150,11 @@ export default function ConversationDetail({
               <div className="max-w-xl px-4 py-2.5 rounded-lg" style={{
                 background: isOutbound ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.06)',
                 border: isOutbound ? '1px solid rgba(34,197,94,0.15)' : '1px solid rgba(255,255,255,0.08)',
-                color: '#e2e8f0'
+                color: '#e2e8f0',
+                overflowWrap: 'break-word',
+                wordBreak: 'break-word',
+                overflowX: 'hidden',
+                maxWidth: '100%',
               }}>
                 <p className="text-sm whitespace-pre-wrap" dir="auto">{displayBody}</p>
 

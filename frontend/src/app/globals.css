@@ -106,6 +106,57 @@ input:focus, textarea:focus, select:focus {
 }
 
 
+/* Short viewport (e.g. 1440x776 laptops) — reduce vertical space usage */
+@media (max-height: 800px) {
+  /* Compact stats bar */
+  [data-testid="container-stats-bar"] .py-2,
+  [data-testid="container-stats-bar"] .sm\:py-3 {
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+  }
+  [data-testid="container-stats-bar"] .text-lg {
+    font-size: 0.9rem !important;
+  }
+  [data-testid="container-stats-bar"] .text-xs {
+    font-size: 0.65rem !important;
+  }
+
+  /* Tighter conversation header */
+  [data-testid="container-conversation-detail"] .px-3.py-2 {
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+  }
+
+  /* Tighter message padding */
+  [data-testid="section-messages"] {
+    padding: 0.5rem !important;
+  }
+  [data-testid="section-messages"] .space-y-3 > * + * {
+    margin-top: 0.5rem !important;
+  }
+
+  /* Ensure flex children shrink properly */
+  [data-testid="nav-conversation-list"] {
+    min-height: 0;
+  }
+  [data-testid="nav-conversation-list"] > * {
+    min-height: 0;
+  }
+}
+
+/* Prevent long URLs/links from causing horizontal overflow in message bubbles */
+[data-testid="section-messages"] .max-w-xl {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  overflow-x: hidden;
+}
+
+[data-testid="section-messages"] a,
+[data-testid="section-messages"] .max-w-xl a {
+  word-break: break-all;
+  white-space: normal !important;
+}
+
 /* Mobile responsive styles */
 @media (max-width: 767px) {
   .desktop-only { display: none !important; }
