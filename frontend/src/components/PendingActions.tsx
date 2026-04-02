@@ -5,6 +5,9 @@ import { toast } from 'react-hot-toast'
 import {
   CheckIcon,
   PlusIcon,
+  PencilIcon,
+  TrashIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { apiFetch, PendingAction } from './types'
 
@@ -12,6 +15,9 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
   const [actions, setActions] = useState<PendingAction[]>([])
   const [loading, setLoading] = useState(true)
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({})
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editText, setEditText] = useState('')
+  const [editDueBy, setEditDueBy] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
   const [newAction, setNewAction] = useState({ conversation_id: '', action_text: '', due_by: '' })
   const [conversations, setConversations] = useState<{ id: string; guest_name: string }[]>([])
@@ -67,11 +73,42 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
     }
   }
 
+  const handleEdit = async (id: string) => {
+    try {
+      await apiFetch(`/api/pending-actions/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ action_text: editText, due_by: editDueBy || undefined }),
+      })
+      toast.success('Action updated')
+      setEditingId(null)
+      fetchActions()
+    } catch (err: any) { toast.error(err.message) }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this action?')) return
+    try {
+      await apiFetch(`/api/pending-actions/${id}`, { method: 'DELETE' })
+      toast.success('Action deleted')
+      fetchActions()
+    } catch (err: any) { toast.error(err.message) }
+  }
+
+  const startEdit = (action: PendingAction) => {
+    setEditingId(action.id)
+    setEditText(action.action_text)
+    setEditDueBy(action.due_by ? new Date(action.due_by).toISOString().slice(0, 16) : '')
+  }
+
   const ageBadge = (action: PendingAction) => {
     const mins = action.age_minutes ?? (Date.now() - new Date(action.detected_at).getTime()) / 60000
     const hours = mins / 60
     const isOverdue = action.due_by && new Date(action.due_by) < new Date() && action.status === 'pending'
-    if (isOverdue) return <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>OVERDUE</span>
+    const isDueSoon = action.due_by && !isOverdue && action.status === 'pending' && (new Date(action.due_by).getTime() - Date.now()) < 24 * 60 * 60 * 1000
+    const noDueDate = !action.due_by && action.status === 'pending'
+    if (isOverdue) return <span className="px-2 py-0.5 rounded-full text-xs font-bold animate-pulse" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>OVERDUE</span>
+    if (isDueSoon) return <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(245,158,11,0.2)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.3)'}}>DUE SOON</span>
+    if (noDueDate) return <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(100,116,139,0.15)', color: '#94a3b8'}}>no deadline</span>
     if (hours > 6) return <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>{Math.round(hours)}h</span>
     if (hours > 2) return <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>{Math.round(hours)}h</span>
     return <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>{mins < 60 ? `${Math.round(mins)}m` : `${Math.round(hours)}h`}</span>
@@ -123,8 +160,24 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
               {action.status === 'pending' && ageBadge(action)}
             </div>
             {action.property_code && <div className="text-xs mb-1" style={{color: '#64748b'}}>{action.property_code}</div>}
-            <p className="text-sm mb-2" style={{color: '#94a3b8'}}>{action.action_text}</p>
-            {action.status === 'pending' ? (
+            {editingId === action.id ? (
+              <div className="space-y-1">
+                <input type="text" value={editText} onChange={e => setEditText(e.target.value)}
+                  className="w-full text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(99,149,255,0.3)', color: '#f1f5f9'}} />
+                <input type="datetime-local" value={editDueBy} onChange={e => setEditDueBy(e.target.value)}
+                  className="w-full text-xs rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
+                <div className="flex space-x-2">
+                  <button onClick={() => handleEdit(action.id)} className="px-2 py-1 text-xs rounded" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>Save</button>
+                  <button onClick={() => setEditingId(null)} className="px-2 py-1 text-xs rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Cancel</button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className="text-sm mb-2" style={{color: '#94a3b8'}}>{action.action_text}</p>
+                {action.due_by && <div className="text-xs mb-2" style={{color: '#64748b'}}>Due: {new Date(action.due_by).toLocaleString()}</div>}
+              </>
+            )}
+            {action.status === 'pending' && editingId !== action.id ? (
               <div className="space-y-1">
                 <input type="text" placeholder="Note (optional)..."
                   value={completionNotes[action.id] || ''}
@@ -135,6 +188,10 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                     className="px-2 py-1 text-xs rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Done</button>
                   <button data-testid={`btn-action-dismiss-${action.id}`} onClick={() => handleAction(action.id, 'dismissed')}
                     className="px-2 py-1 text-xs rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Dismiss</button>
+                  <button onClick={() => startEdit(action)} className="px-2 py-1 text-xs rounded flex items-center" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>
+                    <PencilIcon className="h-3 w-3 mr-1" />Edit</button>
+                  <button onClick={() => handleDelete(action.id)} className="px-2 py-1 text-xs rounded flex items-center" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)'}}>
+                    <TrashIcon className="h-3 w-3 mr-1" />Delete</button>
                 </div>
               </div>
             ) : (

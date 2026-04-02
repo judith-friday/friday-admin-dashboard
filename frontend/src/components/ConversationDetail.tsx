@@ -235,7 +235,8 @@ export default function ConversationDetail({
           const latestSent = sentDrafts[0]
           const olderSent = sentDrafts.slice(1)
           const rejectedDrafts = detail.drafts.filter(d => d.state === 'rejected')
-          const hiddenCount = olderSent.length + rejectedDrafts.length
+          const revisionDrafts = detail.drafts.filter(d => d.state === 'revision_requested')
+          const hiddenCount = olderSent.length + rejectedDrafts.length + revisionDrafts.length
 
           const renderSentDraft = (draft: Draft, isOlder?: boolean) => {
             const isShowingTranslated = showTranslated[draft.id] && draft.translated_content
@@ -270,7 +271,7 @@ export default function ConversationDetail({
                   {isShowingTranslated ? draft.translated_content : draft.draft_body}
                 </p>
                 <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>
-                  Approved by {draft.reviewed_by} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}
+                  {draft.reviewed_by === 'auto-send' ? 'Auto-sent by Judith' : `Approved by ${draft.reviewed_by || 'unknown'}`}{draft.revision_number && draft.revision_number > 1 ? ` (v${draft.revision_number})` : ''} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}
                 </div>
               </div>
             )
@@ -284,11 +285,20 @@ export default function ConversationDetail({
               </button>
             )}
             {showDraftHistory && olderSent.map(draft => renderSentDraft(draft, true))}
+            {showDraftHistory && revisionDrafts.map(draft => (
+              <div key={`revision-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)'}}>
+                <div className="text-xs font-medium mb-1" style={{color: '#6395ff'}}>Revision #{draft.revision_number || '?'}:</div>
+                <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{draft.draft_body}</p>
+                <div className="text-xs pt-2" style={{borderTop: '1px solid rgba(99,149,255,0.1)', color: '#64748b'}}>
+                  {draft.reviewed_by ? `Revised by ${draft.reviewed_by}` : 'System revision'}{draft.revision_instruction ? ` — "${draft.revision_instruction}"` : ''} · {format(new Date(draft.updated_at), 'MMM d HH:mm')}
+                </div>
+              </div>
+            ))}
             {showDraftHistory && rejectedDrafts.map(draft => (
               <div key={`rejected-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.1)'}}>
                 <div className="text-xs font-medium mb-1" style={{color: '#f87171'}}>Rejected:</div>
                 <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{draft.draft_body}</p>
-                <div className="text-xs pt-2" style={{borderTop: '1px solid rgba(239,68,68,0.1)', color: '#f87171'}}>Rejected by {draft.reviewed_by} · {draft.rejection_reason}</div>
+                <div className="text-xs pt-2" style={{borderTop: '1px solid rgba(239,68,68,0.1)', color: '#f87171'}}>Rejected by {draft.reviewed_by || 'unknown'} · {draft.rejection_reason}</div>
               </div>
             ))}
           </>)
