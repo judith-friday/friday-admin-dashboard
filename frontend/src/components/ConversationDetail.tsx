@@ -85,7 +85,7 @@ export default function ConversationDetail({
   return (
     <div data-testid="container-conversation-detail" className={`flex-1 flex flex-col min-w-0 ${mobileView === 'list' ? 'hidden md:flex' : ''}`}>
       {/* Mobile back button */}
-      <div data-testid="nav-back-button" className="mobile-only mobile-nav-back" onClick={() => setMobileView('list')} style={{justifyContent: 'space-between'}}>
+      <div data-testid="nav-back-button" className="mobile-only mobile-nav-back" onClick={() => setMobileView('list')} style={{justifyContent: 'space-between', position: 'relative', zIndex: 1, width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
         <span>{'\u2190'} Back to inbox</span>
         <button onClick={(e) => { e.stopPropagation(); setMobileView('info'); }} className="ml-auto px-2 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>{'\u2139\uFE0F'} Info</button>
       </div>

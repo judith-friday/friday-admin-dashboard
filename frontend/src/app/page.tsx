@@ -906,7 +906,7 @@ export default function MessageDashboard() {
               />
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center" style={{background: 'rgba(255,255,255,0.01)'}}>
+            <div className="flex-1 hidden md:flex items-center justify-center" style={{background: 'rgba(255,255,255,0.01)'}}>
               <div className="text-center">
                 <ChatBubbleLeftRightIcon className="h-20 w-20 mx-auto mb-4" style={{color: '#1e293b'}} />
                 <h3 className="text-lg font-medium mb-2" style={{color: '#f1f5f9'}}>Friday GMS</h3>

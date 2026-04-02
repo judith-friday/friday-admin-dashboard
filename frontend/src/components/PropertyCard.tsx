@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { toast } from 'react-hot-toast'
 import { HomeIcon } from '@heroicons/react/24/outline'
 import { ConversationDetail } from './types'
@@ -24,9 +24,21 @@ export default function PropertyCard({
   cardEditData, setCardEditData, cardEditHistory, cardSaving,
   savePropertyCard, fetchPropertyCard, detail,
 }: PropertyCardProps) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [showScrollHint, setShowScrollHint] = useState(false)
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const check = () => setShowScrollHint(el.scrollHeight > el.clientHeight + 20 && el.scrollTop < el.scrollHeight - el.clientHeight - 40)
+    check()
+    el.addEventListener('scroll', check)
+    return () => el.removeEventListener('scroll', check)
+  }, [propertyCard.data, cardEditing])
+
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}} onClick={() => { setPropertyCard(null); setCardEditing(false); }}>
-      <div className="rounded-xl p-6 max-w-2xl mx-4 w-full max-h-[85vh] overflow-y-auto" data-testid="section-property-card" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)', scrollbarWidth: 'thin', scrollbarColor: 'rgba(99,149,255,0.3) rgba(255,255,255,0.05)'}} onClick={e => e.stopPropagation()}>
+      <div ref={scrollRef} className="rounded-xl p-6 max-w-2xl mx-4 w-full max-h-[85vh] overflow-y-auto relative" data-testid="section-property-card" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)', scrollbarWidth: 'thin', scrollbarColor: 'rgba(99,149,255,0.3) rgba(255,255,255,0.05)'}} onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>
             <HomeIcon className="h-5 w-5 inline mr-2" style={{color: '#6395ff'}} />
@@ -268,6 +280,11 @@ export default function PropertyCard({
                 {detail.conversation.channel && <div><span style={{color: '#64748b'}}>Channel:</span> {detail.conversation.channel}</div>}
               </div>
             )}
+          </div>
+        )}
+        {showScrollHint && (
+          <div className="sticky bottom-0 left-0 right-0 text-center py-2 text-xs" style={{color: '#6395ff', background: 'linear-gradient(transparent, rgba(15,25,50,0.95) 40%)'}}>
+            {'\u2193'} Scroll for more
           </div>
         )}
       </div>

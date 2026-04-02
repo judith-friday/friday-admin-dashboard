@@ -6,6 +6,8 @@ import {
   SpeakerXMarkIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  Bars3Icon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { InboxStats, clearToken } from './types'
 
@@ -35,6 +37,7 @@ export default function DashboardStats({
   fetchTeachings, setShowHelp,
 }: DashboardStatsProps) {
   const [mobileStatsOpen, setMobileStatsOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <header data-testid="container-stats-bar" style={{background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
@@ -104,13 +107,29 @@ export default function DashboardStats({
             </div>
           )}
 
-          {/* Mobile action buttons (always visible) */}
-          <div className="flex sm:hidden items-center gap-1">
-            <button onClick={toggleMute} className="p-1.5 rounded" style={{color: '#64748b'}} title={isMuted ? 'Unmute' : 'Mute'}>
-              {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
+          {/* Mobile hamburger menu */}
+          <div className="flex sm:hidden items-center relative">
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 rounded" style={{color: '#94a3b8'}} title="Menu">
+              {mobileMenuOpen ? <XMarkIcon className="h-5 w-5" /> : <Bars3Icon className="h-5 w-5" />}
             </button>
-            <button onClick={() => { clearToken(); setTokenState(null) }}
-              className="text-xs px-2 py-1 rounded" style={{color: '#64748b'}}>Logout</button>
+            {mobileMenuOpen && (
+              <div className="absolute right-0 top-full mt-1 rounded-lg py-1 z-50" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.1)', minWidth: '160px', boxShadow: '0 8px 24px rgba(0,0,0,0.4)'}}>
+                <button onClick={() => { toggleMute(); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#e2e8f0'}}>
+                  {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
+                  {isMuted ? 'Unmute' : 'Mute'}
+                </button>
+                <button onClick={() => { setShowTeachingsPanel(!showTeachingsPanel); if (!showTeachingsPanel) fetchTeachings(); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#c084fc'}}>
+                  <span>{'\uD83E\uDDE0'}</span> Teachings
+                </button>
+                <button onClick={() => { setShowHelp(true); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#6395ff'}}>
+                  <span>?</span> Help
+                </button>
+                <div style={{borderTop: '1px solid rgba(255,255,255,0.06)', margin: '0.25rem 0'}} />
+                <button onClick={() => { clearToken(); setTokenState(null) }} className="w-full text-left px-4 py-2.5 text-sm" style={{color: '#f87171'}}>
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -142,10 +161,7 @@ export default function DashboardStats({
                 <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>{'\u26A0'} API Down</span>
               </div>
             )}
-            <div className="col-span-4 flex justify-center gap-2 mt-1">
-              <button onClick={() => { setShowTeachingsPanel(!showTeachingsPanel); if (!showTeachingsPanel) fetchTeachings() }} className="px-2 py-1 rounded text-xs" style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc'}}>{'\uD83E\uDDE0'} Teachings</button>
-              <button data-testid="btn-help-mobile" onClick={() => setShowHelp(true)} className="px-2 py-1 rounded text-xs" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>? Help</button>
-            </div>
+            {/* Teachings and Help accessible via hamburger menu */}
           </div>
         )}
       </div>
