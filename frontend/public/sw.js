@@ -1,4 +1,4 @@
-const CACHE_NAME = 'friday-gms-v1';
+const CACHE_NAME = 'friday-admin-v1';
 const STATIC_ASSETS = [
   '/',
   '/offline.html',
@@ -59,7 +59,7 @@ self.addEventListener('fetch', (event) => {
 // Push notifications
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'Friday GMS';
+  const title = data.title || 'Friday Admin';
   const options = {
     body: data.body || 'You have a new notification',
     icon: '/icon-192.png',

@@ -120,7 +120,7 @@ export default function LoginScreen({ onLogin }: { onLogin: (token: string) => v
   return (
     <div className="min-h-screen flex items-center justify-center" data-testid="container-login-screen" style={{background: 'linear-gradient(135deg, #0d1117 0%, #0f1d35 50%, #0d1117 100%)', animation: 'gradientShift 20s ease infinite', backgroundSize: '200% 200%'}}>
       <form onSubmit={handleSubmit} className="p-6 sm:p-8 rounded-xl w-full max-w-sm mx-4 sm:mx-auto" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)'}}>
-        <h1 className="text-2xl font-bold mb-1" style={{color: '#f1f5f9'}}>Friday GMS</h1>
+        <h1 className="text-2xl font-bold mb-1" style={{color: '#f1f5f9'}}>Friday Admin</h1>
         <p className="text-sm mb-6 h-5" style={{color: '#6395ff', opacity: 0.8}}>{tagline}</p>
         {error && <div className="mb-4 p-3 rounded text-sm" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>{error}</div>}
         <input type="text" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)}

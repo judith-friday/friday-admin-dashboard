@@ -1,7 +1,7 @@
 {
-  "name": "Friday GMS",
-  "short_name": "GMS",
-  "description": "Friday Guest Messaging System",
+  "name": "Friday Admin Dashboard",
+  "short_name": "Friday Admin",
+  "description": "Friday Admin Dashboard — guest messaging and property management",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0d1117",

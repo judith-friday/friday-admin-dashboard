@@ -1,4 +1,4 @@
-// Shared types and utilities for Friday GMS
+// Shared types and utilities for Friday Admin Dashboard
 export const API_BASE = process.env.NEXT_PUBLIC_API_URL || ''
 
 export const LANG_NAMES: Record<string, string> = {

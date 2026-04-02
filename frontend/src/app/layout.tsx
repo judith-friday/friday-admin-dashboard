@@ -6,16 +6,16 @@ import Script from 'next/script'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Friday GMS',
-  description: 'Friday Guest Messaging System',
+  title: 'Friday Admin Dashboard',
+  description: 'Friday Admin Dashboard — guest messaging and property management',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Friday GMS',
+    title: 'Friday Admin',
   },
   icons: {
-    icon: '/icon-192.png',
+    icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',
   },
 }

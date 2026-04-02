@@ -26,7 +26,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
            onClick={e => e.stopPropagation()}>
         <div className="sticky top-0 z-10 px-6 pt-5 pb-4 flex items-center justify-between" style={{background: 'rgba(15,25,50,0.98)', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
           <div>
-            <div className="text-base font-bold" style={{color: '#f1f5f9'}}>Friday GMS</div>
+            <div className="text-base font-bold" style={{color: '#f1f5f9'}}>Friday Admin</div>
             <div className="text-xs" style={{color: '#64748b'}}>Quick guide</div>
           </div>
           <button onClick={onClose} className="w-7 h-7 rounded-md flex items-center justify-center" data-testid="btn-close-help" style={{background: 'rgba(255,255,255,0.06)', color: '#64748b'}}>✕</button>
@@ -34,7 +34,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
         <div className="px-6 py-5 space-y-6">
           <ExpandableSection title="Getting started">
             <div className="space-y-3">
-              <p>Welcome to Friday GMS! This is where you review and send guest messages.</p>
+              <p>Welcome to Friday Admin! This is where you review and send guest messages.</p>
               <div className="space-y-2">
                 <p className="font-semibold" style={{color: '#e2e8f0'}}>Your daily workflow:</p>
                 <div className="space-y-1.5">

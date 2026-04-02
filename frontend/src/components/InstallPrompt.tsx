@@ -59,7 +59,7 @@ export default function InstallPrompt() {
       <img src="/icon-192.png" alt="" width={40} height={40} style={{ borderRadius: 8 }} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#f1f5f9' }}>
-          Install Friday GMS
+          Install Friday Admin
         </div>
         <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
           Get a better experience with the app
