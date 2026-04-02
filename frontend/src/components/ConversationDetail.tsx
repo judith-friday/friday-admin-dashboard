@@ -126,7 +126,7 @@ export default function ConversationDetail({
             style={{color: '#94a3b8', minHeight: '44px', paddingTop: '0.5rem', paddingBottom: '0.5rem'}}
           >
             {summaryExpanded ? <ChevronUpIcon className="h-3 w-3 flex-shrink-0 mt-0.5" /> : <ChevronDownIcon className="h-3 w-3 flex-shrink-0 mt-0.5" />}
-            <span className={summaryExpanded ? '' : 'truncate'}>{detail.conversation.conversation_summary}</span>
+            <span className={summaryExpanded ? '' : 'truncate'}>{detail.conversation.conversation_summary.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1')}</span>
           </button>
         )}
       </div>

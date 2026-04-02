@@ -167,7 +167,7 @@ export default function ConversationList({
 
       {/* Tabs */}
       {!isSearchActive && (
-        <div className="flex text-xs tabs-scroll" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+        <div className="flex flex-wrap text-xs tabs-scroll" style={{borderBottom: '1px solid rgba(255,255,255,0.06)', gap: '2px'}}>
           {([
             ['all', 'All'],
             ['unread', 'Unread'],
@@ -177,7 +177,7 @@ export default function ConversationList({
             ['actions', 'Actions'],
           ] as [string, string][]).map(([key, label]) => (
             <button key={key} onClick={() => setActiveTab(key as any)}
-              className="flex-1 py-2 text-center transition-all duration-200 ease-in-out hover:bg-white/5" style={{borderBottom: activeTab === key ? '2px solid #6395ff' : '2px solid transparent', color: activeTab === key ? '#6395ff' : '#64748b', fontWeight: activeTab === key ? 500 : 400}}>
+              className="flex-1 py-2 text-center transition-all duration-200 ease-in-out hover:bg-white/5" style={{borderBottom: activeTab === key ? '2px solid #6395ff' : '2px solid transparent', color: activeTab === key ? '#6395ff' : '#64748b', fontWeight: activeTab === key ? 500 : 400, minWidth: 'fit-content', padding: '0.5rem 0.5rem'}}>
               {label}
               {key === 'unread' && unreadCount > 0 && (
                 <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs" style={{background: '#3b82f6', color: 'white'}}>{unreadCount}</span>

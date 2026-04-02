@@ -285,9 +285,17 @@ export default function MessageDashboard() {
       } catch { }
     }
 
+    let errorCount = 0
     es.onerror = () => {
-      console.log('[SSE] Connection error, reconnecting...')
+      errorCount++
+      if (errorCount > 5) {
+        console.log('[SSE] Too many errors, closing connection')
+        es.close()
+      } else {
+        console.log('[SSE] Connection error, will retry...')
+      }
     }
+    es.onopen = () => { errorCount = 0 }
 
     return () => es.close()
   }, [token, selectedConvId, fetchConversations, fetchStats, fetchDetail, isMuted, playChime, revisionPending])

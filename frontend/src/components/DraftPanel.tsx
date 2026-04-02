@@ -95,7 +95,7 @@ export default function DraftPanel({
           {(!isMobile || mobileExpanded) && (editingDraft === draft.id ? (
             <div className="space-y-2">
               <textarea value={editBody} onChange={e => setEditBody(e.target.value)}
-                className="w-full px-3 py-2 rounded text-sm outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} rows={4} />
+                className="w-full px-3 py-2 rounded text-sm outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', overflowWrap: 'break-word', maxWidth: '100%'}} rows={4} />
               <div className="flex flex-wrap gap-2">
                 <button data-testid={`btn-save-send-${draft.id}`} onClick={() => { handleDraftAction(draft.id, 'approve', editBody) }}
                   className="px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Save and Send</button>
@@ -106,7 +106,7 @@ export default function DraftPanel({
           ) : (
             <>
               <div className="max-h-[20vh] overflow-y-auto custom-scrollbar">
-              <div className="p-3 rounded text-sm mb-2 whitespace-pre-wrap" dir="auto" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#e2e8f0'}}>{draft.draft_body}</div>
+              <div className="p-3 rounded text-sm mb-2 whitespace-pre-wrap" dir="auto" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#e2e8f0', overflowWrap: 'break-word', maxWidth: '100%'}}>{draft.draft_body}</div>
               {draft.draft_translated && draft.draft_translated !== draft.draft_body && (
                 <div className="p-3 rounded text-sm mb-2" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)'}}>
                   <LanguageIcon className="h-3 w-3 inline mr-1" style={{color: '#6395ff'}} />

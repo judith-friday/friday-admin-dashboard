@@ -26,7 +26,7 @@ export default function PropertyCard({
 }: PropertyCardProps) {
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}} onClick={() => { setPropertyCard(null); setCardEditing(false); }}>
-      <div className="rounded-xl p-6 max-w-2xl mx-4 w-full max-h-[85vh] overflow-y-auto" data-testid="section-property-card" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}} onClick={e => e.stopPropagation()}>
+      <div className="rounded-xl p-6 max-w-2xl mx-4 w-full max-h-[85vh] overflow-y-auto" data-testid="section-property-card" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)', scrollbarWidth: 'thin', scrollbarColor: 'rgba(99,149,255,0.3) rgba(255,255,255,0.05)'}} onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>
             <HomeIcon className="h-5 w-5 inline mr-2" style={{color: '#6395ff'}} />
