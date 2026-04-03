@@ -132,7 +132,7 @@ export default function ConversationDetail({
       </div>
 
       {/* Messages - dominant element */}
-      <div data-testid="section-messages" className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3 custom-scrollbar" style={{background: 'rgba(255,255,255,0.01)'}}>
+      <div data-testid="section-messages" className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3 custom-scrollbar min-h-0" style={{background: 'rgba(255,255,255,0.01)'}}>
         {(() => {
           // Deduplicate messages by ID, then exclude messages that are already shown as sent drafts
           const sentDraftMessageIds = new Set(detail.drafts.filter(d => d.state === 'sent' && d.message_id).map(d => d.message_id))
@@ -307,6 +307,7 @@ export default function ConversationDetail({
       </div>
 
       {/* Show DraftPanel when there is a pending AI draft, otherwise show ComposePanel */}
+      <div className="flex-shrink-0">
       {revisionPending || detail.drafts.some(d => ['draft_ready', 'under_review'].includes(d.state)) ? (
         <DraftPanel
           drafts={detail.drafts} revisionPending={revisionPending}
@@ -339,6 +340,7 @@ export default function ConversationDetail({
           composeSending={composeSending} handleCompose={handleCompose}
         />
       )}
+      </div>
     </div>
   )
 }

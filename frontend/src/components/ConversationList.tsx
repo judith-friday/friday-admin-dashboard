@@ -74,16 +74,16 @@ export default function ConversationList({
               <div className="w-3.5 h-3.5 border-2 rounded-full animate-spin" style={{borderColor: 'rgba(99,149,255,0.3)', borderTopColor: '#6395ff'}} />
             )}
             {(searchQuery || isSearchActive) && (
-              <button onClick={clearSearch} className="p-0.5 rounded hover:bg-white/10" title="Clear search">
+              <button onClick={clearSearch} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-white/10" title="Clear search">
                 <XMarkIcon className="h-3.5 w-3.5" style={{color: '#94a3b8'}} />
               </button>
             )}
             {onRefresh && (
-              <button onClick={onRefresh} className="p-0.5 rounded hover:bg-white/10" title="Refresh">
+              <button onClick={onRefresh} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-white/10" title="Refresh">
                 <ArrowPathIcon className="h-3.5 w-3.5" style={{color: '#64748b'}} />
               </button>
             )}
-            <button onClick={() => setShowFilters(!showFilters)} className="p-0.5 rounded hover:bg-white/10 relative" title="Filters">
+            <button onClick={() => setShowFilters(!showFilters)} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-white/10 relative" title="Filters">
               <FunnelIcon className="h-3.5 w-3.5" style={{color: showFilters || activeFilterCount > 0 ? '#6395ff' : '#64748b'}} />
               {activeFilterCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-[8px] flex items-center justify-center" style={{background: '#6395ff', color: 'white'}}>{activeFilterCount}</span>
@@ -138,25 +138,25 @@ export default function ConversationList({
                 {filterProperty && (
                   <span className="inline-flex items-center text-xs px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
                     {filterProperty}
-                    <button onClick={() => onFilterChange('', filterChannel, filterDateFrom, filterDateTo)} className="ml-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
+                    <button onClick={() => onFilterChange('', filterChannel, filterDateFrom, filterDateTo)} className="ml-1 p-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
                   </span>
                 )}
                 {filterChannel && (
                   <span className="inline-flex items-center text-xs px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
                     {filterChannel}
-                    <button onClick={() => onFilterChange(filterProperty, '', filterDateFrom, filterDateTo)} className="ml-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
+                    <button onClick={() => onFilterChange(filterProperty, '', filterDateFrom, filterDateTo)} className="ml-1 p-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
                   </span>
                 )}
                 {filterDateFrom && (
                   <span className="inline-flex items-center text-xs px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
                     From {filterDateFrom}
-                    <button onClick={() => onFilterChange(filterProperty, filterChannel, '', filterDateTo)} className="ml-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
+                    <button onClick={() => onFilterChange(filterProperty, filterChannel, '', filterDateTo)} className="ml-1 p-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
                   </span>
                 )}
                 {filterDateTo && (
                   <span className="inline-flex items-center text-xs px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
                     To {filterDateTo}
-                    <button onClick={() => onFilterChange(filterProperty, filterChannel, filterDateFrom, '')} className="ml-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
+                    <button onClick={() => onFilterChange(filterProperty, filterChannel, filterDateFrom, '')} className="ml-1 p-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
                   </span>
                 )}
               </div>
