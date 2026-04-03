@@ -28,6 +28,7 @@ import ConversationDetailView from '../components/ConversationDetail'
 import GuestInfo from '../components/GuestInfo'
 import InstallPrompt from '../components/InstallPrompt'
 import { Notification } from '../components/NotificationBell'
+import { trackEvent } from '../lib/analytics'
 
 export default function MessageDashboard() {
   const [token, setTokenState] = useState<string | null>(null)
@@ -166,6 +167,7 @@ export default function MessageDashboard() {
   }, [])
 
   const handleNotificationClick = useCallback((n: Notification) => {
+    trackEvent('notification_clicked')
     setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x))
     if (n.conversationId) {
       setSelectedConvId(n.conversationId)
@@ -293,6 +295,7 @@ export default function MessageDashboard() {
   // Initial load
   useEffect(() => {
     if (!token) return
+    trackEvent('page_view')
     fetchConversations()
     fetchStats()
     fetchFilterOptions()
@@ -413,6 +416,7 @@ export default function MessageDashboard() {
   }, [detail, showDraftHistory])
 
   const selectConversation = (conv: Conversation) => {
+    trackEvent('conversation_opened', { conversation_id: conv.id })
     setSelectedConvId(conv.id); setMobileView('detail')
     fetchDetail(conv.id)
     if (conv.is_unread) {
@@ -444,6 +448,7 @@ export default function MessageDashboard() {
 
   // Actual send after confirmation + undo countdown
   const executeSend = async (draftId: string) => {
+    trackEvent('draft_sent', { conversation_id: selectedConvId })
     setSendConfirm(null)
     setUndoDraftId(draftId)
     setUndoCountdown(5)
@@ -529,6 +534,7 @@ export default function MessageDashboard() {
 
   const handleRevision = async (draftId: string, mode: 'standard' | 'teach' | 'one_time' = 'standard', tScope?: 'global' | 'property', tPropCode?: string) => {
     if (!revisionText.trim()) return
+    trackEvent('draft_regenerated', { draft_id: draftId, mode })
     setRevisingDraft(draftId)
     try {
       const body: any = { revision_instruction: revisionText.trim(), reviewed_by: displayName, mode }
@@ -627,6 +633,7 @@ export default function MessageDashboard() {
   const handleRevokeTeaching = async (id: string) => {
     try {
       await apiFetch(`/api/teachings/${id}/revoke`, { method: 'PATCH', body: JSON.stringify({ revoked_by: displayName, revoke_reason: revokeReason }) })
+      trackEvent('teaching_revoked', { teaching_id: id })
       toast.success('Teaching revoked')
       setRevokeId(null)
       setRevokeReason('')
@@ -638,6 +645,7 @@ export default function MessageDashboard() {
     if (!newTeachingText.trim()) return
     try {
       await apiFetch('/api/teachings', { method: 'POST', body: JSON.stringify({ instruction: newTeachingText.trim(), scope: 'global', taught_by: displayName }) })
+      trackEvent('teaching_created', { source: 'manual' })
       toast.success('Teaching added 🧠')
       setNewTeachingText('')
       fetchTeachings()
@@ -645,6 +653,7 @@ export default function MessageDashboard() {
   }
 
   const handleRejectWithReason = async (draftId: string) => {
+    trackEvent('draft_rejected', { draft_id: draftId })
     try {
       await apiFetch(`/api/drafts/${draftId}/reject`, {
         method: 'POST',
