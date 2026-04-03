@@ -52,6 +52,19 @@ export default function ConversationList({
   onRefresh,
 }: ConversationListProps) {
   const [showFilters, setShowFilters] = useState(false)
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; convId: string } | null>(null)
+  const longPressTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  const longPressTriggered = React.useRef(false)
+
+  // Close context menu on click outside or Escape
+  React.useEffect(() => {
+    if (!contextMenu) return
+    const handleClick = () => setContextMenu(null)
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setContextMenu(null) }
+    document.addEventListener('click', handleClick)
+    document.addEventListener('keydown', handleKey)
+    return () => { document.removeEventListener('click', handleClick); document.removeEventListener('keydown', handleKey) }
+  }, [contextMenu])
 
   const activeFilterCount = [filterProperty, filterChannel, filterDateFrom, filterDateTo].filter(Boolean).length
 
@@ -214,7 +227,19 @@ export default function ConversationList({
             </div>
           ) : (
             filteredConversations.map(conv => (
-              <div key={conv.id} data-testid={`conversation-${conv.id}`} onClick={() => selectConversation(conv)}
+              <div key={conv.id} data-testid={`conversation-${conv.id}`}
+                onClick={() => { if (!longPressTriggered.current) selectConversation(conv) }}
+                onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, convId: conv.id }) }}
+                onTouchStart={(e) => {
+                  longPressTriggered.current = false
+                  const touch = e.touches[0]
+                  longPressTimer.current = setTimeout(() => {
+                    longPressTriggered.current = true
+                    setContextMenu({ x: touch.clientX, y: touch.clientY, convId: conv.id })
+                  }, 500)
+                }}
+                onTouchMove={() => { if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null } }}
+                onTouchEnd={() => { if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null } }}
                 className="group relative p-3 cursor-pointer transition-all duration-200 ease-in-out" style={{borderBottom: '1px solid rgba(255,255,255,0.03)', background: selectedConvId === conv.id ? 'linear-gradient(90deg, rgba(30,58,95,0.4), transparent)' : 'transparent', borderLeft: selectedConvId === conv.id ? '2px solid #6395ff' : '2px solid transparent', fontWeight: conv.is_unread ? 600 : 400}}>
                 {/* Hover action: mark as unread */}
                 {!conv.is_unread && (
@@ -259,6 +284,20 @@ export default function ConversationList({
               </div>
             ))
           )}
+        </div>
+      )}
+
+      {/* Context menu */}
+      {contextMenu && (
+        <div className="fixed z-50 py-1 rounded-lg shadow-lg min-w-[160px]"
+          style={{ top: contextMenu.y, left: contextMenu.x, background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); handleMarkUnread(contextMenu.convId, e); setContextMenu(null) }}
+            className="w-full text-left px-3 py-2 text-sm hover:bg-white/10 flex items-center"
+            style={{ color: '#e2e8f0' }}>
+            <EyeSlashIcon className="h-4 w-4 mr-2" style={{ color: '#94a3b8' }} />
+            Mark as Unread
+          </button>
         </div>
       )}
     </div>

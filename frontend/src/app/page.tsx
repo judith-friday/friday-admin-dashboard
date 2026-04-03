@@ -335,6 +335,9 @@ export default function MessageDashboard() {
   const selectConversation = (conv: Conversation) => {
     setSelectedConvId(conv.id); setMobileView('detail')
     fetchDetail(conv.id)
+    if (conv.is_unread) {
+      apiFetch(`/api/conversations/${conv.id}/read`, { method: 'PATCH' }).then(() => fetchConversations()).catch(() => {})
+    }
   }
 
   // Show confirmation modal before sending
@@ -664,7 +667,7 @@ export default function MessageDashboard() {
   const handleMarkUnread = async (convId: string, e?: React.MouseEvent) => {
     if (e) { e.stopPropagation(); e.preventDefault() }
     try {
-      await apiFetch(`/api/conversations/${convId}/unread`, { method: 'POST' })
+      await apiFetch(`/api/conversations/${convId}/unread`, { method: 'PATCH' })
       toast.success('Marked as unread')
       fetchConversations()
     } catch (err: any) {

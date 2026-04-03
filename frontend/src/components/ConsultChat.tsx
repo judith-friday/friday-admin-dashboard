@@ -6,7 +6,7 @@ import { apiFetch } from './types'
 
 interface ConsultChatProps {
   conversationId: string
-  context: 'revision' | 'compose'
+  context: 'revision' | 'compose' | 'draft_review'
   initialInstruction: string
   draftBody?: string
   onConfirm: () => void

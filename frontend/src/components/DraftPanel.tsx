@@ -116,18 +116,37 @@ export default function DraftPanel({
               </div>
               <div className="flex flex-wrap gap-2">
                 <button data-testid={`btn-approve-${draft.id}`} onClick={() => requestApproval(draft.id)}
-                  className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
+                  className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
                   <PaperAirplaneIcon className="h-4 w-4 mr-1" /> Approve & Send
                 </button>
                 <button data-testid={`btn-edit-${draft.id}`} onClick={() => { setEditingDraft(draft.id); isEditingRef.current = true; setEditBody(draft.draft_body) }}
-                  className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
+                  className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
                   <PencilSquareIcon className="h-4 w-4 mr-1" /> Edit
                 </button>
                 <button data-testid={`btn-reject-${draft.id}`} onClick={() => { setRejectingDraft(rejectingDraft === draft.id ? null : draft.id); setRejectReason('') }}
-                  className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)'}}>
+                  className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
                   <XMarkIcon className="h-4 w-4 mr-1" /> Reject
                 </button>
+                {conversationId && (
+                  <button data-testid={`btn-ask-judith-review-${draft.id}`} onClick={() => setConsultDraftId(consultDraftId === draft.id ? null : draft.id)}
+                    className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(99,149,255,0.08)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.15)'}}>
+                    <ChatBubbleLeftRightIcon className="h-4 w-4 mr-1" /> Ask Judith
+                  </button>
+                )}
               </div>
+
+              {/* Ask Judith consultation on draft review (Surface B) */}
+              {consultDraftId === draft.id && conversationId && (
+                <ConsultChat
+                  conversationId={conversationId}
+                  context="draft_review"
+                  initialInstruction={draft.draft_body}
+                  draftBody={draft.draft_body}
+                  onConfirm={() => { setConsultDraftId(null); requestApproval(draft.id) }}
+                  onCancel={() => setConsultDraftId(null)}
+                  confirmLabel="Approve & Send"
+                />
+              )}
 
               {/* Rejection reason */}
               {rejectingDraft === draft.id && (
