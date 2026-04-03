@@ -1,0 +1,9 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - heading "Friday Admin" [level=1] [ref=e4]
+    - paragraph [ref=e5]: Smarter replies. Happier guests. Less effort.
+    - generic [ref=e11]: Invalid credentials
+    - textbox "Email (e.g. ishant@friday.mu)" [ref=e6]: mathias@friday.mu
+    - textbox "Password" [ref=e7]: friday2026!
+    - button "Sign In" [ref=e8]
+  - alert [ref=e9]

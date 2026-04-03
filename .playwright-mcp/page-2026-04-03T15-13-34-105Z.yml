@@ -1,0 +1,8 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - heading "Friday Admin" [level=1] [ref=e4]
+    - paragraph [ref=e5]: Smarter replies. Happier guests. Less effort.
+    - textbox "Email (e.g. ishant@friday.mu)" [active] [ref=e6]
+    - textbox "Password" [ref=e7]
+    - button "Sign In" [ref=e8]
+  - alert [ref=e9]

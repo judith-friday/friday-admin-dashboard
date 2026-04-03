@@ -1,0 +1,1594 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - button "🐛" [ref=e7]
+    - generic [ref=e1791]:
+      - generic [ref=e1792]:
+        - generic [ref=e1793]:
+          - heading "🧪 Learning Queue" [level=2] [ref=e1794]
+          - paragraph [ref=e1795]: 37 candidates · 20 active teachings
+        - button "✕" [ref=e1796]
+      - generic [ref=e1797]:
+        - button "Candidates (37)" [ref=e1798]
+        - button "Corrections (0)" [ref=e1799]
+        - button "Metrics" [ref=e1800]
+      - generic [ref=e1801]:
+        - button "All" [ref=e1802]
+        - button "pending review" [ref=e1803]
+        - button "auto approved" [ref=e1804]
+        - button "approved" [ref=e1805]
+        - button "rejected" [ref=e1806]
+        - button "expired" [ref=e1807]
+      - generic [ref=e1808]:
+        - generic [ref=e1809]: 📋 Pending Review
+        - generic [ref=e1811] [cursor=pointer]:
+          - generic [ref=e1812]: 👻
+          - generic [ref=e1813]:
+            - generic [ref=e1814]:
+              - generic [ref=e1815]: pending review
+              - generic [ref=e1816]: 80%
+              - generic [ref=e1817]: 2 evidence
+            - generic [ref=e1818]: Do not mention property codes, apartment numbers, or other specific identifiers unless explicitly instructed. Keep responses focused on the information provided in the instruction without adding extraneous details.
+            - generic [ref=e1819]: "Hallucination: AI includes specific details not provided in the instruction, such as property codes or unnecessary explanations"
+            - generic [ref=e1820]:
+              - generic [ref=e1821]: "💬 Judith's take:"
+              - text: "**APPROVE with minor clarification.** This teaching genuinely reinforces existing guidance (avoid over-committing, don't assume details) and aligns with the brand voice of being warm but honest. However, reword to focus on the *why*—avoiding hallucination prevents breaking trust and keeps responses grounded in facts provided—rather than just the *what*, to make it more actionable for future reference."
+        - generic [ref=e1823] [cursor=pointer]:
+          - generic [ref=e1824]: 🔍
+          - generic [ref=e1825]:
+            - generic [ref=e1826]:
+              - generic [ref=e1827]: pending review
+              - generic [ref=e1828]: 85%
+              - generic [ref=e1829]: 2 evidence
+            - generic [ref=e1830]: When adding new information (like discounts or exceptions), preserve all existing explanatory content unless explicitly instructed to remove it. Use transitional words like 'however' or 'additionally' to connect new information to existing context.
+            - generic [ref=e1831]: "Context Misread: AI removes or fails to maintain important context from previous messages when making revisions"
+            - generic [ref=e1832]:
+              - generic [ref=e1833]: "💬 Judith's take:"
+              - text: "**APPROVE with minor clarification.** This teaching directly addresses a documented pattern (context_misread) and aligns with existing teachings about not over-committing and preserving information accuracy. However, clarify that \"preserve all existing content\" applies specifically to factual property/service details—not necessarily to previous message tone or phrasing—to avoid confusion about when rewording vs. preservation applies."
+        - generic [ref=e1835] [cursor=pointer]:
+          - generic [ref=e1836]: 🤝
+          - generic [ref=e1837]:
+            - generic [ref=e1838]:
+              - generic [ref=e1839]: pending review
+              - generic [ref=e1840]: 90%
+              - generic [ref=e1841]: 2 evidence
+            - generic [ref=e1842]: Before making any commitments about timing or actions (e.g., 'tomorrow morning', 'before 10h'), always check current team availability and status. Use tentative language like 'we will confirm the timing' unless explicitly told otherwise.
+            - generic [ref=e1843]: "Wrong Commitment: AI makes commitments about timing or actions without verifying current status or team availability"
+            - generic [ref=e1844]:
+              - generic [ref=e1845]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching is genuinely new and directly addresses a critical pattern (wrong_commitment) that's already heavily documented in existing teachings—multiple global rules already warn against committing to timing without team verification. The core guidance is sound and actionable; just clarify that \"tentative language\" applies specifically to *timing/action commitments* (not general reassurances), and consider adding an example like \"We'll check with the team and confirm timing with you shortly\" to align with existing phrasing patterns."
+        - generic [ref=e1847] [cursor=pointer]:
+          - generic [ref=e1848]: 👻
+          - generic [ref=e1849]:
+            - generic [ref=e1850]:
+              - generic [ref=e1851]: pending review
+              - generic [ref=e1852]: 80%
+              - generic [ref=e1853]: 3 evidence
+            - generic [ref=e1854]: Keep responses focused and concise. Only provide information directly relevant to the guest's query. Avoid adding suggestions, explanations of local attractions, or unnecessary context unless specifically asked.
+            - generic [ref=e1855]: "Hallucination: AI adds unnecessary details or information not requested by the guest, like suggesting activities or providing unsolicited explanations"
+            - generic [ref=e1856]:
+              - generic [ref=e1857]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching correctly addresses a genuine pattern (unnecessary details/suggestions) and aligns well with existing guidance on not over-complicating messages and only providing requested information. Suggest refining to: \"Keep responses focused and concise—provide only information directly relevant to the guest's query. Avoid unsolicited suggestions, activity recommendations, or explanations unless specifically asked\" for clarity and consistency with your existing tone."
+        - generic [ref=e1859] [cursor=pointer]:
+          - generic [ref=e1860]: 🔍
+          - generic [ref=e1861]:
+            - generic [ref=e1862]:
+              - generic [ref=e1863]: pending review
+              - generic [ref=e1864]: 85%
+              - generic [ref=e1865]: 2 evidence
+            - generic [ref=e1866]: Carefully read the guest's message and respond only to what they're actually asking or telling you. Don't add unnecessary information or assume what they might want to know.
+            - generic [ref=e1867]: "Context Misread: AI misunderstands the guest's message or responds to something not asked, providing irrelevant information"
+            - generic [ref=e1868]:
+              - generic [ref=e1869]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching addresses a genuine gap—the existing knowledge base lacks explicit guidance on reading comprehension and staying focused on what guests actually ask. However, reword it to align with existing tone: \"Carefully read what the guest is actually asking or telling you, and respond directly to that. Avoid adding unnecessary information or making assumptions about unstated needs\" (removes the slightly prescriptive \"don't\" phrasing and mirrors the brand voice better)."
+        - generic [ref=e1871] [cursor=pointer]:
+          - generic [ref=e1872]: 🎤
+          - generic [ref=e1873]:
+            - generic [ref=e1874]:
+              - generic [ref=e1875]: pending review
+              - generic [ref=e1876]: 90%
+              - generic [ref=e1877]: 5 evidence
+            - generic [ref=e1878]: Keep tone warm but professional. Avoid exaggerated phrases like 'absolutely delighted', 'means the world to us', 'wonderful guests like you', or promotional language. Use simple, genuine expressions of appreciation.
+            - generic [ref=e1879]: "Tone Issue: AI uses overly enthusiastic, promotional, or exaggerated language that sounds insincere or unprofessional"
+            - generic [ref=e1880]:
+              - generic [ref=e1881]: "💬 Judith's take:"
+              - text: "**APPROVE with minor clarification.** This teaching directly addresses a genuine pattern (90% confidence, 5 events) and aligns well with existing guidance on avoiding over-commitment and maintaining authenticity. However, consider adding one example of what \"simple, genuine expressions\" look like (e.g., \"We appreciate you letting us know\" vs. \"We're absolutely delighted you brought this to our attention\") to make it more actionable for consistent application."
+        - generic [ref=e1883] [cursor=pointer]:
+          - generic [ref=e1884]: 🤝
+          - generic [ref=e1885]:
+            - generic [ref=e1886]:
+              - generic [ref=e1887]: pending review
+              - generic [ref=e1888]: 95%
+              - generic [ref=e1889]: 5 evidence
+            - generic [ref=e1890]: Never commit to specific times, days, or immediate actions without explicit confirmation. Use phrases like 'we'll check availability', 'we'll get back to you shortly', or 'subject to availability' instead of making definitive promises.
+            - generic [ref=e1891]: "Wrong Commitment: AI makes specific operational commitments (times, days, immediate actions) without checking availability or getting approval from operations team"
+            - generic [ref=e1892]:
+              - generic [ref=e1893]: "💬 Judith's take:"
+              - text: "**APPROVE with minor clarification.** This teaching is genuinely new and directly addresses a critical operational risk (95% confidence, 5 events) that's already partially covered in existing teachings but lacks a clear, consolidated statement. The wording is clear and actionable—however, consider adding one example phrase like \"we'll check with our team and get back to you shortly\" to align with the specific language already established in your global teachings (e.g., \"By mentioning 'this afternoon' you're committing to something...\")."
+        - generic [ref=e1895] [cursor=pointer]:
+          - generic [ref=e1896]: 🔍
+          - generic [ref=e1897]:
+            - generic [ref=e1898]:
+              - generic [ref=e1899]: pending review
+              - generic [ref=e1900]: 90%
+              - generic [ref=e1901]: 2 evidence
+            - generic [ref=e1902]: Carefully read all context about ongoing situations. For refunds, verify the actual status (e.g., 'processed but not accepted' vs 'not processed') before responding. Pay attention to subtle differences in the situation
+            - generic [ref=e1903]: "Context Misread: AI misunderstands the situation or provides incorrect information about refund status or other operational details"
+            - generic [ref=e1904]:
+              - generic [ref=e1905]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching correctly identifies a genuine gap—verifying actual refund/operational status before responding—and aligns with existing teachings about not committing without checking with the team first. Suggest rewording to: \"Carefully read all context about ongoing situations. For refunds and operational issues, verify the actual current status (e.g., 'processed but not accepted' vs 'not processed') and check with the team before responding, as subtle differences significantly impact the correct response.\""
+        - generic [ref=e1907] [cursor=pointer]:
+          - generic [ref=e1908]: 🎤
+          - generic [ref=e1909]:
+            - generic [ref=e1910]:
+              - generic [ref=e1911]: pending review
+              - generic [ref=e1912]: 85%
+              - generic [ref=e1913]: 9 evidence
+            - generic [ref=e1914]: Keep responses concise and warm but professional. Avoid excessive enthusiasm, lengthy explanations, or unnecessary details. Match the brevity of the revision examples provided
+            - generic [ref=e1915]: "Tone Issue: AI's responses are too verbose, overly enthusiastic, or include unnecessary elaboration when brevity is preferred"
+            - generic [ref=e1916]:
+              - generic [ref=e1917]: "💬 Judith's take:"
+              - text: "**APPROVE with minor clarification.** This teaching genuinely addresses a documented pattern (9 events, 85% confidence) and aligns well with existing guidance on not over-committing and keeping messages simple. However, clarify that \"match the brevity of the revision examples\" should reference specific examples or a style guide, since reviewers won't have those examples in context—consider adding 1-2 concrete before/after samples to make it actionable."
+        - generic [ref=e1919] [cursor=pointer]:
+          - generic [ref=e1920]: 🤝
+          - generic [ref=e1921]:
+            - generic [ref=e1922]:
+              - generic [ref=e1923]: pending review
+              - generic [ref=e1924]: 95%
+              - generic [ref=e1925]: 2 evidence
+            - generic [ref=e1926]: Never make pricing offers or discounts on your own. When guests inquire about extended stays or special rates, acknowledge their interest and indicate that a special offer will be sent separately through the platform. For services like airport transfers, clarify that Friday Retreats partners with Mauritius Attractions but does not arrange transfers directly
+            - generic [ref=e1927]: "Wrong Commitment: AI makes pricing decisions or special offers without authorization, or provides incorrect information about services"
+            - generic [ref=e1928]:
+              - generic [ref=e1929]: "💬 Judith's take:"
+              - text: "**APPROVE with minor clarification needed.** This teaching correctly reinforces existing policies on pricing authorization (Mathias/Guest Services Lead handles discounts), avoiding unauthorized commitments, and accurately reflects the Mauritius Attractions partnership with guest discounts. However, align the wording with the existing global teaching on airport transfers—specify that guests receive a discount on Mauritius Attractions bookings and mention Uber as an alternative, rather than just directing them to the partner site."
+        - generic [ref=e1931] [cursor=pointer]:
+          - generic [ref=e1932]: 👻
+          - generic [ref=e1933]:
+            - generic [ref=e1934]:
+              - generic [ref=e1935]: pending review
+              - generic [ref=e1936]: 90%
+              - generic [ref=e1937]: 3 evidence
+            - generic [ref=e1938]: Never invent or assume specific dates, times, or details not explicitly mentioned in the conversation. When a guest mentions potential future plans without specific dates (like 'April'), respond with general availability rather than specific date ranges
+            - generic [ref=e1939]: "Hallucination: AI invents specific dates, times, or commitments that were not mentioned by the guest or in the context"
+            - generic [ref=e1940]:
+              - generic [ref=e1941]: "💬 Judith's take:"
+              - text: "**APPROVE with minor clarification.** This teaching is genuinely new and directly addresses a critical hallucination pattern—it aligns perfectly with existing teachings about not committing to specifics without team verification (e.g., \"don't commit to a specific timeframe\"). Suggest refining the wording to emphasize: \"When guests mention vague timeframes (e.g., 'April'), ask clarifying questions or offer general availability ranges rather than inventing specific dates or booking windows.\""
+        - generic [ref=e1943] [cursor=pointer]:
+          - generic [ref=e1944]: 🤝
+          - generic [ref=e1945]:
+            - generic [ref=e1946]:
+              - generic [ref=e1947]: pending review
+              - generic [ref=e1948]: 85%
+              - generic [ref=e1949]: 2 evidence
+            - generic [ref=e1950]: Never commit to specific times or actions unless explicitly confirmed by the team. Use phrases like 'we'll coordinate with our team and confirm the timing' instead of making specific promises.
+            - generic [ref=e1951]: "Wrong Commitment: AI makes specific time commitments or promises without confirmation"
+            - generic [ref=e1952]:
+              - generic [ref=e1953]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching is genuinely new and directly addresses a critical operational risk (wrong_commitment pattern) that's already flagged in multiple existing teachings but lacks a single, clear directive. The proposed phrasing is actionable and aligns perfectly with existing guidance like \"Don't commit to anything when a guest asks for an intervention\" and the underpromise principle in refund-metrics.json—consider slightly softening \"Never commit\" to \"Avoid committing\" for consistency with the collaborative tone of existing teachings."
+        - generic [ref=e1955] [cursor=pointer]:
+          - generic [ref=e1956]: 🔍
+          - generic [ref=e1957]:
+            - generic [ref=e1958]:
+              - generic [ref=e1959]: pending review
+              - generic [ref=e1960]: 90%
+              - generic [ref=e1961]: 3 evidence
+            - generic [ref=e1962]: Carefully analyze the full conversation context before responding. Verify facts like checkout dates, what the guest is actually asking for, and whether they've already received information before drafting a response.
+            - generic [ref=e1963]: "Context Misread: AI misunderstands the guest's actual situation or request"
+            - generic [ref=e1964]:
+              - generic [ref=e1965]: "💬 Judith's take:"
+              - text: "**APPROVE with minor clarification.** This teaching is genuinely valuable and addresses a real pattern (90% confidence with 3 events), filling a gap not explicitly covered in existing teachings. However, rephrase it to align with your existing language: \"Before responding, verify the full context—checkout dates, what the guest is actually asking for, and whether they've already received this information—to avoid misunderstandings\" (removes \"carefully analyze\" redundancy and matches your direct, action-oriented tone)."
+        - generic [ref=e1967] [cursor=pointer]:
+          - generic [ref=e1968]: 🛑
+          - generic [ref=e1969]:
+            - generic [ref=e1970]:
+              - generic [ref=e1971]: pending review
+              - generic [ref=e1972]: 95%
+              - generic [ref=e1973]: 4 evidence
+            - generic [ref=e1974]: Do not respond to system notifications about reservation confirmations or when guests haven't sent any new messages after automated messages have been sent. Only respond when there is an actual guest message requiring a reply.
+            - generic [ref=e1975]: "No Response Needed: AI attempts to respond to system notifications or situations where the conversation is already complete"
+            - generic [ref=e1976]:
+              - generic [ref=e1977]: "💬 Judith's take:"
+              - text: "**APPROVE with minor clarification.** This teaching is genuinely new and addresses a real operational gap (95% confidence with 4 events is solid evidence). It aligns perfectly with existing teachings about not over-committing and only responding to actual guest needs—clarify that \"actual guest message\" means substantive inquiries requiring a reply, not just acknowledgments or follow-ups to already-resolved issues."
+        - generic [ref=e1979] [cursor=pointer]:
+          - generic [ref=e1980]: 🔍
+          - generic [ref=e1981]:
+            - generic [ref=e1982]:
+              - generic [ref=e1983]: pending review
+              - generic [ref=e1984]: 85%
+              - generic [ref=e1985]: 7 evidence
+            - generic [ref=e1986]: When responding in French about chef services, ensure you're not creating multiple variations of the same response - one clear confirmation is sufficient
+            - generic [ref=e1987]: "Context Misread: AI is generating multiple variations of the same French response about chef services, indicating it's not recognizing these are duplicate attempts"
+            - generic [ref=e1988]:
+              - generic [ref=e1989]: "💬 Judith's take:"
+              - text: "**REJECT** — This teaching is vague and doesn't address the actual problem. The pattern describes a context-recognition issue (AI generating duplicate French responses about chef services), but the proposed fix is a generic instruction about \"one clear confirmation\" that doesn't explain *why* duplicates occur or *how* to prevent them. A better teaching would specify the exact scenario (e.g., \"When a guest asks about chef services in French, provide one complete response with all relevant details in a single message, then stop\") and root-cause the context-misread pattern."
+        - generic [ref=e1991] [cursor=pointer]:
+          - generic [ref=e1992]: 🔍
+          - generic [ref=e1993]:
+            - generic [ref=e1994]:
+              - generic [ref=e1995]: pending review
+              - generic [ref=e1996]: 85%
+              - generic [ref=e1997]: 7 evidence
+            - generic [ref=e1998]: When drafting a message about an ongoing service issue (like delivery coordination), check if a similar message has already been sent recently to avoid redundant communications
+            - generic [ref=e1999]: "Context Misread: AI is generating multiple similar drafts for the same bedside table delivery situation, suggesting it's not recognizing these are duplicate attempts at the same message"
+            - generic [ref=e2000]:
+              - generic [ref=e2001]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching addresses a genuine operational gap—the evidence shows 7 instances of duplicate message drafting for the same issue—and aligns with existing guidance to avoid over-communicating and not committing to specifics without team confirmation. Suggest refining to: \"Before drafting a message about an ongoing service issue, check recent communication history to avoid sending redundant follow-ups on the same matter\" for clarity."
+        - generic [ref=e2003] [cursor=pointer]:
+          - generic [ref=e2004]: 🔍
+          - generic [ref=e2005]:
+            - generic [ref=e2006]:
+              - generic [ref=e2007]: pending review
+              - generic [ref=e2008]: 90%
+              - generic [ref=e2009]: 6 evidence
+            - generic [ref=e2010]: Do not generate a response to guest messages that are purely thank you notes, compliments, or feedback unless they contain a question or request that needs addressing
+            - generic [ref=e2011]: "Context Misread: AI appears to be responding to messages that don't require a response, likely thank you messages or feedback from guests"
+            - generic [ref=e2012]:
+              - generic [ref=e2013]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching addresses a genuine operational issue (6 confirmed events) and doesn't contradict existing knowledge—it aligns well with the principle of not over-communicating or creating unnecessary administrative burden (see global teaching: \"no need to put that part about keeping them updated unless they ask\"). Suggest refining to: \"Do not generate a response to thank you notes, compliments, or feedback messages unless they contain a question or actionable request\" for clarity."
+        - generic [ref=e2015] [cursor=pointer]:
+          - generic [ref=e2016]: 🎤
+          - generic [ref=e2017]:
+            - generic [ref=e2018]:
+              - generic [ref=e2019]: pending review
+              - generic [ref=e2020]: 100%
+              - generic [ref=e2021]: 20 evidence
+            - generic [ref=e2022]: Maintain professional, appropriate language suitable for immediate team distribution without requiring any content cleaning or moderation
+            - generic [ref=e2023]: "Tone Issue: All 20 drafts were rejected with the reason 'Cleaned for team rollout', suggesting they contained inappropriate content or tone that needed cleaning before being shared with the team"
+            - generic [ref=e2024]:
+              - generic [ref=e2025]: "💬 Judith's take:"
+              - text: "**REJECT — Reword for clarity and actionability.** This teaching is too vague and doesn't address the root issue. The pattern shows 20 drafts were rejected for inappropriate *content* (not just tone), so the teaching should specify what types of language/claims to avoid (e.g., \"don't over-promise,\" \"don't admit fault,\" \"avoid corporate jargon\") rather than a generic instruction to use \"professional language.\" Reference the existing global teachings on commitment-avoidance and apologizing-without-fault, which already cover this better."
+        - generic [ref=e2027] [cursor=pointer]:
+          - generic [ref=e2028]: 🔍
+          - generic [ref=e2029]:
+            - generic [ref=e2030]:
+              - generic [ref=e2031]: pending review
+              - generic [ref=e2032]: 95%
+              - generic [ref=e2033]: 10 evidence
+            - generic [ref=e2034]: Check conversation history before generating responses - if multiple similar messages have already been sent to the same guest about the same issue, do not generate additional redundant responses
+            - generic [ref=e2035]: "Context Misread: AI repeatedly generated similar apology messages for the same guest (Maria) about a scheduling/confirmation issue, suggesting it didn't recognize the conversation was already handled"
+            - generic [ref=e2036]:
+              - generic [ref=e2037]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching addresses a genuine gap—the evidence shows AI generated 10 redundant messages to the same guest about the same issue—and it's actionable and clear. Refine it to: \"Before responding to a guest about an ongoing issue, check if the same topic has already been addressed in the current conversation thread; if so, do not send duplicate responses\" to align with existing teachings about not over-communicating and underpromising."
+        - generic [ref=e2039] [cursor=pointer]:
+          - generic [ref=e2040]: 🛑
+          - generic [ref=e2041]:
+            - generic [ref=e2042]:
+              - generic [ref=e2043]: pending review
+              - generic [ref=e2044]: 90%
+              - generic [ref=e2045]: 9 evidence
+            - generic [ref=e2046]: Do not generate responses to resolved situations, completed checkouts, or cancellations unless the guest has asked a specific question requiring a response
+            - generic [ref=e2047]: "No Response Needed: AI generated responses to situations that were already resolved or didn't require a response, particularly after guest checkouts or cancellations"
+            - generic [ref=e2048]:
+              - generic [ref=e2049]: "💬 Judith's take:"
+              - text: "**APPROVE with minor clarification.** This teaching is genuinely new and addresses a real operational gap (90% confidence, 9 events) not covered by existing teachings—it prevents unnecessary responses that create administrative burden and set false expectations. Reword slightly to: \"Do not generate responses to resolved situations, completed checkouts, or cancellations unless the guest has asked a specific question\" for clarity, and it aligns perfectly with the existing principle of not over-complicating messages and not committing to actions without team confirmation."
+        - generic [ref=e2051] [cursor=pointer]:
+          - generic [ref=e2052]: 🎤
+          - generic [ref=e2053]:
+            - generic [ref=e2054]:
+              - generic [ref=e2055]: pending review
+              - generic [ref=e2056]: 80%
+              - generic [ref=e2057]: 6 evidence
+            - generic [ref=e2058]: Match the tone to the guest's situation - for guests who experienced problems or checked out early due to issues, use a more apologetic and subdued tone rather than cheerful language
+            - generic [ref=e2059]: "Tone Issue: AI maintains overly cheerful tone when responding to guests who had negative experiences or early checkouts due to problems"
+            - generic [ref=e2060]:
+              - generic [ref=e2061]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching addresses a genuine gap—the existing knowledge emphasizes not over-committing and being professional, but doesn't explicitly address tone calibration for guests with negative experiences. Reword to: \"Adjust tone based on guest context—for guests who experienced problems or early checkouts due to issues, use a sincere, solution-focused tone rather than cheerful language\" to align with the existing guidance on acknowledging issues without admitting fault."
+        - generic [ref=e2063] [cursor=pointer]:
+          - generic [ref=e2064]: 🛑
+          - generic [ref=e2065]:
+            - generic [ref=e2066]:
+              - generic [ref=e2067]: pending review
+              - generic [ref=e2068]: 85%
+              - generic [ref=e2069]: 11 evidence
+            - generic [ref=e2070]: For checkout confirmations, keep responses brief (1-2 sentences) unless there are outstanding issues to address. A simple thank you and safe travels wish is sufficient
+            - generic [ref=e2071]: "No Response Needed: AI generates lengthy responses to simple checkout confirmations when a brief acknowledgment would suffice"
+            - generic [ref=e2072]:
+              - generic [ref=e2073]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching correctly addresses a genuine pattern (11 events at 85% confidence) and aligns with existing principles around not over-complicating messages and avoiding unnecessary commitments. Suggest rewording to \"Keep checkout confirmations brief (1-2 sentences)—a simple thank you and safe travels wish is sufficient unless outstanding issues require attention\" for clarity and consistency with your existing tone guidelines."
+        - generic [ref=e2075] [cursor=pointer]:
+          - generic [ref=e2076]: 🔍
+          - generic [ref=e2077]:
+            - generic [ref=e2078]:
+              - generic [ref=e2079]: pending review
+              - generic [ref=e2080]: 90%
+              - generic [ref=e2081]: 7 evidence
+            - generic [ref=e2082]: When a message appears to be testing system connectivity or is clearly a test message, respond with a brief confirmation that messages are being received without elaborating on unrelated topics
+            - generic [ref=e2083]: "Context Misread: AI responds to system test messages as if they were real guest inquiries, providing detailed responses about rates and availability"
+            - generic [ref=e2084]:
+              - generic [ref=e2085]: "💬 Judith's take:"
+              - text: "**APPROVE with minor clarification.** This teaching correctly addresses a real pattern (90% confidence, 7 events) and fills a genuine gap—existing teachings don't cover how to handle system test messages. Refine the wording to specify \"brief acknowledgment only (e.g., 'Message received')\" to make it more actionable and prevent ambiguity about what constitutes \"brief confirmation.\""
+        - generic [ref=e2087] [cursor=pointer]:
+          - generic [ref=e2088]: 👻
+          - generic [ref=e2089]:
+            - generic [ref=e2090]:
+              - generic [ref=e2091]: pending review
+              - generic [ref=e2092]: 95%
+              - generic [ref=e2093]: 7 evidence
+            - generic [ref=e2094]: Only reference specific booking details, dates, and property information that are explicitly provided in the conversation context - never assume or invent these details
+            - generic [ref=e2095]: "Hallucination: AI invents specific details about bookings and properties that may not be accurate, such as exact dates (December 24th to January 9th) and property names"
+            - generic [ref=e2096]:
+              - generic [ref=e2097]: "💬 Judith's take:"
+              - text: "**APPROVE** — This teaching directly addresses a critical hallucination pattern with 95% confidence and 7 supporting events, and it aligns perfectly with existing teachings that emphasize never committing to specifics without team verification (e.g., \"dont assume and promise things without checking with the team\"). The instruction is clear, actionable, and fills a genuine gap in preventing AI from inventing booking/property details."
+        - generic [ref=e2099] [cursor=pointer]:
+          - generic [ref=e2100]: 🤝
+          - generic [ref=e2101]:
+            - generic [ref=e2102]:
+              - generic [ref=e2103]: pending review
+              - generic [ref=e2104]: 85%
+              - generic [ref=e2105]: 4 evidence
+            - generic [ref=e2106]: When encountering expired reservations, first understand the context and reason for the message before offering to reactivate bookings or create new ones - the guest may just be inquiring about something else
+            - generic [ref=e2107]: "Wrong Commitment: AI makes assumptions about expired reservations and offers to help reactivate or create new bookings without understanding the actual situation"
+            - generic [ref=e2108]:
+              - generic [ref=e2109]: "💬 Judith's take:"
+              - text: "**APPROVE** — This teaching directly addresses a genuine gap in AI behavior and aligns with your existing principle of not making assumptions or commitments without full context. It's actionable, clear, and prevents the AI from jumping to solutions (reactivation/new bookings) before understanding the guest's actual need, which mirrors your broader \"don't commit without checking first\" philosophy."
+        - generic [ref=e2111] [cursor=pointer]:
+          - generic [ref=e2112]: 🔍
+          - generic [ref=e2113]:
+            - generic [ref=e2114]:
+              - generic [ref=e2115]: pending review
+              - generic [ref=e2116]: 90%
+              - generic [ref=e2117]: 16 evidence
+            - generic [ref=e2118]: When a message appears to be about technical issues (internet problems, system testing, deployment references), first confirm if this is a guest-facing issue or an internal technical matter before offering guest support
+            - generic [ref=e2119]: "Context Misread: AI responds to technical/system issues as if they were guest concerns, offering unnecessary assistance or misinterpreting the situation"
+            - generic [ref=e2120]:
+              - generic [ref=e2121]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording refinement.** This teaching addresses a genuine gap—distinguishing between internal technical discussions and guest-facing issues—and aligns with existing guidance to avoid over-committing without team verification. Reword slightly to: \"When a message references technical issues (internet problems, system testing, deployment), pause and confirm whether this is a guest-facing problem requiring support or an internal technical matter before responding\" for clarity."
+        - generic [ref=e2123] [cursor=pointer]:
+          - generic [ref=e2124]: 🎤
+          - generic [ref=e2125]:
+            - generic [ref=e2126]:
+              - generic [ref=e2127]: pending review
+              - generic [ref=e2128]: 70%
+              - generic [ref=e2129]: 5 evidence
+            - generic [ref=e2130]: Match the brevity and tone of the guest's message. For short technical queries or updates, provide concise, action-oriented responses without excessive pleasantries or explanations.
+            - generic [ref=e2131]: "Tone Issue: AI responses were overly verbose and formal for simple technical issue updates"
+            - generic [ref=e2132]:
+              - generic [ref=e2133]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching genuinely addresses a real pattern (verbose responses to simple queries) and aligns well with existing guidance on not over-complicating messages and mirroring guest tone. Suggest refining to: \"Match the guest's message brevity and tone—for short technical queries, respond concisely and action-oriented, minimizing pleasantries\" to be more specific and actionable."
+        - generic [ref=e2135] [cursor=pointer]:
+          - generic [ref=e2136]: 🛑
+          - generic [ref=e2137]:
+            - generic [ref=e2138]:
+              - generic [ref=e2139]: pending review
+              - generic [ref=e2140]: 80%
+              - generic [ref=e2141]: 4 evidence
+            - generic [ref=e2142]: For brief technical updates (e.g., 'internet is fixed'), respond with a simple acknowledgment unless the guest specifically asks for more information. Avoid over-explaining resolved issues.
+            - generic [ref=e2143]: "No Response Needed: AI provided detailed responses to simple status updates or confirmations that likely didn't require lengthy replies"
+            - generic [ref=e2144]:
+              - generic [ref=e2145]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching genuinely addresses a gap (avoiding over-explanation for simple updates) and aligns well with existing guidance on not over-complicating messages and not committing to things without team verification. Suggest refining to: \"For brief technical updates (e.g., 'internet is fixed'), respond with a simple acknowledgment and thank them for reporting it, unless the guest asks for more details—avoid lengthy explanations of resolved issues.\""
+        - generic [ref=e2147] [cursor=pointer]:
+          - generic [ref=e2148]: 🔍
+          - generic [ref=e2149]:
+            - generic [ref=e2150]:
+              - generic [ref=e2151]: pending review
+              - generic [ref=e2152]: 90%
+              - generic [ref=e2153]: 14 evidence
+            - generic [ref=e2154]: When a guest mentions dates and asks for confirmation, first check if they are simply confirming their existing booking details rather than requesting changes. Look for phrases like 'my booking is' or 'I have booked' as indicators they are stating facts, not making new requests.
+            - generic [ref=e2155]: "Context Misread: AI misunderstood guest messages about confirming existing bookings, interpreting them as requests to extend or modify stays"
+            - generic [ref=e2156]:
+              - generic [ref=e2157]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording refinement.** This teaching addresses a genuine gap (90% confidence, 14 events) and adds actionable guidance on distinguishing confirmation statements from modification requests—something not covered in existing teachings. Suggest clarifying the actionable response: \"When you identify confirmation language, acknowledge their booking details and ask what specific help they need, rather than assuming they want changes.\""
+        - generic [ref=e2159] [cursor=pointer]:
+          - generic [ref=e2160]: 🤝
+          - generic [ref=e2161]:
+            - generic [ref=e2162]:
+              - generic [ref=e2163]: pending review
+              - generic [ref=e2164]: 85%
+              - generic [ref=e2165]: 11 evidence
+            - generic [ref=e2166]: Do not make specific commitments about team member visits, delivery timings, or physical actions unless explicitly confirmed in the context. Use conditional language like 'we will arrange' rather than 'we just delivered'.
+            - generic [ref=e2167]: "Wrong Commitment: AI made commitments about team actions or deliveries that may not have been coordinated or confirmed"
+            - generic [ref=e2168]:
+              - generic [ref=e2169]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching is genuinely new and directly addresses a critical pattern (11 events, 85% confidence) that isn't fully captured in existing teachings—while you have rules against committing to specific timeframes and sending inspections, this teaching more broadly covers *all* team actions and deliveries, using conditional language as the solution. Suggest refining to: \"Use conditional language like 'we will arrange' or 'we'll check with the team' rather than definitive statements about team actions or deliveries unless explicitly confirmed in the context.\""
+        - generic [ref=e2171] [cursor=pointer]:
+          - generic [ref=e2172]: 🔍
+          - generic [ref=e2173]:
+            - generic [ref=e2174]:
+              - generic [ref=e2175]: pending review
+              - generic [ref=e2176]: 90%
+              - generic [ref=e2177]: 10 evidence
+            - generic [ref=e2178]: When a guest confirms something is working (e.g., 'the code is still working'), avoid generating multiple follow-up messages about the same resolved issue. One acknowledgment is sufficient.
+            - generic [ref=e2179]: "Context Misread: AI repeatedly generated variations of the same response about a lockbox code issue, not recognizing the conversation had already been resolved"
+            - generic [ref=e2180]:
+              - generic [ref=e2181]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching addresses a genuine gap (avoiding repetitive responses after issue resolution) and aligns well with existing principles about not over-complicating messages and not committing without team confirmation. Suggest rewording to: \"When a guest confirms an issue is resolved, send one brief acknowledgment and close the conversation—don't generate multiple follow-up variations about the same resolved matter.\""
+        - generic [ref=e2183] [cursor=pointer]:
+          - generic [ref=e2184]: 🛑
+          - generic [ref=e2185]:
+            - generic [ref=e2186]:
+              - generic [ref=e2187]: pending review
+              - generic [ref=e2188]: 95%
+              - generic [ref=e2189]: 20 evidence
+            - generic [ref=e2190]: Do not generate a response if the reason field indicates 'Handled manually' or 'Cleaned for team rollout'. These situations are being managed through other channels.
+            - generic [ref=e2191]: "No Response Needed: AI generated responses to situations that were already being handled manually or didn't require a response"
+            - generic [ref=e2192]:
+              - generic [ref=e2193]: "💬 Judith's take:"
+              - text: "**APPROVE with minor clarification.** This teaching is genuinely new and addresses a real operational gap (95% confidence with 20 events is solid evidence). However, clarify the scope: does \"no response needed\" mean skip the message entirely, or send a brief acknowledgment (e.g., \"Thanks for the update—we're handling this on our end\") to maintain guest communication standards? The existing teachings emphasize keeping guests informed, so complete silence might conflict with that principle."
+        - generic [ref=e2195] [cursor=pointer]:
+          - generic [ref=e2196]: 🛑
+          - generic [ref=e2197]:
+            - generic [ref=e2198]:
+              - generic [ref=e2199]: pending review
+              - generic [ref=e2200]: 85%
+              - generic [ref=e2201]: 4 evidence
+            - generic [ref=e2202]: Do not send check-in reminders if the guest already has all necessary information, and avoid immediate post-check-in welfare messages unless specifically requested or there's a known issue
+            - generic [ref=e2203]: "No Response Needed: AI drafted unnecessary messages for situations that didn't require guest communication (check-in reminders when guests already have details, post-check-in welfare checks)"
+            - generic [ref=e2204]:
+              - generic [ref=e2205]: "💬 Judith's take:"
+              - text: "**APPROVE with minor clarification.** This teaching correctly identifies a genuine operational pattern—avoiding unnecessary communications—and aligns well with existing guidance (e.g., \"no need to put that part about keeping them updated unless they ask\"). Suggest refining to: \"Only send check-in reminders if the guest lacks key details; skip post-check-in welfare messages unless the guest requests them or there's a documented issue\" for greater clarity on what constitutes \"necessary information.\""
+        - generic [ref=e2207] [cursor=pointer]:
+          - generic [ref=e2208]: 🔍
+          - generic [ref=e2209]:
+            - generic [ref=e2210]:
+              - generic [ref=e2211]: pending review
+              - generic [ref=e2212]: 95%
+              - generic [ref=e2213]: 16 evidence
+            - generic [ref=e2214]: When the context involves 'cleaner', 'cleaning issues', or 'guiding cleaner through problems', verify if this is an internal team matter rather than a guest communication before drafting a response to the guest
+            - generic [ref=e2215]: "Context Misread: AI misunderstood the context - these were internal team communications about cleaning issues, not messages meant for guests"
+            - generic [ref=e2216]:
+              - generic [ref=e2217]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching addresses a genuine, high-confidence pattern (95%, 16 events) that isn't covered by existing teachings—it's a valuable safeguard against misidentifying internal team discussions as guest communications. Suggest rewording to: \"When context involves 'cleaner', 'cleaning issues', or 'guiding cleaner through problems', pause and verify whether this is an internal team discussion before drafting a guest response\" for clarity."
+        - generic [ref=e2219] [cursor=pointer]:
+          - generic [ref=e2220]: 👻
+          - generic [ref=e2221]:
+            - generic [ref=e2222]:
+              - generic [ref=e2223]: pending review
+              - generic [ref=e2224]: 80%
+              - generic [ref=e2225]: 5 evidence
+            - generic [ref=e2226]: Never provide specific times, codes, or commitments unless explicitly confirmed in the context. Use phrases like 'our team will coordinate the timing with you' instead of inventing specific times.
+            - generic [ref=e2227]: "Hallucination: AI provided specific details like exact times (9:00 AM) and lock codes (142763) without apparent verification, potentially making up information"
+            - generic [ref=e2228]:
+              - generic [ref=e2229]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording adjustment.** This teaching directly addresses a critical hallucination pattern and aligns perfectly with existing teachings (especially \"don't commit to specific timeframe,\" \"check with team first,\" and \"never commit to send someone\"). Suggest refining to: \"Never provide specific times, codes, or other details unless explicitly confirmed in the booking/context or verified with the team—use 'we'll coordinate with you' instead\" to emphasize verification as the key safeguard."
+        - generic [ref=e2231] [cursor=pointer]:
+          - generic [ref=e2232]: 🎤
+          - generic [ref=e2233]:
+            - generic [ref=e2234]:
+              - generic [ref=e2235]: pending review
+              - generic [ref=e2236]: 85%
+              - generic [ref=e2237]: 20 evidence
+            - generic [ref=e2238]: Maintain professional, concise communication without excessive apologizing or emotional language. Avoid placeholder text, incomplete sentences, or formatting that might appear unprofessional.
+            - generic [ref=e2239]: "Tone Issue: All drafts were rejected with the reason 'Cleaned for team rollout', suggesting they contained inappropriate content, formatting, or tone that needed sanitization before being suitable for the team"
+            - generic [ref=e2240]:
+              - generic [ref=e2241]: "💬 Judith's take:"
+              - text: "**REJECT — Duplicate with existing teachings.** This teaching duplicates multiple existing global teachings already in your knowledge base (avoid committing to timeframes without team check, don't over-apologize, use \"we\" not \"I\", keep messages simple and professional). The proposed wording is also vague and doesn't add actionable specifics beyond what's already documented in your ops guidelines."
+        - generic [ref=e2243] [cursor=pointer]:
+          - generic [ref=e2244]: 🔍
+          - generic [ref=e2245]:
+            - generic [ref=e2246]:
+              - generic [ref=e2247]: pending review
+              - generic [ref=e2248]: 95%
+              - generic [ref=e2249]: 4 evidence
+            - generic [ref=e2250]: Always verify the guest name matches the issue being discussed. Never mix details from different conversations - if discussing a lock code with Zala, do not mention hot water issues that belong to another guest.
+            - generic [ref=e2251]: "Context Misread: AI confused different guests and their issues - mixing up Zala's lock code request with Matej's hot water problem, creating messages that reference the wrong guest's situation"
+            - generic [ref=e2252]:
+              - generic [ref=e2253]: "💬 Judith's take:"
+              - text: "**APPROVE with minor wording refinement.** This teaching addresses a genuine, high-confidence pattern (95%, 4 events) and adds critical new guidance on guest context separation that isn't explicitly covered in existing teachings. Reword slightly to: \"Always verify you're discussing the correct guest and their specific issue—never reference or mix details from other guests' conversations or problems\" for clarity and consistency with your existing \"don't assume\" principles."
+    - banner [ref=e8]:
+      - generic [ref=e10]:
+        - heading "Friday GMS" [level=1] [ref=e13]
+        - generic [ref=e14]:
+          - generic [ref=e15]:
+            - generic [ref=e16]: "16"
+            - generic [ref=e17]: to review
+          - generic [ref=e18]:
+            - generic "Median of per-conversation average response times over the last 30 days" [ref=e19]: 17m
+            - generic [ref=e20]: Team RT (30d)
+          - generic [ref=e21]:
+            - generic [ref=e22]: "13"
+            - generic [ref=e23]: new today
+          - generic [ref=e24]:
+            - generic [ref=e25]: "3"
+            - generic [ref=e26]:
+              - text: actions
+              - generic [ref=e27]: (1 overdue)
+          - generic "1 message(s) queued for sending" [ref=e28]: 📤 1 queued
+          - button "Matias · Logout" [ref=e29]
+          - button "Notifications" [ref=e31]:
+            - img [ref=e32]
+          - button "Mute" [ref=e34]:
+            - img [ref=e35]
+          - button "🧠" [ref=e37]
+          - button "🐛" [ref=e38]
+          - button "🧪" [active] [ref=e39]
+          - button "?" [ref=e40]
+          - button "📲" [ref=e41]
+    - generic [ref=e42]:
+      - button "«" [ref=e43]
+      - button "»" [ref=e44]
+      - generic [ref=e45]:
+        - generic [ref=e47]:
+          - img
+          - textbox "Search guests, properties, messages..." [ref=e48]
+          - generic [ref=e49]:
+            - button "Refresh" [ref=e50]:
+              - img [ref=e51]
+            - button "Filters" [ref=e53]:
+              - img [ref=e54]
+        - generic [ref=e56]:
+          - button "All" [ref=e57]
+          - button "Unread31" [ref=e58]
+          - button "Review" [ref=e59]
+          - button "Open" [ref=e60]
+          - button "Done" [ref=e61]
+          - button "Actions3" [ref=e62]
+        - combobox [ref=e64]:
+          - option "Most recent" [selected]
+          - option "Oldest first"
+          - option "Guest name"
+          - option "Property"
+        - generic [ref=e65]:
+          - generic [ref=e66] [cursor=pointer]:
+            - button "Mark as unread" [ref=e67]:
+              - img [ref=e68]
+            - generic [ref=e70]:
+              - generic [ref=e71]:
+                - generic [ref=e72]: Mario Barbaric
+                - generic [ref=e73]: Airbnb
+              - generic [ref=e74]: about 3 hours ago
+            - generic [ref=e75]:
+              - generic [ref=e76]: LB-3
+              - generic [ref=e77]: Sent
+              - generic [ref=e78]: 85%
+            - paragraph [ref=e79]: "> Hi Mario, We’re sorry for the inconvenience regarding the pool. We noticed that your stay has been shortened. Could you please confirm if you will be checking out today?"
+          - generic [ref=e80] [cursor=pointer]:
+            - button "Mark as unread" [ref=e81]:
+              - img [ref=e82]
+            - generic [ref=e84]:
+              - generic [ref=e85]:
+                - generic [ref=e86]: Basile GUYONVARCH
+                - generic "Positive sentiment" [ref=e87]
+                - generic [ref=e88]: Booking
+              - generic [ref=e89]: about 4 hours ago
+            - generic [ref=e90]:
+              - generic [ref=e91]: GBH-C6
+              - generic [ref=e92]: Open
+              - generic [ref=e93]: 85%
+            - paragraph [ref=e94]: "> You're very welcome! We're glad it's working again. If you need anything else, please don't hesitate to reach out."
+          - generic [ref=e95] [cursor=pointer]:
+            - button "Mark as unread" [ref=e96]:
+              - img [ref=e97]
+            - generic [ref=e99]:
+              - generic [ref=e100]:
+                - generic [ref=e101]: Eleanor Dray
+                - generic [ref=e102]: Airbnb
+              - generic [ref=e103]: about 6 hours ago
+            - generic [ref=e104]:
+              - generic [ref=e105]: RC-15
+              - generic [ref=e106]: Sent
+              - generic [ref=e107]: 35%
+            - paragraph [ref=e108]: "> Hi Eleanor, Thank you for letting us know about the hot water pressure issue. We'll inform our team right away. Since you're currently out, could you please let us know when you'll be back at the apartment? Warm regards, Friday Retreats"
+          - generic [ref=e109] [cursor=pointer]:
+            - generic [ref=e110]:
+              - generic [ref=e111]:
+                - generic [ref=e113]: Vang Nguyen
+                - generic [ref=e114]: Direct
+              - generic [ref=e115]: about 9 hours ago
+            - generic [ref=e116]:
+              - generic [ref=e117]: BS-1
+              - generic [ref=e118]: Sent
+              - generic [ref=e119]: 80%
+            - paragraph [ref=e120]: "> Perfect, thanks for letting us know. We hope to welcome you to Mauritius another time! Warm regards, Friday Retreats"
+          - generic [ref=e121] [cursor=pointer]:
+            - button "Mark as unread" [ref=e122]:
+              - img [ref=e123]
+            - generic [ref=e125]:
+              - generic [ref=e126]:
+                - generic [ref=e127]: Maria Kutenkova
+                - generic "Guest seems frustrated" [ref=e128]
+                - generic [ref=e129]: Direct
+              - generic [ref=e130]: about 22 hours ago
+            - generic [ref=e131]:
+              - generic [ref=e132]: SD-10
+              - generic [ref=e133]: Sent
+              - generic [ref=e134]: 80%
+            - paragraph [ref=e135]: "> Hi Maria, Thank you for your patience. We completely understand the uncertainty and why you’d want some flexibility. Just to clarify on the pricing - on Airbnb, the rate you’re seeing is likely based on a different number of guests. If you input the correct number of guests (3), the total comes closer to €1,900 for the stay. That said, if you book directly with us, we can offer you a further discount and bring the total down to €1,500 for your 20-night stay, along with a flexible payment plan: - 50% deposit now - Remaining 50% on arrival Let us know if this works for you. We’d love to host you and your family 😊 Warm regards, Friday Retreats"
+          - generic [ref=e136] [cursor=pointer]:
+            - button "Mark as unread" [ref=e137]:
+              - img [ref=e138]
+            - generic [ref=e140]:
+              - generic [ref=e141]:
+                - generic [ref=e142]: Vang Nguyen
+                - generic [ref=e143]: Direct
+              - generic [ref=e144]: about 24 hours ago
+            - generic [ref=e145]:
+              - generic [ref=e146]: BW-C4
+              - generic [ref=e147]: Sent
+              - generic [ref=e148]: 60%
+            - paragraph [ref=e149]: "> Hello Vang , Thank you for your inquiry. We have received your request and will be happy to assist you with your reservation. Ensure that the number of guests and the dates of stay are correct. Someone from our team will contact you shortly to follow up on your request. If you wish to proceed with the reservation, please find our banking details below. You may proceed with payment in either EUR or MUR. If paying in Mauritian Rupees, please confirm the exact amount with us before proceeding. Kindly ensure that the full amount is received. EUR Account – Bank Details Bank: MCB (Mauritius Commercial Bank) Account Name: Friday Retreats Ltd Account Number: 000453205828 IBAN: MU76MCBL0901000453205828000EUR SWIFT Code: MCBLMUMU MUR Account – Bank Details Bank: MCB (Mauritius Commercial Bank) Account Name: Friday Retreats Ltd Account Number: 000453205860 IBAN: MU87MCBL0901000453205860000MUR SWIFT Code: MCBLMUMU Kindly send us the proof of payment once completed. Upon receipt, the property will be reserved for a limited time, and the booking will be confirmed once payment is received. If you need any assistance or have questions, do not hesitate to contact us. Best regards, Guest Services Team 📞 +230 408 4119 🌐 www.friday.mu Friday Retreats Ltd | The Octopus Building, Pte aux Cannoniers, Mauritius Business Registration Number: C24206082 DISCLAIMER: This email and any attachments are confidential and intended solely for the addressee. If received in error, please notify the sender and delete immediately. Unauthorized use, distribution, or copying is prohibited. Views expressed are the sender's and not necessarily those of Friday Retreats Ltd, which accepts no liability for contents or viruses. Emails may be monitored per company policy."
+          - generic [ref=e150] [cursor=pointer]:
+            - generic [ref=e151]:
+              - generic [ref=e152]:
+                - generic [ref=e154]: Michael McPherson
+                - generic [ref=e155]: Airbnb
+              - generic [ref=e156]: 1 day ago
+            - generic [ref=e157]:
+              - generic [ref=e158]: SD-10
+              - generic [ref=e159]: Sent
+              - generic [ref=e160]: 75%
+            - paragraph [ref=e161]: "> Hi Michael, Thank you for choosing to stay with us! We’re excited to host you. Check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. To help us get everything ready for your arrival, could you please confirm your estimated check-in and check-out times, and kindly confirm the number of guests coming? We’ll send your check-in instructions at 10 AM local time on the day of your arrival. Please complete your check-in form here: https://guest-app.guesty.com/r/69ce7d4afc3662ee8b25a7c3/e3tndWVzdF9hcHA6Om15X2d1ZXN0X2FwcH19. It only takes a minute and will give you access to a personalized guide with our top recommendations, the property’s pinned location, Wi-Fi details, and other useful info to help you settle in and enjoy your stay from the moment you arrive. For your travel declaration or arrival forms, you may use the following details: Company name: Friday Retreats Ltd Email: info@friday.mu Phone: +230 408 4119 As our guest, you can enjoy up to 10% off all airport transfers, car rentals, activities & tours at www.mauritiusattractions.com by using the coupon code \"FRIDAYMU\". As a small thank you, we’ve also added a 10% discount for your next Friday Retreats stay. Simply book directly on www.fridayretreats.mu and use the code FRIDAY10. Looking forward to hosting you and making your stay a memorable one! Best wishes, Friday Retreats"
+          - generic [ref=e162] [cursor=pointer]:
+            - button "Mark as unread" [ref=e163]:
+              - img [ref=e164]
+            - generic [ref=e166]:
+              - generic [ref=e167]:
+                - generic [ref=e168]: Rajiv Kumar
+                - generic [ref=e169]: Airbnb
+              - generic [ref=e170]: 2 days ago
+            - generic [ref=e171]:
+              - generic [ref=e172]: GBH-C3
+              - generic [ref=e173]: Review
+              - generic [ref=e174]: 70%
+            - paragraph [ref=e175]: Kindly leave the keys in the lockbox when you head out.🙏
+          - generic [ref=e176] [cursor=pointer]:
+            - button "Mark as unread" [ref=e177]:
+              - img [ref=e178]
+            - generic [ref=e180]:
+              - generic [ref=e181]:
+                - generic [ref=e182]: Gael Le Metayer
+                - generic "Positive sentiment" [ref=e183]
+                - generic [ref=e184]: Airbnb
+              - generic [ref=e185]: 2 days ago
+            - generic [ref=e186]:
+              - generic [ref=e187]: GBH-C8
+              - generic [ref=e188]: Sent
+              - generic [ref=e189]: 80%
+            - paragraph [ref=e190]: "> Hello, we hope all is well. Just to let you know that we’ve left a spare key for you in the lockbox. Let us know if you need anything else."
+          - generic [ref=e191] [cursor=pointer]:
+            - generic [ref=e192]:
+              - generic [ref=e193]:
+                - generic [ref=e195]: Patience Matemba
+                - generic "Positive sentiment" [ref=e196]
+                - generic [ref=e197]: Airbnb
+              - generic [ref=e198]: 2 days ago
+            - generic [ref=e199]:
+              - generic [ref=e200]: LB-C
+              - generic [ref=e201]: Sent
+              - generic [ref=e202]: 80%
+            - paragraph [ref=e203]: "> It's our pleasure."
+          - generic [ref=e204] [cursor=pointer]:
+            - generic [ref=e205]:
+              - generic [ref=e206]:
+                - generic [ref=e208]: Daniela Zamurca
+                - generic "Positive sentiment" [ref=e209]
+                - generic [ref=e210]: Airbnb
+              - generic [ref=e211]: 2 days ago
+            - generic [ref=e212]:
+              - generic [ref=e213]: RC-16
+              - generic [ref=e214]: Sent
+              - generic [ref=e215]: 55%
+            - paragraph [ref=e216]: "> Grazie per esserti occupato di questo e per aver chiuso il rubinetto per prevenire eventuali danni - è stato molto premuroso da parte tua. Apprezziamo davvero la tua comprensione. Buonasera. Cordiali saluti, Friday Retreats"
+          - generic [ref=e217] [cursor=pointer]:
+            - generic [ref=e218]:
+              - generic [ref=e219]:
+                - generic [ref=e221]: Francine De Gaye
+                - generic "Positive sentiment" [ref=e222]
+                - generic [ref=e223]: Airbnb
+              - generic [ref=e224]: 2 days ago
+            - generic [ref=e225]:
+              - generic [ref=e226]: LB-C
+              - generic [ref=e227]: Sent
+              - generic [ref=e228]: 80%
+            - paragraph [ref=e229]: "> You're welcome!"
+          - generic [ref=e230] [cursor=pointer]:
+            - generic [ref=e231]:
+              - generic [ref=e232]:
+                - generic [ref=e234]: Murat Bicakci
+                - generic [ref=e235]: Airbnb
+              - generic [ref=e236]: 2 days ago
+            - generic [ref=e237]:
+              - generic [ref=e238]: BS-1
+              - generic [ref=e239]: Sent
+              - generic [ref=e240]: 70%
+            - paragraph [ref=e241]: "> Hi Murat, Thank you for choosing to stay with us! We’re excited to host you. Check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. To help us get everything ready for your arrival, could you please confirm your estimated check-in and check-out times, and kindly confirm the number of guests coming? We’ll send your check-in instructions at 10 AM local time on the day of your arrival. Please complete your check-in form here: https://guest-app.guesty.com/r/69ccf25b4f4d7dc4fda1b1f7/e3tndWVzdF9hcHA6Om15X2d1ZXN0X2FwcH19. It only takes a minute and will give you access to a personalized guide with our top recommendations, the property’s pinned location, Wi-Fi details, and other useful info to help you settle in and enjoy your stay from the moment you arrive. For your travel declaration or arrival forms, you may use the following details: Company name: Friday Retreats Ltd Email: info@friday.mu Phone: +230 408 4119 As our guest, you can enjoy up to 10% off all airport transfers, car rentals, activities & tours at www.mauritiusattractions.com by using the coupon code \"FRIDAYMU\". As a small thank you, we’ve also added a 10% discount for your next Friday Retreats stay. Simply book directly on www.fridayretreats.mu and use the code FRIDAY10. Looking forward to hosting you and making your stay a memorable one! Best wishes, Friday Retreats"
+          - generic [ref=e242] [cursor=pointer]:
+            - generic [ref=e243]:
+              - generic [ref=e244]:
+                - generic [ref=e246]: Ralph Mastrangelo
+                - generic [ref=e247]: Airbnb
+              - generic [ref=e248]: 2 days ago
+            - generic [ref=e249]:
+              - generic [ref=e250]: RC-7
+              - generic [ref=e251]: Sent
+              - generic [ref=e252]: 75%
+            - paragraph [ref=e253]: "> Hi Ralph, We’re thrilled to welcome you! To ensure a smooth check-in, here’s all you need to know: Locate the building using this link: https://maps.app.goo.gl/6fdcuDa4Vq6DFFAe9 The building name is: Residence Camelia The full address is: Avenue des Toucans, Flic en Flac, Apt 7 When you arrive at the parking lot, feel free to park in your designated spot, Bay 7 - Slide the main gate to the left to enter the building. - Take the stairs and go up to the 3rd floor. The apartment is the first door on your right. - If using the elevator, the apartment is on your left. (Please note: the ground floor is counted as Floor 1) - You’ll see a Friday sticker on the door with the Apt Number 7. - Lockbox Code: 1820 (Please keep this confidential). - Take the key, close the box, and scramble the code for security. Please note that check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. Wifi Details Wifi Name: H155-382_E9C0 or H155-382_E9C0_5G Password: nA5RTq357H5 ⚠️ Please note: The lift is available, but due to its size it can ONLY accommodate 2 persons and one piece of luggage at a time. If you have any questions or run into any issues, feel free to reach out to us at +230 4084119 or reply to this message. Enjoy your stay. Warm regards, Friday Retreats"
+          - generic [ref=e254] [cursor=pointer]:
+            - generic [ref=e255]:
+              - generic [ref=e256]:
+                - generic [ref=e258]: Cyril
+                - generic [ref=e259]: Direct
+              - generic [ref=e260]: 2 days ago
+            - generic [ref=e261]:
+              - generic [ref=e262]: LB-C
+              - generic [ref=e263]: Review
+              - generic [ref=e264]: 85%
+            - paragraph [ref=e265]: Did it
+          - generic [ref=e266] [cursor=pointer]:
+            - generic [ref=e267]:
+              - generic [ref=e268]:
+                - generic [ref=e270]: Fernando Kanarski
+                - generic "Positive sentiment" [ref=e271]
+                - generic [ref=e272]: Airbnb
+              - generic [ref=e273]: 3 days ago
+            - generic [ref=e274]:
+              - generic [ref=e275]: RC-14
+              - generic [ref=e276]: Sent
+              - generic [ref=e277]: 80%
+            - paragraph [ref=e278]: "> Just confirming that we’ll be coming by on Thursday at 10 AM."
+          - generic [ref=e279] [cursor=pointer]:
+            - button "Mark as unread" [ref=e280]:
+              - img [ref=e281]
+            - generic [ref=e283]:
+              - generic [ref=e284]:
+                - generic [ref=e285]: Li Da
+                - generic [ref=e286]: Booking
+              - generic [ref=e287]: 3 days ago
+            - generic [ref=e288]:
+              - generic [ref=e289]: GBH-B4
+              - generic [ref=e290]: Done
+              - generic [ref=e291]: 70%
+            - paragraph [ref=e292]: "> Hello Li Da, After discussions with the management, we can offer you the entire building for Rs 200,000, excluding electricity. This includes: 2 x 1-bedroom studios 2 x 2-bedroom apartments If you stay for more than 1 month, we can offer a discounted rate of Rs 190,000. Would you be interested in this offer?"
+          - generic [ref=e293] [cursor=pointer]:
+            - button "Mark as unread" [ref=e294]:
+              - img [ref=e295]
+            - generic [ref=e297]:
+              - generic [ref=e298]:
+                - generic [ref=e299]: Tirth Bhavsar
+                - generic "Positive sentiment" [ref=e300]
+                - generic [ref=e301]: Airbnb
+              - generic [ref=e302]: 3 days ago
+            - generic [ref=e303]:
+              - generic [ref=e304]: RC-7
+              - generic [ref=e305]: Sent
+              - generic [ref=e306]: 80%
+            - paragraph [ref=e307]: "> Hi Tirth, Thank you so much for confirming checkout and following all the instructions perfectly! We truly appreciate your care with the property. It's been our absolute pleasure hosting you at RC-7, and we hope you've created wonderful memories during your stay in Mauritius. We'd love to welcome you back anytime - don't forget about your 10% discount for your next stay with us. Safe travels, and thank you again for choosing Friday Retreats! Warm regards, Friday Retreats"
+          - generic [ref=e308] [cursor=pointer]:
+            - button "Mark as unread" [ref=e309]:
+              - img [ref=e310]
+            - generic [ref=e312]:
+              - generic [ref=e313]:
+                - generic [ref=e314]: Narek Hakobyan
+                - generic "Positive sentiment" [ref=e315]
+                - generic [ref=e316]: Airbnb
+              - generic [ref=e317]: 4 days ago
+            - generic [ref=e318]:
+              - generic [ref=e319]: KS-5
+              - generic [ref=e320]: Done
+              - generic [ref=e321]: 75%
+            - paragraph [ref=e322]: "> Thank you so much, Narek! Really glad you enjoyed your stay at KS-5 — means a lot to hear that. Thanks in advance for the 5-star review, it really helps us out! We hope to welcome you back to Mauritius soon. Warm regards, Friday Retreats"
+          - generic [ref=e323] [cursor=pointer]:
+            - button "Mark as unread" [ref=e324]:
+              - img [ref=e325]
+            - generic [ref=e327]:
+              - generic [ref=e328]:
+                - generic [ref=e329]: Marjorie Marie
+                - generic [ref=e330]: Airbnb
+              - generic [ref=e331]: 4 days ago
+            - generic [ref=e332]:
+              - generic [ref=e333]: SD-10
+              - generic [ref=e334]: Sent
+              - generic [ref=e335]: 75%
+            - paragraph [ref=e336]: "> Hi Marjorie, We’re thrilled to welcome you! To ensure a smooth check-in, here’s all you need to know: Locate the building using this link: https://maps.app.goo.gl/JsTGmTLQP9EjoR2Z9 The building name is: Sables D'Or The full address is: Coastal Road, Flic en Flac, Apt 10 When you arrive at the parking lot, you can park in any available spot. - Walk to the right and look for a small white door (Sables D'Or). - Open the door using this code 1908# . - Once you’re inside the compound, take the first left and head to the stairs. - Head to the 2nd Floor, take a right turn and head to Apartment 10. - You’ll see a Friday sticker on the door with the Apt Number 10. - Lockbox Code: 7753 (Please keep this confidential). - Take the key, close the box, and scramble the code for security. - Green key is for the main door lock & Pink key is the safety lock on top. If you want to keep your car inside the complex, the code to the gate is 8091#. You can park in any available spot. Please note that check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. Wifi Details Wifi Name: HUAWEI_B612_4D58 Password: 4LGA38J571N If you have any questions or run into any issues, feel free to reach out to us at +230 4084119 or reply to this message. Enjoy your stay. Warm regards, Friday Retreats"
+          - generic [ref=e337] [cursor=pointer]:
+            - generic [ref=e338]:
+              - generic [ref=e339]:
+                - generic [ref=e341]: Alexander Hvalby
+                - generic [ref=e342]: Airbnb
+              - generic [ref=e343]: 4 days ago
+            - generic [ref=e344]:
+              - generic [ref=e345]: WF-6
+              - generic [ref=e346]: Open
+              - generic [ref=e347]: 75%
+            - paragraph [ref=e348]: "> Hello Alexander Thanks for letting us know, and sorry for the trouble. It looks like it might be a temporary bug, as the check-in form is working normally on our end. Could you please try again a bit later? In the meantime, we’ll also double-check the link to make sure everything is running smoothly. If it still doesn’t work, just let us know. Looking forward to welcoming you!"
+          - generic [ref=e349] [cursor=pointer]:
+            - generic [ref=e350]:
+              - generic [ref=e351]:
+                - generic [ref=e353]: Zala Zuzek
+                - generic "Positive sentiment" [ref=e354]
+                - generic [ref=e355]: Airbnb
+              - generic [ref=e356]: 4 days ago
+            - generic [ref=e357]:
+              - generic [ref=e358]: RC-15
+              - generic [ref=e359]: Open
+              - generic [ref=e360]: 80%
+            - paragraph [ref=e361]: "> Hi Zala, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Press the Home button with an X to lock the door.. If you have any questions, feel free to reach out at any time. If you had a great time, we’d be incredibly grateful for a 5-star review on Airbnb, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 5 stars on Airbnb can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+          - generic [ref=e362] [cursor=pointer]:
+            - generic [ref=e363]:
+              - generic [ref=e364]:
+                - generic [ref=e366]: Nina
+                - generic [ref=e367]: Airbnb
+              - generic [ref=e368]: 5 days ago
+            - generic [ref=e369]:
+              - generic [ref=e370]: RC-15
+              - generic [ref=e371]: Sent
+              - generic [ref=e372]: 65%
+            - paragraph [ref=e373]: "> Hi there! Great question! We're happy to confirm that bath towels are indeed provided at RC-15 for your comfort. You'll find fresh, clean towels ready for you upon arrival, so no need to pack those bulky items in your suitcase! Just a heads up - while we provide bath towels, you might want to bring a beach towel if you're planning to enjoy Mauritius's beautiful beaches, as those aren't included in our amenities. Looking forward to welcoming you in April! Warm regards, Friday Retreats"
+          - generic [ref=e374] [cursor=pointer]:
+            - generic [ref=e375]:
+              - generic [ref=e376]:
+                - generic [ref=e378]: Jayesh
+                - generic [ref=e379]: Airbnb
+              - generic [ref=e380]: 5 days ago
+            - generic [ref=e381]:
+              - generic [ref=e382]: BS-1
+              - generic [ref=e383]: Open
+              - generic [ref=e384]: 65%
+            - paragraph [ref=e385]: "> Hi Jayesh, if you prefer, Uber is now available in Mauritius, so you can easily arrange a taxi to and from the airport at any time. Please let us know if you have any questions, we'd be happy to assist."
+          - generic [ref=e386] [cursor=pointer]:
+            - button "Mark as unread" [ref=e387]:
+              - img [ref=e388]
+            - generic [ref=e390]:
+              - generic [ref=e391]:
+                - generic [ref=e392]: Natalie Sokolova
+                - generic "Positive sentiment" [ref=e393]
+                - generic [ref=e394]: Airbnb
+              - generic [ref=e395]: 5 days ago
+            - generic [ref=e396]:
+              - generic [ref=e397]: GBH-C3
+              - generic [ref=e398]: Done
+              - generic [ref=e399]: 75%
+            - paragraph [ref=e400]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e401] [cursor=pointer]:
+            - generic [ref=e402]:
+              - generic [ref=e403]:
+                - generic [ref=e405]: Jerome Ramin
+                - generic "Guest seems frustrated" [ref=e406]
+                - generic [ref=e407]: Airbnb
+              - generic [ref=e408]: 6 days ago
+            - generic [ref=e409]:
+              - generic [ref=e410]: RC-16
+              - generic [ref=e411]: Done
+              - generic [ref=e412]: 45%
+            - paragraph [ref=e413]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e414] [cursor=pointer]:
+            - generic [ref=e415]:
+              - generic [ref=e416]:
+                - generic [ref=e418]: Kristofer Hammarskold
+                - generic "Positive sentiment" [ref=e419]
+                - generic [ref=e420]: Airbnb
+              - generic [ref=e421]: 6 days ago
+            - generic [ref=e422]:
+              - generic [ref=e423]: WF-6
+              - generic [ref=e424]: Done
+              - generic [ref=e425]: 80%
+            - paragraph [ref=e426]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e427] [cursor=pointer]:
+            - generic [ref=e428]:
+              - generic [ref=e429]:
+                - generic [ref=e431]: Andrew Warren
+                - generic [ref=e432]: Direct
+              - generic [ref=e433]: 6 days ago
+            - generic [ref=e434]:
+              - generic [ref=e435]: LF-7
+              - generic [ref=e436]: Open
+              - generic [ref=e437]: 60%
+            - paragraph [ref=e438]: "> Hi Andrew , this is your host, Friday Retreats Ltd for your stay here in Flic en Flac. This business Whatsapp number is used by our team to support you during your stay. Please reply to confirm you received this?"
+          - generic [ref=e439] [cursor=pointer]:
+            - generic [ref=e440]:
+              - generic [ref=e441]:
+                - generic [ref=e443]: Bhavna Ramnarain
+                - generic [ref=e444]: Direct
+              - generic [ref=e445]: 6 days ago
+            - generic [ref=e446]:
+              - generic [ref=e447]: LB-C
+              - generic [ref=e448]: Done
+              - generic [ref=e449]: 75%
+            - paragraph [ref=e450]: "> Hi Bhavna, It’s been a pleasure hosting you, we hope your stay has been truly relaxing and memorable. Just a quick reminder that checkout is by 10:00am tomorrow, unless otherwise agreed. Before you leave, kindly: Turn off all ACs and lights Close all windows and doors Leave the keys in the lockbox and scramble the code If you enjoyed your stay, we’d be incredibly grateful if you shared your experience with family and friends. If something wasn’t quite right during your stay, we’d really appreciate you letting us know. Your feedback helps us understand how we can keep improving and offer the best experience possible. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly at www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If you need anything before checkout, don’t hesitate to reach out. Warm regards, Guest Services Team 📞 +230 408 4119 🌐 www.friday.mu Friday Retreats Ltd | The Octopus Building, Pte aux Cannoniers, Mauritius Business Registration Number: C24206082 DISCLAIMER: This email and any attachments are confidential and intended solely for the addressee. If received in error, please notify the sender and delete immediately. Unauthorized use, distribution, or copying is prohibited. Views expressed are the sender's and not necessarily those of Friday Retreats Ltd, which accepts no liability for contents or viruses. Emails may be monitored per company policy."
+          - generic [ref=e451] [cursor=pointer]:
+            - button "Mark as unread" [ref=e452]:
+              - img [ref=e453]
+            - generic [ref=e455]:
+              - generic [ref=e456]:
+                - generic [ref=e457]: Seyfi Uslubas
+                - generic "Guest seems frustrated" [ref=e458]
+                - generic [ref=e459]: Airbnb
+              - generic [ref=e460]: 6 days ago
+            - generic [ref=e461]:
+              - generic [ref=e462]: SD-10
+              - generic [ref=e463]: Done
+              - generic [ref=e464]: 70%
+            - paragraph [ref=e465]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e466] [cursor=pointer]:
+            - generic [ref=e467]:
+              - generic [ref=e468]:
+                - generic [ref=e470]: Marita Jutta Gisela Helwig
+                - generic [ref=e471]: Airbnb
+              - generic [ref=e472]: 6 days ago
+            - generic [ref=e473]:
+              - generic [ref=e474]: LF-7
+              - generic [ref=e475]: Sent
+              - generic [ref=e476]: 70%
+            - paragraph [ref=e477]: "> Hi Marita Jutta Gisela, We’re thrilled to welcome you! To ensure a smooth check-in, here’s all you need to know: Locate the building using this link: https://maps.app.goo.gl/f5QppZuefG9dakNH7 The building name is: Le Flamboyant The full address is: Costal Road, Flic en Flac, Apt 7 Once you’re there, park your car inside. - Head to the stairs of your right, the lockbox is next to the stairs, under a grey letter box. - Lockbox Code: 3310 (Please keep this confidential). - You can use the keys to unlock the white door in the stairway. - Go up to the first floor using the stairs; you’ll find the apartment as the second door on your left. - You’ll see a Friday sticker on the door with the Apt Number 7. - Lockbox Code: 0110 (Please keep this confidential). - Take the key, close the box, and scramble the code for security. Please note that check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. Wifi Details Wifi Name: my.t-KyL4 Password: Be4Yapqj If you have any questions or run into any issues, feel free to reach out to us at +230 4084119 or reply to this message. Enjoy your stay. Warm regards, Guest Services Team 📞 +230 408 4119 🌐 www.friday.mu Friday Retreats Ltd | The Octopus Building, Pte aux Cannoniers, Mauritius Business Registration Number: C24206082 DISCLAIMER: This email and any attachments are confidential and intended solely for the addressee. If received in error, please notify the sender and delete immediately. Unauthorized use, distribution, or copying is prohibited. Views expressed are the sender's and not necessarily those of Friday Retreats Ltd, which accepts no liability for contents or viruses. Emails may be monitored per company policy."
+          - generic [ref=e478] [cursor=pointer]:
+            - generic [ref=e479]:
+              - generic [ref=e480]:
+                - generic [ref=e482]: Viktoryia Bhugowandeen
+                - generic [ref=e483]: Booking
+              - generic [ref=e484]: 6 days ago
+            - generic [ref=e485]:
+              - generic [ref=e486]: GBH-C8
+              - generic [ref=e487]: Done
+              - generic [ref=e488]: 75%
+            - paragraph [ref=e489]: "> Hi Viktoryia, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow, unless otherwise agreed. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Leave the keys in the lockbox and scramble the code If you had a great time, we’d be incredibly grateful for a 10-star review on Booking.com, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 10 stars on Booking.com can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+          - generic [ref=e490] [cursor=pointer]:
+            - generic [ref=e491]:
+              - generic [ref=e492]:
+                - generic [ref=e494]: Mariam Marlie
+                - generic [ref=e495]: Booking
+              - generic [ref=e496]: 7 days ago
+            - generic [ref=e497]:
+              - generic [ref=e498]: SD-10
+              - generic [ref=e499]: Open
+              - generic [ref=e500]: 75%
+            - paragraph [ref=e501]: "> Hi Mariam, We noticed that your reservation was recently cancelled and just wanted to check in. If there's anything that changed or anything we can help with, please let us know. If you’re still planning a visit, we’d be happy to help you find an alternative or answer any questions."
+          - generic [ref=e502] [cursor=pointer]:
+            - generic [ref=e503]:
+              - generic [ref=e504]:
+                - generic [ref=e506]: Andrew Warren
+                - generic [ref=e507]: Direct
+              - generic [ref=e508]: 7 days ago
+            - generic [ref=e509]:
+              - generic [ref=e510]: NYH-A2
+              - generic [ref=e511]: Review
+              - generic [ref=e512]: 60%
+            - paragraph [ref=e513]: New guest inquiry
+          - generic [ref=e514] [cursor=pointer]:
+            - generic [ref=e515]:
+              - generic [ref=e516]:
+                - generic [ref=e518]: Andrew Warren
+                - generic [ref=e519]: Direct
+              - generic [ref=e520]: 7 days ago
+            - generic [ref=e521]:
+              - generic [ref=e522]: GBH-C3
+              - generic [ref=e523]: Review
+              - generic [ref=e524]: 60%
+            - paragraph [ref=e525]: New guest inquiry
+          - generic [ref=e526] [cursor=pointer]:
+            - generic [ref=e527]:
+              - generic [ref=e528]:
+                - generic [ref=e530]: Andrew Warren
+                - generic [ref=e531]: Direct
+              - generic [ref=e532]: 7 days ago
+            - generic [ref=e533]:
+              - generic [ref=e534]: BS-1
+              - generic [ref=e535]: Review
+              - generic [ref=e536]: 60%
+            - paragraph [ref=e537]: New guest inquiry
+          - generic [ref=e538] [cursor=pointer]:
+            - generic [ref=e539]:
+              - generic [ref=e540]:
+                - generic [ref=e542]: Elodie Elisabeth
+                - generic [ref=e543]: Direct
+              - generic [ref=e544]: 7 days ago
+            - generic [ref=e545]:
+              - generic [ref=e546]: LB-C
+              - generic [ref=e547]: Open
+              - generic [ref=e548]: 70%
+            - paragraph [ref=e549]: "> Oui, notre équipe parle français"
+          - generic [ref=e550] [cursor=pointer]:
+            - generic [ref=e551]:
+              - generic [ref=e552]:
+                - generic [ref=e554]: Natanya
+                - generic "Positive sentiment" [ref=e555]
+                - generic [ref=e556]: Airbnb
+              - generic [ref=e557]: 7 days ago
+            - generic [ref=e558]:
+              - generic [ref=e559]: BS-1
+              - generic [ref=e560]: Sent
+              - generic [ref=e561]: 40%
+            - paragraph [ref=e562]: "> Hi Natanya, We're absolutely delighted to hear about your interest in a longer stay with us at BS-1! A stay from June 1st to August 15th sounds wonderful, and we'd love to welcome you for those beautiful winter months in Mauritius. Just to confirm, would this be for one guest? Assuming it's just yourself, we'd be happy to offer you a special rate of €3,300 total for your 75-day stay instead of the standard €3,467.86. We're sending you this special offer shortly through Airbnb so you can book directly. Looking forward to hosting you for this extended getaway! Warm regards, Friday Retreats"
+          - generic [ref=e563] [cursor=pointer]:
+            - generic [ref=e564]:
+              - generic [ref=e565]:
+                - generic [ref=e567]: Hassan
+                - generic [ref=e568]: Airbnb
+              - generic [ref=e569]: 7 days ago
+            - generic [ref=e570]:
+              - generic [ref=e571]: BS-1
+              - generic [ref=e572]: Open
+              - generic [ref=e573]: 65%
+            - paragraph [ref=e574]: "> Hi Hassan, The entrance is shared, but it’s a short and convenient path to your unit, so access is easy."
+          - generic [ref=e575] [cursor=pointer]:
+            - generic [ref=e576]:
+              - generic [ref=e577]:
+                - generic [ref=e579]: Сергей Пачков
+                - generic [ref=e580]: Airbnb
+              - generic [ref=e581]: 7 days ago
+            - generic [ref=e582]:
+              - generic [ref=e583]: GBH-C6
+              - generic [ref=e584]: Done
+              - generic [ref=e585]: 75%
+            - paragraph [ref=e586]: "> Hi Сергей, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow, unless otherwise agreed. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Leave the keys in the lockbox and scramble the code If you had a great time, we’d be incredibly grateful for a 5-star review on Aribnb, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 5 stars on Airbnb can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+          - generic [ref=e587] [cursor=pointer]:
+            - button "Mark as unread" [ref=e588]:
+              - img [ref=e589]
+            - generic [ref=e591]:
+              - generic [ref=e592]:
+                - generic [ref=e593]: Raphael Jean-Louis
+                - generic [ref=e594]: Direct
+              - generic [ref=e595]: 8 days ago
+            - generic [ref=e596]:
+              - generic [ref=e597]: SV-140
+              - generic [ref=e598]: Done
+              - generic [ref=e599]: 70%
+            - paragraph [ref=e600]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e601] [cursor=pointer]:
+            - button "Mark as unread" [ref=e602]:
+              - img [ref=e603]
+            - generic [ref=e605]:
+              - generic [ref=e606]:
+                - generic [ref=e607]: Aimal Khan
+                - generic [ref=e608]: Airbnb
+              - generic [ref=e609]: 8 days ago
+            - generic [ref=e610]:
+              - generic [ref=e611]: BS-1
+              - generic [ref=e612]: Done
+              - generic [ref=e613]: 75%
+            - paragraph [ref=e614]: "> Hi Aimal, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow, unless otherwise agreed. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Leave the keys in the lockbox and scramble the code If you had a great time, we’d be incredibly grateful for a 5-star review on Aribnb, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 5 stars on Airbnb can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+          - generic [ref=e615] [cursor=pointer]:
+            - button "Mark as unread" [ref=e616]:
+              - img [ref=e617]
+            - generic [ref=e619]:
+              - generic [ref=e620]:
+                - generic [ref=e621]: Deepika Prasad
+                - generic [ref=e622]: Airbnb
+              - generic [ref=e623]: 9 days ago
+            - generic [ref=e624]:
+              - generic [ref=e625]: RC-16
+              - generic [ref=e626]: Open
+              - generic [ref=e627]: 65%
+            - paragraph [ref=e628]: "> Hi Deepika, For your All in One travel digital form, here are our contact details: - Phone: +230 4084119 - Email: info@friday.mu - Company name: Friday Retreats Ltd We hope this helps you complete your travel documentation smoothly! Warm regards, Friday Retreats"
+          - generic [ref=e629] [cursor=pointer]:
+            - button "Mark as unread" [ref=e630]:
+              - img [ref=e631]
+            - generic [ref=e633]:
+              - generic [ref=e634]:
+                - generic [ref=e635]: Kirsty Thorne
+                - generic [ref=e636]: Airbnb
+              - generic [ref=e637]: 10 days ago
+            - generic [ref=e638]:
+              - generic [ref=e639]: RC-15
+              - generic [ref=e640]: Done
+              - generic [ref=e641]: 75%
+            - paragraph [ref=e642]: "> Hi Kirsty, You're absolutely right, and we apologize for the confusion! Looking at your booking, we can see you've already reserved through April 19th, so you're all set for your evening departure on the 18th. No need to check availability - you've already paid for that extra night and can enjoy the property until check-out. That's such a smart way to handle late flights, and it means you can truly relax on your final day without any rush. You'll have plenty of time to soak up those last moments in paradise and freshen up before your journey home. You're going to absolutely love Flic en Flac! The beach here is stunning with its calm turquoise waters and soft white sand - perfect for swimming and watching those incredible Mauritian sunsets. Warm regards, Friday Retreats"
+          - generic [ref=e643] [cursor=pointer]:
+            - button "Mark as unread" [ref=e644]:
+              - img [ref=e645]
+            - generic [ref=e647]:
+              - generic [ref=e648]:
+                - generic [ref=e649]: Nipa
+                - generic [ref=e650]: Airbnb
+              - generic [ref=e651]: 10 days ago
+            - generic [ref=e652]:
+              - generic [ref=e653]: LB-C
+              - generic [ref=e654]: Done
+              - generic [ref=e655]: 70%
+            - paragraph [ref=e656]: "> Hi Nipa, We apologize for any confusion - we mentioned up to 12 people earlier, but LB-C actually accommodates up to 18 guests! The property has 9 bedrooms total across all three villas (3 bedrooms in each villa), with 2 king-size beds, 6 double beds, and 2 single beds. Perfect timing to clarify this before you finalize your numbers - you have plenty of flexibility for your group size. Feel free to reach out once you have your final headcount, and we'll help arrange the perfect setup for your retreat. Warm regards, Friday Retreats"
+          - generic [ref=e657] [cursor=pointer]:
+            - button "Mark as unread" [ref=e658]:
+              - img [ref=e659]
+            - generic [ref=e661]:
+              - generic [ref=e662]:
+                - generic [ref=e663]: Narek Hakobyan
+                - generic [ref=e664]: Booking
+              - generic [ref=e665]: 10 days ago
+            - generic [ref=e666]:
+              - generic [ref=e667]: Done
+              - generic [ref=e668]: 60%
+            - paragraph [ref=e669]: Reservation GY-9xSvuPBk status changed to confirmed
+          - generic [ref=e670] [cursor=pointer]:
+            - button "Mark as unread" [ref=e671]:
+              - img [ref=e672]
+            - generic [ref=e674]:
+              - generic [ref=e675]:
+                - generic [ref=e676]: Merve Mit
+                - generic [ref=e677]: Airbnb
+              - generic [ref=e678]: 13 days ago
+            - generic [ref=e679]:
+              - generic [ref=e680]: RC-16
+              - generic [ref=e681]: Done
+              - generic [ref=e682]: 40%
+            - paragraph [ref=e683]: "> Thank you for letting us know. Have a good evening"
+          - generic [ref=e684] [cursor=pointer]:
+            - button "Mark as unread" [ref=e685]:
+              - img [ref=e686]
+            - generic [ref=e688]:
+              - generic [ref=e689]:
+                - generic [ref=e690]: Doriane
+                - generic [ref=e691]: Airbnb
+              - generic [ref=e692]: 16 days ago
+            - generic [ref=e693]:
+              - generic [ref=e694]: LB-C
+              - generic [ref=e695]: Done
+              - generic [ref=e696]: 65%
+            - paragraph [ref=e697]: "> C'esst noté, nous allons vous laisser ses coordonnees apres que vous aurez confirmer la reservation, car on ne peut partager de numero de telephone tant que la reservation n'est pas confirmee."
+          - generic [ref=e698] [cursor=pointer]:
+            - button "Mark as unread" [ref=e699]:
+              - img [ref=e700]
+            - generic [ref=e702]:
+              - generic [ref=e703]:
+                - generic [ref=e704]: Melissa
+                - generic [ref=e705]: Direct
+              - generic [ref=e706]: 17 days ago
+            - generic [ref=e707]:
+              - generic [ref=e708]: NYH-A2
+              - generic [ref=e709]: Done
+              - generic [ref=e710]: 65%
+            - paragraph [ref=e711]: Reservation GY-hzxQawJx status changed to expired
+          - generic [ref=e712] [cursor=pointer]:
+            - generic [ref=e713]:
+              - generic [ref=e714]:
+                - generic [ref=e716]: Ilyas
+                - generic [ref=e717]: Direct
+              - generic [ref=e718]: 17 days ago
+            - generic [ref=e719]:
+              - generic [ref=e720]: BS-1
+              - generic [ref=e721]: Review
+              - generic [ref=e722]: 70%
+            - paragraph [ref=e723]: Reservation GY-KhvD65KU status changed to expired
+          - generic [ref=e724] [cursor=pointer]:
+            - button "Mark as unread" [ref=e725]:
+              - img [ref=e726]
+            - generic [ref=e728]:
+              - generic [ref=e729]:
+                - generic [ref=e730]: Nicolas Boesch
+                - generic [ref=e731]: Direct
+              - generic [ref=e732]: 17 days ago
+            - generic [ref=e733]:
+              - generic [ref=e734]: NYH-A2
+              - generic [ref=e735]: Done
+              - generic [ref=e736]: 65%
+            - paragraph [ref=e737]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e738] [cursor=pointer]:
+            - button "Mark as unread" [ref=e739]:
+              - img [ref=e740]
+            - generic [ref=e742]:
+              - generic [ref=e743]:
+                - generic [ref=e744]: Volodymyr
+                - generic [ref=e745]: Direct
+              - generic [ref=e746]: 17 days ago
+            - generic [ref=e747]:
+              - generic [ref=e748]: TRR-4
+              - generic [ref=e749]: Done
+              - generic [ref=e750]: 70%
+            - paragraph [ref=e751]: "> Hi Maria, we hope you’re doing well. We wanted to follow up regarding the mid-stay cleaning. Unfortunately, we’re no longer able to arrange it at this time. We had set aside time for this last week, but due to availability constraints over the weekend and the coming days, we’re unable to accommodate it now. We’re really sorry for the inconvenience. We appreciate your patience and understanding. Of course, if there’s anything else you may need during your stay, please don’t hesitate to let us know."
+          - generic [ref=e752] [cursor=pointer]:
+            - button "Mark as unread" [ref=e753]:
+              - img [ref=e754]
+            - generic [ref=e756]:
+              - generic [ref=e757]:
+                - generic [ref=e758]: ANABELA RUBENS
+                - generic [ref=e759]: Booking
+              - generic [ref=e760]: 19 days ago
+            - generic [ref=e761]:
+              - generic [ref=e762]: GBH-C5
+              - generic [ref=e763]: Done
+              - generic [ref=e764]: 75%
+            - paragraph [ref=e765]: "> Hi ANABELA, We noticed that your reservation was recently cancelled and just wanted to check in. If there's anything that changed or anything we can help with, please let us know. If you’re still planning a visit, we’d be happy to help you find an alternative or answer any questions."
+          - generic [ref=e766] [cursor=pointer]:
+            - button "Mark as unread" [ref=e767]:
+              - img [ref=e768]
+            - generic [ref=e770]:
+              - generic [ref=e771]:
+                - generic [ref=e772]: Nejmeddine Douma
+                - generic [ref=e773]: Airbnb
+              - generic [ref=e774]: 21 days ago
+            - generic [ref=e775]:
+              - generic [ref=e776]: GBH-C7
+              - generic [ref=e777]: Done
+              - generic [ref=e778]: 75%
+            - paragraph [ref=e779]: "> It should be working now, please try in 10mins approximately,"
+          - generic [ref=e780] [cursor=pointer]:
+            - button "Mark as unread" [ref=e781]:
+              - img [ref=e782]
+            - generic [ref=e784]:
+              - generic [ref=e785]:
+                - generic [ref=e786]: Robin Kieferle
+                - generic [ref=e787]: Airbnb
+              - generic [ref=e788]: 22 days ago
+            - generic [ref=e789]:
+              - generic [ref=e790]: RC-14
+              - generic [ref=e791]: Done
+              - generic [ref=e792]: 75%
+            - paragraph [ref=e793]: "> Good morning Robin, Thank you for letting us know. We hope you had a great stay with us. Wishing you a safe journey and we’d be happy to host you again anytime!"
+          - generic [ref=e794] [cursor=pointer]:
+            - button "Mark as unread" [ref=e795]:
+              - img [ref=e796]
+            - generic [ref=e798]:
+              - generic [ref=e799]:
+                - generic [ref=e800]: Ilya Zhirnov
+                - generic [ref=e801]: Airbnb
+              - generic [ref=e802]: 22 days ago
+            - generic [ref=e803]:
+              - generic [ref=e804]: RC-15
+              - generic [ref=e805]: Done
+              - generic [ref=e806]: 75%
+            - paragraph [ref=e807]: "> Hi Ilya, it was our pleasure hosting you. Welcome back anytime!"
+          - generic [ref=e808] [cursor=pointer]:
+            - button "Mark as unread" [ref=e809]:
+              - img [ref=e810]
+            - generic [ref=e812]:
+              - generic [ref=e813]:
+                - generic [ref=e814]: Zhen Deduytsche
+                - generic [ref=e815]: Airbnb
+              - generic [ref=e816]: 23 days ago
+            - generic [ref=e817]:
+              - generic [ref=e818]: GBH-B4
+              - generic [ref=e819]: Done
+              - generic [ref=e820]: 75%
+            - paragraph [ref=e821]: "> Hello, our property manager will arrive soon to drop the bedside table for you."
+          - generic [ref=e822] [cursor=pointer]:
+            - button "Mark as unread" [ref=e823]:
+              - img [ref=e824]
+            - generic [ref=e826]:
+              - generic [ref=e827]:
+                - generic [ref=e828]: Richard Hughes
+                - generic [ref=e829]: Booking
+              - generic [ref=e830]: 25 days ago
+            - generic [ref=e831]:
+              - generic [ref=e832]: GBH-C8
+              - generic [ref=e833]: Done
+              - generic [ref=e834]: 70%
+            - paragraph [ref=e835]: "> Hi Richard, thank you for letting us know. Safe travels ahead!"
+          - generic [ref=e836] [cursor=pointer]:
+            - button "Mark as unread" [ref=e837]:
+              - img [ref=e838]
+            - generic [ref=e840]:
+              - generic [ref=e841]:
+                - generic [ref=e842]: Nadine Schellekens
+                - generic [ref=e843]: Airbnb
+              - generic [ref=e844]: 26 days ago
+            - generic [ref=e845]:
+              - generic [ref=e846]: GBH-C6
+              - generic [ref=e847]: Done
+              - generic [ref=e848]: 75%
+            - paragraph [ref=e849]: "> Hi Nadine, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow, unless otherwise agreed. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Leave the keys in the lockbox and scramble the code If you had a great time, we’d be incredibly grateful for a 5-star review on Aribnb, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 5 stars on Airbnb can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+          - generic [ref=e850] [cursor=pointer]:
+            - generic [ref=e851]:
+              - generic [ref=e852]:
+                - generic [ref=e854]: Aruna Daby
+                - generic [ref=e855]: Direct
+              - generic [ref=e856]: about 1 month ago
+            - generic [ref=e857]:
+              - generic [ref=e858]: GBH-C7
+              - generic [ref=e859]: Review
+              - generic [ref=e860]: 75%
+            - paragraph [ref=e861]: Reservation GY-faeiep63 status changed to expired
+          - generic [ref=e862] [cursor=pointer]:
+            - button "Mark as unread" [ref=e863]:
+              - img [ref=e864]
+            - generic [ref=e866]:
+              - generic [ref=e867]:
+                - generic [ref=e868]: Marc Cascarino
+                - generic [ref=e869]: Airbnb
+              - generic [ref=e870]: about 1 month ago
+            - generic [ref=e871]:
+              - generic [ref=e872]: RCN-4
+              - generic [ref=e873]: Done
+              - generic [ref=e874]: 75%
+            - paragraph [ref=e875]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e876] [cursor=pointer]:
+            - generic [ref=e877]:
+              - generic [ref=e878]:
+                - generic [ref=e880]: Marianne Sarah
+                - generic "Positive sentiment" [ref=e881]
+                - generic [ref=e882]: Direct
+              - generic [ref=e883]: about 1 month ago
+            - generic [ref=e884]:
+              - generic [ref=e885]: LB-C
+              - generic [ref=e886]: Sent
+              - generic [ref=e887]: 80%
+            - paragraph [ref=e888]: "> Hey Marianne, it’s your host. Due to limitations with my Whatsapp business account I can only initiate the conversation with certain templates, this is one of them. As soon as you reply we will be able to communicate freely, please get back to me if you wish to communicate with me via whatsapp. It’s not possible to call this number. Looking forward to hearing from you."
+          - generic [ref=e889] [cursor=pointer]:
+            - button "Mark as unread" [ref=e890]:
+              - img [ref=e891]
+            - generic [ref=e893]:
+              - generic [ref=e894]:
+                - generic [ref=e895]: Maksim Vartsibasov
+                - generic [ref=e896]: Airbnb
+              - generic [ref=e897]: about 2 months ago
+            - generic [ref=e898]:
+              - generic [ref=e899]: RC-16
+              - generic [ref=e900]: Done
+              - generic [ref=e901]: 75%
+            - paragraph [ref=e902]: "> Good morning! Thank you so much for your kind message, we’re really glad to hear everything was perfect. It was a pleasure hosting you! We'd be more than grateful if you could leave us a 5 star review. Wishing you a safe journey, and we hope to welcome you again soon."
+          - generic [ref=e903] [cursor=pointer]:
+            - button "Mark as unread" [ref=e904]:
+              - img [ref=e905]
+            - generic [ref=e907]:
+              - generic [ref=e908]:
+                - generic [ref=e909]: Cedric Clain
+                - generic [ref=e910]: Direct
+              - generic [ref=e911]: about 2 months ago
+            - generic [ref=e912]:
+              - generic [ref=e913]: LB-3
+              - generic [ref=e914]: Done
+              - generic [ref=e915]: 75%
+            - paragraph [ref=e916]: "> Hi Cedric, It’s been a pleasure hosting you, we hope your stay has been truly relaxing and memorable. Just a quick reminder that checkout is by 10:00am tomorrow, unless otherwise agreed. Before you leave, kindly: Turn off all ACs and lights Close all windows and doors Leave the keys in the lockbox and scramble the code If you enjoyed your stay, we’d be incredibly grateful if you shared your experience with family and friends. If something wasn’t quite right during your stay, we’d really appreciate you letting us know. Your feedback helps us understand how we can keep improving and offer the best experience possible. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly at www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If you need anything before checkout, don’t hesitate to reach out. Warm regards, Guest Services Team 📞 +230 408 4119 🌐 www.friday.mu Friday Retreats Ltd | The Octopus Building, Pte aux Cannoniers, Mauritius Business Registration Number: C24206082 DISCLAIMER: This email and any attachments are confidential and intended solely for the addressee. If received in error, please notify the sender and delete immediately. Unauthorized use, distribution, or copying is prohibited. Views expressed are the sender's and not necessarily those of Friday Retreats Ltd, which accepts no liability for contents or viruses. Emails may be monitored per company policy."
+          - generic [ref=e917] [cursor=pointer]:
+            - generic [ref=e918]:
+              - generic [ref=e919]:
+                - generic [ref=e921]: Ishant Ayadassen
+                - generic [ref=e922]: Direct
+              - generic [ref=e923]: 2 months ago
+            - generic [ref=e924]:
+              - generic [ref=e925]: SV-140
+              - generic [ref=e926]: Sent
+              - generic [ref=e927]: 75%
+            - paragraph [ref=e928]: "> checking what signature looks like"
+      - generic [ref=e929]:
+        - generic [ref=e930]:
+          - generic [ref=e931]:
+            - generic [ref=e932]:
+              - generic [ref=e933]:
+                - heading "Mario Barbaric" [level=2] [ref=e934]
+                - generic [ref=e935] [cursor=pointer]: LB-3
+                - generic [ref=e936]: Airbnb
+              - generic [ref=e937]:
+                - generic [ref=e938]: Apr 2 - Apr 3
+                - generic "Average response time across all message exchanges in this conversation" [ref=e939]: "Avg RT: 26m"
+            - button "Mario, a German family of 4 with children aged 3 and 8, requested early check-in between 12-2 PM, which Friday said they would check and confirm within hours. Mario then reported the pool was unusable due to dirty water, debris, and non-functioning filtration system, setting a deadline for repair by the next day and threatening rent reduction if not fixed. Friday apologized and promised resolution by the deadline, with pool maintenance scheduled for 10 AM the following day. After the maintenance visit, Mario reported the pool is still not usable with continued debris and the cleaning system turned off again, expressing safety concerns about letting his children use it." [ref=e940]:
+              - img [ref=e941]
+              - generic [ref=e943]: Mario, a German family of 4 with children aged 3 and 8, requested early check-in between 12-2 PM, which Friday said they would check and confirm within hours. Mario then reported the pool was unusable due to dirty water, debris, and non-functioning filtration system, setting a deadline for repair by the next day and threatening rent reduction if not fixed. Friday apologized and promised resolution by the deadline, with pool maintenance scheduled for 10 AM the following day. After the maintenance visit, Mario reported the pool is still not usable with continued debris and the cleaning system turned off again, expressing safety concerns about letting his children use it.
+          - generic [ref=e944]:
+            - generic [ref=e946]:
+              - paragraph [ref=e947]: We are a family of four (2 adults, 2 children aged 3 and 8 years old) from Germany and are currently traveling through Mauritius. We are uncomplicated, respectful and tidy guests and look forward to staying with you.
+              - generic [ref=e948]:
+                - generic [ref=e949]: Translated from 🇩🇪 German
+                - button "Original" [ref=e950]:
+                  - img [ref=e951]
+                  - text: Original
+              - generic [ref=e953]:
+                - text: 17:45
+                - generic [ref=e954]: 🇩🇪 German
+            - generic [ref=e956]:
+              - paragraph [ref=e957]: New guest reservation request HMAYYWQ4SF
+              - generic [ref=e958]: 17:46
+            - generic [ref=e960]:
+              - paragraph [ref=e961]: Reservation HMAYYWQ4SF status changed to confirmed
+              - generic [ref=e962]: 17:46
+            - generic [ref=e964]:
+              - paragraph [ref=e965]: "Hi Mario, Thank you for choosing to stay with us! We’re excited to host you. Check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. To help us get everything ready for your arrival, could you please confirm your estimated check-in and check-out times, and kindly confirm the number of guests coming? We’ll send your check-in instructions at 10 AM local time on the day of your arrival. Please complete your check-in form here: https://guest-app.guesty.com/r/69cd21a0fc3662ee8b074821/e3tndWVzdF9hcHA6Om15X2d1ZXN0X2FwcH19. It only takes a minute and will give you access to a personalized guide with our top recommendations, the property’s pinned location, Wi-Fi details, and other useful info to help you settle in and enjoy your stay from the moment you arrive. For your travel declaration or arrival forms, you may use the following details: Company name: Friday Retreats Ltd Email: info@friday.mu Phone: +230 408 4119 As our guest, you can enjoy up to 10% off all airport transfers, car rentals, activities & tours at www.mauritiusattractions.com by using the coupon code \"FRIDAYMU\". As a small thank you, we’ve also added a 10% discount for your next Friday Retreats stay. Simply book directly on www.fridayretreats.mu and use the code FRIDAY10. Looking forward to hosting you and making your stay a memorable one! Best wishes, Friday Retreats"
+              - generic [ref=e966]: 17:48 - hook
+            - generic [ref=e968]:
+              - paragraph [ref=e969]: "Hi Mario, We’re thrilled to welcome you! To ensure a smooth check-in, here’s all you need to know: Locate the building using this link: https://maps.app.goo.gl/eetJHE1zLPYNacxv9 The building name is: Lagon Bleu Complex The full address is: Avenue Pailles en Queue, Flic en Flac, LB-3 Once you’re there, just slide open the white main gate and park your car inside. There are 3 parking spots to the right. - The villa is the first one on your right, L’Espadon. - You’ll see a Friday sticker on the door with the Apt Number 3. - The lockbox is next to the entrance door. - Lockbox Code: 8351 (Please keep this confidential). - Take the key, close the box, and scramble the code for security. Locking and unlocking the entrance door: To lock the door: Lower the handle and Lock To unlock the door: Unlock, Raise the handle then Slide. Please note that check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. Wifi Details Wifi Name: HUAWEI_B612_915C Password: MNYGJ0A801L If you have any questions or run into any issues, feel free to reach out to us at +230 4084119 or reply to this message. Enjoy your stay. Warm regards, Friday Retreats"
+              - generic [ref=e970]: 10:02 - hook
+            - generic [ref=e972]:
+              - paragraph [ref=e973]: "Hi Mario, We’re thrilled to welcome you! To ensure a smooth check-in, here’s all you need to know: Locate the building using this link: https://maps.app.goo.gl/eetJHE1zLPYNacxv9 The building name is: Lagon Bleu Complex The full address is: Avenue Pailles en Queue, Flic en Flac, LB-3 Once you’re there, just slide open the white main gate and park your car inside. There are 3 parking spots to the right. - The villa is the first one on your right, L’Espadon. - You’ll see a Friday sticker on the door with the Apt Number 3. - The lockbox is next to the entrance door. - Lockbox Code: 8351 (Please keep this confidential). - Take the key, close the box, and scramble the code for security. Locking and unlocking the entrance door: To lock the door: Lower the handle and Lock To unlock the door: Unlock, Raise the handle then Slide. Please note that check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. Wifi Details Wifi Name: HUAWEI_B612_915C Password: MNYGJ0A801L If you have any questions or run into any issues, feel free to reach out to us at +230 4084119 or reply to this message. Enjoy your stay. Warm regards, Guest Services Team 📞 +230 408 4119 🌐 www.friday.mu Friday Retreats Ltd | The Octopus Building, Pte aux Cannoniers, Mauritius Business Registration Number: C24206082 DISCLAIMER: This email and any attachments are confidential and intended solely for the addressee. If received in error, please notify the sender and delete immediately. Unauthorized use, distribution, or copying is prohibited. Views expressed are the sender's and not necessarily those of Friday Retreats Ltd, which accepts no liability for contents or viruses. Emails may be monitored per company policy."
+              - generic [ref=e974]: 10:02 - hook
+            - generic [ref=e976]:
+              - paragraph [ref=e977]: Hello, thank you very much for the information. We will probably arrive a bit earlier, presumably sometime between 12:00 and 14:00. Would that be okay for you? Will the accommodation be prepared by that time so we can already check in? Thank you very much and best regards
+              - generic [ref=e978]:
+                - generic [ref=e979]: Translated from 🇩🇪 German
+                - button "Original" [ref=e980]:
+                  - img [ref=e981]
+                  - text: Original
+              - generic [ref=e983]:
+                - text: 10:58
+                - generic [ref=e984]: 🇩🇪 German
+            - generic [ref=e986]:
+              - paragraph [ref=e987]: Hello Mario, Thank you for your message! Our team will get back to you as soon as possible. If your matter is urgent, please call us at +230 4084119 Thank you for your patience!
+              - generic [ref=e988]: 11:10 - Friday Retreats Ltd
+            - generic [ref=e989]:
+              - generic [ref=e990]:
+                - generic [ref=e991]:
+                  - text: Sent
+                  - generic [ref=e992]: (in 🇩🇪 German)
+                - button "Show German" [ref=e993]:
+                  - img [ref=e994]
+                  - text: Show German
+              - paragraph [ref=e996]: Hi Mario, We completely understand you'd like to arrive a bit earlier! We'll check if LB-3 will be ready between 12:00 and 2:00 PM and get back to you within the next few hours to confirm. If early check-in isn't possible, we're happy to arrange luggage storage so you can start exploring Flic en Flac beach right away while we finish preparing your villa. We'll update you soon! Warm regards, Friday Retreats
+              - generic [ref=e997]: Approved by Matias · Apr 2 11:38
+            - generic [ref=e999]:
+              - paragraph [ref=e1000]: Guten Tag, leider muss ich Ihnen mitteilen, dass sich der Pool in einem nicht nutzbaren Zustand befindet. Das Wasser ist deutlich verschmutzt (Schwebstoffe, Ablagerungen am Boden), und es ist keine Funktion der Filter- bzw. Umwälzanlage erkennbar (keine Geräusche, keine sichtbare Wasserbewegung). In diesem Zustand ist der Pool für uns, insbesondere mit Kindern, nicht nutzbar. Ich bitte Sie daher, kurzfristig für Abhilfe zu sorgen, sodass der Pool gereinigt und die Technik überprüft wird. Bitte geben Sie mir zeitnah Rückmeldung, wann mit einer Behebung zu rechnen ist. Vielen Dank.
+              - generic [ref=e1001]: 17:30
+            - generic [ref=e1003]:
+              - paragraph [ref=e1004]: Guten Tag, ergänzend zu meiner vorherigen Nachricht möchte ich eine konkrete Frist setzen. Ich erwarte, dass der Pool spätestens bis morgen in einen einwandfrei nutzbaren Zustand versetzt wird und die Filter- bzw. Umwälzanlage ordnungsgemäß funktioniert. Der Pool ist für uns ein wesentlicher Bestandteil der Unterkunft, insbesondere da wir mit zwei Kindern reisen. Sollte der Mangel nicht fristgerecht behoben werden, sehe ich mich gezwungen, entsprechende Schritte wie eine Mietminderung einzuleiten. Bitte bestätigen Sie mir kurzfristig, wann die Behebung erfolgt. Mit freundlichen Grüßen
+              - generic [ref=e1005]: 17:34
+            - generic [ref=e1006]:
+              - generic [ref=e1008]: Sent
+              - paragraph [ref=e1009]: Hi Mario, We sincerely apologize for the pool condition and thank you for bringing this to our attention. We completely understand this is a priority, especially when traveling with children. We have already checked with our team, and the pool issue will definitely be resolved before your deadline tomorrow. Our team has been made aware and will be coming later today to address both the water quality and filtration system. At the latest, this will be resolved tomorrow, but most likely today itself. Warm regards, Friday Retreats
+              - generic [ref=e1010]: Approved by Ishant (v10) · Apr 2 18:07
+            - generic [ref=e1012]:
+              - paragraph [ref=e1013]: Thank you very much
+              - generic [ref=e1014]:
+                - generic [ref=e1015]: Translated from 🇩🇪 German
+                - button "Original" [ref=e1016]:
+                  - img [ref=e1017]
+                  - text: Original
+              - generic [ref=e1019]:
+                - text: 18:09
+                - generic [ref=e1020]: 🇩🇪 German
+            - generic [ref=e1021]:
+              - generic [ref=e1022]:
+                - generic [ref=e1023]:
+                  - text: Sent
+                  - generic [ref=e1024]: (in 🇩🇪 German)
+                - button "Show German" [ref=e1025]:
+                  - img [ref=e1026]
+                  - text: Show German
+              - paragraph [ref=e1028]: You're very welcome, Mario! We appreciate your patience and you can count on us to do our best to get this resolved in the shortest time frame. Warm regards, Friday Retreats
+              - generic [ref=e1029]: Approved by Ishant (v2) · Apr 2 18:38
+            - generic [ref=e1031]:
+              - paragraph [ref=e1032]: Hi Mario, Just a quick heads up that our pool maintenance team will come by around 10:00 AM today to clean the pool. We appreciate your understanding!
+              - generic [ref=e1033]: 08:56 - Mathias Duval
+            - generic [ref=e1035]:
+              - paragraph [ref=e1036]: Hello, Thank you very much for the information and the quick service.
+              - generic [ref=e1037]:
+                - generic [ref=e1038]: Translated from 🇩🇪 German
+                - button "Original" [ref=e1039]:
+                  - img [ref=e1040]
+                  - text: Original
+              - generic [ref=e1042]:
+                - text: 09:00
+                - generic [ref=e1043]: 🇩🇪 German
+            - generic [ref=e1044]:
+              - generic [ref=e1045]:
+                - generic [ref=e1046]:
+                  - text: Sent
+                  - generic [ref=e1047]: (in 🇩🇪 German)
+                - button "Show German" [ref=e1048]:
+                  - img [ref=e1049]
+                  - text: Show German
+              - paragraph [ref=e1051]: Hi Mario, You're very welcome! We're glad we could arrange this quickly for you. Enjoy the pool once it's all cleaned up!
+              - generic [ref=e1052]: Approved by Matias · Apr 3 09:02
+            - generic [ref=e1054]:
+              - paragraph [ref=e1055]: Your husband was here today. We left shortly after 10:00 AM and just came back. In the pictures you can see how it looks now. The paper that was on the step yesterday, I have now removed. I really have concerns about putting my children in here. The cleaning system is off again, is that normal?
+              - generic [ref=e1056]:
+                - generic [ref=e1057]: Translated from 🇩🇪 German
+                - button "Original" [ref=e1058]:
+                  - img [ref=e1059]
+                  - text: Original
+              - generic [ref=e1061]:
+                - text: 16:11
+                - generic [ref=e1062]: 🇩🇪 German
+            - generic [ref=e1064]:
+              - paragraph [ref=e1065]: I just got that out too
+              - generic [ref=e1066]:
+                - generic [ref=e1067]: Translated from 🇩🇪 German
+                - button "Original" [ref=e1068]:
+                  - img [ref=e1069]
+                  - text: Original
+              - generic [ref=e1071]:
+                - text: 16:16
+                - generic [ref=e1072]: 🇩🇪 German
+            - generic [ref=e1074]:
+              - paragraph [ref=e1075]: Sorry, the pool is not usable.
+              - generic [ref=e1076]:
+                - generic [ref=e1077]: Translated from 🇩🇪 German
+                - button "Original" [ref=e1078]:
+                  - img [ref=e1079]
+                  - text: Original
+              - generic [ref=e1081]:
+                - text: 16:17
+                - generic [ref=e1082]: 🇩🇪 German
+            - generic [ref=e1084]:
+              - paragraph [ref=e1085]: Hello Mario, Thank you for your message! Our team will get back to you as soon as possible. If your matter is urgent, please call us at +230 4084119 Thank you for your patience!
+              - generic [ref=e1086]: 16:22 - Friday Retreats Ltd
+            - generic [ref=e1088]:
+              - paragraph [ref=e1089]: Your reservation with Mario has been updated
+              - generic [ref=e1090]: 16:38
+            - generic [ref=e1092]:
+              - paragraph [ref=e1093]: "Hi Mario, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow, unless otherwise agreed. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Leave the keys in the lockbox and scramble the code If you had a great time, we’d be incredibly grateful for a 5-star review on Aribnb, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 5 stars on Airbnb can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+              - generic [ref=e1094]: 16:39 - hook
+            - generic [ref=e1096]:
+              - paragraph [ref=e1097]: Hi Mario, We’re sorry for the inconvenience regarding the pool. We noticed that your stay has been shortened. Could you please confirm if you will be checking out today?
+              - generic [ref=e1098]: 19:28 - Mary Oladimeji
+            - button "Show draft history (10 older)" [ref=e1099]
+          - generic [ref=e1101]:
+            - generic [ref=e1102] [cursor=pointer]:
+              - heading "AI Draft 85%" [level=4] [ref=e1103]:
+                - img [ref=e1104]
+                - text: AI Draft
+                - generic [ref=e1106]: 85%
+              - generic [ref=e1107]: Needs Review
+              - img [ref=e1108]
+            - generic [ref=e1111]: Hi Mario, We sincerely apologize that the pool is still not in acceptable condition after our team's visit this morning. We completely understand your concerns about letting your children use the pool in this state. We're treating this as urgent and will contact our team immediately to come back and properly address the issue. We'll get back to you shortly with a specific time for their return visit. The filtration system should be running continuously, so we'll ensure this is fixed along with the thorough cleaning that's clearly needed. Thank you for your patience and for sending the photos - this helps us understand the situation better. Warm regards, Friday Retreats
+            - generic [ref=e1112]:
+              - button "Approve & Send" [ref=e1113]:
+                - img [ref=e1114]
+                - text: Approve & Send
+              - button "Edit" [ref=e1116]:
+                - img [ref=e1117]
+                - text: Edit
+              - button "Reject" [ref=e1119]:
+                - img [ref=e1120]
+                - text: Reject
+              - button "Ask Judith" [ref=e1122]:
+                - img [ref=e1123]
+                - text: Ask Judith
+            - generic [ref=e1125]:
+              - textbox "Ask Judith to adjust... (e.g. 'make it shorter', 'add WiFi password')" [ref=e1127]
+              - generic [ref=e1128]:
+                - button "Revise" [disabled] [ref=e1129]
+                - button "🧠 Revise & teach" [disabled] [ref=e1130]:
+                  - generic [ref=e1131]: 🧠
+                  - text: Revise & teach
+                - button "one-time" [disabled] [ref=e1132]
+                - button "Ask Judith First" [disabled] [ref=e1133]:
+                  - img [ref=e1134]
+                  - text: Ask Judith First
+        - generic [ref=e1136]:
+          - heading "Guest Info" [level=3] [ref=e1139]
+          - generic [ref=e1140]:
+            - generic [ref=e1141]: "Email: mario.barbaric@gmail.com"
+            - generic [ref=e1142]: "Channel: airbnb"
+            - generic [ref=e1143]: "Check-in: Apr 2, 2026 (2:00 PM)"
+            - generic [ref=e1144]: "Check-out: Apr 3, 2026 (10:00 AM)"
+            - generic [ref=e1145]: 12 inbound messages
+          - generic [ref=e1146]:
+            - heading "Financial" [level=3] [ref=e1147]
+            - generic [ref=e1148]: €87.24/night × 1 night
+            - generic [ref=e1149]: "Cleaning: €70"
+            - generic [ref=e1150]: "Host payout: €136.55"
+          - button "Mark as Done" [ref=e1152]:
+            - img [ref=e1153]
+            - text: Mark as Done
+          - generic [ref=e1155]:
+            - heading "Staff Notes" [level=3] [ref=e1156]
+            - textbox "Add notes for Judith..." [ref=e1157]: 🟡 [Judith's observation] Guest seems frustrated — "Guten Tag, leider muss ich Ihnen mitteilen, dass sich der Pool in einem nicht nutzbaren Zustand bef"
+          - generic [ref=e1158]:
+            - generic [ref=e1159]:
+              - generic [ref=e1160]: Auto-send
+              - button [ref=e1161]
+            - paragraph [ref=e1163]: Off — all drafts require review
+          - generic [ref=e1164]:
+            - button "Next Steps 2" [ref=e1165]:
+              - generic [ref=e1166]:
+                - img [ref=e1167]
+                - text: Next Steps
+                - generic [ref=e1169]: "2"
+            - generic [ref=e1170]:
+              - generic [ref=e1171]:
+                - generic [ref=e1172]: 🧹
+                - generic [ref=e1173]:
+                  - text: Confirm pool cleaning completion and water quality check with photos/video proof before Mario's deadline tomorrow
+                  - generic [ref=e1174]: \u2014 Bryan
+              - generic [ref=e1175]:
+                - generic [ref=e1176]: 📞
+                - generic [ref=e1177]:
+                  - text: Follow up call with Mario after pool is ready to confirm satisfaction and manage expectations for remaining stay
+                  - generic [ref=e1178]: \u2014 Mathias
+              - paragraph [ref=e1179]: Judith's suggestions based on conversation context
+          - generic [ref=e1180]:
+            - button "Pending Actions" [ref=e1181]:
+              - generic [ref=e1182]:
+                - img [ref=e1183]
+                - text: Pending Actions
+            - generic [ref=e1185]:
+              - generic [ref=e1186]:
+                - generic [ref=e1188]: Mario Barbaric
+                - generic [ref=e1189]: LB-3
+                - paragraph [ref=e1190]: Check if LB-3 will be ready between 12:00 and 2:00 PM and confirm to guest
+                - generic [ref=e1191]: "Due: 4/2/2026, 1:38:05 PM"
+                - generic [ref=e1192]: completed by Matias
+              - generic [ref=e1193]:
+                - generic [ref=e1195]: Mario Barbaric
+                - generic [ref=e1196]: LB-3
+                - paragraph [ref=e1197]: Confirm to Mario that pool issue has been resolved before his deadline tomorrow
+                - generic [ref=e1198]: "Due: 4/3/2026, 6:07:06 PM"
+                - generic [ref=e1199]: completed by Matias
+              - generic [ref=e1200]:
+                - generic [ref=e1201]:
+                  - generic [ref=e1202]: Mario Barbaric
+                  - generic [ref=e1203]: DUE SOON
+                - generic [ref=e1204]: LB-3
+                - paragraph [ref=e1205]: Check conversation to see what happened and how reservation was shortened. Coordinate with the team as well accordingly
+                - generic [ref=e1206]: "Due: 4/3/2026, 11:01:00 PM"
+                - generic [ref=e1207]:
+                  - textbox "Note (optional)..." [ref=e1208]
+                  - generic [ref=e1209]:
+                    - button "Done" [ref=e1210]
+                    - button "Dismiss" [ref=e1211]
+                    - button "Edit" [ref=e1212]:
+                      - img [ref=e1213]
+                      - text: Edit
+                    - button "Delete" [ref=e1215]:
+                      - img [ref=e1216]
+                      - text: Delete
+          - button "Draft History 22" [ref=e1219]:
+            - generic [ref=e1220]:
+              - img [ref=e1221]
+              - text: Draft History
+              - generic [ref=e1223]: "22"
+  - alert [ref=e6]

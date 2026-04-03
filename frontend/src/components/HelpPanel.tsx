@@ -588,6 +588,94 @@ const HELP_DATA: HelpEntry[] = [
       </div>
     ),
   },
+  // ── Working with Judith ───────────────────────────────────────────────
+  {
+    id: 'how-judith-learns',
+    title: '🧠 How Judith Learns',
+    group: 'Working with Judith',
+    keywords: ['learn', 'teaching', 'training', 'correction', 'revision', 'approve', 'reject', 'modify', 'queue', 'permanent'],
+    content: 'When you revise a draft Judith remembers your correction. The Learning Queue shows things she is unsure about your decisions help train her judgment. Teachings are permanent they influence every future draft. She cross-references property details discount policies team escalation paths STR best practices and platform rules.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <div>• {hl("When you revise a draft, Judith remembers your correction. Next time she sees a similar situation, she'll apply what you taught her.")}</div>
+        <div>• {hl("The Learning Queue shows things she's unsure about — your approve/reject/modify decisions help train her judgment.")}</div>
+        <div>• {hl('Teachings are permanent. They influence every future draft for that property (or globally if you chose "All properties").')}</div>
+        <div>• {hl('Behind the scenes, she cross-references property details, discount policies, team escalation paths, STR best practices, and platform rules. Every teaching you add builds on this foundation.')}</div>
+      </div>
+    ),
+  },
+  {
+    id: 'common-teaching-mistakes',
+    title: '⚠️ Common Teaching Mistakes',
+    group: 'Working with Judith',
+    keywords: ['mistake', 'vague', 'correction', 'revise', 'edit', 'conflict', 'teaching', 'why', 'specific'],
+    content: 'Vague corrections teach nothing. Be specific and actionable. Editing without Revising means Judith does not learn. Always use the Revise button. Include the WHY for better reasoning. Contradicting old teachings creates conflicts clean up via Teachings page.',
+    render: (hl) => (
+      <div className="space-y-2.5 text-xs" style={{color: '#94a3b8'}}>
+        {[
+          {label: 'Vague corrections', desc: '"Make it better" teaches nothing. "Always mention checkout is 11am and include the door code" is perfect — specific and actionable.'},
+          {label: 'Editing without Revising', desc: "If you manually edit a draft and send it, Judith doesn't learn from the change. Always use the Revise button so she can record what you corrected and why."},
+          {label: 'Missing the WHY', desc: '"Don\'t offer pool heating after 8pm" is good. "Don\'t offer pool heating after 8pm because it disturbs neighbors and we\'ve had complaints" is better — gives her reasoning she can apply to similar situations.'},
+          {label: 'Contradicting old teachings', desc: 'If you teach her one thing now and the opposite later, both teachings exist. Use the Teachings page to clean up conflicts when you spot them.'},
+        ].map(item => (
+          <div key={item.label}>
+            <span className="font-semibold" style={{color: '#fbbf24'}}>{item.label}:</span>{' '}
+            {hl(item.desc)}
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    id: 'ask-judith-vs-auto-draft',
+    title: '💡 Ask Judith vs Auto-Draft',
+    group: 'Working with Judith',
+    keywords: ['ask', 'compose', 'auto', 'draft', 'review', 'revision', 'advise', 'write', 'self-check', 'conflict'],
+    content: 'Auto-draft Judith writes a reply based on everything she knows. Ask Judith Compose before you send your message ask Judith what she thinks. Ask Judith Draft Review before approving her draft ask her to self-check. Ask Judith Revision before committing a correction ask if it aligns with what she knows. Auto-draft she writes for you. Ask Judith she advises you.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        {[
+          {label: 'Auto-draft', desc: 'Judith writes a reply based on everything she knows — property details, brand voice, past teachings, guest history. This is her best guess at the right response.'},
+          {label: 'Ask Judith (Compose)', desc: 'Before you send YOUR message, ask Judith what she thinks about your tone, accuracy, and completeness.'},
+          {label: 'Ask Judith (Draft Review)', desc: "Before approving HER draft, ask her to self-check. She'll flag what she's confident about and what you should double-check."},
+          {label: 'Ask Judith (Revision)', desc: "Before committing a correction, ask her if it aligns with what she already knows. She'll flag conflicts with existing teachings or policies."},
+        ].map(item => (
+          <div key={item.label}>
+            <span className="font-semibold" style={{color: '#6395ff'}}>{item.label}:</span>{' '}
+            {hl(item.desc)}
+          </div>
+        ))}
+        <div className="rounded-md px-2.5 py-1.5 mt-2" style={{background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)', color: '#6395ff'}}>
+          {hl('Bottom line: Auto-draft = she writes for you. Ask Judith = she advises you.')}
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'tips-for-better-results',
+    title: '✨ Tips for Better Results',
+    group: 'Working with Judith',
+    keywords: ['tips', 'confidence', 'revision', 'teaching', 'improve', 'feedback', 'patience', 'score'],
+    content: 'Review drafts before sending corrections make her smarter. Use Ask Judith before committing to a revision. Use Revise instead of manual edit. More context in revision notes means better next drafts. Check the confidence score. Be patient consistent feedback matters more than volume.',
+    render: (hl) => (
+      <div className="space-y-1.5 text-xs" style={{color: '#94a3b8'}}>
+        {[
+          "Review drafts before sending — the team's corrections make her smarter over time",
+          "Use \"Ask Judith\" before committing to a revision — she'll flag conflicts with what she knows",
+          'If a draft is wrong, use Revise instead of manual edit — revisions become teachings',
+          'The more context in your revision notes, the better the next draft will be',
+          'Check the confidence score — high confidence means she\'s seen similar situations before',
+          'Be patient — she improves with every teaching, but consistent feedback matters more than volume',
+        ].map((tip, i) => (
+          <div key={i} className="flex items-start gap-2">
+            <span className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{i+1}</span>
+            <span>{hl(tip)}</span>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+
   {
     id: 'bug-reports',
     title: '🐛 Bug Reports & Pending Review',
@@ -610,13 +698,14 @@ const GROUP_ORDER = [
   'Getting Started',
   'How It Works',
   'AI Features',
+  'Working with Judith',
   'Messaging',
   'Dashboard',
   'Operations',
 ]
 
 // Groups that get a divider header (not the first two — they're "legacy")
-const DIVIDER_GROUPS = new Set(['AI Features', 'Messaging', 'Dashboard', 'Operations'])
+const DIVIDER_GROUPS = new Set(['AI Features', 'Working with Judith', 'Messaging', 'Dashboard', 'Operations'])
 
 // ---------------------------------------------------------------------------
 // Highlight helper: wraps substring matches in <mark>

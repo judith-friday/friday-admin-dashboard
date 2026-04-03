@@ -1,0 +1,1688 @@
+- generic [ref=e1]:
+  - alert [ref=e9]
+  - generic [ref=e13]:
+    - button "🐛" [ref=e14]
+    - generic [ref=e1816]:
+      - generic [ref=e1817]:
+        - generic [ref=e1818]:
+          - heading "🐛 Bug Reports" [level=2] [ref=e1819]
+          - paragraph [ref=e1820]: 68 reports
+        - button "✕" [ref=e1821]
+      - generic [ref=e1822]:
+        - button "All" [ref=e1823]
+        - button "submitted" [ref=e1824]
+        - button "approved" [ref=e1825]
+        - button "queued" [ref=e1826]
+        - button "assigned" [ref=e1827]
+        - button "pending_review" [ref=e1828]
+        - button "rejected" [ref=e1829]
+        - button "resolved" [ref=e1830]
+      - generic [ref=e1831]:
+        - generic [ref=e1833] [cursor=pointer]:
+          - generic [ref=e1834]: 🟠
+          - generic [ref=e1835]:
+            - generic [ref=e1836]:
+              - generic [ref=e1837]: Tried to send the message again by pressing Retry Now but it failed
+              - generic [ref=e1838]: high
+              - generic [ref=e1839]: submitted
+            - generic [ref=e1840]: Matias · 3 Apr, 16:55
+        - generic [ref=e1842] [cursor=pointer]:
+          - generic [ref=e1843]: 🔴
+          - generic [ref=e1844]:
+            - generic [ref=e1845]:
+              - generic [ref=e1846]: Guesty API unavailable, message has not been sent.
+              - generic [ref=e1847]: critical
+              - generic [ref=e1848]: submitted
+            - generic [ref=e1849]: Matias · 3 Apr, 16:50
+        - generic [ref=e1851] [cursor=pointer]:
+          - generic [ref=e1852]: 🟠
+          - generic [ref=e1853]:
+            - generic [ref=e1854]:
+              - generic [ref=e1855]: Past messages is appearing at the end of the conversation
+              - generic [ref=e1856]: high
+              - generic [ref=e1857]: submitted
+            - generic [ref=e1858]: Matias · 3 Apr, 16:48
+        - generic [ref=e1860] [cursor=pointer]:
+          - generic [ref=e1861]: 🟠
+          - generic [ref=e1862]:
+            - generic [ref=e1863]:
+              - generic [ref=e1864]: The "Ask Judith First" feature should tell me what you think about my revision and not your message
+              - generic [ref=e1865]: high
+              - generic [ref=e1866]: submitted
+            - generic [ref=e1867]: Matias · 3 Apr, 16:43
+        - generic [ref=e1869] [cursor=pointer]:
+          - generic [ref=e1870]: 🟡
+          - generic [ref=e1871]:
+            - generic [ref=e1872]:
+              - generic [ref=e1873]: The "Ask Judith First" feature should tell me what you think about my revision and not your message
+              - generic [ref=e1874]: medium
+              - generic [ref=e1875]: rejected
+            - generic [ref=e1876]: Matias · 3 Apr, 16:39
+        - generic [ref=e1878] [cursor=pointer]:
+          - generic [ref=e1879]: 🟠
+          - generic [ref=e1880]:
+            - generic [ref=e1881]:
+              - generic [ref=e1882]: Previous conversation are still not translated
+              - generic [ref=e1883]: high
+              - generic [ref=e1884]: submitted
+            - generic [ref=e1885]: Matias · 3 Apr, 16:28
+        - generic [ref=e1887] [cursor=pointer]:
+          - generic [ref=e1888]: 🟢
+          - generic [ref=e1889]:
+            - generic [ref=e1890]:
+              - generic [ref=e1891]: We have Response Time, (RT) in the conversations and Avg Response in the top bar. RT is related to t
+              - generic [ref=e1892]: low
+              - generic [ref=e1893]: submitted
+            - generic [ref=e1894]: Matias · 3 Apr, 16:21
+        - generic [ref=e1896] [cursor=pointer]:
+          - generic [ref=e1897]: 🟡
+          - generic [ref=e1898]:
+            - generic [ref=e1899]:
+              - generic [ref=e1900]: Message was sent via Email, despite choosing Booking.com
+              - generic [ref=e1901]: medium
+              - generic [ref=e1902]: pending_review
+            - generic [ref=e1903]: Matias · 3 Apr, 14:12
+        - generic [ref=e1905] [cursor=pointer]:
+          - generic [ref=e1906]: 🟡
+          - generic [ref=e1907]:
+            - generic [ref=e1908]:
+              - generic [ref=e1909]: "Error message when I tried to Edit a message \"Cannot approve draft in state: sent\""
+              - generic [ref=e1910]: medium
+              - generic [ref=e1911]: pending_review
+            - generic [ref=e1912]: Matias · 3 Apr, 14:12
+        - generic [ref=e1914] [cursor=pointer]:
+          - generic [ref=e1915]: 🔴
+          - generic [ref=e1916]:
+            - generic [ref=e1917]:
+              - generic [ref=e1918]: an old message is still appearing at the bottom of the screen
+              - generic [ref=e1919]: critical
+              - generic [ref=e1920]: pending_review
+            - generic [ref=e1921]: Ishant · 3 Apr, 13:29
+        - generic [ref=e1923] [cursor=pointer]:
+          - generic [ref=e1924]: 🟠
+          - generic [ref=e1925]:
+            - generic [ref=e1926]:
+              - generic [ref=e1927]: for learning queue as well currently, judith doesnt help me dio this task better at all.
+              - generic [ref=e1928]: high
+              - generic [ref=e1929]: pending_review
+            - generic [ref=e1930]: Ishant · 3 Apr, 11:55
+        - generic [ref=e1932] [cursor=pointer]:
+          - generic [ref=e1933]: 🟠
+          - generic [ref=e1934]:
+            - generic [ref=e1935]:
+              - generic [ref=e1936]: bug report feature appears behind learning queue
+              - generic [ref=e1937]: high
+              - generic [ref=e1938]: pending_review
+            - generic [ref=e1939]: Ishant · 3 Apr, 11:54
+        - generic [ref=e1941] [cursor=pointer]:
+          - generic [ref=e1942]: 🟡
+          - generic [ref=e1943]:
+            - generic [ref=e1944]:
+              - generic [ref=e1945]: no sorting feature for messages
+              - generic [ref=e1946]: medium
+              - generic [ref=e1947]: pending_review
+            - generic [ref=e1948]: Ishant · 3 Apr, 11:52
+        - generic [ref=e1950] [cursor=pointer]:
+          - generic [ref=e1951]: 🟡
+          - generic [ref=e1952]:
+            - generic [ref=e1953]:
+              - generic [ref=e1954]: no sorting for pending actions
+              - generic [ref=e1955]: medium
+              - generic [ref=e1956]: pending_review
+            - generic [ref=e1957]: Ishant · 3 Apr, 11:52
+        - generic [ref=e1959] [cursor=pointer]:
+          - generic [ref=e1960]: 🔴
+          - generic [ref=e1961]:
+            - generic [ref=e1962]:
+              - generic [ref=e1963]: some of the guest messsages are not being translated to english
+              - generic [ref=e1964]: critical
+              - generic [ref=e1965]: pending_review
+            - generic [ref=e1966]: Ishant · 3 Apr, 11:50
+        - generic [ref=e1968] [cursor=pointer]:
+          - generic [ref=e1969]: 🔴
+          - generic [ref=e1970]:
+            - generic [ref=e1971]:
+              - generic [ref=e1972]: the translate toggle and features are not working perfectly as intended
+              - generic [ref=e1973]: critical
+              - generic [ref=e1974]: pending_review
+            - generic [ref=e1975]: Ishant · 3 Apr, 11:49
+        - generic [ref=e1977] [cursor=pointer]:
+          - generic [ref=e1978]: 🟡
+          - generic [ref=e1979]:
+            - generic [ref=e1980]:
+              - generic [ref=e1981]: After manually editing a message and clicking “Save and Send,” the system sends Judith’s original su
+              - generic [ref=e1982]: medium
+              - generic [ref=e1983]: pending_review
+            - generic [ref=e1984]: Matias · 3 Apr, 11:48
+        - generic [ref=e1986] [cursor=pointer]:
+          - generic [ref=e1987]: 🟡
+          - generic [ref=e1988]:
+            - generic [ref=e1989]:
+              - generic [ref=e1990]: "An error message appears when attempting to approve and send a draft: “Cannot approve draft in state"
+              - generic [ref=e1991]: medium
+              - generic [ref=e1992]: pending_review
+            - generic [ref=e1993]: Matias · 3 Apr, 11:48
+        - generic [ref=e1995] [cursor=pointer]:
+          - generic [ref=e1996]: 🟡
+          - generic [ref=e1997]:
+            - generic [ref=e1998]:
+              - generic [ref=e1999]: do we not have a notification section?
+              - generic [ref=e2000]: medium
+              - generic [ref=e2001]: pending_review
+            - generic [ref=e2002]: Ishant · 3 Apr, 11:48
+        - generic [ref=e2004] [cursor=pointer]:
+          - generic [ref=e2005]: 🟡
+          - generic [ref=e2006]:
+            - generic [ref=e2007]:
+              - generic [ref=e2008]: Bug reports not loading
+              - generic [ref=e2009]: medium
+              - generic [ref=e2010]: pending_review
+            - generic [ref=e2011]: Matias · 3 Apr, 11:47
+        - generic [ref=e2013] [cursor=pointer]:
+          - generic [ref=e2014]: 🟡
+          - generic [ref=e2015]:
+            - generic [ref=e2016]:
+              - generic [ref=e2017]: when i open draft history, it doesnt automatically scroll down that pannel
+              - generic [ref=e2018]: medium
+              - generic [ref=e2019]: pending_review
+            - generic [ref=e2020]: Ishant · 3 Apr, 11:47
+        - generic [ref=e2022] [cursor=pointer]:
+          - generic [ref=e2023]: 🔴
+          - generic [ref=e2024]:
+            - generic [ref=e2025]:
+              - generic [ref=e2026]: some guest messages not showing up here. the latest ones
+              - generic [ref=e2027]: critical
+              - generic [ref=e2028]: pending_review
+            - generic [ref=e2029]: Ishant · 3 Apr, 11:46
+        - generic [ref=e2031] [cursor=pointer]:
+          - generic [ref=e2032]: 🟠
+          - generic [ref=e2033]:
+            - generic [ref=e2034]:
+              - generic [ref=e2035]: Bug report feature says "failed to load bug reports" for other users of the GMS. for ishant it works
+              - generic [ref=e2036]: high
+              - generic [ref=e2037]: pending_review
+            - generic [ref=e2038]: Ishant · 3 Apr, 11:44
+        - generic [ref=e2040] [cursor=pointer]:
+          - generic [ref=e2041]: 🟢
+          - generic [ref=e2042]:
+            - generic [ref=e2043]:
+              - generic [ref=e2044]: bug report feature opens, then closes and reopens to load the screenshot i think
+              - generic [ref=e2045]: low
+              - generic [ref=e2046]: pending_review
+            - generic [ref=e2047]: Ishant · 3 Apr, 11:43
+        - generic [ref=e2049] [cursor=pointer]:
+          - generic [ref=e2050]: 🔴
+          - generic [ref=e2051]:
+            - generic [ref=e2052]:
+              - generic [ref=e2053]: The guest messages disappeared and we still see the latest sent message twice
+              - generic [ref=e2054]: critical
+              - generic [ref=e2055]: pending_review
+            - generic [ref=e2056]: Ishant · 3 Apr, 11:21
+        - generic [ref=e2058] [cursor=pointer]:
+          - generic [ref=e2059]: 🟠
+          - generic [ref=e2060]:
+            - generic [ref=e2061]:
+              - generic [ref=e2062]: messages stay in the review state even after we already replied
+              - generic [ref=e2063]: high
+              - generic [ref=e2064]: pending_review
+            - generic [ref=e2065]: Ishant · 2 Apr, 20:34
+        - generic [ref=e2067] [cursor=pointer]:
+          - generic [ref=e2068]: 🔴
+          - generic [ref=e2069]:
+            - generic [ref=e2070]:
+              - generic [ref=e2071]: a message i sent before, is appearing below a message that was sent after
+              - generic [ref=e2072]: critical
+              - generic [ref=e2073]: pending_review
+            - generic [ref=e2074]: Ishant · 2 Apr, 20:10
+        - generic [ref=e2076] [cursor=pointer]:
+          - generic [ref=e2077]: 🔴
+          - generic [ref=e2078]:
+            - generic [ref=e2079]:
+              - generic [ref=e2080]: cant install pwa on web/desktop.
+              - generic [ref=e2081]: critical
+              - generic [ref=e2082]: pending_review
+            - generic [ref=e2083]: Ishant · 2 Apr, 19:51
+        - generic [ref=e2085] [cursor=pointer]:
+          - generic [ref=e2086]: 🔴
+          - generic [ref=e2087]:
+            - generic [ref=e2088]:
+              - generic [ref=e2089]: the icon to the complete right at the top is not clickable
+              - generic [ref=e2090]: critical
+              - generic [ref=e2091]: pending_review
+            - generic [ref=e2092]: Ishant · 2 Apr, 19:49
+        - generic [ref=e2094] [cursor=pointer]:
+          - generic [ref=e2095]: 🟡
+          - generic [ref=e2096]:
+            - generic [ref=e2097]:
+              - generic [ref=e2098]: not seeing who made the draft reviews in draft history
+              - generic [ref=e2099]: medium
+              - generic [ref=e2100]: pending_review
+            - generic [ref=e2101]: Ishant · 2 Apr, 19:48
+        - generic [ref=e2103] [cursor=pointer]:
+          - generic [ref=e2104]: 🟡
+          - generic [ref=e2105]:
+            - generic [ref=e2106]:
+              - generic [ref=e2107]: next steps contains \u2014 Bryan.
+              - generic [ref=e2108]: medium
+              - generic [ref=e2109]: pending_review
+            - generic [ref=e2110]: Ishant · 2 Apr, 19:47
+        - generic [ref=e2112] [cursor=pointer]:
+          - generic [ref=e2113]: 🔴
+          - generic [ref=e2114]:
+            - generic [ref=e2115]:
+              - generic [ref=e2116]: dropdown in header is hidden behind other components
+              - generic [ref=e2117]: critical
+              - generic [ref=e2118]: pending_review
+            - generic [ref=e2119]: Ishant · 2 Apr, 19:41
+        - generic [ref=e2121] [cursor=pointer]:
+          - generic [ref=e2122]: 🟢
+          - generic [ref=e2123]:
+            - generic [ref=e2124]:
+              - generic [ref=e2125]: Slack notification verification test
+              - generic [ref=e2126]: low
+              - generic [ref=e2127]: pending_review
+            - generic [ref=e2128]: Ishant · 2 Apr, 19:24
+        - generic [ref=e2130] [cursor=pointer]:
+          - generic [ref=e2131]: 🔴
+          - generic [ref=e2132]:
+            - generic [ref=e2133]:
+              - generic [ref=e2134]: Horizontal scroll still availablr on movile
+              - generic [ref=e2135]: critical
+              - generic [ref=e2136]: rejected
+            - generic [ref=e2137]: Ishant · 2 Apr, 19:17
+        - generic [ref=e2139] [cursor=pointer]:
+          - generic [ref=e2140]: 🟠
+          - generic [ref=e2141]:
+            - generic [ref=e2142]:
+              - generic [ref=e2143]: in his conversation summary, we have information that stands true for all conversations as they come
+              - generic [ref=e2144]: high
+              - generic [ref=e2145]: pending_review
+            - generic [ref=e2146]: Ishant · 2 Apr, 19:07
+        - generic [ref=e2148] [cursor=pointer]:
+          - generic [ref=e2149]: 🔴
+          - generic [ref=e2150]:
+            - generic [ref=e2151]:
+              - generic [ref=e2152]: same message in conversation (our sent reply) appears twice still
+              - generic [ref=e2153]: critical
+              - generic [ref=e2154]: pending_review
+            - generic [ref=e2155]: Ishant · 2 Apr, 19:00
+        - generic [ref=e2157] [cursor=pointer]:
+          - generic [ref=e2158]: 🟠
+          - generic [ref=e2159]:
+            - generic [ref=e2160]:
+              - generic [ref=e2161]: pending actions dont show how urgent or if running over time or past deadline feature
+              - generic [ref=e2162]: high
+              - generic [ref=e2163]: pending_review
+            - generic [ref=e2164]: Ishant · 2 Apr, 18:55
+        - generic [ref=e2166] [cursor=pointer]:
+          - generic [ref=e2167]: 🟠
+          - generic [ref=e2168]:
+            - generic [ref=e2169]:
+              - generic [ref=e2170]: the left pannel with all the conversations has a filter feature but takes up height and width
+              - generic [ref=e2171]: high
+              - generic [ref=e2172]: pending_review
+            - generic [ref=e2173]: Ishant · 2 Apr, 18:54
+        - generic [ref=e2175] [cursor=pointer]:
+          - generic [ref=e2176]: 🟠
+          - generic [ref=e2177]:
+            - generic [ref=e2178]:
+              - generic [ref=e2179]: on the pending actions, no ability to modify pending actions and make judith learn from them
+              - generic [ref=e2180]: high
+              - generic [ref=e2181]: pending_review
+            - generic [ref=e2182]: Ishant · 2 Apr, 18:53
+        - generic [ref=e2184] [cursor=pointer]:
+          - generic [ref=e2185]: 🔴
+          - generic [ref=e2186]:
+            - generic [ref=e2187]:
+              - generic [ref=e2188]: when i open pop ups, i lose the ability to easily report bugs
+              - generic [ref=e2189]: critical
+              - generic [ref=e2190]: pending_review
+            - generic [ref=e2191]: Ishant · 2 Apr, 18:52
+        - generic [ref=e2193] [cursor=pointer]:
+          - generic [ref=e2194]: 🟠
+          - generic [ref=e2195]:
+            - generic [ref=e2196]:
+              - generic [ref=e2197]: left and right pannels not collapsible
+              - generic [ref=e2198]: high
+              - generic [ref=e2199]: pending_review
+            - generic [ref=e2200]: Ishant · 2 Apr, 18:51
+        - generic [ref=e2202] [cursor=pointer]:
+          - generic [ref=e2203]: 🟢
+          - generic [ref=e2204]:
+            - generic [ref=e2205]:
+              - generic [ref=e2206]: Slack notification test
+              - generic [ref=e2207]: low
+              - generic [ref=e2208]: pending_review
+            - generic [ref=e2209]: Ishant · 2 Apr, 18:51
+        - generic [ref=e2211] [cursor=pointer]:
+          - generic [ref=e2212]: 🟠
+          - generic [ref=e2213]:
+            - generic [ref=e2214]:
+              - generic [ref=e2215]: guest message and our response are different color of backgrounds, but both take the full width of t
+              - generic [ref=e2216]: high
+              - generic [ref=e2217]: pending_review
+            - generic [ref=e2218]: Ishant · 2 Apr, 18:50
+        - generic [ref=e2220] [cursor=pointer]:
+          - generic [ref=e2221]: 🟠
+          - generic [ref=e2222]:
+            - generic [ref=e2223]:
+              - generic [ref=e2224]: when i made revisions to the message here i wrote 595 euros and it wrote it exactly the same way
+              - generic [ref=e2225]: high
+              - generic [ref=e2226]: pending_review
+            - generic [ref=e2227]: Ishant · 2 Apr, 18:37
+        - generic [ref=e2229] [cursor=pointer]:
+          - generic [ref=e2230]: 🟡
+          - generic [ref=e2231]:
+            - generic [ref=e2232]:
+              - generic [ref=e2233]: favicon here is not the actual favicon i gave you
+              - generic [ref=e2234]: medium
+              - generic [ref=e2235]: pending_review
+            - generic [ref=e2236]: Ishant · 2 Apr, 18:27
+        - generic [ref=e2238] [cursor=pointer]:
+          - generic [ref=e2239]: 🟡
+          - generic [ref=e2240]:
+            - generic [ref=e2241]:
+              - generic [ref=e2242]: here again you can see that we cannot see our sent responses in english
+              - generic [ref=e2243]: medium
+              - generic [ref=e2244]: pending_review
+            - generic [ref=e2245]: Ishant · 2 Apr, 18:25
+        - generic [ref=e2247] [cursor=pointer]:
+          - generic [ref=e2248]: 🟡
+          - generic [ref=e2249]:
+            - generic [ref=e2250]:
+              - generic [ref=e2251]: in the help section, there are still places where things like "\u2705" appear
+              - generic [ref=e2252]: medium
+              - generic [ref=e2253]: pending_review
+            - generic [ref=e2254]: Ishant · 2 Apr, 18:23
+        - generic [ref=e2256] [cursor=pointer]:
+          - generic [ref=e2257]: 🟠
+          - generic [ref=e2258]:
+            - generic [ref=e2259]:
+              - generic [ref=e2260]: when i open the help on the right, i lose the ability to report bugs cause the buttons get hidden
+              - generic [ref=e2261]: high
+              - generic [ref=e2262]: pending_review
+            - generic [ref=e2263]: Ishant · 2 Apr, 18:22
+        - generic [ref=e2265] [cursor=pointer]:
+          - generic [ref=e2266]: 🟢
+          - generic [ref=e2267]:
+            - generic [ref=e2268]:
+              - generic [ref=e2269]: when you first land on the gms, there isnt any conversation open.
+              - generic [ref=e2270]: low
+              - generic [ref=e2271]: pending_review
+            - generic [ref=e2272]: Ishant · 2 Apr, 18:21
+        - generic [ref=e2274] [cursor=pointer]:
+          - generic [ref=e2275]: 🟡
+          - generic [ref=e2276]:
+            - generic [ref=e2277]:
+              - generic [ref=e2278]: auto send is a feature we wont be using yet, maybe we move it towards the end, and instead give more
+              - generic [ref=e2279]: medium
+              - generic [ref=e2280]: pending_review
+            - generic [ref=e2281]: Ishant · 2 Apr, 18:20
+        - generic [ref=e2283] [cursor=pointer]:
+          - generic [ref=e2284]: 🟠
+          - generic [ref=e2285]:
+            - generic [ref=e2286]:
+              - generic [ref=e2287]: draft history above pending actions on the right
+              - generic [ref=e2288]: high
+              - generic [ref=e2289]: pending_review
+            - generic [ref=e2290]: Ishant · 2 Apr, 18:19
+        - generic [ref=e2292] [cursor=pointer]:
+          - generic [ref=e2293]: 🟠
+          - generic [ref=e2294]:
+            - generic [ref=e2295]:
+              - generic [ref=e2296]: sometimes when clickout out of the bug report feature by mistake, the pop up disappears and i lose e
+              - generic [ref=e2297]: high
+              - generic [ref=e2298]: pending_review
+            - generic [ref=e2299]: Ishant · 2 Apr, 18:18
+        - generic [ref=e2301] [cursor=pointer]:
+          - generic [ref=e2302]: 🟢
+          - generic [ref=e2303]:
+            - generic [ref=e2304]:
+              - generic [ref=e2305]: top right "Friday Admin" along with "Admin Dashboard" below it is not nice
+              - generic [ref=e2306]: low
+              - generic [ref=e2307]: pending_review
+            - generic [ref=e2308]: Ishant · 2 Apr, 18:16
+        - generic [ref=e2310] [cursor=pointer]:
+          - generic [ref=e2311]: 🔴
+          - generic [ref=e2312]:
+            - generic [ref=e2313]:
+              - generic [ref=e2314]: our response to guest is in the language of the guest here, but we cannot see it in english on our s
+              - generic [ref=e2315]: critical
+              - generic [ref=e2316]: pending_review
+            - generic [ref=e2317]: Ishant · 2 Apr, 18:15
+        - generic [ref=e2319] [cursor=pointer]:
+          - generic [ref=e2320]: 🟢
+          - generic [ref=e2321]:
+            - generic [ref=e2322]:
+              - generic [ref=e2323]: ai draft section UI a bit weird with margins etc
+              - generic [ref=e2324]: low
+              - generic [ref=e2325]: pending_review
+            - generic [ref=e2326]: Ishant · 2 Apr, 18:13
+        - generic [ref=e2328] [cursor=pointer]:
+          - generic [ref=e2329]: 🔴
+          - generic [ref=e2330]:
+            - generic [ref=e2331]:
+              - generic [ref=e2332]: our reply was not sent in the language of the guest
+              - generic [ref=e2333]: critical
+              - generic [ref=e2334]: pending_review
+            - generic [ref=e2335]: Ishant · 2 Apr, 18:13
+        - generic [ref=e2337] [cursor=pointer]:
+          - generic [ref=e2338]: 🔴
+          - generic [ref=e2339]:
+            - generic [ref=e2340]:
+              - generic [ref=e2341]: compose and ai draft both there
+              - generic [ref=e2342]: critical
+              - generic [ref=e2343]: pending_review
+            - generic [ref=e2344]: Ishant · 2 Apr, 18:10
+        - generic [ref=e2346] [cursor=pointer]:
+          - generic [ref=e2347]: 🔴
+          - generic [ref=e2348]:
+            - generic [ref=e2349]:
+              - generic [ref=e2350]: ai draft taking a lot of space. so much that i can barely read the guest messages behind it. and the
+              - generic [ref=e2351]: critical
+              - generic [ref=e2352]: pending_review
+            - generic [ref=e2353]: Ishant · 2 Apr, 18:09
+        - generic [ref=e2355] [cursor=pointer]:
+          - generic [ref=e2356]: 🔴
+          - generic [ref=e2357]:
+            - generic [ref=e2358]:
+              - generic [ref=e2359]: stuck on "judith revising" even if the draft has already been revised
+              - generic [ref=e2360]: critical
+              - generic [ref=e2361]: pending_review
+            - generic [ref=e2362]: Ishant · 2 Apr, 17:56
+        - generic [ref=e2364] [cursor=pointer]:
+          - generic [ref=e2365]: 🟡
+          - generic [ref=e2366]:
+            - generic [ref=e2367]:
+              - generic [ref=e2368]: but when ai summary is collapsed, the whole thing breaks.
+              - generic [ref=e2369]: medium
+              - generic [ref=e2370]: pending_review
+            - generic [ref=e2371]: Ishant · 2 Apr, 14:36
+        - generic [ref=e2373] [cursor=pointer]:
+          - generic [ref=e2374]: 🟡
+          - generic [ref=e2375]:
+            - generic [ref=e2376]:
+              - generic [ref=e2377]: when ai summary not collapsed, screen is working well in terms of responsiveness
+              - generic [ref=e2378]: medium
+              - generic [ref=e2379]: pending_review
+            - generic [ref=e2380]: Ishant · 2 Apr, 14:35
+        - generic [ref=e2382] [cursor=pointer]:
+          - generic [ref=e2383]: 🟡
+          - generic [ref=e2384]:
+            - generic [ref=e2385]:
+              - generic [ref=e2386]: Horizontal scroll is still enabled on web and mobile within the portion of the guest inbox where we
+              - generic [ref=e2387]: medium
+              - generic [ref=e2388]: pending_review
+            - generic [ref=e2389]: Ishant · 2 Apr, 13:39
+        - generic [ref=e2391] [cursor=pointer]:
+          - generic [ref=e2392]: 🟡
+          - generic [ref=e2393]:
+            - generic [ref=e2394]:
+              - generic [ref=e2395]: The screen responsiveness is not good.
+              - generic [ref=e2396]: medium
+              - generic [ref=e2397]: pending_review
+            - generic [ref=e2398]: Ishant · 2 Apr, 13:36
+        - generic [ref=e2400] [cursor=pointer]:
+          - generic [ref=e2401]: 🟡
+          - generic [ref=e2402]:
+            - generic [ref=e2403]:
+              - generic [ref=e2404]: Mobile deploy verification test - 390px screenshot working
+              - generic [ref=e2405]: medium
+              - generic [ref=e2406]: rejected
+            - generic [ref=e2407]: Ishant · 2 Apr, 09:34
+        - generic [ref=e2409] [cursor=pointer]:
+          - generic [ref=e2410]: 🟡
+          - generic [ref=e2411]:
+            - generic [ref=e2412]:
+              - generic [ref=e2413]: Deploy verification test - screenshot capture working
+              - generic [ref=e2414]: medium
+              - generic [ref=e2415]: rejected
+            - generic [ref=e2416]: Ishant · 2 Apr, 09:32
+        - generic [ref=e2418] [cursor=pointer]:
+          - generic [ref=e2419]: 🟡
+          - generic [ref=e2420]:
+            - generic [ref=e2421]:
+              - generic [ref=e2422]: Test bug report from mobile verification
+              - generic [ref=e2423]: medium
+              - generic [ref=e2424]: rejected
+            - generic [ref=e2425]: Ishant · 2 Apr, 09:01
+        - generic [ref=e2427] [cursor=pointer]:
+          - generic [ref=e2428]: 🟡
+          - generic [ref=e2429]:
+            - generic [ref=e2430]:
+              - generic [ref=e2431]: Test bug report from verification
+              - generic [ref=e2432]: medium
+              - generic [ref=e2433]: rejected
+            - generic [ref=e2434]: Ishant · 2 Apr, 09:01
+        - generic [ref=e2436] [cursor=pointer]:
+          - generic [ref=e2437]: 🟡
+          - generic [ref=e2438]:
+            - generic [ref=e2439]:
+              - generic [ref=e2440]: testing this
+              - generic [ref=e2441]: medium
+              - generic [ref=e2442]: rejected
+            - generic [ref=e2443]: Ishant · 1 Apr, 06:28
+    - banner [ref=e15]:
+      - generic [ref=e17]:
+        - heading "Friday GMS" [level=1] [ref=e20]
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]: "16"
+            - generic [ref=e24]: to review
+          - generic [ref=e25]:
+            - generic "Median of per-conversation average response times over the last 30 days" [ref=e26]: 17m
+            - generic [ref=e27]: Team RT (30d)
+          - generic [ref=e28]:
+            - generic [ref=e29]: "13"
+            - generic [ref=e30]: new today
+          - generic [ref=e31]:
+            - generic [ref=e32]: "3"
+            - generic [ref=e33]:
+              - text: actions
+              - generic [ref=e34]: (1 overdue)
+          - generic "1 message(s) queued for sending" [ref=e35]: 📤 1 queued
+          - button "Matias · Logout" [ref=e36]
+          - button "Notifications" [ref=e38]:
+            - img [ref=e39]
+          - button "Mute" [ref=e41]:
+            - img [ref=e42]
+          - button "🧠" [ref=e44]
+          - button "🐛" [active] [ref=e45]
+          - button "🧪" [ref=e46]
+          - button "?" [ref=e47]
+          - button "📲" [ref=e48]
+    - generic [ref=e49]:
+      - button "«" [ref=e50]
+      - button "»" [ref=e1385]
+      - generic [ref=e51]:
+        - generic [ref=e53]:
+          - img
+          - textbox "Search guests, properties, messages..." [ref=e54]
+          - generic [ref=e55]:
+            - button "Refresh" [ref=e56]:
+              - img [ref=e57]
+            - button "Filters" [ref=e59]:
+              - img [ref=e60]
+        - generic [ref=e62]:
+          - button "All" [ref=e63]
+          - button "Unread31" [ref=e64]
+          - button "Review" [ref=e65]
+          - button "Open" [ref=e66]
+          - button "Done" [ref=e67]
+          - button "Actions3" [ref=e68]
+        - combobox [ref=e70]:
+          - option "Most recent" [selected]
+          - option "Oldest first"
+          - option "Guest name"
+          - option "Property"
+        - generic [ref=e71]:
+          - generic [ref=e72] [cursor=pointer]:
+            - button "Mark as unread" [ref=e73]:
+              - img [ref=e74]
+            - generic [ref=e76]:
+              - generic [ref=e77]:
+                - generic [ref=e78]: Mario Barbaric
+                - generic [ref=e79]: Airbnb
+              - generic [ref=e80]: about 3 hours ago
+            - generic [ref=e81]:
+              - generic [ref=e82]: LB-3
+              - generic [ref=e83]: Sent
+              - generic [ref=e84]: 85%
+            - paragraph [ref=e85]: "> Hi Mario, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow, unless otherwise agreed. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Leave the keys in the lockbox and scramble the code If you had a great time, we’d be incredibly grateful for a 5-star review on Aribnb, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 5 stars on Airbnb can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+          - generic [ref=e86] [cursor=pointer]:
+            - button "Mark as unread" [ref=e87]:
+              - img [ref=e88]
+            - generic [ref=e90]:
+              - generic [ref=e91]:
+                - generic [ref=e92]: Basile GUYONVARCH
+                - generic "Positive sentiment" [ref=e93]
+                - generic [ref=e94]: Booking
+              - generic [ref=e95]: about 3 hours ago
+            - generic [ref=e96]:
+              - generic [ref=e97]: GBH-C6
+              - generic [ref=e98]: Open
+              - generic [ref=e99]: 85%
+            - paragraph [ref=e100]: "> You're very welcome! We're glad it's working again. If you need anything else, please don't hesitate to reach out."
+          - generic [ref=e101] [cursor=pointer]:
+            - button "Mark as unread" [ref=e102]:
+              - img [ref=e103]
+            - generic [ref=e105]:
+              - generic [ref=e106]:
+                - generic [ref=e107]: Eleanor Dray
+                - generic [ref=e108]: Airbnb
+              - generic [ref=e109]: about 6 hours ago
+            - generic [ref=e110]:
+              - generic [ref=e111]: RC-15
+              - generic [ref=e112]: Sent
+              - generic [ref=e113]: 35%
+            - paragraph [ref=e114]: "> Hi Eleanor, Thank you for letting us know about the hot water pressure issue. We'll inform our team right away. Since you're currently out, could you please let us know when you'll be back at the apartment? Warm regards, Friday Retreats"
+          - generic [ref=e115] [cursor=pointer]:
+            - generic [ref=e116]:
+              - generic [ref=e117]:
+                - generic [ref=e119]: Vang Nguyen
+                - generic [ref=e120]: Direct
+              - generic [ref=e121]: about 8 hours ago
+            - generic [ref=e122]:
+              - generic [ref=e123]: BS-1
+              - generic [ref=e124]: Sent
+              - generic [ref=e125]: 80%
+            - paragraph [ref=e126]: "> Perfect, thanks for letting us know. We hope to welcome you to Mauritius another time! Warm regards, Friday Retreats"
+          - generic [ref=e127] [cursor=pointer]:
+            - button "Mark as unread" [ref=e128]:
+              - img [ref=e129]
+            - generic [ref=e131]:
+              - generic [ref=e132]:
+                - generic [ref=e133]: Maria Kutenkova
+                - generic "Guest seems frustrated" [ref=e134]
+                - generic [ref=e135]: Direct
+              - generic [ref=e136]: about 22 hours ago
+            - generic [ref=e137]:
+              - generic [ref=e138]: SD-10
+              - generic [ref=e139]: Sent
+              - generic [ref=e140]: 80%
+            - paragraph [ref=e141]: "> Hi Maria, Thank you for your patience. We completely understand the uncertainty and why you’d want some flexibility. Just to clarify on the pricing - on Airbnb, the rate you’re seeing is likely based on a different number of guests. If you input the correct number of guests (3), the total comes closer to €1,900 for the stay. That said, if you book directly with us, we can offer you a further discount and bring the total down to €1,500 for your 20-night stay, along with a flexible payment plan: - 50% deposit now - Remaining 50% on arrival Let us know if this works for you. We’d love to host you and your family 😊 Warm regards, Friday Retreats"
+          - generic [ref=e142] [cursor=pointer]:
+            - button "Mark as unread" [ref=e143]:
+              - img [ref=e144]
+            - generic [ref=e146]:
+              - generic [ref=e147]:
+                - generic [ref=e148]: Vang Nguyen
+                - generic [ref=e149]: Direct
+              - generic [ref=e150]: about 23 hours ago
+            - generic [ref=e151]:
+              - generic [ref=e152]: BW-C4
+              - generic [ref=e153]: Sent
+              - generic [ref=e154]: 60%
+            - paragraph [ref=e155]: "> Hello Vang , Thank you for your inquiry. We have received your request and will be happy to assist you with your reservation. Ensure that the number of guests and the dates of stay are correct. Someone from our team will contact you shortly to follow up on your request. If you wish to proceed with the reservation, please find our banking details below. You may proceed with payment in either EUR or MUR. If paying in Mauritian Rupees, please confirm the exact amount with us before proceeding. Kindly ensure that the full amount is received. EUR Account – Bank Details Bank: MCB (Mauritius Commercial Bank) Account Name: Friday Retreats Ltd Account Number: 000453205828 IBAN: MU76MCBL0901000453205828000EUR SWIFT Code: MCBLMUMU MUR Account – Bank Details Bank: MCB (Mauritius Commercial Bank) Account Name: Friday Retreats Ltd Account Number: 000453205860 IBAN: MU87MCBL0901000453205860000MUR SWIFT Code: MCBLMUMU Kindly send us the proof of payment once completed. Upon receipt, the property will be reserved for a limited time, and the booking will be confirmed once payment is received. If you need any assistance or have questions, do not hesitate to contact us. Best regards, Guest Services Team 📞 +230 408 4119 🌐 www.friday.mu Friday Retreats Ltd | The Octopus Building, Pte aux Cannoniers, Mauritius Business Registration Number: C24206082 DISCLAIMER: This email and any attachments are confidential and intended solely for the addressee. If received in error, please notify the sender and delete immediately. Unauthorized use, distribution, or copying is prohibited. Views expressed are the sender's and not necessarily those of Friday Retreats Ltd, which accepts no liability for contents or viruses. Emails may be monitored per company policy."
+          - generic [ref=e156] [cursor=pointer]:
+            - generic [ref=e157]:
+              - generic [ref=e158]:
+                - generic [ref=e160]: Michael McPherson
+                - generic [ref=e161]: Airbnb
+              - generic [ref=e162]: about 24 hours ago
+            - generic [ref=e163]:
+              - generic [ref=e164]: SD-10
+              - generic [ref=e165]: Sent
+              - generic [ref=e166]: 75%
+            - paragraph [ref=e167]: "> Hi Michael, Thank you for choosing to stay with us! We’re excited to host you. Check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. To help us get everything ready for your arrival, could you please confirm your estimated check-in and check-out times, and kindly confirm the number of guests coming? We’ll send your check-in instructions at 10 AM local time on the day of your arrival. Please complete your check-in form here: https://guest-app.guesty.com/r/69ce7d4afc3662ee8b25a7c3/e3tndWVzdF9hcHA6Om15X2d1ZXN0X2FwcH19. It only takes a minute and will give you access to a personalized guide with our top recommendations, the property’s pinned location, Wi-Fi details, and other useful info to help you settle in and enjoy your stay from the moment you arrive. For your travel declaration or arrival forms, you may use the following details: Company name: Friday Retreats Ltd Email: info@friday.mu Phone: +230 408 4119 As our guest, you can enjoy up to 10% off all airport transfers, car rentals, activities & tours at www.mauritiusattractions.com by using the coupon code \"FRIDAYMU\". As a small thank you, we’ve also added a 10% discount for your next Friday Retreats stay. Simply book directly on www.fridayretreats.mu and use the code FRIDAY10. Looking forward to hosting you and making your stay a memorable one! Best wishes, Friday Retreats"
+          - generic [ref=e168] [cursor=pointer]:
+            - button "Mark as unread" [ref=e169]:
+              - img [ref=e170]
+            - generic [ref=e172]:
+              - generic [ref=e173]:
+                - generic [ref=e174]: Rajiv Kumar
+                - generic [ref=e175]: Airbnb
+              - generic [ref=e176]: 2 days ago
+            - generic [ref=e177]:
+              - generic [ref=e178]: GBH-C3
+              - generic [ref=e179]: Review
+              - generic [ref=e180]: 70%
+            - paragraph [ref=e181]: Kindly leave the keys in the lockbox when you head out.🙏
+          - generic [ref=e182] [cursor=pointer]:
+            - button "Mark as unread" [ref=e183]:
+              - img [ref=e184]
+            - generic [ref=e186]:
+              - generic [ref=e187]:
+                - generic [ref=e188]: Gael Le Metayer
+                - generic "Positive sentiment" [ref=e189]
+                - generic [ref=e190]: Airbnb
+              - generic [ref=e191]: 2 days ago
+            - generic [ref=e192]:
+              - generic [ref=e193]: GBH-C8
+              - generic [ref=e194]: Sent
+              - generic [ref=e195]: 80%
+            - paragraph [ref=e196]: "> Hello, we hope all is well. Just to let you know that we’ve left a spare key for you in the lockbox. Let us know if you need anything else."
+          - generic [ref=e197] [cursor=pointer]:
+            - generic [ref=e198]:
+              - generic [ref=e199]:
+                - generic [ref=e201]: Patience Matemba
+                - generic "Positive sentiment" [ref=e202]
+                - generic [ref=e203]: Airbnb
+              - generic [ref=e204]: 2 days ago
+            - generic [ref=e205]:
+              - generic [ref=e206]: LB-C
+              - generic [ref=e207]: Sent
+              - generic [ref=e208]: 80%
+            - paragraph [ref=e209]: "> It's our pleasure."
+          - generic [ref=e210] [cursor=pointer]:
+            - generic [ref=e211]:
+              - generic [ref=e212]:
+                - generic [ref=e214]: Daniela Zamurca
+                - generic "Positive sentiment" [ref=e215]
+                - generic [ref=e216]: Airbnb
+              - generic [ref=e217]: 2 days ago
+            - generic [ref=e218]:
+              - generic [ref=e219]: RC-16
+              - generic [ref=e220]: Sent
+              - generic [ref=e221]: 55%
+            - paragraph [ref=e222]: "> Grazie per esserti occupato di questo e per aver chiuso il rubinetto per prevenire eventuali danni - è stato molto premuroso da parte tua. Apprezziamo davvero la tua comprensione. Buonasera. Cordiali saluti, Friday Retreats"
+          - generic [ref=e223] [cursor=pointer]:
+            - generic [ref=e224]:
+              - generic [ref=e225]:
+                - generic [ref=e227]: Francine De Gaye
+                - generic "Positive sentiment" [ref=e228]
+                - generic [ref=e229]: Airbnb
+              - generic [ref=e230]: 2 days ago
+            - generic [ref=e231]:
+              - generic [ref=e232]: LB-C
+              - generic [ref=e233]: Sent
+              - generic [ref=e234]: 80%
+            - paragraph [ref=e235]: "> You're welcome!"
+          - generic [ref=e236] [cursor=pointer]:
+            - generic [ref=e237]:
+              - generic [ref=e238]:
+                - generic [ref=e240]: Murat Bicakci
+                - generic [ref=e241]: Airbnb
+              - generic [ref=e242]: 2 days ago
+            - generic [ref=e243]:
+              - generic [ref=e244]: BS-1
+              - generic [ref=e245]: Sent
+              - generic [ref=e246]: 70%
+            - paragraph [ref=e247]: "> Hi Murat, Thank you for choosing to stay with us! We’re excited to host you. Check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. To help us get everything ready for your arrival, could you please confirm your estimated check-in and check-out times, and kindly confirm the number of guests coming? We’ll send your check-in instructions at 10 AM local time on the day of your arrival. Please complete your check-in form here: https://guest-app.guesty.com/r/69ccf25b4f4d7dc4fda1b1f7/e3tndWVzdF9hcHA6Om15X2d1ZXN0X2FwcH19. It only takes a minute and will give you access to a personalized guide with our top recommendations, the property’s pinned location, Wi-Fi details, and other useful info to help you settle in and enjoy your stay from the moment you arrive. For your travel declaration or arrival forms, you may use the following details: Company name: Friday Retreats Ltd Email: info@friday.mu Phone: +230 408 4119 As our guest, you can enjoy up to 10% off all airport transfers, car rentals, activities & tours at www.mauritiusattractions.com by using the coupon code \"FRIDAYMU\". As a small thank you, we’ve also added a 10% discount for your next Friday Retreats stay. Simply book directly on www.fridayretreats.mu and use the code FRIDAY10. Looking forward to hosting you and making your stay a memorable one! Best wishes, Friday Retreats"
+          - generic [ref=e248] [cursor=pointer]:
+            - generic [ref=e249]:
+              - generic [ref=e250]:
+                - generic [ref=e252]: Ralph Mastrangelo
+                - generic [ref=e253]: Airbnb
+              - generic [ref=e254]: 2 days ago
+            - generic [ref=e255]:
+              - generic [ref=e256]: RC-7
+              - generic [ref=e257]: Sent
+              - generic [ref=e258]: 75%
+            - paragraph [ref=e259]: "> Hi Ralph, We’re thrilled to welcome you! To ensure a smooth check-in, here’s all you need to know: Locate the building using this link: https://maps.app.goo.gl/6fdcuDa4Vq6DFFAe9 The building name is: Residence Camelia The full address is: Avenue des Toucans, Flic en Flac, Apt 7 When you arrive at the parking lot, feel free to park in your designated spot, Bay 7 - Slide the main gate to the left to enter the building. - Take the stairs and go up to the 3rd floor. The apartment is the first door on your right. - If using the elevator, the apartment is on your left. (Please note: the ground floor is counted as Floor 1) - You’ll see a Friday sticker on the door with the Apt Number 7. - Lockbox Code: 1820 (Please keep this confidential). - Take the key, close the box, and scramble the code for security. Please note that check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. Wifi Details Wifi Name: H155-382_E9C0 or H155-382_E9C0_5G Password: nA5RTq357H5 ⚠️ Please note: The lift is available, but due to its size it can ONLY accommodate 2 persons and one piece of luggage at a time. If you have any questions or run into any issues, feel free to reach out to us at +230 4084119 or reply to this message. Enjoy your stay. Warm regards, Friday Retreats"
+          - generic [ref=e260] [cursor=pointer]:
+            - generic [ref=e261]:
+              - generic [ref=e262]:
+                - generic [ref=e264]: Cyril
+                - generic [ref=e265]: Direct
+              - generic [ref=e266]: 2 days ago
+            - generic [ref=e267]:
+              - generic [ref=e268]: LB-C
+              - generic [ref=e269]: Review
+              - generic [ref=e270]: 85%
+            - paragraph [ref=e271]: Did it
+          - generic [ref=e272] [cursor=pointer]:
+            - generic [ref=e273]:
+              - generic [ref=e274]:
+                - generic [ref=e276]: Fernando Kanarski
+                - generic "Positive sentiment" [ref=e277]
+                - generic [ref=e278]: Airbnb
+              - generic [ref=e279]: 3 days ago
+            - generic [ref=e280]:
+              - generic [ref=e281]: RC-14
+              - generic [ref=e282]: Sent
+              - generic [ref=e283]: 80%
+            - paragraph [ref=e284]: "> Just confirming that we’ll be coming by on Thursday at 10 AM."
+          - generic [ref=e285] [cursor=pointer]:
+            - button "Mark as unread" [ref=e286]:
+              - img [ref=e287]
+            - generic [ref=e289]:
+              - generic [ref=e290]:
+                - generic [ref=e291]: Li Da
+                - generic [ref=e292]: Booking
+              - generic [ref=e293]: 3 days ago
+            - generic [ref=e294]:
+              - generic [ref=e295]: GBH-B4
+              - generic [ref=e296]: Done
+              - generic [ref=e297]: 70%
+            - paragraph [ref=e298]: "> Hello Li Da, After discussions with the management, we can offer you the entire building for Rs 200,000, excluding electricity. This includes: 2 x 1-bedroom studios 2 x 2-bedroom apartments If you stay for more than 1 month, we can offer a discounted rate of Rs 190,000. Would you be interested in this offer?"
+          - generic [ref=e299] [cursor=pointer]:
+            - button "Mark as unread" [ref=e300]:
+              - img [ref=e301]
+            - generic [ref=e303]:
+              - generic [ref=e304]:
+                - generic [ref=e305]: Tirth Bhavsar
+                - generic "Positive sentiment" [ref=e306]
+                - generic [ref=e307]: Airbnb
+              - generic [ref=e308]: 3 days ago
+            - generic [ref=e309]:
+              - generic [ref=e310]: RC-7
+              - generic [ref=e311]: Sent
+              - generic [ref=e312]: 80%
+            - paragraph [ref=e313]: "> Hi Tirth, Thank you so much for confirming checkout and following all the instructions perfectly! We truly appreciate your care with the property. It's been our absolute pleasure hosting you at RC-7, and we hope you've created wonderful memories during your stay in Mauritius. We'd love to welcome you back anytime - don't forget about your 10% discount for your next stay with us. Safe travels, and thank you again for choosing Friday Retreats! Warm regards, Friday Retreats"
+          - generic [ref=e314] [cursor=pointer]:
+            - button "Mark as unread" [ref=e315]:
+              - img [ref=e316]
+            - generic [ref=e318]:
+              - generic [ref=e319]:
+                - generic [ref=e320]: Narek Hakobyan
+                - generic "Positive sentiment" [ref=e321]
+                - generic [ref=e322]: Airbnb
+              - generic [ref=e323]: 4 days ago
+            - generic [ref=e324]:
+              - generic [ref=e325]: KS-5
+              - generic [ref=e326]: Done
+              - generic [ref=e327]: 75%
+            - paragraph [ref=e328]: "> Thank you so much, Narek! Really glad you enjoyed your stay at KS-5 — means a lot to hear that. Thanks in advance for the 5-star review, it really helps us out! We hope to welcome you back to Mauritius soon. Warm regards, Friday Retreats"
+          - generic [ref=e329] [cursor=pointer]:
+            - button "Mark as unread" [ref=e330]:
+              - img [ref=e331]
+            - generic [ref=e333]:
+              - generic [ref=e334]:
+                - generic [ref=e335]: Marjorie Marie
+                - generic [ref=e336]: Airbnb
+              - generic [ref=e337]: 4 days ago
+            - generic [ref=e338]:
+              - generic [ref=e339]: SD-10
+              - generic [ref=e340]: Sent
+              - generic [ref=e341]: 75%
+            - paragraph [ref=e342]: "> Hi Marjorie, We’re thrilled to welcome you! To ensure a smooth check-in, here’s all you need to know: Locate the building using this link: https://maps.app.goo.gl/JsTGmTLQP9EjoR2Z9 The building name is: Sables D'Or The full address is: Coastal Road, Flic en Flac, Apt 10 When you arrive at the parking lot, you can park in any available spot. - Walk to the right and look for a small white door (Sables D'Or). - Open the door using this code 1908# . - Once you’re inside the compound, take the first left and head to the stairs. - Head to the 2nd Floor, take a right turn and head to Apartment 10. - You’ll see a Friday sticker on the door with the Apt Number 10. - Lockbox Code: 7753 (Please keep this confidential). - Take the key, close the box, and scramble the code for security. - Green key is for the main door lock & Pink key is the safety lock on top. If you want to keep your car inside the complex, the code to the gate is 8091#. You can park in any available spot. Please note that check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. Wifi Details Wifi Name: HUAWEI_B612_4D58 Password: 4LGA38J571N If you have any questions or run into any issues, feel free to reach out to us at +230 4084119 or reply to this message. Enjoy your stay. Warm regards, Friday Retreats"
+          - generic [ref=e343] [cursor=pointer]:
+            - generic [ref=e344]:
+              - generic [ref=e345]:
+                - generic [ref=e347]: Alexander Hvalby
+                - generic [ref=e348]: Airbnb
+              - generic [ref=e349]: 4 days ago
+            - generic [ref=e350]:
+              - generic [ref=e351]: WF-6
+              - generic [ref=e352]: Open
+              - generic [ref=e353]: 75%
+            - paragraph [ref=e354]: "> Hello Alexander Thanks for letting us know, and sorry for the trouble. It looks like it might be a temporary bug, as the check-in form is working normally on our end. Could you please try again a bit later? In the meantime, we’ll also double-check the link to make sure everything is running smoothly. If it still doesn’t work, just let us know. Looking forward to welcoming you!"
+          - generic [ref=e355] [cursor=pointer]:
+            - generic [ref=e356]:
+              - generic [ref=e357]:
+                - generic [ref=e359]: Zala Zuzek
+                - generic "Positive sentiment" [ref=e360]
+                - generic [ref=e361]: Airbnb
+              - generic [ref=e362]: 4 days ago
+            - generic [ref=e363]:
+              - generic [ref=e364]: RC-15
+              - generic [ref=e365]: Open
+              - generic [ref=e366]: 80%
+            - paragraph [ref=e367]: "> Hi Zala, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Press the Home button with an X to lock the door.. If you have any questions, feel free to reach out at any time. If you had a great time, we’d be incredibly grateful for a 5-star review on Airbnb, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 5 stars on Airbnb can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+          - generic [ref=e368] [cursor=pointer]:
+            - generic [ref=e369]:
+              - generic [ref=e370]:
+                - generic [ref=e372]: Nina
+                - generic [ref=e373]: Airbnb
+              - generic [ref=e374]: 5 days ago
+            - generic [ref=e375]:
+              - generic [ref=e376]: RC-15
+              - generic [ref=e377]: Sent
+              - generic [ref=e378]: 65%
+            - paragraph [ref=e379]: "> Hi there! Great question! We're happy to confirm that bath towels are indeed provided at RC-15 for your comfort. You'll find fresh, clean towels ready for you upon arrival, so no need to pack those bulky items in your suitcase! Just a heads up - while we provide bath towels, you might want to bring a beach towel if you're planning to enjoy Mauritius's beautiful beaches, as those aren't included in our amenities. Looking forward to welcoming you in April! Warm regards, Friday Retreats"
+          - generic [ref=e380] [cursor=pointer]:
+            - generic [ref=e381]:
+              - generic [ref=e382]:
+                - generic [ref=e384]: Jayesh
+                - generic [ref=e385]: Airbnb
+              - generic [ref=e386]: 5 days ago
+            - generic [ref=e387]:
+              - generic [ref=e388]: BS-1
+              - generic [ref=e389]: Open
+              - generic [ref=e390]: 65%
+            - paragraph [ref=e391]: "> Hi Jayesh, if you prefer, Uber is now available in Mauritius, so you can easily arrange a taxi to and from the airport at any time. Please let us know if you have any questions, we'd be happy to assist."
+          - generic [ref=e392] [cursor=pointer]:
+            - button "Mark as unread" [ref=e393]:
+              - img [ref=e394]
+            - generic [ref=e396]:
+              - generic [ref=e397]:
+                - generic [ref=e398]: Natalie Sokolova
+                - generic "Positive sentiment" [ref=e399]
+                - generic [ref=e400]: Airbnb
+              - generic [ref=e401]: 5 days ago
+            - generic [ref=e402]:
+              - generic [ref=e403]: GBH-C3
+              - generic [ref=e404]: Done
+              - generic [ref=e405]: 75%
+            - paragraph [ref=e406]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e407] [cursor=pointer]:
+            - generic [ref=e408]:
+              - generic [ref=e409]:
+                - generic [ref=e411]: Jerome Ramin
+                - generic "Guest seems frustrated" [ref=e412]
+                - generic [ref=e413]: Airbnb
+              - generic [ref=e414]: 6 days ago
+            - generic [ref=e415]:
+              - generic [ref=e416]: RC-16
+              - generic [ref=e417]: Done
+              - generic [ref=e418]: 45%
+            - paragraph [ref=e419]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e420] [cursor=pointer]:
+            - generic [ref=e421]:
+              - generic [ref=e422]:
+                - generic [ref=e424]: Kristofer Hammarskold
+                - generic "Positive sentiment" [ref=e425]
+                - generic [ref=e426]: Airbnb
+              - generic [ref=e427]: 6 days ago
+            - generic [ref=e428]:
+              - generic [ref=e429]: WF-6
+              - generic [ref=e430]: Done
+              - generic [ref=e431]: 80%
+            - paragraph [ref=e432]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e433] [cursor=pointer]:
+            - generic [ref=e434]:
+              - generic [ref=e435]:
+                - generic [ref=e437]: Andrew Warren
+                - generic [ref=e438]: Direct
+              - generic [ref=e439]: 6 days ago
+            - generic [ref=e440]:
+              - generic [ref=e441]: LF-7
+              - generic [ref=e442]: Open
+              - generic [ref=e443]: 60%
+            - paragraph [ref=e444]: "> Hi Andrew , this is your host, Friday Retreats Ltd for your stay here in Flic en Flac. This business Whatsapp number is used by our team to support you during your stay. Please reply to confirm you received this?"
+          - generic [ref=e445] [cursor=pointer]:
+            - generic [ref=e446]:
+              - generic [ref=e447]:
+                - generic [ref=e449]: Bhavna Ramnarain
+                - generic [ref=e450]: Direct
+              - generic [ref=e451]: 6 days ago
+            - generic [ref=e452]:
+              - generic [ref=e453]: LB-C
+              - generic [ref=e454]: Done
+              - generic [ref=e455]: 75%
+            - paragraph [ref=e456]: "> Hi Bhavna, It’s been a pleasure hosting you, we hope your stay has been truly relaxing and memorable. Just a quick reminder that checkout is by 10:00am tomorrow, unless otherwise agreed. Before you leave, kindly: Turn off all ACs and lights Close all windows and doors Leave the keys in the lockbox and scramble the code If you enjoyed your stay, we’d be incredibly grateful if you shared your experience with family and friends. If something wasn’t quite right during your stay, we’d really appreciate you letting us know. Your feedback helps us understand how we can keep improving and offer the best experience possible. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly at www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If you need anything before checkout, don’t hesitate to reach out. Warm regards, Guest Services Team 📞 +230 408 4119 🌐 www.friday.mu Friday Retreats Ltd | The Octopus Building, Pte aux Cannoniers, Mauritius Business Registration Number: C24206082 DISCLAIMER: This email and any attachments are confidential and intended solely for the addressee. If received in error, please notify the sender and delete immediately. Unauthorized use, distribution, or copying is prohibited. Views expressed are the sender's and not necessarily those of Friday Retreats Ltd, which accepts no liability for contents or viruses. Emails may be monitored per company policy."
+          - generic [ref=e457] [cursor=pointer]:
+            - button "Mark as unread" [ref=e458]:
+              - img [ref=e459]
+            - generic [ref=e461]:
+              - generic [ref=e462]:
+                - generic [ref=e463]: Seyfi Uslubas
+                - generic "Guest seems frustrated" [ref=e464]
+                - generic [ref=e465]: Airbnb
+              - generic [ref=e466]: 6 days ago
+            - generic [ref=e467]:
+              - generic [ref=e468]: SD-10
+              - generic [ref=e469]: Done
+              - generic [ref=e470]: 70%
+            - paragraph [ref=e471]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e472] [cursor=pointer]:
+            - generic [ref=e473]:
+              - generic [ref=e474]:
+                - generic [ref=e476]: Marita Jutta Gisela Helwig
+                - generic [ref=e477]: Airbnb
+              - generic [ref=e478]: 6 days ago
+            - generic [ref=e479]:
+              - generic [ref=e480]: LF-7
+              - generic [ref=e481]: Sent
+              - generic [ref=e482]: 70%
+            - paragraph [ref=e483]: "> Hi Marita Jutta Gisela, We’re thrilled to welcome you! To ensure a smooth check-in, here’s all you need to know: Locate the building using this link: https://maps.app.goo.gl/f5QppZuefG9dakNH7 The building name is: Le Flamboyant The full address is: Costal Road, Flic en Flac, Apt 7 Once you’re there, park your car inside. - Head to the stairs of your right, the lockbox is next to the stairs, under a grey letter box. - Lockbox Code: 3310 (Please keep this confidential). - You can use the keys to unlock the white door in the stairway. - Go up to the first floor using the stairs; you’ll find the apartment as the second door on your left. - You’ll see a Friday sticker on the door with the Apt Number 7. - Lockbox Code: 0110 (Please keep this confidential). - Take the key, close the box, and scramble the code for security. Please note that check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. Wifi Details Wifi Name: my.t-KyL4 Password: Be4Yapqj If you have any questions or run into any issues, feel free to reach out to us at +230 4084119 or reply to this message. Enjoy your stay. Warm regards, Guest Services Team 📞 +230 408 4119 🌐 www.friday.mu Friday Retreats Ltd | The Octopus Building, Pte aux Cannoniers, Mauritius Business Registration Number: C24206082 DISCLAIMER: This email and any attachments are confidential and intended solely for the addressee. If received in error, please notify the sender and delete immediately. Unauthorized use, distribution, or copying is prohibited. Views expressed are the sender's and not necessarily those of Friday Retreats Ltd, which accepts no liability for contents or viruses. Emails may be monitored per company policy."
+          - generic [ref=e484] [cursor=pointer]:
+            - generic [ref=e485]:
+              - generic [ref=e486]:
+                - generic [ref=e488]: Viktoryia Bhugowandeen
+                - generic [ref=e489]: Booking
+              - generic [ref=e490]: 6 days ago
+            - generic [ref=e491]:
+              - generic [ref=e492]: GBH-C8
+              - generic [ref=e493]: Done
+              - generic [ref=e494]: 75%
+            - paragraph [ref=e495]: "> Hi Viktoryia, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow, unless otherwise agreed. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Leave the keys in the lockbox and scramble the code If you had a great time, we’d be incredibly grateful for a 10-star review on Booking.com, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 10 stars on Booking.com can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+          - generic [ref=e496] [cursor=pointer]:
+            - generic [ref=e497]:
+              - generic [ref=e498]:
+                - generic [ref=e500]: Mariam Marlie
+                - generic [ref=e501]: Booking
+              - generic [ref=e502]: 7 days ago
+            - generic [ref=e503]:
+              - generic [ref=e504]: SD-10
+              - generic [ref=e505]: Open
+              - generic [ref=e506]: 75%
+            - paragraph [ref=e507]: "> Hi Mariam, We noticed that your reservation was recently cancelled and just wanted to check in. If there's anything that changed or anything we can help with, please let us know. If you’re still planning a visit, we’d be happy to help you find an alternative or answer any questions."
+          - generic [ref=e508] [cursor=pointer]:
+            - generic [ref=e509]:
+              - generic [ref=e510]:
+                - generic [ref=e512]: Andrew Warren
+                - generic [ref=e513]: Direct
+              - generic [ref=e514]: 7 days ago
+            - generic [ref=e515]:
+              - generic [ref=e516]: NYH-A2
+              - generic [ref=e517]: Review
+              - generic [ref=e518]: 60%
+            - paragraph [ref=e519]: New guest inquiry
+          - generic [ref=e520] [cursor=pointer]:
+            - generic [ref=e521]:
+              - generic [ref=e522]:
+                - generic [ref=e524]: Andrew Warren
+                - generic [ref=e525]: Direct
+              - generic [ref=e526]: 7 days ago
+            - generic [ref=e527]:
+              - generic [ref=e528]: GBH-C3
+              - generic [ref=e529]: Review
+              - generic [ref=e530]: 60%
+            - paragraph [ref=e531]: New guest inquiry
+          - generic [ref=e532] [cursor=pointer]:
+            - generic [ref=e533]:
+              - generic [ref=e534]:
+                - generic [ref=e536]: Andrew Warren
+                - generic [ref=e537]: Direct
+              - generic [ref=e538]: 7 days ago
+            - generic [ref=e539]:
+              - generic [ref=e540]: BS-1
+              - generic [ref=e541]: Review
+              - generic [ref=e542]: 60%
+            - paragraph [ref=e543]: New guest inquiry
+          - generic [ref=e544] [cursor=pointer]:
+            - generic [ref=e545]:
+              - generic [ref=e546]:
+                - generic [ref=e548]: Elodie Elisabeth
+                - generic [ref=e549]: Direct
+              - generic [ref=e550]: 7 days ago
+            - generic [ref=e551]:
+              - generic [ref=e552]: LB-C
+              - generic [ref=e553]: Open
+              - generic [ref=e554]: 70%
+            - paragraph [ref=e555]: "> Oui, notre équipe parle français"
+          - generic [ref=e556] [cursor=pointer]:
+            - generic [ref=e557]:
+              - generic [ref=e558]:
+                - generic [ref=e560]: Natanya
+                - generic "Positive sentiment" [ref=e561]
+                - generic [ref=e562]: Airbnb
+              - generic [ref=e563]: 7 days ago
+            - generic [ref=e564]:
+              - generic [ref=e565]: BS-1
+              - generic [ref=e566]: Sent
+              - generic [ref=e567]: 40%
+            - paragraph [ref=e568]: "> Hi Natanya, We're absolutely delighted to hear about your interest in a longer stay with us at BS-1! A stay from June 1st to August 15th sounds wonderful, and we'd love to welcome you for those beautiful winter months in Mauritius. Just to confirm, would this be for one guest? Assuming it's just yourself, we'd be happy to offer you a special rate of €3,300 total for your 75-day stay instead of the standard €3,467.86. We're sending you this special offer shortly through Airbnb so you can book directly. Looking forward to hosting you for this extended getaway! Warm regards, Friday Retreats"
+          - generic [ref=e569] [cursor=pointer]:
+            - generic [ref=e570]:
+              - generic [ref=e571]:
+                - generic [ref=e573]: Hassan
+                - generic [ref=e574]: Airbnb
+              - generic [ref=e575]: 7 days ago
+            - generic [ref=e576]:
+              - generic [ref=e577]: BS-1
+              - generic [ref=e578]: Open
+              - generic [ref=e579]: 65%
+            - paragraph [ref=e580]: "> Hi Hassan, The entrance is shared, but it’s a short and convenient path to your unit, so access is easy."
+          - generic [ref=e581] [cursor=pointer]:
+            - generic [ref=e582]:
+              - generic [ref=e583]:
+                - generic [ref=e585]: Сергей Пачков
+                - generic [ref=e586]: Airbnb
+              - generic [ref=e587]: 7 days ago
+            - generic [ref=e588]:
+              - generic [ref=e589]: GBH-C6
+              - generic [ref=e590]: Done
+              - generic [ref=e591]: 75%
+            - paragraph [ref=e592]: "> Hi Сергей, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow, unless otherwise agreed. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Leave the keys in the lockbox and scramble the code If you had a great time, we’d be incredibly grateful for a 5-star review on Aribnb, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 5 stars on Airbnb can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+          - generic [ref=e593] [cursor=pointer]:
+            - button "Mark as unread" [ref=e594]:
+              - img [ref=e595]
+            - generic [ref=e597]:
+              - generic [ref=e598]:
+                - generic [ref=e599]: Raphael Jean-Louis
+                - generic [ref=e600]: Direct
+              - generic [ref=e601]: 8 days ago
+            - generic [ref=e602]:
+              - generic [ref=e603]: SV-140
+              - generic [ref=e604]: Done
+              - generic [ref=e605]: 70%
+            - paragraph [ref=e606]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e607] [cursor=pointer]:
+            - button "Mark as unread" [ref=e608]:
+              - img [ref=e609]
+            - generic [ref=e611]:
+              - generic [ref=e612]:
+                - generic [ref=e613]: Aimal Khan
+                - generic [ref=e614]: Airbnb
+              - generic [ref=e615]: 8 days ago
+            - generic [ref=e616]:
+              - generic [ref=e617]: BS-1
+              - generic [ref=e618]: Done
+              - generic [ref=e619]: 75%
+            - paragraph [ref=e620]: "> Hi Aimal, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow, unless otherwise agreed. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Leave the keys in the lockbox and scramble the code If you had a great time, we’d be incredibly grateful for a 5-star review on Aribnb, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 5 stars on Airbnb can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+          - generic [ref=e621] [cursor=pointer]:
+            - button "Mark as unread" [ref=e622]:
+              - img [ref=e623]
+            - generic [ref=e625]:
+              - generic [ref=e626]:
+                - generic [ref=e627]: Deepika Prasad
+                - generic [ref=e628]: Airbnb
+              - generic [ref=e629]: 9 days ago
+            - generic [ref=e630]:
+              - generic [ref=e631]: RC-16
+              - generic [ref=e632]: Open
+              - generic [ref=e633]: 65%
+            - paragraph [ref=e634]: "> Hi Deepika, For your All in One travel digital form, here are our contact details: - Phone: +230 4084119 - Email: info@friday.mu - Company name: Friday Retreats Ltd We hope this helps you complete your travel documentation smoothly! Warm regards, Friday Retreats"
+          - generic [ref=e635] [cursor=pointer]:
+            - button "Mark as unread" [ref=e636]:
+              - img [ref=e637]
+            - generic [ref=e639]:
+              - generic [ref=e640]:
+                - generic [ref=e641]: Kirsty Thorne
+                - generic [ref=e642]: Airbnb
+              - generic [ref=e643]: 10 days ago
+            - generic [ref=e644]:
+              - generic [ref=e645]: RC-15
+              - generic [ref=e646]: Done
+              - generic [ref=e647]: 75%
+            - paragraph [ref=e648]: "> Hi Kirsty, You're absolutely right, and we apologize for the confusion! Looking at your booking, we can see you've already reserved through April 19th, so you're all set for your evening departure on the 18th. No need to check availability - you've already paid for that extra night and can enjoy the property until check-out. That's such a smart way to handle late flights, and it means you can truly relax on your final day without any rush. You'll have plenty of time to soak up those last moments in paradise and freshen up before your journey home. You're going to absolutely love Flic en Flac! The beach here is stunning with its calm turquoise waters and soft white sand - perfect for swimming and watching those incredible Mauritian sunsets. Warm regards, Friday Retreats"
+          - generic [ref=e649] [cursor=pointer]:
+            - button "Mark as unread" [ref=e650]:
+              - img [ref=e651]
+            - generic [ref=e653]:
+              - generic [ref=e654]:
+                - generic [ref=e655]: Nipa
+                - generic [ref=e656]: Airbnb
+              - generic [ref=e657]: 10 days ago
+            - generic [ref=e658]:
+              - generic [ref=e659]: LB-C
+              - generic [ref=e660]: Done
+              - generic [ref=e661]: 70%
+            - paragraph [ref=e662]: "> Hi Nipa, We apologize for any confusion - we mentioned up to 12 people earlier, but LB-C actually accommodates up to 18 guests! The property has 9 bedrooms total across all three villas (3 bedrooms in each villa), with 2 king-size beds, 6 double beds, and 2 single beds. Perfect timing to clarify this before you finalize your numbers - you have plenty of flexibility for your group size. Feel free to reach out once you have your final headcount, and we'll help arrange the perfect setup for your retreat. Warm regards, Friday Retreats"
+          - generic [ref=e663] [cursor=pointer]:
+            - button "Mark as unread" [ref=e664]:
+              - img [ref=e665]
+            - generic [ref=e667]:
+              - generic [ref=e668]:
+                - generic [ref=e669]: Narek Hakobyan
+                - generic [ref=e670]: Booking
+              - generic [ref=e671]: 10 days ago
+            - generic [ref=e672]:
+              - generic [ref=e673]: Done
+              - generic [ref=e674]: 60%
+            - paragraph [ref=e675]: Reservation GY-9xSvuPBk status changed to confirmed
+          - generic [ref=e676] [cursor=pointer]:
+            - button "Mark as unread" [ref=e677]:
+              - img [ref=e678]
+            - generic [ref=e680]:
+              - generic [ref=e681]:
+                - generic [ref=e682]: Merve Mit
+                - generic [ref=e683]: Airbnb
+              - generic [ref=e684]: 13 days ago
+            - generic [ref=e685]:
+              - generic [ref=e686]: RC-16
+              - generic [ref=e687]: Done
+              - generic [ref=e688]: 40%
+            - paragraph [ref=e689]: "> Thank you for letting us know. Have a good evening"
+          - generic [ref=e690] [cursor=pointer]:
+            - button "Mark as unread" [ref=e691]:
+              - img [ref=e692]
+            - generic [ref=e694]:
+              - generic [ref=e695]:
+                - generic [ref=e696]: Doriane
+                - generic [ref=e697]: Airbnb
+              - generic [ref=e698]: 16 days ago
+            - generic [ref=e699]:
+              - generic [ref=e700]: LB-C
+              - generic [ref=e701]: Done
+              - generic [ref=e702]: 65%
+            - paragraph [ref=e703]: "> C'esst noté, nous allons vous laisser ses coordonnees apres que vous aurez confirmer la reservation, car on ne peut partager de numero de telephone tant que la reservation n'est pas confirmee."
+          - generic [ref=e704] [cursor=pointer]:
+            - button "Mark as unread" [ref=e705]:
+              - img [ref=e706]
+            - generic [ref=e708]:
+              - generic [ref=e709]:
+                - generic [ref=e710]: Melissa
+                - generic [ref=e711]: Direct
+              - generic [ref=e712]: 17 days ago
+            - generic [ref=e713]:
+              - generic [ref=e714]: NYH-A2
+              - generic [ref=e715]: Done
+              - generic [ref=e716]: 65%
+            - paragraph [ref=e717]: Reservation GY-hzxQawJx status changed to expired
+          - generic [ref=e718] [cursor=pointer]:
+            - generic [ref=e719]:
+              - generic [ref=e720]:
+                - generic [ref=e722]: Ilyas
+                - generic [ref=e723]: Direct
+              - generic [ref=e724]: 17 days ago
+            - generic [ref=e725]:
+              - generic [ref=e726]: BS-1
+              - generic [ref=e727]: Review
+              - generic [ref=e728]: 70%
+            - paragraph [ref=e729]: Reservation GY-KhvD65KU status changed to expired
+          - generic [ref=e730] [cursor=pointer]:
+            - button "Mark as unread" [ref=e731]:
+              - img [ref=e732]
+            - generic [ref=e734]:
+              - generic [ref=e735]:
+                - generic [ref=e736]: Nicolas Boesch
+                - generic [ref=e737]: Direct
+              - generic [ref=e738]: 17 days ago
+            - generic [ref=e739]:
+              - generic [ref=e740]: NYH-A2
+              - generic [ref=e741]: Done
+              - generic [ref=e742]: 65%
+            - paragraph [ref=e743]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e744] [cursor=pointer]:
+            - button "Mark as unread" [ref=e745]:
+              - img [ref=e746]
+            - generic [ref=e748]:
+              - generic [ref=e749]:
+                - generic [ref=e750]: Volodymyr
+                - generic [ref=e751]: Direct
+              - generic [ref=e752]: 17 days ago
+            - generic [ref=e753]:
+              - generic [ref=e754]: TRR-4
+              - generic [ref=e755]: Done
+              - generic [ref=e756]: 70%
+            - paragraph [ref=e757]: "> Hi Maria, we hope you’re doing well. We wanted to follow up regarding the mid-stay cleaning. Unfortunately, we’re no longer able to arrange it at this time. We had set aside time for this last week, but due to availability constraints over the weekend and the coming days, we’re unable to accommodate it now. We’re really sorry for the inconvenience. We appreciate your patience and understanding. Of course, if there’s anything else you may need during your stay, please don’t hesitate to let us know."
+          - generic [ref=e758] [cursor=pointer]:
+            - button "Mark as unread" [ref=e759]:
+              - img [ref=e760]
+            - generic [ref=e762]:
+              - generic [ref=e763]:
+                - generic [ref=e764]: ANABELA RUBENS
+                - generic [ref=e765]: Booking
+              - generic [ref=e766]: 19 days ago
+            - generic [ref=e767]:
+              - generic [ref=e768]: GBH-C5
+              - generic [ref=e769]: Done
+              - generic [ref=e770]: 75%
+            - paragraph [ref=e771]: "> Hi ANABELA, We noticed that your reservation was recently cancelled and just wanted to check in. If there's anything that changed or anything we can help with, please let us know. If you’re still planning a visit, we’d be happy to help you find an alternative or answer any questions."
+          - generic [ref=e772] [cursor=pointer]:
+            - button "Mark as unread" [ref=e773]:
+              - img [ref=e774]
+            - generic [ref=e776]:
+              - generic [ref=e777]:
+                - generic [ref=e778]: Nejmeddine Douma
+                - generic [ref=e779]: Airbnb
+              - generic [ref=e780]: 21 days ago
+            - generic [ref=e781]:
+              - generic [ref=e782]: GBH-C7
+              - generic [ref=e783]: Done
+              - generic [ref=e784]: 75%
+            - paragraph [ref=e785]: "> It should be working now, please try in 10mins approximately,"
+          - generic [ref=e786] [cursor=pointer]:
+            - button "Mark as unread" [ref=e787]:
+              - img [ref=e788]
+            - generic [ref=e790]:
+              - generic [ref=e791]:
+                - generic [ref=e792]: Robin Kieferle
+                - generic [ref=e793]: Airbnb
+              - generic [ref=e794]: 22 days ago
+            - generic [ref=e795]:
+              - generic [ref=e796]: RC-14
+              - generic [ref=e797]: Done
+              - generic [ref=e798]: 75%
+            - paragraph [ref=e799]: "> Good morning Robin, Thank you for letting us know. We hope you had a great stay with us. Wishing you a safe journey and we’d be happy to host you again anytime!"
+          - generic [ref=e800] [cursor=pointer]:
+            - button "Mark as unread" [ref=e801]:
+              - img [ref=e802]
+            - generic [ref=e804]:
+              - generic [ref=e805]:
+                - generic [ref=e806]: Ilya Zhirnov
+                - generic [ref=e807]: Airbnb
+              - generic [ref=e808]: 22 days ago
+            - generic [ref=e809]:
+              - generic [ref=e810]: RC-15
+              - generic [ref=e811]: Done
+              - generic [ref=e812]: 75%
+            - paragraph [ref=e813]: "> Hi Ilya, it was our pleasure hosting you. Welcome back anytime!"
+          - generic [ref=e814] [cursor=pointer]:
+            - button "Mark as unread" [ref=e815]:
+              - img [ref=e816]
+            - generic [ref=e818]:
+              - generic [ref=e819]:
+                - generic [ref=e820]: Zhen Deduytsche
+                - generic [ref=e821]: Airbnb
+              - generic [ref=e822]: 23 days ago
+            - generic [ref=e823]:
+              - generic [ref=e824]: GBH-B4
+              - generic [ref=e825]: Done
+              - generic [ref=e826]: 75%
+            - paragraph [ref=e827]: "> Hello, our property manager will arrive soon to drop the bedside table for you."
+          - generic [ref=e828] [cursor=pointer]:
+            - button "Mark as unread" [ref=e829]:
+              - img [ref=e830]
+            - generic [ref=e832]:
+              - generic [ref=e833]:
+                - generic [ref=e834]: Richard Hughes
+                - generic [ref=e835]: Booking
+              - generic [ref=e836]: 25 days ago
+            - generic [ref=e837]:
+              - generic [ref=e838]: GBH-C8
+              - generic [ref=e839]: Done
+              - generic [ref=e840]: 70%
+            - paragraph [ref=e841]: "> Hi Richard, thank you for letting us know. Safe travels ahead!"
+          - generic [ref=e842] [cursor=pointer]:
+            - button "Mark as unread" [ref=e843]:
+              - img [ref=e844]
+            - generic [ref=e846]:
+              - generic [ref=e847]:
+                - generic [ref=e848]: Nadine Schellekens
+                - generic [ref=e849]: Airbnb
+              - generic [ref=e850]: 26 days ago
+            - generic [ref=e851]:
+              - generic [ref=e852]: GBH-C6
+              - generic [ref=e853]: Done
+              - generic [ref=e854]: 75%
+            - paragraph [ref=e855]: "> Hi Nadine, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow, unless otherwise agreed. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Leave the keys in the lockbox and scramble the code If you had a great time, we’d be incredibly grateful for a 5-star review on Aribnb, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 5 stars on Airbnb can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+          - generic [ref=e856] [cursor=pointer]:
+            - generic [ref=e857]:
+              - generic [ref=e858]:
+                - generic [ref=e860]: Aruna Daby
+                - generic [ref=e861]: Direct
+              - generic [ref=e862]: about 1 month ago
+            - generic [ref=e863]:
+              - generic [ref=e864]: GBH-C7
+              - generic [ref=e865]: Review
+              - generic [ref=e866]: 75%
+            - paragraph [ref=e867]: Reservation GY-faeiep63 status changed to expired
+          - generic [ref=e868] [cursor=pointer]:
+            - button "Mark as unread" [ref=e869]:
+              - img [ref=e870]
+            - generic [ref=e872]:
+              - generic [ref=e873]:
+                - generic [ref=e874]: Marc Cascarino
+                - generic [ref=e875]: Airbnb
+              - generic [ref=e876]: about 1 month ago
+            - generic [ref=e877]:
+              - generic [ref=e878]: RCN-4
+              - generic [ref=e879]: Done
+              - generic [ref=e880]: 75%
+            - paragraph [ref=e881]: Conversation auto-closed — guest checked out 3+ days ago
+          - generic [ref=e882] [cursor=pointer]:
+            - generic [ref=e883]:
+              - generic [ref=e884]:
+                - generic [ref=e886]: Marianne Sarah
+                - generic "Positive sentiment" [ref=e887]
+                - generic [ref=e888]: Direct
+              - generic [ref=e889]: about 1 month ago
+            - generic [ref=e890]:
+              - generic [ref=e891]: LB-C
+              - generic [ref=e892]: Sent
+              - generic [ref=e893]: 80%
+            - paragraph [ref=e894]: "> Hey Marianne, it’s your host. Due to limitations with my Whatsapp business account I can only initiate the conversation with certain templates, this is one of them. As soon as you reply we will be able to communicate freely, please get back to me if you wish to communicate with me via whatsapp. It’s not possible to call this number. Looking forward to hearing from you."
+          - generic [ref=e895] [cursor=pointer]:
+            - button "Mark as unread" [ref=e896]:
+              - img [ref=e897]
+            - generic [ref=e899]:
+              - generic [ref=e900]:
+                - generic [ref=e901]: Maksim Vartsibasov
+                - generic [ref=e902]: Airbnb
+              - generic [ref=e903]: about 2 months ago
+            - generic [ref=e904]:
+              - generic [ref=e905]: RC-16
+              - generic [ref=e906]: Done
+              - generic [ref=e907]: 75%
+            - paragraph [ref=e908]: "> Good morning! Thank you so much for your kind message, we’re really glad to hear everything was perfect. It was a pleasure hosting you! We'd be more than grateful if you could leave us a 5 star review. Wishing you a safe journey, and we hope to welcome you again soon."
+          - generic [ref=e909] [cursor=pointer]:
+            - button "Mark as unread" [ref=e910]:
+              - img [ref=e911]
+            - generic [ref=e913]:
+              - generic [ref=e914]:
+                - generic [ref=e915]: Cedric Clain
+                - generic [ref=e916]: Direct
+              - generic [ref=e917]: about 2 months ago
+            - generic [ref=e918]:
+              - generic [ref=e919]: LB-3
+              - generic [ref=e920]: Done
+              - generic [ref=e921]: 75%
+            - paragraph [ref=e922]: "> Hi Cedric, It’s been a pleasure hosting you, we hope your stay has been truly relaxing and memorable. Just a quick reminder that checkout is by 10:00am tomorrow, unless otherwise agreed. Before you leave, kindly: Turn off all ACs and lights Close all windows and doors Leave the keys in the lockbox and scramble the code If you enjoyed your stay, we’d be incredibly grateful if you shared your experience with family and friends. If something wasn’t quite right during your stay, we’d really appreciate you letting us know. Your feedback helps us understand how we can keep improving and offer the best experience possible. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly at www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If you need anything before checkout, don’t hesitate to reach out. Warm regards, Guest Services Team 📞 +230 408 4119 🌐 www.friday.mu Friday Retreats Ltd | The Octopus Building, Pte aux Cannoniers, Mauritius Business Registration Number: C24206082 DISCLAIMER: This email and any attachments are confidential and intended solely for the addressee. If received in error, please notify the sender and delete immediately. Unauthorized use, distribution, or copying is prohibited. Views expressed are the sender's and not necessarily those of Friday Retreats Ltd, which accepts no liability for contents or viruses. Emails may be monitored per company policy."
+          - generic [ref=e923] [cursor=pointer]:
+            - generic [ref=e924]:
+              - generic [ref=e925]:
+                - generic [ref=e927]: Ishant Ayadassen
+                - generic [ref=e928]: Direct
+              - generic [ref=e929]: 2 months ago
+            - generic [ref=e930]:
+              - generic [ref=e931]: SV-140
+              - generic [ref=e932]: Sent
+              - generic [ref=e933]: 75%
+            - paragraph [ref=e934]: "> checking what signature looks like"
+      - generic [ref=e935]:
+        - generic [ref=e1386]:
+          - generic [ref=e1387]:
+            - generic [ref=e1388]:
+              - generic [ref=e1389]:
+                - heading "Mario Barbaric" [level=2] [ref=e1390]
+                - generic [ref=e1391] [cursor=pointer]: LB-3
+                - generic [ref=e1392]: Airbnb
+              - generic [ref=e1393]:
+                - generic [ref=e1394]: Apr 2 - Apr 3
+                - generic "Average response time across all message exchanges in this conversation" [ref=e1395]: "Avg RT: 26m"
+            - button "Mario, a German family of 4 with children aged 3 and 8, requested early check-in between 12-2 PM, which Friday said they would check and confirm within hours. Mario then reported the pool was unusable due to dirty water, debris, and non-functioning filtration system, setting a deadline for repair by the next day and threatening rent reduction if not fixed. Friday apologized and promised resolution by the deadline, with pool maintenance scheduled for 10 AM the following day. After the maintenance visit, Mario reported the pool is still not usable with continued debris and the cleaning system turned off again, expressing safety concerns about letting his children use it." [ref=e1396]:
+              - img [ref=e1397]
+              - generic [ref=e1399]: Mario, a German family of 4 with children aged 3 and 8, requested early check-in between 12-2 PM, which Friday said they would check and confirm within hours. Mario then reported the pool was unusable due to dirty water, debris, and non-functioning filtration system, setting a deadline for repair by the next day and threatening rent reduction if not fixed. Friday apologized and promised resolution by the deadline, with pool maintenance scheduled for 10 AM the following day. After the maintenance visit, Mario reported the pool is still not usable with continued debris and the cleaning system turned off again, expressing safety concerns about letting his children use it.
+          - generic [ref=e1400]:
+            - generic [ref=e1402]:
+              - paragraph [ref=e1403]: We are a family of four (2 adults, 2 children aged 3 and 8 years old) from Germany and are currently traveling through Mauritius. We are uncomplicated, respectful and tidy guests and look forward to staying with you.
+              - generic [ref=e1404]:
+                - generic [ref=e1405]: Translated from 🇩🇪 German
+                - button "Original" [ref=e1406]:
+                  - img [ref=e1407]
+                  - text: Original
+              - generic [ref=e1409]:
+                - text: 17:45
+                - generic [ref=e1410]: 🇩🇪 German
+            - generic [ref=e1412]:
+              - paragraph [ref=e1413]: New guest reservation request HMAYYWQ4SF
+              - generic [ref=e1414]: 17:46
+            - generic [ref=e1416]:
+              - paragraph [ref=e1417]: Reservation HMAYYWQ4SF status changed to confirmed
+              - generic [ref=e1418]: 17:46
+            - generic [ref=e1420]:
+              - paragraph [ref=e1421]: "Hi Mario, Thank you for choosing to stay with us! We’re excited to host you. Check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. To help us get everything ready for your arrival, could you please confirm your estimated check-in and check-out times, and kindly confirm the number of guests coming? We’ll send your check-in instructions at 10 AM local time on the day of your arrival. Please complete your check-in form here: https://guest-app.guesty.com/r/69cd21a0fc3662ee8b074821/e3tndWVzdF9hcHA6Om15X2d1ZXN0X2FwcH19. It only takes a minute and will give you access to a personalized guide with our top recommendations, the property’s pinned location, Wi-Fi details, and other useful info to help you settle in and enjoy your stay from the moment you arrive. For your travel declaration or arrival forms, you may use the following details: Company name: Friday Retreats Ltd Email: info@friday.mu Phone: +230 408 4119 As our guest, you can enjoy up to 10% off all airport transfers, car rentals, activities & tours at www.mauritiusattractions.com by using the coupon code \"FRIDAYMU\". As a small thank you, we’ve also added a 10% discount for your next Friday Retreats stay. Simply book directly on www.fridayretreats.mu and use the code FRIDAY10. Looking forward to hosting you and making your stay a memorable one! Best wishes, Friday Retreats"
+              - generic [ref=e1422]: 17:48 - hook
+            - generic [ref=e1424]:
+              - paragraph [ref=e1425]: "Hi Mario, We’re thrilled to welcome you! To ensure a smooth check-in, here’s all you need to know: Locate the building using this link: https://maps.app.goo.gl/eetJHE1zLPYNacxv9 The building name is: Lagon Bleu Complex The full address is: Avenue Pailles en Queue, Flic en Flac, LB-3 Once you’re there, just slide open the white main gate and park your car inside. There are 3 parking spots to the right. - The villa is the first one on your right, L’Espadon. - You’ll see a Friday sticker on the door with the Apt Number 3. - The lockbox is next to the entrance door. - Lockbox Code: 8351 (Please keep this confidential). - Take the key, close the box, and scramble the code for security. Locking and unlocking the entrance door: To lock the door: Lower the handle and Lock To unlock the door: Unlock, Raise the handle then Slide. Please note that check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. Wifi Details Wifi Name: HUAWEI_B612_915C Password: MNYGJ0A801L If you have any questions or run into any issues, feel free to reach out to us at +230 4084119 or reply to this message. Enjoy your stay. Warm regards, Friday Retreats"
+              - generic [ref=e1426]: 10:02 - hook
+            - generic [ref=e1428]:
+              - paragraph [ref=e1429]: "Hi Mario, We’re thrilled to welcome you! To ensure a smooth check-in, here’s all you need to know: Locate the building using this link: https://maps.app.goo.gl/eetJHE1zLPYNacxv9 The building name is: Lagon Bleu Complex The full address is: Avenue Pailles en Queue, Flic en Flac, LB-3 Once you’re there, just slide open the white main gate and park your car inside. There are 3 parking spots to the right. - The villa is the first one on your right, L’Espadon. - You’ll see a Friday sticker on the door with the Apt Number 3. - The lockbox is next to the entrance door. - Lockbox Code: 8351 (Please keep this confidential). - Take the key, close the box, and scramble the code for security. Locking and unlocking the entrance door: To lock the door: Lower the handle and Lock To unlock the door: Unlock, Raise the handle then Slide. Please note that check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. Wifi Details Wifi Name: HUAWEI_B612_915C Password: MNYGJ0A801L If you have any questions or run into any issues, feel free to reach out to us at +230 4084119 or reply to this message. Enjoy your stay. Warm regards, Guest Services Team 📞 +230 408 4119 🌐 www.friday.mu Friday Retreats Ltd | The Octopus Building, Pte aux Cannoniers, Mauritius Business Registration Number: C24206082 DISCLAIMER: This email and any attachments are confidential and intended solely for the addressee. If received in error, please notify the sender and delete immediately. Unauthorized use, distribution, or copying is prohibited. Views expressed are the sender's and not necessarily those of Friday Retreats Ltd, which accepts no liability for contents or viruses. Emails may be monitored per company policy."
+              - generic [ref=e1430]: 10:02 - hook
+            - generic [ref=e1432]:
+              - paragraph [ref=e1433]: Hello, thank you very much for the information. We will probably arrive a bit earlier, presumably sometime between 12:00 and 14:00. Would that be okay for you? Will the accommodation be prepared by that time so we can already check in? Thank you very much and best regards
+              - generic [ref=e1434]:
+                - generic [ref=e1435]: Translated from 🇩🇪 German
+                - button "Original" [ref=e1436]:
+                  - img [ref=e1437]
+                  - text: Original
+              - generic [ref=e1439]:
+                - text: 10:58
+                - generic [ref=e1440]: 🇩🇪 German
+            - generic [ref=e1442]:
+              - paragraph [ref=e1443]: Hello Mario, Thank you for your message! Our team will get back to you as soon as possible. If your matter is urgent, please call us at +230 4084119 Thank you for your patience!
+              - generic [ref=e1444]: 11:10 - Friday Retreats Ltd
+            - generic [ref=e1445]:
+              - generic [ref=e1446]:
+                - generic [ref=e1447]:
+                  - text: Sent
+                  - generic [ref=e1448]: (in 🇩🇪 German)
+                - button "Show German" [ref=e1449]:
+                  - img [ref=e1450]
+                  - text: Show German
+              - paragraph [ref=e1452]: Hi Mario, We completely understand you'd like to arrive a bit earlier! We'll check if LB-3 will be ready between 12:00 and 2:00 PM and get back to you within the next few hours to confirm. If early check-in isn't possible, we're happy to arrange luggage storage so you can start exploring Flic en Flac beach right away while we finish preparing your villa. We'll update you soon! Warm regards, Friday Retreats
+              - generic [ref=e1453]: Approved by Matias · Apr 2 11:38
+            - generic [ref=e1455]:
+              - paragraph [ref=e1456]: Guten Tag, leider muss ich Ihnen mitteilen, dass sich der Pool in einem nicht nutzbaren Zustand befindet. Das Wasser ist deutlich verschmutzt (Schwebstoffe, Ablagerungen am Boden), und es ist keine Funktion der Filter- bzw. Umwälzanlage erkennbar (keine Geräusche, keine sichtbare Wasserbewegung). In diesem Zustand ist der Pool für uns, insbesondere mit Kindern, nicht nutzbar. Ich bitte Sie daher, kurzfristig für Abhilfe zu sorgen, sodass der Pool gereinigt und die Technik überprüft wird. Bitte geben Sie mir zeitnah Rückmeldung, wann mit einer Behebung zu rechnen ist. Vielen Dank.
+              - generic [ref=e1457]: 17:30
+            - generic [ref=e1459]:
+              - paragraph [ref=e1460]: Guten Tag, ergänzend zu meiner vorherigen Nachricht möchte ich eine konkrete Frist setzen. Ich erwarte, dass der Pool spätestens bis morgen in einen einwandfrei nutzbaren Zustand versetzt wird und die Filter- bzw. Umwälzanlage ordnungsgemäß funktioniert. Der Pool ist für uns ein wesentlicher Bestandteil der Unterkunft, insbesondere da wir mit zwei Kindern reisen. Sollte der Mangel nicht fristgerecht behoben werden, sehe ich mich gezwungen, entsprechende Schritte wie eine Mietminderung einzuleiten. Bitte bestätigen Sie mir kurzfristig, wann die Behebung erfolgt. Mit freundlichen Grüßen
+              - generic [ref=e1461]: 17:34
+            - generic [ref=e1462]:
+              - generic [ref=e1464]: Sent
+              - paragraph [ref=e1465]: Hi Mario, We sincerely apologize for the pool condition and thank you for bringing this to our attention. We completely understand this is a priority, especially when traveling with children. We have already checked with our team, and the pool issue will definitely be resolved before your deadline tomorrow. Our team has been made aware and will be coming later today to address both the water quality and filtration system. At the latest, this will be resolved tomorrow, but most likely today itself. Warm regards, Friday Retreats
+              - generic [ref=e1466]: Approved by Ishant (v10) · Apr 2 18:07
+            - generic [ref=e1468]:
+              - paragraph [ref=e1469]: Thank you very much
+              - generic [ref=e1470]:
+                - generic [ref=e1471]: Translated from 🇩🇪 German
+                - button "Original" [ref=e1472]:
+                  - img [ref=e1473]
+                  - text: Original
+              - generic [ref=e1475]:
+                - text: 18:09
+                - generic [ref=e1476]: 🇩🇪 German
+            - generic [ref=e1477]:
+              - generic [ref=e1478]:
+                - generic [ref=e1479]:
+                  - text: Sent
+                  - generic [ref=e1480]: (in 🇩🇪 German)
+                - button "Show German" [ref=e1481]:
+                  - img [ref=e1482]
+                  - text: Show German
+              - paragraph [ref=e1484]: You're very welcome, Mario! We appreciate your patience and you can count on us to do our best to get this resolved in the shortest time frame. Warm regards, Friday Retreats
+              - generic [ref=e1485]: Approved by Ishant (v2) · Apr 2 18:38
+            - generic [ref=e1487]:
+              - paragraph [ref=e1488]: Hi Mario, Just a quick heads up that our pool maintenance team will come by around 10:00 AM today to clean the pool. We appreciate your understanding!
+              - generic [ref=e1489]: 08:56 - Mathias Duval
+            - generic [ref=e1491]:
+              - paragraph [ref=e1492]: Hello, Thank you very much for the information and the quick service.
+              - generic [ref=e1493]:
+                - generic [ref=e1494]: Translated from 🇩🇪 German
+                - button "Original" [ref=e1495]:
+                  - img [ref=e1496]
+                  - text: Original
+              - generic [ref=e1498]:
+                - text: 09:00
+                - generic [ref=e1499]: 🇩🇪 German
+            - generic [ref=e1500]:
+              - generic [ref=e1501]:
+                - generic [ref=e1502]:
+                  - text: Sent
+                  - generic [ref=e1503]: (in 🇩🇪 German)
+                - button "Show German" [ref=e1504]:
+                  - img [ref=e1505]
+                  - text: Show German
+              - paragraph [ref=e1507]: Hi Mario, You're very welcome! We're glad we could arrange this quickly for you. Enjoy the pool once it's all cleaned up!
+              - generic [ref=e1508]: Approved by Matias · Apr 3 09:02
+            - generic [ref=e1510]:
+              - paragraph [ref=e1511]: Your husband was here today. We left shortly after 10:00 AM and just came back. In the pictures you can see how it looks now. The paper that was on the step yesterday, I have now removed. I really have concerns about putting my children in here. The cleaning system is off again, is that normal?
+              - generic [ref=e1512]:
+                - generic [ref=e1513]: Translated from 🇩🇪 German
+                - button "Original" [ref=e1514]:
+                  - img [ref=e1515]
+                  - text: Original
+              - generic [ref=e1517]:
+                - text: 16:11
+                - generic [ref=e1518]: 🇩🇪 German
+            - generic [ref=e1520]:
+              - paragraph [ref=e1521]: I just got that out too
+              - generic [ref=e1522]:
+                - generic [ref=e1523]: Translated from 🇩🇪 German
+                - button "Original" [ref=e1524]:
+                  - img [ref=e1525]
+                  - text: Original
+              - generic [ref=e1527]:
+                - text: 16:16
+                - generic [ref=e1528]: 🇩🇪 German
+            - generic [ref=e1530]:
+              - paragraph [ref=e1531]: Sorry, the pool is not usable.
+              - generic [ref=e1532]:
+                - generic [ref=e1533]: Translated from 🇩🇪 German
+                - button "Original" [ref=e1534]:
+                  - img [ref=e1535]
+                  - text: Original
+              - generic [ref=e1537]:
+                - text: 16:17
+                - generic [ref=e1538]: 🇩🇪 German
+            - generic [ref=e1540]:
+              - paragraph [ref=e1541]: Hello Mario, Thank you for your message! Our team will get back to you as soon as possible. If your matter is urgent, please call us at +230 4084119 Thank you for your patience!
+              - generic [ref=e1542]: 16:22 - Friday Retreats Ltd
+            - generic [ref=e1544]:
+              - paragraph [ref=e1545]: Your reservation with Mario has been updated
+              - generic [ref=e1546]: 16:38
+            - generic [ref=e1548]:
+              - paragraph [ref=e1549]: "Hi Mario, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow, unless otherwise agreed. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Leave the keys in the lockbox and scramble the code If you had a great time, we’d be incredibly grateful for a 5-star review on Aribnb, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 5 stars on Airbnb can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+              - generic [ref=e1550]: 16:39 - hook
+            - button "Show draft history (10 older)" [ref=e1551]
+          - generic [ref=e1553]:
+            - generic [ref=e1554] [cursor=pointer]:
+              - heading "AI Draft 85%" [level=4] [ref=e1555]:
+                - img [ref=e1556]
+                - text: AI Draft
+                - generic [ref=e1558]: 85%
+              - generic [ref=e1559]: Needs Review
+              - img [ref=e1560]
+            - generic [ref=e1563]: Hi Mario, We sincerely apologize that the pool is still not in acceptable condition after our team's visit this morning. We completely understand your concerns about letting your children use the pool in this state. We're treating this as urgent and will contact our team immediately to come back and properly address the issue. We'll get back to you shortly with a specific time for their return visit. The filtration system should be running continuously, so we'll ensure this is fixed along with the thorough cleaning that's clearly needed. Thank you for your patience and for sending the photos - this helps us understand the situation better. Warm regards, Friday Retreats
+            - generic [ref=e1564]:
+              - button "Approve & Send" [ref=e1565]:
+                - img [ref=e1566]
+                - text: Approve & Send
+              - button "Edit" [ref=e1568]:
+                - img [ref=e1569]
+                - text: Edit
+              - button "Reject" [ref=e1571]:
+                - img [ref=e1572]
+                - text: Reject
+              - button "Ask Judith" [ref=e1574]:
+                - img [ref=e1575]
+                - text: Ask Judith
+            - generic [ref=e1577]:
+              - textbox "Ask Judith to adjust... (e.g. 'make it shorter', 'add WiFi password')" [ref=e1579]
+              - generic [ref=e1580]:
+                - button "Revise" [disabled] [ref=e1581]
+                - button "🧠 Revise & teach" [disabled] [ref=e1582]:
+                  - generic [ref=e1583]: 🧠
+                  - text: Revise & teach
+                - button "one-time" [disabled] [ref=e1584]
+                - button "Ask Judith First" [disabled] [ref=e1585]:
+                  - img [ref=e1586]
+                  - text: Ask Judith First
+        - generic [ref=e1588]:
+          - heading "Guest Info" [level=3] [ref=e1591]
+          - generic [ref=e1592]:
+            - generic [ref=e1593]: "Email: mario.barbaric@gmail.com"
+            - generic [ref=e1594]: "Channel: airbnb"
+            - generic [ref=e1595]: "Check-in: Apr 2, 2026 (2:00 PM)"
+            - generic [ref=e1596]: "Check-out: Apr 3, 2026 (10:00 AM)"
+            - generic [ref=e1597]: 12 inbound messages
+          - generic [ref=e1598]:
+            - heading "Financial" [level=3] [ref=e1599]
+            - generic [ref=e1600]: €87.24/night × 1 night
+            - generic [ref=e1601]: "Cleaning: €70"
+            - generic [ref=e1602]: "Host payout: €136.55"
+          - button "Mark as Done" [ref=e1604]:
+            - img [ref=e1605]
+            - text: Mark as Done
+          - generic [ref=e1607]:
+            - heading "Staff Notes" [level=3] [ref=e1608]
+            - textbox "Add notes for Judith..." [ref=e1609]: 🟡 [Judith's observation] Guest seems frustrated — "Guten Tag, leider muss ich Ihnen mitteilen, dass sich der Pool in einem nicht nutzbaren Zustand bef"
+          - generic [ref=e1610]:
+            - generic [ref=e1611]:
+              - generic [ref=e1612]: Auto-send
+              - button [ref=e1613]
+            - paragraph [ref=e1615]: Off — all drafts require review
+          - generic [ref=e1616]:
+            - button "Next Steps 2" [ref=e1617]:
+              - generic [ref=e1618]:
+                - img [ref=e1619]
+                - text: Next Steps
+                - generic [ref=e1621]: "2"
+            - generic [ref=e1622]:
+              - generic [ref=e1623]:
+                - generic [ref=e1624]: 🧹
+                - generic [ref=e1625]:
+                  - text: Confirm pool cleaning completion and water quality check with photos/video proof before Mario's deadline tomorrow
+                  - generic [ref=e1626]: \u2014 Bryan
+              - generic [ref=e1627]:
+                - generic [ref=e1628]: 📞
+                - generic [ref=e1629]:
+                  - text: Follow up call with Mario after pool is ready to confirm satisfaction and manage expectations for remaining stay
+                  - generic [ref=e1630]: \u2014 Mathias
+              - paragraph [ref=e1631]: Judith's suggestions based on conversation context
+          - generic [ref=e1632]:
+            - button "Pending Actions" [ref=e1633]:
+              - generic [ref=e1634]:
+                - img [ref=e1635]
+                - text: Pending Actions
+            - generic [ref=e1637]:
+              - generic [ref=e1638]:
+                - generic [ref=e1640]: Mario Barbaric
+                - generic [ref=e1641]: LB-3
+                - paragraph [ref=e1642]: Check if LB-3 will be ready between 12:00 and 2:00 PM and confirm to guest
+                - generic [ref=e1643]: "Due: 4/2/2026, 1:38:05 PM"
+                - generic [ref=e1644]: completed by Matias
+              - generic [ref=e1645]:
+                - generic [ref=e1647]: Mario Barbaric
+                - generic [ref=e1648]: LB-3
+                - paragraph [ref=e1649]: Confirm to Mario that pool issue has been resolved before his deadline tomorrow
+                - generic [ref=e1650]: "Due: 4/3/2026, 6:07:06 PM"
+                - generic [ref=e1651]: completed by Matias
+              - generic [ref=e1652]:
+                - generic [ref=e1653]:
+                  - generic [ref=e1654]: Mario Barbaric
+                  - generic [ref=e1655]: DUE SOON
+                - generic [ref=e1656]: LB-3
+                - paragraph [ref=e1657]: Check conversation to see what happened and how reservation was shortened. Coordinate with the team as well accordingly
+                - generic [ref=e1658]: "Due: 4/3/2026, 11:01:00 PM"
+                - generic [ref=e1659]:
+                  - textbox "Note (optional)..." [ref=e1660]
+                  - generic [ref=e1661]:
+                    - button "Done" [ref=e1662]
+                    - button "Dismiss" [ref=e1663]
+                    - button "Edit" [ref=e1664]:
+                      - img [ref=e1665]
+                      - text: Edit
+                    - button "Delete" [ref=e1667]:
+                      - img [ref=e1668]
+                      - text: Delete
+          - button "Draft History 22" [ref=e1671]:
+            - generic [ref=e1672]:
+              - img [ref=e1673]
+              - text: Draft History
+              - generic [ref=e1675]: "22"

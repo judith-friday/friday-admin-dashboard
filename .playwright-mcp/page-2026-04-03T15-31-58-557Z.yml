@@ -1,0 +1,201 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e9]
+  - generic [ref=e13]:
+    - button "🐛" [ref=e14]
+    - banner [ref=e15]:
+      - generic [ref=e17]:
+        - heading "Friday GMS" [level=1] [ref=e20]
+        - button "Menu" [ref=e3012]:
+          - img [ref=e3013]
+    - generic [ref=e1386]:
+      - generic [ref=e3015] [cursor=pointer]:
+        - generic [ref=e3016]: ← Back to inbox
+        - button "ℹ️ Info" [ref=e3017]
+      - generic [ref=e1387]:
+        - generic [ref=e1388]:
+          - generic [ref=e1389]:
+            - heading "Mario Barbaric" [level=2] [ref=e1390]
+            - generic [ref=e1391] [cursor=pointer]: LB-3
+            - generic [ref=e1392]: Airbnb
+          - generic "Average response time across all message exchanges in this conversation" [ref=e1395]: "Avg RT: 26m"
+        - button "Mario, a German family of 4 with children aged 3 and 8, requested early check-in between 12-2 PM, which Friday said they would check and confirm within hours. Mario then reported the pool was unusable due to dirty water, debris, and non-functioning filtration system, setting a deadline for repair by the next day and threatening rent reduction if not fixed. Friday apologized and promised resolution by the deadline, with pool maintenance scheduled for 10 AM the following day. After the maintenance visit, Mario reported the pool is still not usable with continued debris and the cleaning system turned off again, expressing safety concerns about letting his children use it." [ref=e1396]:
+          - img [ref=e1397]
+          - generic [ref=e1399]: Mario, a German family of 4 with children aged 3 and 8, requested early check-in between 12-2 PM, which Friday said they would check and confirm within hours. Mario then reported the pool was unusable due to dirty water, debris, and non-functioning filtration system, setting a deadline for repair by the next day and threatening rent reduction if not fixed. Friday apologized and promised resolution by the deadline, with pool maintenance scheduled for 10 AM the following day. After the maintenance visit, Mario reported the pool is still not usable with continued debris and the cleaning system turned off again, expressing safety concerns about letting his children use it.
+      - generic [ref=e1400]:
+        - generic [ref=e1402]:
+          - paragraph [ref=e1403]: We are a family of four (2 adults, 2 children aged 3 and 8 years old) from Germany and are currently traveling through Mauritius. We are uncomplicated, respectful and tidy guests and look forward to staying with you.
+          - generic [ref=e1404]:
+            - generic [ref=e1405]: Translated from 🇩🇪 German
+            - button "Original" [ref=e1406]:
+              - img [ref=e1407]
+              - text: Original
+          - generic [ref=e1409]:
+            - text: 17:45
+            - generic [ref=e1410]: 🇩🇪 German
+        - generic [ref=e1412]:
+          - paragraph [ref=e1413]: New guest reservation request HMAYYWQ4SF
+          - generic [ref=e1414]: 17:46
+        - generic [ref=e1416]:
+          - paragraph [ref=e1417]: Reservation HMAYYWQ4SF status changed to confirmed
+          - generic [ref=e1418]: 17:46
+        - generic [ref=e1420]:
+          - paragraph [ref=e1421]: "Hi Mario, Thank you for choosing to stay with us! We’re excited to host you. Check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. To help us get everything ready for your arrival, could you please confirm your estimated check-in and check-out times, and kindly confirm the number of guests coming? We’ll send your check-in instructions at 10 AM local time on the day of your arrival. Please complete your check-in form here: https://guest-app.guesty.com/r/69cd21a0fc3662ee8b074821/e3tndWVzdF9hcHA6Om15X2d1ZXN0X2FwcH19. It only takes a minute and will give you access to a personalized guide with our top recommendations, the property’s pinned location, Wi-Fi details, and other useful info to help you settle in and enjoy your stay from the moment you arrive. For your travel declaration or arrival forms, you may use the following details: Company name: Friday Retreats Ltd Email: info@friday.mu Phone: +230 408 4119 As our guest, you can enjoy up to 10% off all airport transfers, car rentals, activities & tours at www.mauritiusattractions.com by using the coupon code \"FRIDAYMU\". As a small thank you, we’ve also added a 10% discount for your next Friday Retreats stay. Simply book directly on www.fridayretreats.mu and use the code FRIDAY10. Looking forward to hosting you and making your stay a memorable one! Best wishes, Friday Retreats"
+          - generic [ref=e1422]: 17:48 - hook
+        - generic [ref=e1424]:
+          - paragraph [ref=e1425]: "Hi Mario, We’re thrilled to welcome you! To ensure a smooth check-in, here’s all you need to know: Locate the building using this link: https://maps.app.goo.gl/eetJHE1zLPYNacxv9 The building name is: Lagon Bleu Complex The full address is: Avenue Pailles en Queue, Flic en Flac, LB-3 Once you’re there, just slide open the white main gate and park your car inside. There are 3 parking spots to the right. - The villa is the first one on your right, L’Espadon. - You’ll see a Friday sticker on the door with the Apt Number 3. - The lockbox is next to the entrance door. - Lockbox Code: 8351 (Please keep this confidential). - Take the key, close the box, and scramble the code for security. Locking and unlocking the entrance door: To lock the door: Lower the handle and Lock To unlock the door: Unlock, Raise the handle then Slide. Please note that check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. Wifi Details Wifi Name: HUAWEI_B612_915C Password: MNYGJ0A801L If you have any questions or run into any issues, feel free to reach out to us at +230 4084119 or reply to this message. Enjoy your stay. Warm regards, Friday Retreats"
+          - generic [ref=e1426]: 10:02 - hook
+        - generic [ref=e1428]:
+          - paragraph [ref=e1429]: "Hi Mario, We’re thrilled to welcome you! To ensure a smooth check-in, here’s all you need to know: Locate the building using this link: https://maps.app.goo.gl/eetJHE1zLPYNacxv9 The building name is: Lagon Bleu Complex The full address is: Avenue Pailles en Queue, Flic en Flac, LB-3 Once you’re there, just slide open the white main gate and park your car inside. There are 3 parking spots to the right. - The villa is the first one on your right, L’Espadon. - You’ll see a Friday sticker on the door with the Apt Number 3. - The lockbox is next to the entrance door. - Lockbox Code: 8351 (Please keep this confidential). - Take the key, close the box, and scramble the code for security. Locking and unlocking the entrance door: To lock the door: Lower the handle and Lock To unlock the door: Unlock, Raise the handle then Slide. Please note that check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. Wifi Details Wifi Name: HUAWEI_B612_915C Password: MNYGJ0A801L If you have any questions or run into any issues, feel free to reach out to us at +230 4084119 or reply to this message. Enjoy your stay. Warm regards, Guest Services Team 📞 +230 408 4119 🌐 www.friday.mu Friday Retreats Ltd | The Octopus Building, Pte aux Cannoniers, Mauritius Business Registration Number: C24206082 DISCLAIMER: This email and any attachments are confidential and intended solely for the addressee. If received in error, please notify the sender and delete immediately. Unauthorized use, distribution, or copying is prohibited. Views expressed are the sender's and not necessarily those of Friday Retreats Ltd, which accepts no liability for contents or viruses. Emails may be monitored per company policy."
+          - generic [ref=e1430]: 10:02 - hook
+        - generic [ref=e1432]:
+          - paragraph [ref=e1433]: Hello, thank you very much for the information. We will probably arrive a bit earlier, presumably sometime between 12:00 and 14:00. Would that be okay for you? Will the accommodation be prepared by that time so we can already check in? Thank you very much and best regards
+          - generic [ref=e1434]:
+            - generic [ref=e1435]: Translated from 🇩🇪 German
+            - button "Original" [ref=e1436]:
+              - img [ref=e1437]
+              - text: Original
+          - generic [ref=e1439]:
+            - text: 10:58
+            - generic [ref=e1440]: 🇩🇪 German
+        - generic [ref=e1442]:
+          - paragraph [ref=e1443]: Hello Mario, Thank you for your message! Our team will get back to you as soon as possible. If your matter is urgent, please call us at +230 4084119 Thank you for your patience!
+          - generic [ref=e1444]: 11:10 - Friday Retreats Ltd
+        - generic [ref=e1445]:
+          - generic [ref=e1446]:
+            - generic [ref=e1447]:
+              - text: Sent
+              - generic [ref=e1448]: (in 🇩🇪 German)
+            - button "Show German" [ref=e1449]:
+              - img [ref=e1450]
+              - text: Show German
+          - paragraph [ref=e1452]: Hi Mario, We completely understand you'd like to arrive a bit earlier! We'll check if LB-3 will be ready between 12:00 and 2:00 PM and get back to you within the next few hours to confirm. If early check-in isn't possible, we're happy to arrange luggage storage so you can start exploring Flic en Flac beach right away while we finish preparing your villa. We'll update you soon! Warm regards, Friday Retreats
+          - generic [ref=e1453]: Approved by Matias · Apr 2 11:38
+        - generic [ref=e1455]:
+          - paragraph [ref=e1456]: Guten Tag, leider muss ich Ihnen mitteilen, dass sich der Pool in einem nicht nutzbaren Zustand befindet. Das Wasser ist deutlich verschmutzt (Schwebstoffe, Ablagerungen am Boden), und es ist keine Funktion der Filter- bzw. Umwälzanlage erkennbar (keine Geräusche, keine sichtbare Wasserbewegung). In diesem Zustand ist der Pool für uns, insbesondere mit Kindern, nicht nutzbar. Ich bitte Sie daher, kurzfristig für Abhilfe zu sorgen, sodass der Pool gereinigt und die Technik überprüft wird. Bitte geben Sie mir zeitnah Rückmeldung, wann mit einer Behebung zu rechnen ist. Vielen Dank.
+          - generic [ref=e1457]: 17:30
+        - generic [ref=e1459]:
+          - paragraph [ref=e1460]: Guten Tag, ergänzend zu meiner vorherigen Nachricht möchte ich eine konkrete Frist setzen. Ich erwarte, dass der Pool spätestens bis morgen in einen einwandfrei nutzbaren Zustand versetzt wird und die Filter- bzw. Umwälzanlage ordnungsgemäß funktioniert. Der Pool ist für uns ein wesentlicher Bestandteil der Unterkunft, insbesondere da wir mit zwei Kindern reisen. Sollte der Mangel nicht fristgerecht behoben werden, sehe ich mich gezwungen, entsprechende Schritte wie eine Mietminderung einzuleiten. Bitte bestätigen Sie mir kurzfristig, wann die Behebung erfolgt. Mit freundlichen Grüßen
+          - generic [ref=e1461]: 17:34
+        - generic [ref=e1462]:
+          - generic [ref=e1464]: Sent
+          - paragraph [ref=e1465]: Hi Mario, We sincerely apologize for the pool condition and thank you for bringing this to our attention. We completely understand this is a priority, especially when traveling with children. We have already checked with our team, and the pool issue will definitely be resolved before your deadline tomorrow. Our team has been made aware and will be coming later today to address both the water quality and filtration system. At the latest, this will be resolved tomorrow, but most likely today itself. Warm regards, Friday Retreats
+          - generic [ref=e1466]: Approved by Ishant (v10) · Apr 2 18:07
+        - generic [ref=e1468]:
+          - paragraph [ref=e1469]: Thank you very much
+          - generic [ref=e1470]:
+            - generic [ref=e1471]: Translated from 🇩🇪 German
+            - button "Original" [ref=e1472]:
+              - img [ref=e1473]
+              - text: Original
+          - generic [ref=e1475]:
+            - text: 18:09
+            - generic [ref=e1476]: 🇩🇪 German
+        - generic [ref=e1477]:
+          - generic [ref=e1478]:
+            - generic [ref=e1479]:
+              - text: Sent
+              - generic [ref=e1480]: (in 🇩🇪 German)
+            - button "Show German" [ref=e1481]:
+              - img [ref=e1482]
+              - text: Show German
+          - paragraph [ref=e1484]: You're very welcome, Mario! We appreciate your patience and you can count on us to do our best to get this resolved in the shortest time frame. Warm regards, Friday Retreats
+          - generic [ref=e1485]: Approved by Ishant (v2) · Apr 2 18:38
+        - generic [ref=e1487]:
+          - paragraph [ref=e1488]: Hi Mario, Just a quick heads up that our pool maintenance team will come by around 10:00 AM today to clean the pool. We appreciate your understanding!
+          - generic [ref=e1489]: 08:56 - Mathias Duval
+        - generic [ref=e1491]:
+          - paragraph [ref=e1492]: Hello, Thank you very much for the information and the quick service.
+          - generic [ref=e1493]:
+            - generic [ref=e1494]: Translated from 🇩🇪 German
+            - button "Original" [ref=e1495]:
+              - img [ref=e1496]
+              - text: Original
+          - generic [ref=e1498]:
+            - text: 09:00
+            - generic [ref=e1499]: 🇩🇪 German
+        - generic [ref=e1500]:
+          - generic [ref=e1501]:
+            - generic [ref=e1502]:
+              - text: Sent
+              - generic [ref=e1503]: (in 🇩🇪 German)
+            - button "Show German" [ref=e1504]:
+              - img [ref=e1505]
+              - text: Show German
+          - paragraph [ref=e1507]: Hi Mario, You're very welcome! We're glad we could arrange this quickly for you. Enjoy the pool once it's all cleaned up!
+          - generic [ref=e1508]: Approved by Matias · Apr 3 09:02
+        - generic [ref=e1510]:
+          - paragraph [ref=e1511]: Your husband was here today. We left shortly after 10:00 AM and just came back. In the pictures you can see how it looks now. The paper that was on the step yesterday, I have now removed. I really have concerns about putting my children in here. The cleaning system is off again, is that normal?
+          - generic [ref=e1512]:
+            - generic [ref=e1513]: Translated from 🇩🇪 German
+            - button "Original" [ref=e1514]:
+              - img [ref=e1515]
+              - text: Original
+          - generic [ref=e1517]:
+            - text: 16:11
+            - generic [ref=e1518]: 🇩🇪 German
+        - generic [ref=e1520]:
+          - paragraph [ref=e1521]: I just got that out too
+          - generic [ref=e1522]:
+            - generic [ref=e1523]: Translated from 🇩🇪 German
+            - button "Original" [ref=e1524]:
+              - img [ref=e1525]
+              - text: Original
+          - generic [ref=e1527]:
+            - text: 16:16
+            - generic [ref=e1528]: 🇩🇪 German
+        - generic [ref=e1530]:
+          - paragraph [ref=e1531]: Sorry, the pool is not usable.
+          - generic [ref=e1532]:
+            - generic [ref=e1533]: Translated from 🇩🇪 German
+            - button "Original" [ref=e1534]:
+              - img [ref=e1535]
+              - text: Original
+          - generic [ref=e1537]:
+            - text: 16:17
+            - generic [ref=e1538]: 🇩🇪 German
+        - generic [ref=e1540]:
+          - paragraph [ref=e1541]: Hello Mario, Thank you for your message! Our team will get back to you as soon as possible. If your matter is urgent, please call us at +230 4084119 Thank you for your patience!
+          - generic [ref=e1542]: 16:22 - Friday Retreats Ltd
+        - generic [ref=e1544]:
+          - paragraph [ref=e1545]: Your reservation with Mario has been updated
+          - generic [ref=e1546]: 16:38
+        - generic [ref=e1548]:
+          - paragraph [ref=e1549]: "Hi Mario, It’s been a pleasure hosting you, we hope you’ve had a truly relaxing and memorable stay. As a quick reminder, checkout is by 10:00am tomorrow, unless otherwise agreed. Before you head out, kindly: - Turn off all ACs and lights - Close all windows and doors - Leave the keys in the lockbox and scramble the code If you had a great time, we’d be incredibly grateful for a 5-star review on Aribnb, your support really helps us grow and keep doing what we love. If something wasn’t quite right during your stay, we’d truly appreciate the opportunity to make it right. Whether it’s resolving the issue or making it up to you, just send us a quick message — we’re here to help. Ratings below 5 stars on Airbnb can actually do more harm than good for us, so if your experience wasn’t perfect, we kindly ask that you skip the review and give us the chance to make things right by you. As a small thank you, we’ve added a 10% discount for your next Friday Retreats stay, just book directly on www.fridayretreats.mu and use the code FRIDAY10. We’d love to welcome you back. If there’s anything you need before checking out, don’t hesitate to reach out. Warm regards, The Friday Retreats Team www.friday.mu"
+          - generic [ref=e1550]: 16:39 - hook
+        - generic [ref=e3019]:
+          - paragraph [ref=e3020]: Hi Mario, We’re sorry for the inconvenience regarding the pool. We noticed that your stay has been shortened. Could you please confirm if you will be checking out today?
+          - generic [ref=e3021]: 19:28 - Mary Oladimeji
+        - button "Show draft history (10 older)" [ref=e1551]
+      - generic [ref=e1553]:
+        - generic [ref=e1554] [cursor=pointer]:
+          - heading "AI Draft 85%" [level=4] [ref=e1555]:
+            - img [ref=e1556]
+            - text: AI Draft
+            - generic [ref=e1558]: 85%
+          - generic [ref=e1559]: Needs Review
+          - img [ref=e1560]
+        - generic [ref=e1563]: Hi Mario, We sincerely apologize that the pool is still not in acceptable condition after our team's visit this morning. We completely understand your concerns about letting your children use the pool in this state. We're treating this as urgent and will contact our team immediately to come back and properly address the issue. We'll get back to you shortly with a specific time for their return visit. The filtration system should be running continuously, so we'll ensure this is fixed along with the thorough cleaning that's clearly needed. Thank you for your patience and for sending the photos - this helps us understand the situation better. Warm regards, Friday Retreats
+        - generic [ref=e1564]:
+          - button "Approve & Send" [ref=e1565]:
+            - img [ref=e1566]
+            - text: Approve & Send
+          - button "Edit" [ref=e1568]:
+            - img [ref=e1569]
+            - text: Edit
+          - button "Reject" [ref=e1571]:
+            - img [ref=e1572]
+            - text: Reject
+          - button "Ask Judith" [ref=e1574]:
+            - img [ref=e1575]
+            - text: Ask Judith
+        - generic [ref=e1577]:
+          - textbox "Ask Judith to adjust... (e.g. 'make it shorter', 'add WiFi password')" [ref=e1579]
+          - generic [ref=e1580]:
+            - button "Revise" [disabled] [ref=e1581]
+            - button "🧠 Revise & teach" [disabled] [ref=e1582]:
+              - generic [ref=e1583]: 🧠
+              - text: Revise & teach
+            - button "one-time" [disabled] [ref=e1584]
+            - button "Ask Judith First" [disabled] [ref=e1585]:
+              - img [ref=e1586]
+              - text: Ask Judith First
