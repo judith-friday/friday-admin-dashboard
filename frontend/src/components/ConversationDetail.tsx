@@ -322,6 +322,7 @@ export default function ConversationDetail({
           handleRevision={handleRevision} handleRejectWithReason={handleRejectWithReason}
           draftStateBadge={draftStateBadge}
           propertyName={detail.conversation.property_name}
+          conversationId={selectedConvId}
         >
           <ComposePanel
             composeOpen={composeOpen} setComposeOpen={setComposeOpen}
@@ -329,6 +330,7 @@ export default function ConversationDetail({
             composeText={composeText} setComposeText={setComposeText}
             composeInstruction={composeInstruction} setComposeInstruction={setComposeInstruction}
             composeSending={composeSending} handleCompose={handleCompose}
+            conversationId={selectedConvId}
           />
         </DraftPanel>
       ) : (
@@ -338,6 +340,7 @@ export default function ConversationDetail({
           composeText={composeText} setComposeText={setComposeText}
           composeInstruction={composeInstruction} setComposeInstruction={setComposeInstruction}
           composeSending={composeSending} handleCompose={handleCompose}
+          conversationId={selectedConvId}
         />
       )}
       </div>

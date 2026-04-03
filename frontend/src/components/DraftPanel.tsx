@@ -10,8 +10,10 @@ import {
   ArrowPathIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline'
 import { Draft } from './types'
+import ConsultChat from './ConsultChat'
 
 interface DraftPanelProps {
   drafts: Draft[]
@@ -37,6 +39,7 @@ interface DraftPanelProps {
   draftStateBadge: (state?: string) => React.ReactNode
   propertyName?: string
   children?: React.ReactNode
+  conversationId?: string
 }
 
 export default function DraftPanel({
@@ -45,9 +48,10 @@ export default function DraftPanel({
   rejectingDraft, setRejectingDraft, rejectReason, setRejectReason,
   showTeachPrompt, setShowTeachPrompt,
   requestApproval, handleDraftAction, handleRevision, handleRejectWithReason,
-  draftStateBadge, propertyName, children,
+  draftStateBadge, propertyName, children, conversationId,
 }: DraftPanelProps) {
   const [collapsed, setCollapsed] = useState(false)
+  const [consultDraftId, setConsultDraftId] = useState<string | null>(null)
 
   if (revisionPending) {
     return (
@@ -130,13 +134,13 @@ export default function DraftPanel({
                 <div className="mt-2 space-y-2">
                   <div className="flex space-x-2">
                     <input data-testid="input-reject-reason" type="text" value={rejectReason} onChange={e => setRejectReason(e.target.value)}
-                      placeholder="Why? (optional \u2014 helps Judith learn)"
+                      placeholder="Why? (optional — helps Judith learn)"
                       className="flex-1 text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
                       onKeyDown={e => { if (e.key === 'Enter') handleRejectWithReason(draft.id) }} />
                     <button onClick={() => handleRejectWithReason(draft.id)}
                       className="px-3 py-1 text-xs rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>{rejectReason.trim() ? 'Reject with feedback' : 'Dismiss'}</button>
                   </div>
-                  <p className="text-xs" style={{color: '#64748b'}}>{rejectReason.trim() ? 'Judith will learn from your feedback' : 'Dismissing without feedback \u2014 no learning'}</p>
+                  <p className="text-xs" style={{color: '#64748b'}}>{rejectReason.trim() ? 'Judith will learn from your feedback' : 'Dismissing without feedback — no learning'}</p>
                 </div>
               )}
 
@@ -165,6 +169,14 @@ export default function DraftPanel({
                     className="text-xs disabled:opacity-50" style={{color: '#64748b'}}>
                     one-time
                   </button>
+                  {conversationId && (
+                    <button onClick={() => setConsultDraftId(consultDraftId === draft.id ? null : draft.id)}
+                      disabled={revisingDraft === draft.id || !revisionText.trim()}
+                      className="px-3 py-1 text-xs rounded disabled:opacity-50 flex items-center"
+                      style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.25)'}}>
+                      <ChatBubbleLeftRightIcon className="h-3.5 w-3.5 mr-1" /> Ask Judith First
+                    </button>
+                  )}
                 </div>
                 {showTeachPrompt === draft.id && (
                   <div className="mt-2 p-2 rounded" style={{background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.15)'}}>
@@ -180,6 +192,19 @@ export default function DraftPanel({
                       </button>
                     </div>
                   </div>
+                )}
+
+                {/* Ask Judith First consultation chat */}
+                {consultDraftId === draft.id && conversationId && (
+                  <ConsultChat
+                    conversationId={conversationId}
+                    context="revision"
+                    initialInstruction={revisionText}
+                    draftBody={draft.draft_body}
+                    onConfirm={() => { setConsultDraftId(null); handleRevision(draft.id, 'teach') }}
+                    onCancel={() => setConsultDraftId(null)}
+                    confirmLabel="Confirm Revision"
+                  />
                 )}
               </div>
             </>
