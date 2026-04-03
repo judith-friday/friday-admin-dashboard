@@ -15,20 +15,6 @@ interface TeachingsPanelProps {
   revokeReason: string
   setRevokeReason: (v: string) => void
   handleRevokeTeaching: (id: string) => void
-  pendingCandidates: any[]
-  pendingTeachings: any[]
-  onApproveCandidate: (id: string) => void
-  onRejectCandidate: (id: string, reason: string) => void
-  onApproveTeaching: (id: string) => void
-  onRejectTeaching: (id: string, reason: string) => void
-}
-
-function sourceBadge(source: string) {
-  if (source === 'auto_pattern' || source === 'auto_learned') return '🔄 Auto-learned'
-  if (source === 'revision' || source === 'from_revision') return '💬 From revision'
-  if (source === 'ai_suggested') return '🤖 AI-suggested'
-  if (source === 'manual') return '✏️ Manual'
-  return '💬 Direct'
 }
 
 function scopeBadge(item: any) {
@@ -49,20 +35,6 @@ function expiryBadge(expiresAt: string) {
   return <span className="text-xs px-1.5 py-0.5 rounded" style={{background: bg, color}}>⏳ Expires in {diffDays}d</span>
 }
 
-function RejectInline({ onReject, onCancel }: { onReject: (reason: string) => void; onCancel: () => void }) {
-  const [reason, setReason] = useState('')
-  return (
-    <div className="flex items-center space-x-1 mt-2">
-      <input type="text" value={reason} onChange={e => setReason(e.target.value)}
-        placeholder="Reason..." className="text-xs rounded px-1.5 py-0.5 flex-1 outline-none"
-        style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
-        onKeyDown={e => { if (e.key === 'Enter') onReject(reason) }} />
-      <button onClick={() => onReject(reason)} className="text-xs px-1.5 py-0.5 rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171'}}>OK</button>
-      <button onClick={onCancel} className="text-xs" style={{color: '#64748b'}}>✕</button>
-    </div>
-  )
-}
-
 export default function TeachingsPanel({
   showTeachingsPanel,
   setShowTeachingsPanel,
@@ -75,76 +47,11 @@ export default function TeachingsPanel({
   revokeReason,
   setRevokeReason,
   handleRevokeTeaching,
-  pendingCandidates,
-  pendingTeachings,
-  onApproveCandidate,
-  onRejectCandidate,
-  onApproveTeaching,
-  onRejectTeaching,
 }: TeachingsPanelProps) {
-  const [rejectingId, setRejectingId] = useState<string | null>(null)
-  const [rejectingSource, setRejectingSource] = useState<'candidate' | 'teaching' | null>(null)
-
   if (!showTeachingsPanel) return null
-
-  const allPending = [
-    ...pendingCandidates.map(c => ({ ...c, _source: 'candidate' as const })),
-    ...pendingTeachings.map(t => ({ ...t, _source: 'teaching' as const })),
-  ]
-  const propertyPending = allPending.filter(p => p.property_code)
-  const generalPending = allPending.filter(p => !p.property_code)
-  const totalPending = allPending.length
 
   const activeTeachings = teachings.filter(t => t.status === 'active')
   const revokedTeachings = teachings.filter(t => t.status === 'revoked')
-
-  const renderPendingItem = (item: any) => {
-    const isCandidate = item._source === 'candidate'
-    const text = item.instruction || item.correction || item.pattern || ''
-    const isRejecting = rejectingId === item.id && rejectingSource === item._source
-
-    return (
-      <div key={`${item._source}-${item.id}`} className="p-3 rounded-lg mb-2" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)'}}>
-        <p className="text-sm" style={{color: '#e2e8f0'}}>{text}</p>
-        <div className="flex items-center flex-wrap gap-2 mt-2">
-          {scopeBadge(item)}
-          <span className="text-xs px-1.5 py-0.5 rounded" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc'}}>
-            {sourceBadge(item.source)}
-          </span>
-          {(item.evidence_count || item.confidence) && (
-            <span className="text-xs" style={{color: '#c084fc'}}>
-              {item.evidence_count ? `${item.evidence_count} evidence` : ''}{item.evidence_count && item.confidence ? ' · ' : ''}{item.confidence ? `${Math.round(item.confidence * 100)}% confidence` : ''}
-            </span>
-          )}
-          <span className="text-xs" style={{color: '#64748b'}}>
-            {item.created_at ? format(new Date(item.created_at), 'MMM d, yyyy') : ''}
-          </span>
-        </div>
-        {isRejecting ? (
-          <RejectInline
-            onReject={(reason) => {
-              if (isCandidate) onRejectCandidate(item.id, reason)
-              else onRejectTeaching(item.id, reason)
-              setRejectingId(null)
-              setRejectingSource(null)
-            }}
-            onCancel={() => { setRejectingId(null); setRejectingSource(null) }}
-          />
-        ) : (
-          <div className="flex items-center space-x-2 mt-2">
-            <button onClick={() => isCandidate ? onApproveCandidate(item.id) : onApproveTeaching(item.id)}
-              className="text-xs px-4 py-2 rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
-              ✅ Approve
-            </button>
-            <button onClick={() => { setRejectingId(item.id); setRejectingSource(item._source) }}
-              className="text-xs px-4 py-2 rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>
-              ❌ Reject
-            </button>
-          </div>
-        )}
-      </div>
-    )
-  }
 
   return (
     <div className="fixed inset-0 z-[60] flex" data-testid="modal-teachings-panel">
@@ -173,38 +80,6 @@ export default function TeachingsPanel({
             </button>
           </div>
         </div>
-
-        {/* Pending Review section */}
-        {totalPending > 0 && (
-          <div className="p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-            <h3 className="text-xs font-semibold mb-3" style={{color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.5px'}}>
-              📋 Pending Review ({totalPending})
-            </h3>
-
-            {/* General pending items */}
-            {generalPending.length > 0 && generalPending.map(renderPendingItem)}
-
-            {/* Property Corrections sub-section */}
-            {propertyPending.length > 0 && (
-              <>
-                <h4 className="text-xs font-semibold mt-4 mb-2" style={{color: '#fbbf24', letterSpacing: '0.3px'}}>
-                  🏠 Property Corrections ({propertyPending.length})
-                </h4>
-                <p className="text-xs mb-2" style={{color: '#64748b'}}>Approving will add as a teaching. Property card updates are manual.</p>
-                {propertyPending.map(renderPendingItem)}
-              </>
-            )}
-          </div>
-        )}
-
-        {totalPending === 0 && (
-          <div className="p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-            <h3 className="text-xs font-semibold mb-2" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>
-              📋 Pending Review
-            </h3>
-            <p className="text-xs" style={{color: '#64748b'}}>No items pending review.</p>
-          </div>
-        )}
 
         {/* Active teachings */}
         <div className="p-4">
