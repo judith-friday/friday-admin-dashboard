@@ -32,6 +32,17 @@ interface GuestInfoProps {
   draftStateBadge: (state?: string) => React.ReactNode
 }
 
+// Format time string (HH:MM or ISO) to 12-hour AM/PM
+function formatTime12h(raw: string | null | undefined): string {
+  if (!raw) return '';
+  try {
+    const timeStr = raw.includes('T') ? raw.slice(11, 16) : raw;
+    const [h, m] = timeStr.split(':');
+    const hr = parseInt(h);
+    return ` (${hr > 12 ? hr - 12 : hr || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'})`;
+  } catch { return ''; }
+}
+
 // Collapsible section component — collapsed by default on mobile
 function CollapsibleSection({ title, defaultOpen = false, count, children }: {
   title: string; defaultOpen?: boolean; count?: number; children: React.ReactNode
@@ -87,8 +98,8 @@ export default function GuestInfo({
       <div className="p-3 space-y-1.5 text-xs" style={{color: '#94a3b8', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
         {detail.conversation.guest_email && <div>Email: {detail.conversation.guest_email}</div>}
         {detail.conversation.channel && <div>Channel: {detail.conversation.channel}</div>}
-        {detail.conversation.check_in_date && <div>Check-in: {format(new Date(detail.conversation.check_in_date), 'MMM d, yyyy')}</div>}
-        {detail.conversation.check_out_date && <div>Check-out: {format(new Date(detail.conversation.check_out_date), 'MMM d, yyyy')}</div>}
+        {detail.conversation.check_in_date && <div>Check-in: {format(new Date(detail.conversation.check_in_date), 'MMM d, yyyy')}{formatTime12h(detail.reservation?.planned_arrival)}</div>}
+        {detail.conversation.check_out_date && <div>Check-out: {format(new Date(detail.conversation.check_out_date), 'MMM d, yyyy')}{formatTime12h(detail.reservation?.planned_departure)}</div>}
         {detail.conversation.num_guests && <div>{detail.conversation.num_guests} guest{detail.conversation.num_guests > 1 ? 's' : ''}</div>}
         <div>{detail.conversation.inbound_count || 0} inbound messages</div>
         {detail.conversation.sentiment && detail.conversation.sentiment !== 'neutral' && (

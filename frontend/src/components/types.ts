@@ -72,6 +72,9 @@ export interface Conversation {
   inbound_count?: string
   num_guests?: number
   first_response_minutes?: number
+  avg_response_minutes?: number
+  check_in_time?: string
+  check_out_time?: string
   auto_send_enabled?: boolean
   notes?: string
   sentiment?: string
@@ -138,6 +141,7 @@ export interface InboxStats {
   total_conversations: number
   needs_review_count: number
   avg_response_time_minutes: number
+  team_rt_minutes?: number
   messages_today: number
   pending_actions_count: number
   overdue_actions_count: number

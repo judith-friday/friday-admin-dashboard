@@ -106,7 +106,12 @@ export default function ConversationDetail({
               <span className="hidden sm:inline">{format(new Date(detail.conversation.check_in_date), 'MMM d')} - {format(new Date(detail.conversation.check_out_date), 'MMM d')}</span>
             )}
             {detail.conversation.num_guests && <span className="hidden sm:inline">{detail.conversation.num_guests}p</span>}
-            {detail.conversation.first_response_minutes !== null && detail.conversation.first_response_minutes !== undefined && (
+            {detail.conversation.avg_response_minutes != null && (
+              <span className="font-medium" title="Average response time across all message exchanges in this conversation" style={{color: rtColor(detail.conversation.avg_response_minutes)}}>
+                Avg RT: {Math.round(detail.conversation.avg_response_minutes)}m
+              </span>
+            )}
+            {detail.conversation.avg_response_minutes == null && detail.conversation.first_response_minutes != null && (
               <span className="font-medium" style={{color: rtColor(detail.conversation.first_response_minutes)}}>
                 RT: {detail.conversation.first_response_minutes}m
               </span>
