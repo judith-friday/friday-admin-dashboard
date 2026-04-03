@@ -214,11 +214,11 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Auto-send',
     group: 'How It Works',
     keywords: ['auto', 'automatic', 'toggle', '85%'],
-    content: 'Toggle per conversation in the right panel. When enabled replies with 85%+ confidence for routine questions send automatically. Start with this OFF until you trust Judith drafts.',
+    content: 'Toggle per conversation in the right panel. When enabled replies with 85%+ confidence for routine messages or simple questions send automatically. Complaints requests and complex messages always require your review. Start with this OFF until you trust Judith drafts.',
     render: (hl) => (
       <div>
         <p className="text-xs leading-relaxed" style={{color: '#94a3b8'}}>
-          {hl('Toggle per conversation in the right panel. When enabled, replies with 85%+ confidence for routine questions send automatically.')}
+          {hl('Toggle per conversation in the right panel. When enabled, replies with 85%+ confidence for routine messages or simple questions send automatically. Complaints, requests, and complex messages always require your review.')}
         </p>
         <div className="mt-2 rounded-md px-2.5 py-1.5 text-xs" style={{background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)', color: '#fbbf24'}}>
           Start with this OFF until you trust Judith&apos;s drafts
@@ -231,26 +231,29 @@ const HELP_DATA: HelpEntry[] = [
     title: 'How Confidence Scores Work',
     group: 'How It Works',
     keywords: ['confidence', 'formula', 'base', 'routine', 'complaint', 'reservation', 'property', 'language', 'complexity'],
-    content: 'Judith calculates confidence using a weighted formula. Base score 75%. Message type +20% routine -15% complaints. Reservation context +15% good -10% missing. Property knowledge +10% relevant -10% unknown. Language -5% non-English. Complexity -5% per extra question. Example routine WiFi 95%. Example complex complaint 40%.',
+    content: 'Judith calculates confidence using a weighted formula. Base score 70%. Message type +10% routine +5% simple questions -20% complaints. Reservation context +10% good dates guests property -10% no property info. Property knowledge +10% relevant -10% unknown property. Staff notes +5%. Conversation depth +5% active thread. Language -5% non-English. Long messages -15% over 200 words. Sensitive keywords extra penalty. Example routine WiFi 90%. Example complex complaint 30%.',
     render: (hl) => (
       <div className="space-y-2">
         <p>{hl('Judith calculates confidence using a weighted formula:')}</p>
         <div className="pl-2 space-y-1" style={{color: '#64748b'}}>
-          <div>• {hl('Base score: 75%')}</div>
-          <div>• {hl('Message type: +20% routine, -15% complaints')}</div>
-          <div>• {hl('Reservation context: +15% good, -10% missing')}</div>
-          <div>• {hl('Property knowledge: +10% relevant, -10% unknown')}</div>
+          <div>• {hl('Base score: 70%')}</div>
+          <div>• {hl('Message type: +10% routine, +5% simple questions, -20% complaints')}</div>
+          <div>• {hl('Reservation context: +10% good (dates, guests, property), -10% no property info')}</div>
+          <div>• {hl('Property knowledge: +10% relevant info found, -10% unknown property')}</div>
+          <div>• {hl('Staff notes: +5% when notes exist')}</div>
+          <div>• {hl('Conversation depth: +5% active back-and-forth')}</div>
           <div>• {hl('Language: -5% non-English')}</div>
-          <div>• {hl('Complexity: -5% per extra question')}</div>
+          <div>• {hl('Long messages: -15% over 200 words')}</div>
+          <div>• {hl('Sensitive keywords (legal, safety, refund): extra penalty')}</div>
         </div>
         <div className="mt-3 space-y-2">
           <div className="rounded p-2" style={{background: 'rgba(34,197,94,0.08)'}}>
             <div className="text-xs font-semibold" style={{color: '#4ade80'}}>Example: Routine WiFi question</div>
-            <div className="text-xs mt-1" style={{color: '#64748b'}}>{hl('75% + 20% (routine) + 15% (good context) + 10% (property info) = 95%')}</div>
+            <div className="text-xs mt-1" style={{color: '#64748b'}}>{hl('70% + 10% (routine) + 10% (good context) + 10% (property info) = 90%')}</div>
           </div>
           <div className="rounded p-2" style={{background: 'rgba(239,68,68,0.08)'}}>
-            <div className="text-xs font-semibold" style={{color: '#f87171'}}>Example: Complex complaint</div>
-            <div className="text-xs mt-1" style={{color: '#64748b'}}>{hl('75% - 15% (complaint) - 10% (missing context) - 10% (complex) = 40%')}</div>
+            <div className="text-xs font-semibold" style={{color: '#f87171'}}>Example: Complaint with refund keyword</div>
+            <div className="text-xs mt-1" style={{color: '#64748b'}}>{hl('70% - 20% (complaint) - 20% (refund keyword) - 10% (no property) = 20%')}</div>
           </div>
         </div>
       </div>
@@ -295,7 +298,7 @@ const HELP_DATA: HelpEntry[] = [
     title: "What Judith Can and Can't Do",
     group: 'How It Works',
     keywords: ['capabilities', 'translate', 'complaint', 'amenities', 'action items', 'maintenance', 'payments', 'refunds'],
-    content: "What Judith CAN do: Draft personalized replies in guest's language. Detect complaint tone and urgency. Use property-specific knowledge WiFi amenities directions. Translate 50+ languages. Track promises and create action items. Suggest empathetic responses. What Judith CAN'T do: Send messages without human approval. Access Breezeway for maintenance. Modify reservations. Handle payments refunds billing. Make decisions about property policies.",
+    content: "What Judith CAN do: Draft personalized replies in guest's language. Detect complaint tone and urgency. Use property-specific knowledge WiFi amenities directions. Translate 50+ languages. Track promises and create action items. Suggest empathetic responses. What Judith CAN'T do: Send messages without approval unless auto-send enabled. Access Breezeway for maintenance. Modify reservations. Handle payments refunds billing. Make decisions about property policies.",
     render: (hl) => (
       <div className="space-y-3">
         <div>
@@ -312,7 +315,7 @@ const HELP_DATA: HelpEntry[] = [
         <div>
           <div className="text-xs font-semibold mb-1.5" style={{color: '#f87171'}}>{'❌'} What Judith CAN&apos;T do (yet)</div>
           <div className="space-y-1 text-xs pl-2" style={{color: '#94a3b8'}}>
-            <div>• {hl('Send messages without human approval')}</div>
+            <div>• {hl('Send messages without approval (unless auto-send is enabled for that conversation)')}</div>
             <div>• {hl('Access Breezeway for maintenance requests')}</div>
             <div>• {hl('Modify reservations or booking details')}</div>
             <div>• {hl('Handle payments, refunds, or billing issues')}</div>
@@ -460,11 +463,11 @@ const HELP_DATA: HelpEntry[] = [
     title: '🔄 Message Send & Retry',
     group: 'Messaging',
     keywords: ['send', 'retry', 'api', 'guesty', 'fallback', 'browser', 'slack', 'queue', 'copy-paste'],
-    content: 'When you approve a message it sends via the Guesty API. If the API is down it automatically retries once at 1 minute again at 5 minutes. If retries fail Judith tries sending via the Guesty web interface browser fallback. If everything fails the full message is posted to #fr-guest-messages on Slack so you can copy-paste it manually. You can also click Retry Now on any queued message to try immediately.',
+    content: 'When you approve a message it sends through Guesty automatically. If Guesty is down it automatically retries once at 1 minute again at 5 minutes. If retries fail Judith tries sending via the Guesty web interface browser fallback. If everything fails the full message is posted to #fr-guest-messages on Slack so you can copy-paste it manually. You can also click Retry Now on any queued message to try immediately.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div>• {hl('When you approve a message, it sends via the Guesty API')}</div>
-        <div>• {hl('If the API is down, it automatically retries: once at 1 minute, again at 5 minutes')}</div>
+        <div>• {hl('When you approve a message, it sends through Guesty automatically')}</div>
+        <div>• {hl('If Guesty is down, it automatically retries: once at 1 minute, again at 5 minutes')}</div>
         <div>• {hl('If retries fail, Judith tries sending via the Guesty web interface (browser fallback)')}</div>
         <div>• {hl('If everything fails, the full message is posted to #fr-guest-messages on Slack so you can copy-paste it manually')}</div>
         <div>• {hl('You can also click "Retry Now" on any queued message to try immediately')}</div>
@@ -523,11 +526,11 @@ const HELP_DATA: HelpEntry[] = [
     title: '🕐 Check-in/Checkout Times',
     group: 'Dashboard',
     keywords: ['check-in', 'checkout', 'arrival', 'departure', 'planned', 'time', 'guesty'],
-    content: 'Check-in and checkout dates now include planned arrival departure times when available. Times come from the guest\'s specific booking in Guesty plannedArrival plannedDeparture. If no planned time is set only the date is shown. Times only display for current and future reservations.',
+    content: 'Check-in and checkout dates now include planned arrival departure times when available. Times come from the guest\'s specific booking details in Guesty. If no planned time is set only the date is shown. Times only display for current and future reservations.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
         <div>• {hl('Check-in and checkout dates now include planned arrival/departure times when available (e.g., "Apr 10 (3:00 PM)")')}</div>
-        <div>• {hl("Times come from the guest's specific booking in Guesty (plannedArrival/plannedDeparture)")}</div>
+        <div>• {hl("Times come from the guest's specific booking details in Guesty")}</div>
         <div>• {hl('If no planned time is set, only the date is shown')}</div>
         <div>• {hl('Times only display for current and future reservations')}</div>
       </div>
