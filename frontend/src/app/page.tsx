@@ -75,6 +75,7 @@ export default function MessageDashboard() {
   const [undoDraftId, setUndoDraftId] = useState<string | null>(null)
   const undoTimerRef = useRef<NodeJS.Timeout | null>(null)
   const undoIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const pendingEditBodyRef = useRef<string | null>(null)
   const [staffNotes, setStaffNotes] = useState('')
   const [showDoneWarning, setShowDoneWarning] = useState(false)
   const [doneWarningCount, setDoneWarningCount] = useState(0)
@@ -332,6 +333,13 @@ export default function MessageDashboard() {
     return () => clearInterval(iv)
   }, [token, fetchConversations, fetchStats])
 
+  // Auto-scroll messages to bottom when detail loads or draft history toggles
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [detail, showDraftHistory])
+
   const selectConversation = (conv: Conversation) => {
     setSelectedConvId(conv.id); setMobileView('detail')
     fetchDetail(conv.id)
@@ -365,6 +373,8 @@ export default function MessageDashboard() {
     setSendConfirm(null)
     setUndoDraftId(draftId)
     setUndoCountdown(5)
+    const editedBody = pendingEditBodyRef.current
+    pendingEditBodyRef.current = null
 
     const interval = setInterval(() => {
       setUndoCountdown(prev => {
@@ -383,14 +393,20 @@ export default function MessageDashboard() {
       try {
         await apiFetch('/api/drafts/' + draftId + '/approve', {
           method: 'POST',
-          body: JSON.stringify({ reviewed_by: displayName, sent_via: sendChannel }),
+          body: JSON.stringify({ reviewed_by: displayName, sent_via: sendChannel, ...(editedBody ? { draft_body: editedBody } : {}) }),
         })
         toast.success('Draft approved and sent')
         if (selectedConvId) fetchDetail(selectedConvId)
         fetchConversations()
         fetchStats()
       } catch (err: any) {
-        toast.error(err.message)
+        if (err.message?.includes('Cannot approve draft in state')) {
+          toast.error('Draft already processed — refreshing...')
+        } else {
+          toast.error(err.message)
+        }
+        if (selectedConvId) fetchDetail(selectedConvId)
+        fetchConversations()
       }
     }, 5000)
     undoTimerRef.current = timer
@@ -408,6 +424,9 @@ export default function MessageDashboard() {
   const handleDraftAction = async (draftId: string, action: 'approve' | 'reject', editedBody?: string) => {
     try {
       if (action === 'approve') {
+        pendingEditBodyRef.current = editedBody || null
+        setEditingDraft(null)
+        isEditingRef.current = false
         requestApproval(draftId)
         return
       } else {

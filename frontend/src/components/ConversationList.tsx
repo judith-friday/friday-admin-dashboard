@@ -52,6 +52,7 @@ export default function ConversationList({
   onRefresh,
 }: ConversationListProps) {
   const [showFilters, setShowFilters] = useState(false)
+  const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'guest' | 'property'>('recent')
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; convId: string } | null>(null)
   const longPressTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTriggered = React.useRef(false)
@@ -215,7 +216,17 @@ export default function ConversationList({
 
       {activeTab === 'actions' && !isSearchActive ? (
         <PendingActionsTab token={token} />
-      ) : (
+      ) : (<>
+        {/* Sort control */}
+        <div className="px-3 py-1 flex items-center justify-end" style={{borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
+          <select value={sortBy} onChange={e => setSortBy(e.target.value as typeof sortBy)}
+            className="text-xs py-0.5 px-1.5 rounded outline-none" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
+            <option value="recent">Most recent</option>
+            <option value="oldest">Oldest first</option>
+            <option value="guest">Guest name</option>
+            <option value="property">Property</option>
+          </select>
+        </div>
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {filteredConversations.length === 0 ? (
             <div className="p-4 text-center" style={{color: '#64748b'}}>
@@ -226,7 +237,13 @@ export default function ConversationList({
               )}
             </div>
           ) : (
-            filteredConversations.map(conv => (
+            [...filteredConversations].sort((a, b) => {
+              if (sortBy === 'recent') return new Date(b.last_message_at || 0).getTime() - new Date(a.last_message_at || 0).getTime()
+              if (sortBy === 'oldest') return new Date(a.last_message_at || 0).getTime() - new Date(b.last_message_at || 0).getTime()
+              if (sortBy === 'guest') return (a.guest_name || '').localeCompare(b.guest_name || '')
+              if (sortBy === 'property') return (a.property_name || '').localeCompare(b.property_name || '')
+              return 0
+            }).map(conv => (
               <div key={conv.id} data-testid={`conversation-${conv.id}`}
                 onClick={() => { if (!longPressTriggered.current) selectConversation(conv) }}
                 onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, convId: conv.id }) }}
@@ -285,7 +302,7 @@ export default function ConversationList({
             ))
           )}
         </div>
-      )}
+      </>)}
 
       {/* Context menu */}
       {contextMenu && (

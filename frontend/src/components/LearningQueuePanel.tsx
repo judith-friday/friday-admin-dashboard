@@ -14,6 +14,7 @@ interface TeachingCandidate {
   evidence_count: number
   evidence_ids: string[]
   status: string
+  recommendation: string | null
   auto_approved_at: string | null
   expires_at: string | null
   approved_at: string | null
@@ -410,6 +411,12 @@ export default function LearningQueuePanel({ show, onClose }: LearningQueuePanel
             {c.cluster_description && (
               <div className="text-xs mt-1" style={{ color: '#64748b' }}>
                 {pattern.label}: {c.cluster_description}
+              </div>
+            )}
+            {c.recommendation && (
+              <div className="text-xs mt-2 p-2 rounded" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)', color: '#94a3b8' }}>
+                <span style={{ color: '#6395ff', fontWeight: 500 }}>{'\u{1F4AC}'} Judith&apos;s take:</span>{' '}
+                {c.recommendation}
               </div>
             )}
           </div>

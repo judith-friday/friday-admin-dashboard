@@ -38,31 +38,27 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
   const [capturing, setCapturing] = useState(false)
   const imgRef = useRef<HTMLDivElement>(null)
 
-  // Capture screenshot BEFORE opening modal (so the modal overlay isn't in the capture)
+  // Capture screenshot BEFORE opening modal to avoid flicker
   const captureAndOpen = async () => {
     setBugWhat('')
     setBugExpect('')
     setBugSeverity('medium')
     setScreenshotData(null)
     setCapturing(true)
-    setBugReportOpen(true)
 
     try {
       const { toJpeg } = await import('html-to-image')
-      // Hide the bug report backdrop before capture
-      const backdrop = document.querySelector('[data-testid="bug-report-backdrop"]') as HTMLElement | null
-      if (backdrop) backdrop.style.display = 'none'
       const dataUrl = await toJpeg(document.body, {
         quality: 0.6,
         pixelRatio: 0.5,
         backgroundColor: '#0d1117',
       })
-      if (backdrop) backdrop.style.display = ''
       setScreenshotData(dataUrl)
     } catch (err) {
       console.error('[BugReport] Screenshot capture failed:', err)
     } finally {
       setCapturing(false)
+      setBugReportOpen(true)
     }
   }
 

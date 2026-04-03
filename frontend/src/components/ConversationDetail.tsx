@@ -134,13 +134,19 @@ export default function ConversationDetail({
       {/* Messages - dominant element */}
       <div data-testid="section-messages" className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3 custom-scrollbar min-h-0" style={{background: 'rgba(255,255,255,0.01)'}}>
         {(() => {
-          // Deduplicate messages by ID, then exclude messages that are already shown as sent drafts
-          const sentDraftMessageIds = new Set(detail.drafts.filter(d => d.state === 'sent' && d.message_id).map(d => d.message_id))
+          // Build set of bodies from sent drafts to avoid showing duplicate outbound messages
+          // (sent drafts are rendered separately with approval info and translation toggle)
+          const sentDraftBodies = new Set<string>()
+          detail.drafts.filter(d => d.state === 'sent').forEach(d => {
+            if (d.draft_body) sentDraftBodies.add(d.draft_body)
+            if (d.translated_content) sentDraftBodies.add(d.translated_content)
+          })
           const seen = new Set<string>()
           const dedupedMessages = detail.messages.filter(msg => {
             if (seen.has(msg.id)) return false
             seen.add(msg.id)
-            if (sentDraftMessageIds.has(msg.id)) return false
+            // Hide outbound messages already shown as sent draft cards
+            if (msg.direction === 'outbound' && sentDraftBodies.has(msg.body)) return false
             return true
           })
           // Sort chronologically — oldest first
@@ -152,9 +158,14 @@ export default function ConversationDetail({
           const isNonEnglish = msg.original_language && msg.original_language !== 'en'
           const showingOriginal = showMsgOriginal[msg.id]
 
-          // For outbound messages with translation: default to English (translated_body)
+          // For messages with translation: default to English
+          // Outbound: body = guest language, translated_body = English original
+          // Inbound: body = original language, translated_body = English translation
           let displayBody = msg.body
           if (isOutbound && hasTranslation && !showingOriginal) {
+            displayBody = msg.translated_body!
+          }
+          if (!isOutbound && hasTranslation && !showingOriginal) {
             displayBody = msg.translated_body!
           }
 
@@ -167,7 +178,7 @@ export default function ConversationDetail({
                 overflowWrap: 'break-word',
                 wordBreak: 'break-word',
                 overflowX: 'hidden',
-                maxWidth: '100%',
+                minWidth: 0,
               }}>
                 <p className="text-sm whitespace-pre-wrap" dir="auto">{displayBody}</p>
 
@@ -191,10 +202,23 @@ export default function ConversationDetail({
                   </div>
                 )}
 
-                {/* Inbound with translation: show translated version below */}
+                {/* Inbound with translation: toggle between English and original */}
                 {!isOutbound && hasTranslation && (
-                  <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8'}}>
-                    <LanguageIcon className="h-3 w-3 inline mr-1" /> <span dir="auto">{msg.translated_body}</span>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="text-xs" style={{color: '#64748b'}}>
+                      {showingOriginal
+                        ? `Original (${LANG_FLAGS[msg.original_language!] || ''} ${LANG_NAMES[msg.original_language!] || msg.original_language})`
+                        : `Translated from ${LANG_FLAGS[msg.original_language!] || ''} ${LANG_NAMES[msg.original_language!] || msg.original_language}`
+                      }
+                    </span>
+                    <button
+                      onClick={() => setShowMsgOriginal(prev => ({ ...prev, [msg.id]: !prev[msg.id] }))}
+                      className="text-xs px-1.5 py-0.5 rounded"
+                      style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}
+                    >
+                      <LanguageIcon className="h-3 w-3 inline mr-0.5" />
+                      {showingOriginal ? 'English' : 'Original'}
+                    </button>
                   </div>
                 )}
 

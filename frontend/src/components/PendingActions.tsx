@@ -11,9 +11,12 @@ import {
 } from '@heroicons/react/24/outline'
 import { apiFetch, PendingAction } from './types'
 
+type SortKey = 'urgency' | 'newest' | 'oldest' | 'guest'
+
 export default function PendingActionsTab({ token, conversationFilter }: { token: string; conversationFilter?: string }) {
   const [actions, setActions] = useState<PendingAction[]>([])
   const [loading, setLoading] = useState(true)
+  const [sortBy, setSortBy] = useState<SortKey>('urgency')
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({})
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
@@ -114,6 +117,21 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
     return <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>{mins < 60 ? `${Math.round(mins)}m` : `${Math.round(hours)}h`}</span>
   }
 
+  const sortedActions = [...actions].sort((a, b) => {
+    if (sortBy === 'urgency') {
+      const aOverdue = a.due_by && new Date(a.due_by) < new Date() && a.status === 'pending' ? 1 : 0
+      const bOverdue = b.due_by && new Date(b.due_by) < new Date() && b.status === 'pending' ? 1 : 0
+      if (aOverdue !== bOverdue) return bOverdue - aOverdue
+      const aDue = a.due_by ? new Date(a.due_by).getTime() : Infinity
+      const bDue = b.due_by ? new Date(b.due_by).getTime() : Infinity
+      return aDue - bDue
+    }
+    if (sortBy === 'newest') return new Date(b.detected_at).getTime() - new Date(a.detected_at).getTime()
+    if (sortBy === 'oldest') return new Date(a.detected_at).getTime() - new Date(b.detected_at).getTime()
+    if (sortBy === 'guest') return (a.guest_name || '').localeCompare(b.guest_name || '')
+    return 0
+  })
+
   if (loading) return <div className="p-4 text-center" style={{color: '#64748b'}}>Loading actions...</div>
 
   return (
@@ -121,9 +139,18 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
       {!conversationFilter && (
         <div className="p-3 flex justify-between items-center" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
           <span className="text-sm font-medium" style={{color: '#94a3b8'}}>{actions.length} pending action{actions.length !== 1 ? 's' : ''}</span>
-          <button data-testid="btn-add-action" onClick={() => setShowAddForm(!showAddForm)} className="flex items-center text-sm" style={{color: '#6395ff'}}>
-            <PlusIcon className="h-4 w-4 mr-1" /> Add
-          </button>
+          <div className="flex items-center gap-2">
+            <select value={sortBy} onChange={e => setSortBy(e.target.value as SortKey)}
+              className="text-xs py-0.5 px-1.5 rounded outline-none" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
+              <option value="urgency">Urgency</option>
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="guest">Guest name</option>
+            </select>
+            <button data-testid="btn-add-action" onClick={() => setShowAddForm(!showAddForm)} className="flex items-center text-sm" style={{color: '#6395ff'}}>
+              <PlusIcon className="h-4 w-4 mr-1" /> Add
+            </button>
+          </div>
         </div>
       )}
 
@@ -153,7 +180,7 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
           <p className="text-sm">No pending actions</p>
         </div>
       ) : (
-        actions.map(action => (
+        sortedActions.map(action => (
           <div key={action.id} className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.03)', opacity: action.status !== 'pending' ? 0.5 : 1}}>
             <div className="flex justify-between items-start mb-1">
               <span className="text-sm font-medium" style={{color: '#f1f5f9'}}>{action.guest_name}</span>
