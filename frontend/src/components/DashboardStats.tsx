@@ -59,7 +59,7 @@ export default function DashboardStats({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div>
-              <h1 className="text-base sm:text-xl font-bold" style={{color: '#f1f5f9'}}><span className="hidden lg:inline">Friday Admin Dashboard</span><span className="lg:hidden">Friday Admin</span></h1>
+              <h1 className="text-base sm:text-xl font-bold" style={{color: '#f1f5f9'}}>Friday GMS</h1>
             </div>
           </div>
 
@@ -115,7 +115,7 @@ export default function DashboardStats({
               {mobileMenuOpen ? <XMarkIcon className="h-5 w-5" /> : <Bars3Icon className="h-5 w-5" />}
             </button>
             {mobileMenuOpen && (
-              <div className="absolute right-0 top-full mt-1 rounded-lg py-1 z-50" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.1)', minWidth: '160px', boxShadow: '0 8px 24px rgba(0,0,0,0.4)'}}>
+              <div className="absolute right-0 top-full mt-1 rounded-lg py-1 z-[999]" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.1)', minWidth: '160px', boxShadow: '0 8px 24px rgba(0,0,0,0.4)'}}>
                 <button onClick={() => { toggleMute(); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#e2e8f0'}}>
                   {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
                   {isMuted ? 'Unmute' : 'Mute'}

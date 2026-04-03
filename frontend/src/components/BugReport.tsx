@@ -38,13 +38,14 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
   const [capturing, setCapturing] = useState(false)
   const imgRef = useRef<HTMLDivElement>(null)
 
-  // Capture screenshot BEFORE opening modal to avoid flicker
+  // Open modal immediately, capture screenshot in background
   const captureAndOpen = async () => {
     setBugWhat('')
     setBugExpect('')
     setBugSeverity('medium')
     setScreenshotData(null)
     setCapturing(true)
+    setBugReportOpen(true)
 
     try {
       const { toJpeg } = await import('html-to-image')
@@ -58,7 +59,6 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
       console.error('[BugReport] Screenshot capture failed:', err)
     } finally {
       setCapturing(false)
-      setBugReportOpen(true)
     }
   }
 
@@ -102,7 +102,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
 
       {/* Bug report modal */}
       {bugReportOpen && (
-        <div data-testid="bug-report-backdrop" className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}} onClick={() => {
+        <div data-testid="bug-report-backdrop" className="fixed inset-0 flex items-center justify-center z-[80]" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}} onClick={() => {
           const hasContent = bugWhat.trim() || bugExpect.trim()
           if (hasContent) {
             if (window.confirm('Discard unsaved bug report?')) setBugReportOpen(false)

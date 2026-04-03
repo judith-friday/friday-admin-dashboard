@@ -334,6 +334,22 @@ export default function MessageDashboard() {
     return () => clearInterval(iv)
   }, [token, fetchConversations, fetchStats])
 
+  // Auto-select first conversation on initial load (desktop only)
+  useEffect(() => {
+    if (!selectedConvId && conversations.length > 0 && !loading && window.innerWidth >= 768) {
+      const first = conversations[0]
+      setSelectedConvId(first.id)
+      fetchDetail(first.id)
+    }
+  }, [conversations, loading])
+
+  // Auto-close compose panel when an AI draft arrives (prevents both showing)
+  useEffect(() => {
+    if (detail && detail.drafts.some(d => ['draft_ready', 'under_review'].includes(d.state))) {
+      setComposeOpen(false)
+    }
+  }, [detail])
+
   // Auto-scroll messages to bottom when detail loads or draft history toggles
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -1050,7 +1066,7 @@ export default function MessageDashboard() {
             <div className="flex-1 hidden md:flex items-center justify-center" style={{background: 'rgba(255,255,255,0.01)'}}>
               <div className="text-center">
                 <ChatBubbleLeftRightIcon className="h-20 w-20 mx-auto mb-4" style={{color: '#1e293b'}} />
-                <h3 className="text-lg font-medium mb-2" style={{color: '#f1f5f9'}}>Friday Admin</h3>
+                <h3 className="text-lg font-medium mb-2" style={{color: '#f1f5f9'}}>Friday GMS</h3>
                 <p className="text-sm max-w-md" style={{color: '#64748b'}}>Select a conversation to view messages, review AI drafts, and manage guest communication.</p>
               </div>
             </div>

@@ -317,11 +317,11 @@ export default function ConversationDetail({
 
           if (hiddenCount === 0) return null
           return (<>
-            <button onClick={() => setShowDraftHistory(!showDraftHistory)} className="text-xs px-2 py-1 rounded mx-4 mt-1" style={{color: '#64748b'}}>
+            <button onClick={() => { setShowDraftHistory(!showDraftHistory); if (!showDraftHistory) { setTimeout(() => { const el = document.getElementById('draft-history-section'); el?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 100) } }} className="text-xs px-2 py-1 rounded mx-4 mt-1" style={{color: '#64748b'}}>
               {showDraftHistory ? 'Hide' : 'Show'} draft history ({hiddenCount} older)
             </button>
-            {showDraftHistory && revisionDrafts.map(draft => (
-              <div key={`revision-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)'}}>
+            {showDraftHistory && revisionDrafts.map((draft, idx) => (
+              <div key={`revision-${draft.id}`} id={idx === 0 ? 'draft-history-section' : undefined} className="rounded-lg p-3 mt-2" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)'}}>
                 <div className="text-xs font-medium mb-1" style={{color: '#6395ff'}}>Revision #{draft.revision_number || '?'}:</div>
                 <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0', overflowWrap: 'break-word', wordBreak: 'break-word'}}>{draft.draft_body}</p>
                 <div className="text-xs pt-2" style={{borderTop: '1px solid rgba(99,149,255,0.1)', color: '#64748b'}}>
@@ -329,8 +329,8 @@ export default function ConversationDetail({
                 </div>
               </div>
             ))}
-            {showDraftHistory && rejectedDrafts.map(draft => (
-              <div key={`rejected-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.1)'}}>
+            {showDraftHistory && rejectedDrafts.map((draft, idx) => (
+              <div key={`rejected-${draft.id}`} id={idx === 0 && revisionDrafts.length === 0 ? 'draft-history-section' : undefined} className="rounded-lg p-3 mt-2" style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.1)'}}>
                 <div className="text-xs font-medium mb-1" style={{color: '#f87171'}}>Rejected:</div>
                 <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0', overflowWrap: 'break-word', wordBreak: 'break-word'}}>{draft.draft_body}</p>
                 <div className="text-xs pt-2" style={{borderTop: '1px solid rgba(239,68,68,0.1)', color: '#f87171'}}>Rejected by {draft.reviewed_by || 'unknown'} · {draft.rejection_reason}</div>
