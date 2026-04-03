@@ -4,8 +4,6 @@ import React, { useState } from 'react'
 import {
   SpeakerWaveIcon,
   SpeakerXMarkIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
   Bars3Icon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
@@ -51,7 +49,6 @@ export default function DashboardStats({
   fetchTeachings, setShowHelp, showBugReportsPanel, setShowBugReportsPanel,
   showLearningQueue, setShowLearningQueue,
 }: DashboardStatsProps) {
-  const [mobileStatsOpen, setMobileStatsOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showInstallHelp, setShowInstallHelp] = useState(false)
   const { canInstall, installed, triggerInstall, resetDismissal } = useInstallPrompt()
@@ -64,19 +61,6 @@ export default function DashboardStats({
             <div>
               <h1 className="text-base sm:text-xl font-bold" style={{color: '#f1f5f9'}}><span className="hidden lg:inline">Friday Admin Dashboard</span><span className="lg:hidden">Friday Admin</span></h1>
             </div>
-            {/* Mobile compact: badge count + chevron to expand details */}
-            {stats && (
-              <div className="flex sm:hidden items-center gap-1 ml-2">
-                {(stats.needs_review_count > 0 || stats.pending_actions_count > 0) && (
-                  <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full text-xs font-bold" style={{background: 'rgba(251,191,36,0.2)', color: '#fbbf24'}}>
-                    {stats.needs_review_count + stats.pending_actions_count}
-                  </span>
-                )}
-                <button onClick={() => setMobileStatsOpen(!mobileStatsOpen)} className="p-1" style={{color: '#64748b'}}>
-                  {mobileStatsOpen ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Desktop stats + controls */}
@@ -162,37 +146,6 @@ export default function DashboardStats({
           </div>
         </div>
 
-        {/* Mobile expanded stats panel */}
-        {mobileStatsOpen && stats && (
-          <div className="sm:hidden mt-2 pt-2 grid grid-cols-4 gap-2 text-center" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
-            <div>
-              <div className="text-sm font-bold" style={{color: '#fbbf24'}}>{stats.needs_review_count}</div>
-              <div className="text-xs" style={{color: '#64748b'}}>review</div>
-            </div>
-            <div>
-              <div className="text-sm font-bold" style={{color: stats.avg_response_time_minutes != null ? rtColor(stats.avg_response_time_minutes) : '#64748b'}}>
-                {stats.avg_response_time_minutes != null ? formatResponseTime(stats.avg_response_time_minutes) : '\u2014'}
-              </div>
-              <div className="text-xs" style={{color: '#64748b'}}>avg RT</div>
-            </div>
-            <div>
-              <div className="text-sm font-bold" style={{color: '#6395ff'}}>{stats.messages_today}</div>
-              <div className="text-xs" style={{color: '#64748b'}}>today</div>
-            </div>
-            <div>
-              <div className="text-sm font-bold" style={{color: stats.overdue_actions_count > 0 ? '#f87171' : stats.pending_actions_count > 0 ? '#fbbf24' : '#4ade80'}}>
-                {stats.pending_actions_count}
-              </div>
-              <div className="text-xs" style={{color: '#64748b'}}>actions</div>
-            </div>
-            {pollerStatus && pollerStatus.api_down && (
-              <div className="col-span-4">
-                <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>{'\u26A0'} API Down</span>
-              </div>
-            )}
-            {/* Teachings and Help accessible via hamburger menu */}
-          </div>
-        )}
       </div>
       <InstallInstructions show={showInstallHelp} onClose={() => setShowInstallHelp(false)} />
     </header>
