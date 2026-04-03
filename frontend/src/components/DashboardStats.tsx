@@ -11,6 +11,7 @@ import { InboxStats, clearToken } from './types'
 import { useInstallPrompt } from './useInstallPrompt'
 import { toast } from 'react-hot-toast'
 import InstallInstructions from './InstallInstructions'
+import NotificationBell, { Notification } from './NotificationBell'
 
 interface DashboardStatsProps {
   stats: InboxStats | null
@@ -27,6 +28,9 @@ interface DashboardStatsProps {
   setShowBugReportsPanel: (v: boolean) => void
   showLearningQueue: boolean
   setShowLearningQueue: (v: boolean) => void
+  notifications: Notification[]
+  onNotificationClick: (n: Notification) => void
+  onMarkAllRead: () => void
 }
 
 function rtColor(mins?: number) {
@@ -48,6 +52,7 @@ export default function DashboardStats({
   toggleMute, isMuted, showTeachingsPanel, setShowTeachingsPanel,
   fetchTeachings, setShowHelp, showBugReportsPanel, setShowBugReportsPanel,
   showLearningQueue, setShowLearningQueue,
+  notifications, onNotificationClick, onMarkAllRead,
 }: DashboardStatsProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showInstallHelp, setShowInstallHelp] = useState(false)
@@ -96,6 +101,7 @@ export default function DashboardStats({
               )}
               <button onClick={() => { clearToken(); setTokenState(null) }}
                 className="text-xs ml-4" style={{color: '#64748b'}}>{displayName} {'\u00B7'} Logout</button>
+              <NotificationBell notifications={notifications} onNotificationClick={onNotificationClick} onMarkAllRead={onMarkAllRead} />
               <button onClick={toggleMute} className="ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded" style={{color: '#64748b'}} title={isMuted ? 'Unmute' : 'Mute'}>
                 {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
               </button>
@@ -116,6 +122,9 @@ export default function DashboardStats({
             </button>
             {mobileMenuOpen && (
               <div className="absolute right-0 top-full mt-1 rounded-lg py-1 z-[999]" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.1)', minWidth: '160px', boxShadow: '0 8px 24px rgba(0,0,0,0.4)'}}>
+                <div className="px-2 py-1">
+                  <NotificationBell notifications={notifications} onNotificationClick={(n) => { onNotificationClick(n); setMobileMenuOpen(false) }} onMarkAllRead={onMarkAllRead} />
+                </div>
                 <button onClick={() => { toggleMute(); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#e2e8f0'}}>
                   {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
                   {isMuted ? 'Unmute' : 'Mute'}

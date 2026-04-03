@@ -27,6 +27,7 @@ import ConversationList from '../components/ConversationList'
 import ConversationDetailView from '../components/ConversationDetail'
 import GuestInfo from '../components/GuestInfo'
 import InstallPrompt from '../components/InstallPrompt'
+import { Notification } from '../components/NotificationBell'
 
 export default function MessageDashboard() {
   const [token, setTokenState] = useState<string | null>(null)
@@ -99,6 +100,13 @@ export default function MessageDashboard() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const [leftCollapsed, setLeftCollapsed] = useState(false)
   const [rightCollapsed, setRightCollapsed] = useState(false)
+  const [notifications, setNotifications] = useState<Notification[]>(() => {
+    if (typeof window === 'undefined') return []
+    try {
+      const stored = localStorage.getItem('gms_notifications')
+      return stored ? JSON.parse(stored) : []
+    } catch { return [] }
+  })
 
   // Init auth
   useEffect(() => {
@@ -143,6 +151,32 @@ export default function MessageDashboard() {
       osc.start(ctx.currentTime)
       osc.stop(ctx.currentTime + 0.3)
     } catch {}
+  }, [])
+
+  // Persist notifications to localStorage
+  useEffect(() => {
+    try { localStorage.setItem('gms_notifications', JSON.stringify(notifications.slice(0, 50))) } catch {}
+  }, [notifications])
+
+  const addNotification = useCallback((n: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
+    setNotifications(prev => [{
+      ...n,
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      timestamp: Date.now(),
+      read: false,
+    }, ...prev].slice(0, 50))
+  }, [])
+
+  const handleNotificationClick = useCallback((n: Notification) => {
+    setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x))
+    if (n.conversationId) {
+      setSelectedConvId(n.conversationId)
+      setMobileView('detail')
+    }
+  }, [])
+
+  const handleMarkAllRead = useCallback(() => {
+    setNotifications(prev => prev.map(x => ({ ...x, read: true })))
   }, [])
 
   // Initialize AudioContext on first user interaction
@@ -296,6 +330,31 @@ export default function MessageDashboard() {
           if (data.type === 'new_message') {
             toast.success('New message received')
             if (!isMuted) playChime()
+            addNotification({
+              type: 'new_message',
+              title: `New message from ${data.data?.guestName || 'Guest'}`,
+              subtitle: '',
+              preview: (data.data?.body || '').substring(0, 80),
+              conversationId: data.data?.conversationId || data.data?.conversation_id || '',
+            })
+          }
+          if (data.type === 'draft_ready') {
+            addNotification({
+              type: 'draft_ready',
+              title: `Draft ready`,
+              subtitle: `Confidence: ${data.data?.confidence || '?'}%`,
+              preview: '',
+              conversationId: data.data?.conversationId || data.data?.conversation_id || '',
+            })
+          }
+          if (data.type === 'pending_action_new') {
+            addNotification({
+              type: 'pending_action',
+              title: 'New action item',
+              subtitle: '',
+              preview: (data.data?.actionText || '').substring(0, 80),
+              conversationId: data.data?.conversationId || data.data?.conversation_id || '',
+            })
           }
         }
       } catch { }
@@ -314,7 +373,7 @@ export default function MessageDashboard() {
     es.onopen = () => { errorCount = 0 }
 
     return () => es.close()
-  }, [token, selectedConvId, fetchConversations, fetchStats, fetchDetail, isMuted, playChime])
+  }, [token, selectedConvId, fetchConversations, fetchStats, fetchDetail, isMuted, playChime, addNotification])
 
   // Timeout fallback: clear revisionPending after 30s to prevent stuck state
   useEffect(() => {
@@ -935,6 +994,9 @@ export default function MessageDashboard() {
         setShowBugReportsPanel={setShowBugReportsPanel}
         showLearningQueue={showLearningQueue}
         setShowLearningQueue={setShowLearningQueue}
+        notifications={notifications}
+        onNotificationClick={handleNotificationClick}
+        onMarkAllRead={handleMarkAllRead}
       />
 
       <div className="flex h-[calc(100vh-52px)] sm:h-[calc(100vh-72px)] relative" data-testid="nav-conversation-list">
