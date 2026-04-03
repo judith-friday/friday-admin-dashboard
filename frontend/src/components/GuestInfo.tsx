@@ -101,6 +101,36 @@ export default function GuestInfo({
         )}
       </div>
 
+      {/* Financial info */}
+      {detail.reservation && (detail.reservation.nightly_rate || detail.reservation.total_price) && (() => {
+        const r = detail.reservation
+        const currency = r.currency || 'EUR'
+        const sym = currency === 'EUR' ? '\u20AC' : currency === 'USD' ? '$' : currency === 'GBP' ? '\u00A3' : currency === 'MUR' ? 'Rs' : currency + ' '
+        const fmt = (v: number | string) => {
+          const n = typeof v === 'string' ? parseFloat(v) : v
+          return Number.isInteger(n) ? n.toString() : n.toFixed(2)
+        }
+        const nights = r.number_of_nights || null
+        const nightlyRate = r.nightly_rate ? parseFloat(r.nightly_rate) : null
+        const cleaningFee = r.cleaning_fee ? parseFloat(r.cleaning_fee) : null
+        const totalPaid = r.total_price ? parseFloat(r.total_price) : null
+        const hostPayout = r.host_payout ? parseFloat(r.host_payout) : null
+
+        return (
+          <div className="p-3 space-y-1 text-xs" style={{color: '#94a3b8', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+            <h3 className="text-xs font-semibold mb-1.5" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Financial</h3>
+            {nightlyRate && nights ? (
+              <div>{sym}{fmt(nightlyRate)}/night {'\u00D7'} {nights} night{nights !== 1 ? 's' : ''}</div>
+            ) : nightlyRate ? (
+              <div>Nightly rate: {sym}{fmt(nightlyRate)}</div>
+            ) : null}
+            {cleaningFee ? <div>Cleaning: {sym}{fmt(cleaningFee)}</div> : null}
+            {totalPaid ? <div className="font-medium" style={{color: '#e2e8f0'}}>Total: {sym}{fmt(totalPaid)} ({currency})</div> : null}
+            {hostPayout ? <div>Host payout: {sym}{fmt(hostPayout)}</div> : null}
+          </div>
+        )
+      })()}
+
       {/* Mark as Done / Reopen button */}
       <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
         {detail.conversation.status === 'done' ? (
