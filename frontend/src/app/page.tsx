@@ -911,7 +911,7 @@ export default function MessageDashboard() {
 
       <BugReport selectedConvId={selectedConvId} displayName={displayName} />
       <BugReportsPanel show={showBugReportsPanel} onClose={() => setShowBugReportsPanel(false)} />
-      <LearningQueuePanel show={showLearningQueue} onClose={() => setShowLearningQueue(false)} />
+      <LearningQueuePanel show={showLearningQueue} onClose={() => setShowLearningQueue(false)} displayName={displayName} />
 
       <SendConfirmModal
         sendConfirm={sendConfirm}

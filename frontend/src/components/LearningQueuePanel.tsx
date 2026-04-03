@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { toast } from 'react-hot-toast'
+import { formatDistanceToNow } from 'date-fns'
 import { apiFetch } from './types'
 
 interface TeachingCandidate {
@@ -37,6 +38,7 @@ interface LearningMetrics {
 interface LearningQueuePanelProps {
   show: boolean
   onClose: () => void
+  displayName?: string
 }
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
@@ -71,7 +73,7 @@ function confidenceBadge(conf: number) {
   )
 }
 
-export default function LearningQueuePanel({ show, onClose }: LearningQueuePanelProps) {
+export default function LearningQueuePanel({ show, onClose, displayName }: LearningQueuePanelProps) {
   const [candidates, setCandidates] = useState<TeachingCandidate[]>([])
   const [metrics, setMetrics] = useState<LearningMetrics | null>(null)
   const [loading, setLoading] = useState(false)
@@ -83,6 +85,10 @@ export default function LearningQueuePanel({ show, onClose }: LearningQueuePanel
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
   const [tab, setTab] = useState<'candidates' | 'corrections' | 'metrics'>('candidates')
+  const [commentsById, setCommentsById] = useState<Record<string, any[]>>({})
+  const [loadingComments, setLoadingComments] = useState<string | null>(null)
+  const [showComments, setShowComments] = useState<string | null>(null)
+  const [commentText, setCommentText] = useState('')
 
   const fetchCandidates = useCallback(async () => {
     setLoading(true)
@@ -163,6 +169,45 @@ export default function LearningQueuePanel({ show, onClose }: LearningQueuePanel
       toast.error('Edit failed: ' + err.message)
     } finally {
       setActionInProgress(null)
+    }
+  }
+
+  const toggleComments = async (candidateId: string) => {
+    if (showComments === candidateId) {
+      setShowComments(null)
+      return
+    }
+    if (!commentsById[candidateId]) {
+      setLoadingComments(candidateId)
+      try {
+        const data = await apiFetch(`/api/learning/candidates/${candidateId}/comments`)
+        setCommentsById(prev => ({ ...prev, [candidateId]: data.comments || [] }))
+      } catch {
+        setCommentsById(prev => ({ ...prev, [candidateId]: [] }))
+      } finally {
+        setLoadingComments(null)
+      }
+    }
+    setShowComments(candidateId)
+    setCommentText('')
+  }
+
+  const postComment = async (candidateId: string) => {
+    if (!commentText.trim()) return
+    try {
+      const data = await apiFetch(`/api/learning/candidates/${candidateId}/comments`, {
+        method: 'POST',
+        body: JSON.stringify({ content: commentText, user_name: displayName || 'Dashboard' }),
+      })
+      setCommentsById(prev => ({
+        ...prev,
+        [candidateId]: [...(prev[candidateId] || []), data.comment],
+      }))
+      // Update comment_count on the candidate
+      setCandidates(prev => prev.map(c => c.id === candidateId ? { ...c, comment_count: ((c as any).comment_count || 0) + 1 } : c))
+      setCommentText('')
+    } catch (err: any) {
+      toast.error('Failed to post comment')
     }
   }
 
@@ -449,6 +494,56 @@ export default function LearningQueuePanel({ show, onClose }: LearningQueuePanel
                 )}
               </div>
             ) : null}
+
+            {/* Comments section */}
+            <div className="mt-2">
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleComments(c.id) }}
+                className="text-xs flex items-center gap-1"
+                style={{ color: '#64748b' }}
+              >
+                💬 {(c as any).comment_count || 0} comment{((c as any).comment_count || 0) !== 1 ? 's' : ''}
+              </button>
+
+              {showComments === c.id && (
+                <div className="mt-2 space-y-2">
+                  {loadingComments === c.id ? (
+                    <div className="text-xs py-1" style={{ color: '#64748b' }}>Loading comments...</div>
+                  ) : (
+                    (commentsById[c.id] || []).map((comment: any) => (
+                      <div key={comment.id} className="text-xs p-2 rounded" style={{ background: 'rgba(0,0,0,0.2)' }}>
+                        <div className="flex justify-between">
+                          <span style={{ color: '#94a3b8', fontWeight: 500 }}>{comment.user_name}</span>
+                          <span style={{ color: '#475569' }}>{formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}</span>
+                        </div>
+                        <p className="mt-1" style={{ color: '#cbd5e1' }}>{comment.content}</p>
+                      </div>
+                    ))
+                  )}
+
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={commentText}
+                      onChange={e => setCommentText(e.target.value)}
+                      placeholder="Add a comment..."
+                      className="flex-1 text-xs rounded px-2 py-1.5 outline-none"
+                      style={{ background: 'rgba(0,0,0,0.3)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)' }}
+                      onKeyDown={e => { if (e.key === 'Enter') postComment(c.id) }}
+                      onClick={e => e.stopPropagation()}
+                    />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); postComment(c.id) }}
+                      disabled={!commentText.trim()}
+                      className="text-xs px-2 py-1 rounded disabled:opacity-50"
+                      style={{ background: 'rgba(99,149,255,0.15)', color: '#6395ff' }}
+                    >
+                      Post
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Edit mode */}
             {isEditing && (
