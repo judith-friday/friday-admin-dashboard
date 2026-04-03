@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { format } from 'date-fns'
+import { format, formatDistanceToNow } from 'date-fns'
 
 interface TeachingsPanelProps {
   showTeachingsPanel: boolean
@@ -15,6 +15,8 @@ interface TeachingsPanelProps {
   revokeReason: string
   setRevokeReason: (v: string) => void
   handleRevokeTeaching: (id: string) => void
+  apiFetch: (url: string, opts?: any) => Promise<any>
+  fetchTeachings: () => void
 }
 
 function scopeBadge(item: any) {
@@ -47,7 +49,36 @@ export default function TeachingsPanel({
   revokeReason,
   setRevokeReason,
   handleRevokeTeaching,
+  apiFetch,
+  fetchTeachings,
 }: TeachingsPanelProps) {
+  const [analyzingId, setAnalyzingId] = useState<string | null>(null)
+  const [analyzingAll, setAnalyzingAll] = useState(false)
+
+  const handleAnalyze = async (id: string) => {
+    setAnalyzingId(id)
+    try {
+      await apiFetch(`/api/teachings/${id}/analyze`, { method: 'POST' })
+      fetchTeachings()
+    } catch (err: any) {
+      console.error('Analyze failed:', err.message)
+    } finally {
+      setAnalyzingId(null)
+    }
+  }
+
+  const handleAnalyzeAll = async () => {
+    setAnalyzingAll(true)
+    try {
+      await apiFetch('/api/teachings/analyze-all', { method: 'POST' })
+      fetchTeachings()
+    } catch (err: any) {
+      console.error('Bulk analyze failed:', err.message)
+    } finally {
+      setAnalyzingAll(false)
+    }
+  }
+
   if (!showTeachingsPanel) return null
 
   const activeTeachings = teachings.filter(t => t.status === 'active')
@@ -59,7 +90,14 @@ export default function TeachingsPanel({
       <div className="w-full md:w-[480px] h-full overflow-y-auto custom-scrollbar" style={{background: '#0d1117', borderLeft: '1px solid rgba(255,255,255,0.08)'}}>
         <div className="sticky top-0 z-10 p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#0d1117'}}>
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>🧠 Teachings</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>🧠 Teachings</h2>
+              <button onClick={handleAnalyzeAll} disabled={analyzingAll}
+                className="px-2 py-0.5 text-xs rounded disabled:opacity-50"
+                style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>
+                {analyzingAll ? '⏳ Analyzing...' : '🔄 Analyze All'}
+              </button>
+            </div>
             <button onClick={() => setShowTeachingsPanel(false)} className="text-sm" data-testid="btn-close-teachings" style={{color: '#64748b'}}>✕</button>
           </div>
           <p className="text-xs mt-1" style={{color: '#64748b'}}>Instructions Judith has learned from revisions</p>
@@ -90,6 +128,17 @@ export default function TeachingsPanel({
           {activeTeachings.map(t => (
             <div key={t.id} className="p-3 rounded-lg mb-2" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)'}}>
               <p className="text-sm" style={{color: '#e2e8f0'}}>{t.instruction}</p>
+              {t.recommendation && (
+                <div className="text-xs mt-2 p-2 rounded" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)', color: '#94a3b8' }}>
+                  <span style={{ color: '#6395ff', fontWeight: 500 }}>💬 Judith&apos;s take:</span>{' '}
+                  {t.recommendation}
+                  {t.recommendation_updated_at && (
+                    <span className="ml-2" style={{ color: '#475569', fontSize: '10px' }}>
+                      {formatDistanceToNow(new Date(t.recommendation_updated_at), { addSuffix: true })}
+                    </span>
+                  )}
+                </div>
+              )}
               <div className="flex items-center justify-between mt-2">
                 <div className="flex items-center flex-wrap gap-2">
                   <span className="text-xs px-1.5 py-0.5 rounded" style={{background: t.scope === 'global' ? 'rgba(99,149,255,0.15)' : 'rgba(245,158,11,0.15)', color: t.scope === 'global' ? '#6395ff' : '#fbbf24'}}>
@@ -113,7 +162,13 @@ export default function TeachingsPanel({
                     <button onClick={() => setRevokeId(null)} className="text-xs" style={{color: '#64748b'}}>✕</button>
                   </div>
                 ) : (
-                  <button onClick={() => setRevokeId(t.id)} className="text-xs" data-testid={`btn-revoke-teaching-${t.id}`} style={{color: '#f87171'}}>Revoke</button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => handleAnalyze(t.id)} disabled={analyzingId === t.id}
+                      className="text-xs disabled:opacity-50" style={{color: '#6395ff'}}>
+                      {analyzingId === t.id ? '⏳' : '🔄 Analyze'}
+                    </button>
+                    <button onClick={() => setRevokeId(t.id)} className="text-xs" data-testid={`btn-revoke-teaching-${t.id}`} style={{color: '#f87171'}}>Revoke</button>
+                  </div>
                 )}
               </div>
             </div>

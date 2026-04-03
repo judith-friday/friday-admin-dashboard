@@ -891,6 +891,8 @@ export default function MessageDashboard() {
         revokeReason={revokeReason}
         setRevokeReason={setRevokeReason}
         handleRevokeTeaching={handleRevokeTeaching}
+        apiFetch={apiFetch}
+        fetchTeachings={fetchTeachings}
       />{propertyCard && (
         <PropertyCard
           propertyCard={propertyCard}
