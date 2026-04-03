@@ -8,6 +8,7 @@ import {
   MagnifyingGlassIcon,
   XMarkIcon,
   FunnelIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline'
 import { Conversation, InboxStats } from './types'
 import PendingActionsTab from './PendingActions'
@@ -38,6 +39,7 @@ interface ConversationListProps {
   filterDateTo: string
   filterOptions: { properties: string[]; channels: string[]; statuses: string[] }
   onFilterChange: (prop: string, ch: string, df: string, dt: string) => void
+  onRefresh?: () => void
 }
 
 export default function ConversationList({
@@ -47,13 +49,14 @@ export default function ConversationList({
   statusBadge, channelBadge,
   searchQuery, onSearchChange, searchLoading, isSearchActive, clearSearch,
   filterProperty, filterChannel, filterDateFrom, filterDateTo, filterOptions, onFilterChange,
+  onRefresh,
 }: ConversationListProps) {
   const [showFilters, setShowFilters] = useState(false)
 
   const activeFilterCount = [filterProperty, filterChannel, filterDateFrom, filterDateTo].filter(Boolean).length
 
   return (
-    <div data-testid="container-inbox" className={`w-80 flex flex-col ${mobileView !== 'list' ? 'hidden md:flex' : 'w-full md:w-80'}`} style={{background: 'rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
+    <div data-testid="container-inbox" className={`md:w-[22vw] md:min-w-[240px] md:max-w-[380px] flex flex-col ${mobileView !== 'list' ? 'hidden md:flex' : 'w-full md:w-[22vw] md:min-w-[240px] md:max-w-[380px]'}`} style={{background: 'rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
       {/* Search bar */}
       <div className="px-2 pt-2 pb-1" style={{borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
         <div className="relative flex items-center">
@@ -73,6 +76,11 @@ export default function ConversationList({
             {(searchQuery || isSearchActive) && (
               <button onClick={clearSearch} className="p-0.5 rounded hover:bg-white/10" title="Clear search">
                 <XMarkIcon className="h-3.5 w-3.5" style={{color: '#94a3b8'}} />
+              </button>
+            )}
+            {onRefresh && (
+              <button onClick={onRefresh} className="p-0.5 rounded hover:bg-white/10" title="Refresh">
+                <ArrowPathIcon className="h-3.5 w-3.5" style={{color: '#64748b'}} />
               </button>
             )}
             <button onClick={() => setShowFilters(!showFilters)} className="p-0.5 rounded hover:bg-white/10 relative" title="Filters">
@@ -128,25 +136,25 @@ export default function ConversationList({
             {activeFilterCount > 0 && (
               <div className="flex flex-wrap gap-1">
                 {filterProperty && (
-                  <span className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
+                  <span className="inline-flex items-center text-xs px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
                     {filterProperty}
                     <button onClick={() => onFilterChange('', filterChannel, filterDateFrom, filterDateTo)} className="ml-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
                   </span>
                 )}
                 {filterChannel && (
-                  <span className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
+                  <span className="inline-flex items-center text-xs px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
                     {filterChannel}
                     <button onClick={() => onFilterChange(filterProperty, '', filterDateFrom, filterDateTo)} className="ml-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
                   </span>
                 )}
                 {filterDateFrom && (
-                  <span className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
+                  <span className="inline-flex items-center text-xs px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
                     From {filterDateFrom}
                     <button onClick={() => onFilterChange(filterProperty, filterChannel, '', filterDateTo)} className="ml-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
                   </span>
                 )}
                 {filterDateTo && (
-                  <span className="inline-flex items-center text-[10px] px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
+                  <span className="inline-flex items-center text-xs px-1.5 py-0.5 rounded-full" style={{background: 'rgba(99,149,255,0.15)', color: '#93b4ff'}}>
                     To {filterDateTo}
                     <button onClick={() => onFilterChange(filterProperty, filterChannel, filterDateFrom, '')} className="ml-1 hover:text-white"><XMarkIcon className="h-2.5 w-2.5" /></button>
                   </span>
@@ -244,7 +252,7 @@ export default function ConversationList({
                   })()}
                 </div>
                 {conv.last_message_body && (
-                  <p className="text-xs truncate" style={{color: '#64748b'}}>
+                  <p className="text-xs line-clamp-1 md:line-clamp-2" style={{color: '#64748b'}}>
                     {conv.last_message_direction === 'outbound' ? '> ' : ''}{conv.last_message_body}
                   </p>
                 )}

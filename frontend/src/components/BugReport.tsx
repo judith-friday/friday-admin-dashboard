@@ -98,7 +98,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
       {/* Floating bug report button */}
       {!bugReportOpen && <button
         onClick={captureAndOpen}
-        className="fixed bottom-4 right-4 z-[9999] w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+        className={`fixed right-4 z-[9999] min-w-[44px] min-h-[44px] w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 ${selectedConvId ? 'bottom-20' : 'bottom-4'}`}
         style={{background: 'rgba(99,149,255,0.15)', border: '1px solid rgba(99,149,255,0.3)', color: '#6395ff', fontSize: '18px'}}
         title="Report a bug"
         data-testid="btn-bug-report"
@@ -117,7 +117,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
           <div className="rounded-xl p-6 max-w-lg mx-4 w-full max-h-[90vh] overflow-y-auto" data-testid="modal-bug-report" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>🐛 Report a Bug</h3>
-              <button onClick={() => setBugReportOpen(false)} className="text-sm" data-testid="btn-close-bug" style={{color: '#64748b'}}>✕</button>
+              <button onClick={() => setBugReportOpen(false)} className="min-w-[44px] min-h-[44px] flex items-center justify-center text-sm" data-testid="btn-close-bug" style={{color: '#64748b'}}>✕</button>
             </div>
 
             {/* Screenshot preview */}

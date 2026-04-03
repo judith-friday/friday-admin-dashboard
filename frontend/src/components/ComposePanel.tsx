@@ -38,17 +38,17 @@ export default function ComposePanel({
           <div className="flex items-center justify-between">
             <div className="flex gap-1">
               <button onClick={() => setComposeMode('manual')}
-                className="px-2 py-0.5 rounded text-[11px] font-medium"
+                className="px-2 py-0.5 rounded text-xs font-medium"
                 style={{background: composeMode === 'manual' ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.06)', color: composeMode === 'manual' ? '#c084fc' : '#94a3b8'}}>
                 Write
               </button>
               <button onClick={() => setComposeMode('draft')}
-                className="px-2 py-0.5 rounded text-[11px] font-medium"
+                className="px-2 py-0.5 rounded text-xs font-medium"
                 style={{background: composeMode === 'draft' ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.06)', color: composeMode === 'draft' ? '#c084fc' : '#94a3b8'}}>
                 Judith draft
               </button>
             </div>
-            <button onClick={() => setComposeOpen(false)}>
+            <button onClick={() => setComposeOpen(false)} className="min-w-[44px] min-h-[44px] flex items-center justify-center">
               <XMarkIcon className="h-4 w-4" style={{color: '#64748b'}} />
             </button>
           </div>
@@ -73,7 +73,7 @@ export default function ComposePanel({
               <PaperAirplaneIcon className="h-4 w-4" />
             </button>
           </div>
-          <span className="text-[10px] block" style={{color: '#475569'}}>
+          <span className="text-xs block" style={{color: '#475569'}}>
             {composeMode === 'manual' ? 'Creates a draft for review · Cmd+Enter' : 'Judith drafts using property knowledge · Cmd+Enter'}
           </span>
         </div>

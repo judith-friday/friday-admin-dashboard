@@ -62,18 +62,15 @@ export default function DashboardStats({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div>
-              <h1 className="text-base sm:text-xl font-bold" style={{color: '#f1f5f9'}}>Friday Admin Dashboard</h1>
+              <h1 className="text-base sm:text-xl font-bold" style={{color: '#f1f5f9'}}><span className="hidden lg:inline">Friday Admin Dashboard</span><span className="lg:hidden">Friday Admin</span></h1>
             </div>
-            {/* Mobile compact stats: just the review count inline */}
+            {/* Mobile compact: badge count + chevron to expand details */}
             {stats && (
-              <div className="flex sm:hidden items-center gap-2 ml-2">
-                <span className="text-sm font-bold" style={{color: '#fbbf24'}}>{stats.needs_review_count}</span>
-                <span className="text-xs" style={{color: '#64748b'}}>review</span>
-                {stats.pending_actions_count > 0 && (
-                  <>
-                    <span className="text-sm font-bold" style={{color: stats.overdue_actions_count > 0 ? '#f87171' : '#fbbf24'}}>{stats.pending_actions_count}</span>
-                    <span className="text-xs" style={{color: '#64748b'}}>actions</span>
-                  </>
+              <div className="flex sm:hidden items-center gap-1 ml-2">
+                {(stats.needs_review_count > 0 || stats.pending_actions_count > 0) && (
+                  <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full text-xs font-bold" style={{background: 'rgba(251,191,36,0.2)', color: '#fbbf24'}}>
+                    {stats.needs_review_count + stats.pending_actions_count}
+                  </span>
                 )}
                 <button onClick={() => setMobileStatsOpen(!mobileStatsOpen)} className="p-1" style={{color: '#64748b'}}>
                   {mobileStatsOpen ? <ChevronUpIcon className="h-4 w-4" /> : <ChevronDownIcon className="h-4 w-4" />}
@@ -121,7 +118,7 @@ export default function DashboardStats({
               <button onClick={() => { setShowTeachingsPanel(!showTeachingsPanel); if (!showTeachingsPanel) fetchTeachings() }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc'}} title="Teachings">{'\uD83E\uDDE0'}</button>
               <button onClick={() => setShowBugReportsPanel(!showBugReportsPanel)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171'}} title="Bug Reports">{'\u{1F41B}'}</button>
               <button onClick={() => setShowLearningQueue(!showLearningQueue)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(34,197,94,0.1)', color: '#4ade80'}} title="Learning Queue">{'\u{1F9EA}'}</button>
-              <button data-testid="btn-help" onClick={() => setShowHelp(true)} className="ml-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>?</button>
+              <button data-testid="btn-help" onClick={() => setShowHelp(true)} className="ml-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}} title="Help">?</button>
               {!installed && (
                 <button onClick={async () => { resetDismissal(); if (canInstall) { await triggerInstall() } else { setShowInstallHelp(true) } }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(14,165,233,0.1)', color: '#38bdf8'}} title="Install App">{'\u{1F4F2}'}</button>
               )}
@@ -130,7 +127,7 @@ export default function DashboardStats({
 
           {/* Mobile hamburger menu */}
           <div className="flex sm:hidden items-center relative">
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 rounded" style={{color: '#94a3b8'}} title="Menu">
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded" style={{color: '#94a3b8'}} title="Menu">
               {mobileMenuOpen ? <XMarkIcon className="h-5 w-5" /> : <Bars3Icon className="h-5 w-5" />}
             </button>
             {mobileMenuOpen && (
@@ -170,23 +167,23 @@ export default function DashboardStats({
           <div className="sm:hidden mt-2 pt-2 grid grid-cols-4 gap-2 text-center" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
             <div>
               <div className="text-sm font-bold" style={{color: '#fbbf24'}}>{stats.needs_review_count}</div>
-              <div className="text-[10px]" style={{color: '#64748b'}}>review</div>
+              <div className="text-xs" style={{color: '#64748b'}}>review</div>
             </div>
             <div>
               <div className="text-sm font-bold" style={{color: stats.avg_response_time_minutes != null ? rtColor(stats.avg_response_time_minutes) : '#64748b'}}>
                 {stats.avg_response_time_minutes != null ? formatResponseTime(stats.avg_response_time_minutes) : '\u2014'}
               </div>
-              <div className="text-[10px]" style={{color: '#64748b'}}>avg RT</div>
+              <div className="text-xs" style={{color: '#64748b'}}>avg RT</div>
             </div>
             <div>
               <div className="text-sm font-bold" style={{color: '#6395ff'}}>{stats.messages_today}</div>
-              <div className="text-[10px]" style={{color: '#64748b'}}>today</div>
+              <div className="text-xs" style={{color: '#64748b'}}>today</div>
             </div>
             <div>
               <div className="text-sm font-bold" style={{color: stats.overdue_actions_count > 0 ? '#f87171' : stats.pending_actions_count > 0 ? '#fbbf24' : '#4ade80'}}>
                 {stats.pending_actions_count}
               </div>
-              <div className="text-[10px]" style={{color: '#64748b'}}>actions</div>
+              <div className="text-xs" style={{color: '#64748b'}}>actions</div>
             </div>
             {pollerStatus && pollerStatus.api_down && (
               <div className="col-span-4">

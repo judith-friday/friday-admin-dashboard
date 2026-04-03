@@ -53,7 +53,7 @@ function CollapsibleSection({ title, defaultOpen = false, count, children }: {
           {open ? <ChevronDownIcon className="h-3 w-3" /> : <ChevronRightIcon className="h-3 w-3" />}
           {title}
           {count !== undefined && count > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>{count}</span>
+            <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>{count}</span>
           )}
         </span>
       </button>

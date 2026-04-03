@@ -83,7 +83,7 @@ export default function ConversationDetail({
   }
 
   return (
-    <div data-testid="container-conversation-detail" className={`flex-1 flex flex-col min-w-0 ${mobileView === 'list' ? 'hidden md:flex' : ''}`}>
+    <div data-testid="container-conversation-detail" className={`flex-1 flex flex-col min-w-0 h-full overflow-hidden ${mobileView === 'list' ? 'hidden md:flex' : ''}`}>
       {/* Mobile back button */}
       <div data-testid="nav-back-button" className="mobile-only mobile-nav-back" onClick={() => setMobileView('list')} style={{justifyContent: 'space-between', position: 'relative', zIndex: 1, width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
         <span>{'\u2190'} Back to inbox</span>
@@ -216,11 +216,11 @@ export default function ConversationDetail({
               <span><span className="mr-1.5">{'\u23F3'}</span> Queued — Guesty API unavailable. Will retry automatically.</span>
               <div className="flex space-x-1">
                 <button onClick={async () => { try { await apiFetch('/api/drafts/' + draft.id + '/retry', { method: 'POST', body: JSON.stringify({ reviewed_by: displayName }) }); toast.success('Retry successful — message sent!'); if (selectedConvId) fetchDetail(selectedConvId); fetchConversations(); } catch (e: any) { toast.error('Retry failed: ' + e.message); } }}
-                  className="px-2 py-0.5 rounded text-[10px] font-semibold" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
+                  className="px-2 py-0.5 rounded text-xs font-semibold" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
                   Retry Now
                 </button>
                 <button onClick={async () => { try { await apiFetch('/api/drafts/' + draft.id + '/fail', { method: 'POST' }); toast('Marked as failed'); if (selectedConvId) fetchDetail(selectedConvId); } catch {} }}
-                  className="px-2 py-0.5 rounded text-[10px]" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)'}}>
+                  className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)'}}>
                   Mark Failed
                 </button>
               </div>

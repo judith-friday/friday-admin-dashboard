@@ -133,11 +133,11 @@ export default function TeachingsPanel({
         ) : (
           <div className="flex items-center space-x-2 mt-2">
             <button onClick={() => isCandidate ? onApproveCandidate(item.id) : onApproveTeaching(item.id)}
-              className="text-xs px-2 py-1 rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
+              className="text-xs px-4 py-2 rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
               ✅ Approve
             </button>
             <button onClick={() => { setRejectingId(item.id); setRejectingSource(item._source) }}
-              className="text-xs px-2 py-1 rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>
+              className="text-xs px-4 py-2 rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>
               ❌ Reject
             </button>
           </div>

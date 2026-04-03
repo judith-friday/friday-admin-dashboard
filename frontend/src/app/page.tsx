@@ -779,7 +779,7 @@ export default function MessageDashboard() {
       vrbo: { label: 'Vrbo', bg: 'rgba(14,165,233,0.15)', color: '#38bdf8' },
     }
     const c = channels[ch.toLowerCase()] || { label: ch.charAt(0).toUpperCase() + ch.slice(1), bg: 'rgba(255,255,255,0.08)', color: '#94a3b8' }
-    return <span className="px-1.5 py-0.5 rounded-full" style={{background: c.bg, color: c.color, fontSize: '10px', fontWeight: 500}}>{c.label}</span>
+    return <span className="px-1.5 py-0.5 rounded-full text-xs" style={{background: c.bg, color: c.color, fontWeight: 500}}>{c.label}</span>
   }
 
   const draftStateBadge = (state?: string) => {
@@ -894,10 +894,10 @@ export default function MessageDashboard() {
       <div className="flex h-[calc(100vh-52px)] sm:h-[calc(100vh-72px)] relative" data-testid="nav-conversation-list">
         {/* Left panel collapse toggle */}
         {!leftCollapsed && (
-          <button onClick={() => setLeftCollapsed(true)} className="absolute top-1 left-[280px] z-10 hidden md:flex items-center justify-center w-5 h-5 rounded-full" style={{background: 'rgba(255,255,255,0.08)', color: '#64748b', fontSize: '10px'}} title="Collapse sidebar">{String.fromCharCode(171)}</button>
+          <button onClick={() => setLeftCollapsed(true)} className="absolute top-1 left-[280px] z-10 hidden md:flex items-center justify-center w-5 h-5 rounded-full text-xs" style={{background: 'rgba(255,255,255,0.08)', color: '#64748b'}} title="Collapse sidebar">{String.fromCharCode(171)}</button>
         )}
         {!rightCollapsed && selectedConvId && detail && (
-          <button onClick={() => setRightCollapsed(true)} className="absolute top-1 right-[280px] z-10 hidden md:flex items-center justify-center w-5 h-5 rounded-full" style={{background: 'rgba(255,255,255,0.08)', color: '#64748b', fontSize: '10px'}} title="Collapse info panel">{String.fromCharCode(187)}</button>
+          <button onClick={() => setRightCollapsed(true)} className="absolute top-1 right-[280px] z-10 hidden md:flex items-center justify-center w-5 h-5 rounded-full text-xs" style={{background: 'rgba(255,255,255,0.08)', color: '#64748b'}} title="Collapse info panel">{String.fromCharCode(187)}</button>
         )}
         {leftCollapsed ? (
           <div className="flex-shrink-0 flex flex-col items-center py-3 cursor-pointer hidden md:flex" style={{width: '32px', background: 'rgba(255,255,255,0.03)', borderRight: '1px solid rgba(255,255,255,0.06)'}} onClick={() => setLeftCollapsed(false)} title="Expand sidebar">
@@ -930,6 +930,7 @@ export default function MessageDashboard() {
           filterDateTo={filterDateTo}
           filterOptions={filterOptions}
           onFilterChange={handleFilterChange}
+          onRefresh={fetchConversations}
         />
         )}
 
@@ -1008,6 +1009,13 @@ export default function MessageDashboard() {
                 </div>
               )}
             </>
+          ) : activeTab === 'actions' ? (
+            <div className="flex-1 hidden md:flex flex-col" style={{background: 'rgba(255,255,255,0.01)'}}>
+              <div className="px-4 py-3 flex-shrink-0" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+                <h3 className="text-lg font-medium" style={{color: '#f1f5f9'}}>Pending Actions</h3>
+              </div>
+              <PendingActionsTab token={token!} />
+            </div>
           ) : (
             <div className="flex-1 hidden md:flex items-center justify-center" style={{background: 'rgba(255,255,255,0.01)'}}>
               <div className="text-center">

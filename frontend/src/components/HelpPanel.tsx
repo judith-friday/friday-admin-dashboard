@@ -46,7 +46,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
                     'Check ⏳ Action Items — things we promised guests but haven\'t done yet',
                   ].map((step, i) => (
                     <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#94a3b8'}}>
-                      <span className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-[10px] font-semibold" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{i+1}</span>
+                      <span className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{i+1}</span>
                       <span>{step}</span>
                     </div>
                   ))}
@@ -71,7 +71,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
             <div className="space-y-1.5">
               {['Detects the language and translates if needed', 'Summarizes the conversation', 'Drafts a reply with a confidence score', 'Queues it for your review'].map((step, i) => (
                 <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#94a3b8'}}>
-                  <span className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-[10px] font-semibold" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{i+1}</span>
+                  <span className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{i+1}</span>
                   <span>{step}</span>
                 </div>
               ))}
@@ -88,7 +88,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
               ].map(s => (
                 <div key={s.range} className="rounded-lg p-2.5" style={{background: s.bg, border: `1px solid ${s.border}`}}>
                   <div className="flex items-center gap-1.5 mb-1">
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded" style={{background: s.badge, color: s.color}}>{s.range}</span>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{background: s.badge, color: s.color}}>{s.range}</span>
                     <span className="text-xs font-semibold" style={{color: s.color}}>{s.label}</span>
                   </div>
                   <div className="text-xs" style={{color: '#94a3b8'}}>{s.desc}</div>
@@ -134,9 +134,9 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
               When we promise something to a guest, it appears in the <span style={{color: '#fbbf24'}}>Actions</span> tab. Age badges show urgency:
             </p>
             <div className="flex gap-2 mt-2">
-              <span className="text-[10px] px-2 py-0.5 rounded" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>under 2h</span>
-              <span className="text-[10px] px-2 py-0.5 rounded" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>2-6h</span>
-              <span className="text-[10px] px-2 py-0.5 rounded" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>6h+ overdue</span>
+              <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>under 2h</span>
+              <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>2-6h</span>
+              <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>6h+ overdue</span>
             </div>
           </section>
 
@@ -154,7 +154,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
                   <span style={{color: '#94a3b8'}}>{label as string}</span>
                   <div className="flex gap-1">
                     {(keys as string[]).map(k => (
-                      <span key={k} className="px-2 py-0.5 rounded text-[10px] font-mono" style={{background: 'rgba(255,255,255,0.08)', color: '#e2e8f0'}}>{k}</span>
+                      <span key={k} className="px-2 py-0.5 rounded text-xs font-mono" style={{background: 'rgba(255,255,255,0.08)', color: '#e2e8f0'}}>{k}</span>
                     ))}
                   </div>
                 </div>
