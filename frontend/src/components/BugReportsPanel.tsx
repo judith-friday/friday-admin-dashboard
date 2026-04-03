@@ -20,6 +20,9 @@ interface BugReport {
   approved_at: string | null
   assigned_at: string | null
   resolved_at: string | null
+  review_comment: string | null
+  reviewed_at: string | null
+  reviewed_by: string | null
   created_at: string
   updated_at: string | null
 }
@@ -42,6 +45,7 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   queued: { bg: 'rgba(234,179,8,0.15)', text: '#fbbf24' },
   rejected: { bg: 'rgba(239,68,68,0.15)', text: '#f87171' },
   assigned: { bg: 'rgba(168,85,247,0.15)', text: '#c084fc' },
+  pending_review: { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa' },
   resolved: { bg: 'rgba(100,116,139,0.15)', text: '#94a3b8' },
 }
 
@@ -53,6 +57,8 @@ export default function BugReportsPanel({ show, onClose }: BugReportsPanelProps)
   const [statusFilter, setStatusFilter] = useState<string>('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [reopenComment, setReopenComment] = useState<string>('')
+  const [reopenBugId, setReopenBugId] = useState<string | null>(null)
 
   const fetchBugs = useCallback(async () => {
     setLoading(true)
@@ -71,14 +77,16 @@ export default function BugReportsPanel({ show, onClose }: BugReportsPanelProps)
     if (show) fetchBugs()
   }, [show, fetchBugs])
 
-  const updateStatus = async (id: string, status: string) => {
+  const updateStatus = async (id: string, status: string, extra?: Record<string, string>) => {
     setUpdatingId(id)
     try {
       await apiFetch(`/api/bug-reports/${id}/status`, {
         method: 'PATCH',
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, ...extra }),
       })
       toast.success(`Bug ${status}`)
+      setReopenBugId(null)
+      setReopenComment('')
       fetchBugs()
     } catch (err: any) {
       toast.error('Failed to update: ' + err.message)
@@ -109,7 +117,7 @@ export default function BugReportsPanel({ show, onClose }: BugReportsPanelProps)
 
         {/* Status filter tabs */}
         <div className="px-5 py-2 flex gap-1.5 flex-wrap" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-          {['', 'submitted', 'approved', 'queued', 'assigned', 'rejected', 'resolved'].map(s => (
+          {['', 'submitted', 'approved', 'queued', 'assigned', 'pending_review', 'rejected', 'resolved'].map(s => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
@@ -162,6 +170,16 @@ export default function BugReportsPanel({ show, onClose }: BugReportsPanelProps)
                     <div className="text-xs mt-1" style={{ color: '#64748b' }}>
                       {bug.reporter_name} {'\u00B7'} {new Date(bug.created_at).toLocaleDateString('en-MU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                     </div>
+                    {bug.review_comment && (
+                      <div className="text-xs mt-1 italic" style={{ color: '#fb923c' }}>
+                        {'\u{1F4AC}'} {bug.review_comment} — {bug.reviewed_by}{bug.reviewed_at ? `, ${new Date(bug.reviewed_at).toLocaleDateString('en-MU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}` : ''}
+                      </div>
+                    )}
+                    {!bug.review_comment && bug.reviewed_by && (
+                      <div className="text-xs mt-1" style={{ color: '#94a3b8' }}>
+                        Reviewed by {bug.reviewed_by}{bug.reviewed_at ? ` on ${new Date(bug.reviewed_at).toLocaleDateString('en-MU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}` : ''}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -230,12 +248,60 @@ export default function BugReportsPanel({ show, onClose }: BugReportsPanelProps)
                       {bug.status === 'assigned' && (
                         <button
                           disabled={isUpdating}
-                          onClick={() => updateStatus(bug.id, 'resolved')}
+                          onClick={() => updateStatus(bug.id, 'pending_review')}
                           className="text-xs px-3 py-1.5 rounded-lg transition-all"
-                          style={{ background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)', opacity: isUpdating ? 0.5 : 1 }}
+                          style={{ background: 'rgba(59,130,246,0.15)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.3)', opacity: isUpdating ? 0.5 : 1 }}
                         >
-                          {'\u{1F389}'} Resolve
+                          {'\u{1F50D}'} Mark for Review
                         </button>
+                      )}
+                      {bug.status === 'pending_review' && (
+                        <>
+                          <button
+                            disabled={isUpdating}
+                            onClick={() => updateStatus(bug.id, 'resolved')}
+                            className="text-xs px-3 py-1.5 rounded-lg transition-all"
+                            style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)', opacity: isUpdating ? 0.5 : 1 }}
+                          >
+                            {'\u2705'} Verify
+                          </button>
+                          {reopenBugId === bug.id ? (
+                            <div className="flex-1 flex gap-1.5 items-end">
+                              <textarea
+                                value={reopenComment}
+                                onChange={e => setReopenComment(e.target.value)}
+                                placeholder="Why is this being reopened?"
+                                className="flex-1 text-xs rounded-lg p-2 resize-none"
+                                style={{ background: 'rgba(0,0,0,0.3)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', minHeight: '48px' }}
+                                rows={2}
+                              />
+                              <button
+                                disabled={isUpdating || !reopenComment.trim()}
+                                onClick={() => updateStatus(bug.id, 'submitted', { review_comment: reopenComment })}
+                                className="text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap"
+                                style={{ background: 'rgba(249,115,22,0.15)', color: '#fb923c', border: '1px solid rgba(249,115,22,0.3)', opacity: isUpdating || !reopenComment.trim() ? 0.5 : 1 }}
+                              >
+                                Send
+                              </button>
+                              <button
+                                onClick={() => { setReopenBugId(null); setReopenComment('') }}
+                                className="text-xs px-2 py-1.5 rounded-lg"
+                                style={{ color: '#64748b' }}
+                              >
+                                {'\u2715'}
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              disabled={isUpdating}
+                              onClick={() => setReopenBugId(bug.id)}
+                              className="text-xs px-3 py-1.5 rounded-lg transition-all"
+                              style={{ background: 'rgba(249,115,22,0.15)', color: '#fb923c', border: '1px solid rgba(249,115,22,0.3)', opacity: isUpdating ? 0.5 : 1 }}
+                            >
+                              {'\u21A9'} Reopen
+                            </button>
+                          )}
+                        </>
                       )}
                       {(bug.status === 'rejected' || bug.status === 'resolved') && (
                         <button
