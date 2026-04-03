@@ -142,17 +142,50 @@ input:focus, textarea:focus, select:focus {
   [data-testid="nav-conversation-list"] > * {
     min-height: 0;
   }
+
+  /* Draft panel: cap height so it doesn't push messages off-screen */
+  [data-testid="container-draft-panel"] {
+    max-height: 35vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* Guest info panel: reduce font sizes slightly */
+  [data-testid="section-guest-info"] .text-sm {
+    font-size: 0.8rem !important;
+  }
+
+  /* Conversation list items: tighter vertical spacing */
+  [data-testid="container-inbox"] .py-2\.5 {
+    padding-top: 0.375rem !important;
+    padding-bottom: 0.375rem !important;
+  }
+
+  /* Summary section: reduce space */
+  [data-testid="section-summary"] {
+    margin-top: 0.125rem !important;
+  }
+}
+
+/* 1440px width — slightly reduce sidebar widths to give more room to messages */
+@media (max-width: 1440px) and (min-width: 768px) {
+  [data-testid="container-inbox"] {
+    max-width: 300px !important;
+  }
+  [data-testid="section-guest-info"] {
+    width: 260px !important;
+    min-width: 260px !important;
+  }
 }
 
 /* Prevent long URLs/links from causing horizontal overflow in message bubbles */
-[data-testid="section-messages"] .max-w-xl {
+[data-testid="section-messages"] .max-w-xl,
+[data-testid="section-messages"] .rounded-lg {
   overflow-wrap: break-word;
   word-break: break-word;
   overflow-x: hidden;
 }
 
-[data-testid="section-messages"] a,
-[data-testid="section-messages"] .max-w-xl a {
+[data-testid="section-messages"] a {
   word-break: break-all;
   white-space: normal !important;
 }

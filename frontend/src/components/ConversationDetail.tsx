@@ -149,6 +149,8 @@ export default function ConversationDetail({
             if (msg.direction === 'outbound' && sentDraftBodies.has((msg.body || '').trim())) return false
             return true
           })
+          // Defensive sort: ensure messages are ordered by created_at even if API returns inconsistent order
+          dedupedMessages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
 
           // Build unified timeline: interleave messages and sent drafts chronologically
           type TimelineItem = { type: 'message'; data: typeof dedupedMessages[0]; time: number } | { type: 'sent_draft'; data: Draft; time: number }
@@ -165,8 +167,8 @@ export default function ConversationDetail({
             timeline.push({ type: 'sent_draft', data: draft, time })
           }
 
-          // Sort chronologically — oldest first
-          timeline.sort((a, b) => a.time - b.time)
+          // Sort chronologically — oldest first (guard against NaN timestamps)
+          timeline.sort((a, b) => (a.time || 0) - (b.time || 0))
           return timeline
         })().map((item, idx) => {
           if (item.type === 'sent_draft') {
