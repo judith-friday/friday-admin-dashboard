@@ -278,16 +278,17 @@ export default function MessageDashboard() {
     es.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data)
-        if (data.type === 'new_message' || data.type === 'draft_ready' || data.type === 'message_sent' || data.type === 'pending_action_new') {
+        if (data.type === 'new_message' || data.type === 'draft_ready' || data.type === 'message_sent' || data.type === 'draft_updated' || data.type === 'pending_action_new') {
           fetchConversations()
           fetchStats()
           if (selectedConvId && (data.data?.conversationId === selectedConvId || data.data?.conversation_id === selectedConvId)) {
             if (!isEditingRef.current) {
-              if (data.type === 'draft_ready' && revisionPendingRef.current) {
+              if ((data.type === 'draft_ready' || data.type === 'draft_updated') && revisionPendingRef.current) {
+                // Draft generation completed or failed — clear revision pending state
                 fetchDetail(selectedConvId)
                 setRevisionPending(false)
                 revisionPendingRef.current = false
-              } else if (!revisionPendingRef.current || data.type !== 'draft_ready') {
+              } else if (!revisionPendingRef.current || (data.type !== 'draft_ready' && data.type !== 'draft_updated')) {
                 fetchDetail(selectedConvId)
               }
             }
@@ -359,12 +360,14 @@ export default function MessageDashboard() {
     } else {
       setSendChannel(convChannel || 'airbnb')
     }
+    // Use edited body if available (from "Save and Send"), otherwise original draft
+    const previewBody = pendingEditBodyRef.current || draft.draft_body || ''
     setSendConfirm({
       draftId,
       guestName: detail.conversation.guest_name,
       property: detail.conversation.property_name || 'Unknown',
       channel: detail.conversation.channel || 'Unknown',
-      preview: (draft.draft_body || '').substring(0, 100) + ((draft.draft_body || '').length > 100 ? '...' : ''),
+      preview: previewBody.substring(0, 100) + (previewBody.length > 100 ? '...' : ''),
     })
   }
 
@@ -375,6 +378,9 @@ export default function MessageDashboard() {
     setUndoCountdown(5)
     const editedBody = pendingEditBodyRef.current
     pendingEditBodyRef.current = null
+
+    // Block SSE refresh during undo countdown + send to prevent race conditions
+    isEditingRef.current = true
 
     const interval = setInterval(() => {
       setUndoCountdown(prev => {
@@ -396,17 +402,18 @@ export default function MessageDashboard() {
           body: JSON.stringify({ reviewed_by: displayName, sent_via: sendChannel, ...(editedBody ? { draft_body: editedBody } : {}) }),
         })
         toast.success('Draft approved and sent')
-        if (selectedConvId) fetchDetail(selectedConvId)
-        fetchConversations()
-        fetchStats()
       } catch (err: any) {
         if (err.message?.includes('Cannot approve draft in state')) {
           toast.error('Draft already processed — refreshing...')
         } else {
           toast.error(err.message)
         }
+      } finally {
+        // Unblock SSE refresh and fetch latest state
+        isEditingRef.current = false
         if (selectedConvId) fetchDetail(selectedConvId)
         fetchConversations()
+        fetchStats()
       }
     }, 5000)
     undoTimerRef.current = timer
@@ -418,6 +425,7 @@ export default function MessageDashboard() {
     if (undoIntervalRef.current) clearInterval(undoIntervalRef.current)
     setUndoDraftId(null)
     setUndoCountdown(0)
+    isEditingRef.current = false
     toast.success('Send cancelled')
   }
 

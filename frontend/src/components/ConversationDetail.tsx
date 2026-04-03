@@ -123,36 +123,92 @@ export default function ConversationDetail({
             data-testid="section-summary"
             onClick={() => setSummaryExpanded(!summaryExpanded)}
             className="flex items-start gap-1 text-xs w-full text-left mt-1"
-            style={{color: '#94a3b8', minHeight: '0', paddingTop: summaryExpanded ? '0.5rem' : '0.25rem', paddingBottom: summaryExpanded ? '0.5rem' : '0.25rem'}}
+            style={{color: '#94a3b8', minHeight: 0, paddingTop: summaryExpanded ? '0.5rem' : '0.125rem', paddingBottom: summaryExpanded ? '0.5rem' : '0.125rem', lineHeight: summaryExpanded ? undefined : '1.25rem'}}
           >
             {summaryExpanded ? <ChevronUpIcon className="h-3 w-3 flex-shrink-0 mt-0.5" /> : <ChevronDownIcon className="h-3 w-3 flex-shrink-0 mt-0.5" />}
-            <span className={summaryExpanded ? '' : 'truncate'}>{detail.conversation.conversation_summary.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1')}</span>
+            <span className={summaryExpanded ? '' : 'truncate'} style={summaryExpanded ? undefined : {display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxHeight: '1.25rem'}}>{detail.conversation.conversation_summary.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1')}</span>
           </button>
         )}
       </div>
 
       {/* Messages - dominant element */}
-      <div data-testid="section-messages" className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3 custom-scrollbar min-h-0" style={{background: 'rgba(255,255,255,0.01)'}}>
+      <div data-testid="section-messages" className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3 custom-scrollbar min-h-0 min-w-0" style={{background: 'rgba(255,255,255,0.01)'}}>
         {(() => {
           // Build set of bodies from sent drafts to avoid showing duplicate outbound messages
           // (sent drafts are rendered separately with approval info and translation toggle)
           const sentDraftBodies = new Set<string>()
           detail.drafts.filter(d => d.state === 'sent').forEach(d => {
-            if (d.draft_body) sentDraftBodies.add(d.draft_body)
-            if (d.translated_content) sentDraftBodies.add(d.translated_content)
+            if (d.draft_body) sentDraftBodies.add(d.draft_body.trim())
+            if (d.translated_content) sentDraftBodies.add(d.translated_content.trim())
           })
           const seen = new Set<string>()
           const dedupedMessages = detail.messages.filter(msg => {
             if (seen.has(msg.id)) return false
             seen.add(msg.id)
             // Hide outbound messages already shown as sent draft cards
-            if (msg.direction === 'outbound' && sentDraftBodies.has(msg.body)) return false
+            if (msg.direction === 'outbound' && sentDraftBodies.has((msg.body || '').trim())) return false
             return true
           })
+
+          // Build unified timeline: interleave messages and sent drafts chronologically
+          type TimelineItem = { type: 'message'; data: typeof dedupedMessages[0]; time: number } | { type: 'sent_draft'; data: Draft; time: number }
+          const timeline: TimelineItem[] = []
+
+          // Add messages to timeline
+          for (const msg of dedupedMessages) {
+            timeline.push({ type: 'message', data: msg, time: new Date(msg.created_at).getTime() })
+          }
+
+          // Add sent drafts to timeline (using sent_at or updated_at for positioning)
+          for (const draft of detail.drafts.filter(d => d.state === 'sent')) {
+            const time = draft.sent_at ? new Date(draft.sent_at).getTime() : new Date(draft.updated_at).getTime()
+            timeline.push({ type: 'sent_draft', data: draft, time })
+          }
+
           // Sort chronologically — oldest first
-          dedupedMessages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-          return dedupedMessages
-        })().map(msg => {
+          timeline.sort((a, b) => a.time - b.time)
+          return timeline
+        })().map((item, idx) => {
+          if (item.type === 'sent_draft') {
+            const draft = item.data as Draft
+            const isShowingTranslated = showTranslated[draft.id] && draft.translated_content
+            const hasTranslation = draft.translated_content && draft.sent_language && draft.sent_language !== 'en'
+            return (
+              <div key={`sent-${draft.id}`} className="rounded-lg p-3" style={{
+                background: 'rgba(34,197,94,0.06)',
+                border: '1px solid rgba(34,197,94,0.1)',
+              }}>
+                <div className="flex items-center justify-between text-xs font-medium mb-1">
+                  <span style={{color: '#4ade80'}}>
+                    {isShowingTranslated
+                      ? `Sent in ${LANG_FLAGS[draft.sent_language!] || ''} ${LANG_NAMES[draft.sent_language!] || draft.sent_language}`
+                      : 'Sent'}
+                    {hasTranslation && !isShowingTranslated && (
+                      <span style={{color: '#64748b', fontWeight: 400}}> (in {LANG_FLAGS[draft.sent_language!] || ''} {LANG_NAMES[draft.sent_language!] || draft.sent_language})</span>
+                    )}
+                  </span>
+                  {hasTranslation && (
+                    <button
+                      onClick={() => setShowTranslated(prev => ({ ...prev, [draft.id]: !prev[draft.id] }))}
+                      className="flex items-center gap-1 px-1.5 py-0.5 rounded"
+                      style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}
+                    >
+                      <LanguageIcon className="h-3 w-3" />
+                      {isShowingTranslated ? 'Show English' : `Show ${LANG_NAMES[draft.sent_language!] || draft.sent_language}`}
+                    </button>
+                  )}
+                </div>
+                <p className="text-sm whitespace-pre-wrap" style={{color: '#e2e8f0', overflowWrap: 'break-word', wordBreak: 'break-word'}} dir="auto">
+                  {isShowingTranslated ? draft.translated_content : draft.draft_body}
+                </p>
+                <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>
+                  {draft.reviewed_by === 'auto-send' ? 'Auto-sent by Judith' : `Approved by ${draft.reviewed_by || 'unknown'}`}{draft.revision_number && draft.revision_number > 1 ? ` (v${draft.revision_number})` : ''} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}
+                </div>
+              </div>
+            )
+          }
+
+          const msg = item.data as typeof detail.messages[0]
           const isOutbound = msg.direction === 'outbound'
           const hasTranslation = msg.translated_body && msg.translated_body !== msg.body
           const isNonEnglish = msg.original_language && msg.original_language !== 'en'
@@ -249,70 +305,25 @@ export default function ConversationDetail({
                 </button>
               </div>
             </div>
-            <p className="text-sm whitespace-pre-wrap" style={{color: "#e2e8f0"}}>{draft.draft_body}</p>
+            <p className="text-sm whitespace-pre-wrap" style={{color: "#e2e8f0", overflowWrap: 'break-word', wordBreak: 'break-word'}}>{draft.draft_body}</p>
           </div>
         ))}
 
-        {/* Sent drafts - English by default with language swap */}
+        {/* Draft history toggle (rejected + revision drafts) */}
         {(() => {
-          const sentDrafts = detail.drafts.filter(d => d.state === 'sent').sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-          const latestSent = sentDrafts[0]
-          const olderSent = sentDrafts.slice(1)
           const rejectedDrafts = detail.drafts.filter(d => d.state === 'rejected')
           const revisionDrafts = detail.drafts.filter(d => d.state === 'revision_requested')
-          const hiddenCount = olderSent.length + rejectedDrafts.length + revisionDrafts.length
+          const hiddenCount = rejectedDrafts.length + revisionDrafts.length
 
-          const renderSentDraft = (draft: Draft, isOlder?: boolean) => {
-            const isShowingTranslated = showTranslated[draft.id] && draft.translated_content
-            const hasTranslation = draft.translated_content && draft.sent_language && draft.sent_language !== 'en'
-            return (
-              <div key={`sent-${draft.id}`} className="rounded-lg p-3 mt-2" style={{
-                background: isOlder ? 'rgba(34,197,94,0.04)' : 'rgba(34,197,94,0.06)',
-                border: isOlder ? '1px solid rgba(34,197,94,0.08)' : '1px solid rgba(34,197,94,0.1)',
-                opacity: isOlder ? 0.7 : 1,
-              }}>
-                <div className="flex items-center justify-between text-xs font-medium mb-1">
-                  <span style={{color: '#4ade80'}}>
-                    {isShowingTranslated
-                      ? `Sent in ${LANG_FLAGS[draft.sent_language!] || ''} ${LANG_NAMES[draft.sent_language!] || draft.sent_language}`
-                      : 'Sent'}
-                    {hasTranslation && !isShowingTranslated && (
-                      <span style={{color: '#64748b', fontWeight: 400}}> (in {LANG_FLAGS[draft.sent_language!] || ''} {LANG_NAMES[draft.sent_language!] || draft.sent_language})</span>
-                    )}
-                  </span>
-                  {hasTranslation && (
-                    <button
-                      onClick={() => setShowTranslated(prev => ({ ...prev, [draft.id]: !prev[draft.id] }))}
-                      className="flex items-center gap-1 px-1.5 py-0.5 rounded"
-                      style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}
-                    >
-                      <LanguageIcon className="h-3 w-3" />
-                      {isShowingTranslated ? 'Show English' : `Show ${LANG_NAMES[draft.sent_language!] || draft.sent_language}`}
-                    </button>
-                  )}
-                </div>
-                <p className="text-sm whitespace-pre-wrap" style={{color: '#e2e8f0'}} dir="auto">
-                  {isShowingTranslated ? draft.translated_content : draft.draft_body}
-                </p>
-                <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>
-                  {draft.reviewed_by === 'auto-send' ? 'Auto-sent by Judith' : `Approved by ${draft.reviewed_by || 'unknown'}`}{draft.revision_number && draft.revision_number > 1 ? ` (v${draft.revision_number})` : ''} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}
-                </div>
-              </div>
-            )
-          }
-
+          if (hiddenCount === 0) return null
           return (<>
-            {latestSent && renderSentDraft(latestSent)}
-            {hiddenCount > 0 && (
-              <button onClick={() => setShowDraftHistory(!showDraftHistory)} className="text-xs px-2 py-1 rounded mx-4 mt-1" style={{color: '#64748b'}}>
-                {showDraftHistory ? 'Hide' : 'Show'} draft history ({hiddenCount} older)
-              </button>
-            )}
-            {showDraftHistory && olderSent.map(draft => renderSentDraft(draft, true))}
+            <button onClick={() => setShowDraftHistory(!showDraftHistory)} className="text-xs px-2 py-1 rounded mx-4 mt-1" style={{color: '#64748b'}}>
+              {showDraftHistory ? 'Hide' : 'Show'} draft history ({hiddenCount} older)
+            </button>
             {showDraftHistory && revisionDrafts.map(draft => (
               <div key={`revision-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)'}}>
                 <div className="text-xs font-medium mb-1" style={{color: '#6395ff'}}>Revision #{draft.revision_number || '?'}:</div>
-                <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{draft.draft_body}</p>
+                <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0', overflowWrap: 'break-word', wordBreak: 'break-word'}}>{draft.draft_body}</p>
                 <div className="text-xs pt-2" style={{borderTop: '1px solid rgba(99,149,255,0.1)', color: '#64748b'}}>
                   {draft.reviewed_by ? `Revised by ${draft.reviewed_by}` : 'System revision'}{draft.revision_instruction ? ` — "${draft.revision_instruction}"` : ''} · {format(new Date(draft.updated_at), 'MMM d HH:mm')}
                 </div>
@@ -321,7 +332,7 @@ export default function ConversationDetail({
             {showDraftHistory && rejectedDrafts.map(draft => (
               <div key={`rejected-${draft.id}`} className="rounded-lg p-3 mt-2" style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.1)'}}>
                 <div className="text-xs font-medium mb-1" style={{color: '#f87171'}}>Rejected:</div>
-                <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0'}}>{draft.draft_body}</p>
+                <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0', overflowWrap: 'break-word', wordBreak: 'break-word'}}>{draft.draft_body}</p>
                 <div className="text-xs pt-2" style={{borderTop: '1px solid rgba(239,68,68,0.1)', color: '#f87171'}}>Rejected by {draft.reviewed_by || 'unknown'} · {draft.rejection_reason}</div>
               </div>
             ))}
