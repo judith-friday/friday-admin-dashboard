@@ -39,6 +39,21 @@ function extractAndSaveTeaching(text: string, propertyCode?: string): string {
   return text.replace(/\[TEACH\][\s\S]*?\[\/TEACH\]/, '\u2705 Learned for future drafts.').trim()
 }
 
+function parseZones(text: string): { reasoning: string | null; draft: string | null } {
+  const reasoningMatch = text.match(/\[REASONING\]([\s\S]*?)\[\/REASONING\]/)
+  const draftMatch = text.match(/\[DRAFT\]([\s\S]*?)\[\/DRAFT\]/)
+
+  // If no tags found, treat entire response as reasoning (backward compatibility)
+  if (!reasoningMatch && !draftMatch) {
+    return { reasoning: text, draft: null }
+  }
+
+  return {
+    reasoning: reasoningMatch ? reasoningMatch[1].trim() : null,
+    draft: draftMatch ? draftMatch[1].trim() : null,
+  }
+}
+
 interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
@@ -142,17 +157,57 @@ export default function ConsultChat({
     <div className="mt-2 rounded-lg" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)' }}>
       {/* Chat messages */}
       <div className="p-3 space-y-2 overflow-y-auto custom-scrollbar" style={{ maxHeight: '40vh' }}>
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className="max-w-[85%] px-3 py-2 rounded-lg text-sm whitespace-pre-wrap" style={{
-              background: msg.role === 'user' ? 'rgba(168,85,247,0.1)' : 'rgba(99,149,255,0.1)',
-              color: msg.role === 'user' ? '#c084fc' : '#6395ff',
-              border: `1px solid ${msg.role === 'user' ? 'rgba(168,85,247,0.2)' : 'rgba(99,149,255,0.2)'}`,
-            }}>
-              {msg.content}
+        {messages.map((msg, i) => {
+          if (msg.role === 'user') {
+            return (
+              <div key={i} className="flex justify-end">
+                <div className="max-w-[85%] px-3 py-2 rounded-lg text-sm whitespace-pre-wrap" style={{
+                  background: 'rgba(168,85,247,0.1)',
+                  color: '#c084fc',
+                  border: '1px solid rgba(168,85,247,0.2)',
+                }}>
+                  {msg.content}
+                </div>
+              </div>
+            )
+          }
+
+          const { reasoning, draft } = parseZones(msg.content)
+          return (
+            <div key={i} className="flex justify-start">
+              <div className="max-w-[85%] space-y-2">
+                {reasoning && (
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: '#64748b' }}>
+                      Judith&apos;s Reasoning
+                    </div>
+                    <div className="px-3 py-2 rounded-lg text-sm whitespace-pre-wrap" style={{
+                      background: 'rgba(30,41,59,0.5)',
+                      color: '#94a3b8',
+                      border: '1px solid rgba(99,149,255,0.1)',
+                    }}>
+                      {reasoning}
+                    </div>
+                  </div>
+                )}
+                {draft && (
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: '#6395ff' }}>
+                      Draft Message
+                    </div>
+                    <div className="px-3 py-2 rounded-lg text-sm whitespace-pre-wrap" style={{
+                      background: 'rgba(51,65,85,0.7)',
+                      color: '#f1f5f9',
+                      border: '1px solid rgba(99,149,255,0.3)',
+                    }}>
+                      {draft}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
         {loading && (
           <div className="flex justify-start">
             <div className="px-3 py-2 rounded-lg" style={{ background: 'rgba(99,149,255,0.1)', border: '1px solid rgba(99,149,255,0.2)' }}>
