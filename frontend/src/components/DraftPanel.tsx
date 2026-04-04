@@ -11,6 +11,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   ChatBubbleLeftRightIcon,
+  AcademicCapIcon,
 } from '@heroicons/react/24/outline'
 import { Draft } from './types'
 import ConsultChat from './ConsultChat'
@@ -52,6 +53,8 @@ export default function DraftPanel({
 }: DraftPanelProps) {
   const [collapsed, setCollapsed] = useState(false)
   const [consultDraftId, setConsultDraftId] = useState<string | null>(null)
+  const [showRevision, setShowRevision] = useState(false)
+  const [scopePickerDraftId, setScopePickerDraftId] = useState<string | null>(null)
 
   if (revisionPending) {
     return (
@@ -127,6 +130,10 @@ export default function DraftPanel({
                   className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
                   <XMarkIcon className="h-4 w-4 mr-1" /> Reject
                 </button>
+                <button data-testid={`btn-toggle-revise-${draft.id}`} onClick={() => { setShowRevision(!showRevision); setScopePickerDraftId(null); if (showRevision) setRevisionText('') }}
+                  className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: showRevision ? 'rgba(99,149,255,0.2)' : 'rgba(99,149,255,0.08)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.15)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
+                  <ArrowPathIcon className="h-4 w-4 mr-1" /> Revise
+                </button>
                 {conversationId && (
                   <button data-testid={`btn-ask-judith-review-${draft.id}`} onClick={() => setConsultDraftId(consultDraftId === draft.id ? null : draft.id)}
                     className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(99,149,255,0.08)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.15)'}}>
@@ -147,6 +154,75 @@ export default function DraftPanel({
                   confirmLabel="Approve & Send"
                   propertyCode={propertyName}
                 />
+              )}
+
+              {/* Revision section */}
+              {showRevision && (
+                <div className="mt-2 space-y-2">
+                  <input
+                    data-testid={`input-revision-${draft.id}`}
+                    type="text"
+                    value={revisionText}
+                    onChange={e => setRevisionText(e.target.value)}
+                    placeholder="Revision instruction (e.g. make it shorter, add check-in time)"
+                    className="w-full text-sm rounded px-2 py-1.5 outline-none"
+                    style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
+                    onKeyDown={e => { if (e.key === 'Enter' && revisionText.trim()) { handleRevision(draft.id, 'standard'); setShowRevision(false); setRevisionText('') } }}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      data-testid={`btn-revise-${draft.id}`}
+                      disabled={!revisionText.trim()}
+                      onClick={() => { handleRevision(draft.id, 'standard'); setShowRevision(false); setRevisionText('') }}
+                      className="flex items-center px-3 py-1.5 text-sm rounded"
+                      style={{background: 'rgba(99,149,255,0.12)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)', opacity: revisionText.trim() ? 1 : 0.4}}>
+                      <ArrowPathIcon className="h-4 w-4 mr-1" /> Revise
+                    </button>
+                    <button
+                      data-testid={`btn-revise-teach-${draft.id}`}
+                      disabled={!revisionText.trim()}
+                      onClick={() => setScopePickerDraftId(draft.id)}
+                      className="flex items-center px-3 py-1.5 text-sm rounded"
+                      style={{background: 'rgba(168,85,247,0.12)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.2)', opacity: revisionText.trim() ? 1 : 0.4}}>
+                      <AcademicCapIcon className="h-4 w-4 mr-1" /> Revise & Teach
+                    </button>
+                    <button
+                      onClick={() => { setShowRevision(false); setRevisionText('') }}
+                      className="px-3 py-1.5 text-sm rounded"
+                      style={{background: 'rgba(255,255,255,0.06)', color: '#64748b', border: '1px solid rgba(255,255,255,0.08)'}}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Scope picker modal for Revise & Teach */}
+              {scopePickerDraftId === draft.id && (
+                <div className="mt-2 rounded-lg p-3" style={{background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)'}}>
+                  <p className="text-sm font-medium mb-2" style={{color: '#c084fc'}}>How should Judith learn this?</p>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      data-testid={`btn-scope-global-${draft.id}`}
+                      onClick={() => { handleRevision(draft.id, 'teach', 'global'); setScopePickerDraftId(null); setShowRevision(false); setRevisionText('') }}
+                      className="flex items-center px-3 py-2 text-sm rounded text-left"
+                      style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}>
+                      🌍 Apply to all properties
+                    </button>
+                    <button
+                      data-testid={`btn-scope-property-${draft.id}`}
+                      onClick={() => { handleRevision(draft.id, 'teach', 'property', propertyName); setScopePickerDraftId(null); setShowRevision(false); setRevisionText('') }}
+                      className="flex items-center px-3 py-2 text-sm rounded text-left"
+                      style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}>
+                      🏠 Apply to {propertyName || 'this property'} only
+                    </button>
+                    <button
+                      onClick={() => setScopePickerDraftId(null)}
+                      className="px-3 py-1.5 text-xs rounded self-start"
+                      style={{color: '#64748b'}}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
               )}
 
               {/* Rejection reason */}
