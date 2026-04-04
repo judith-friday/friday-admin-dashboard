@@ -190,6 +190,13 @@ input:focus, textarea:focus, select:focus {
   white-space: normal !important;
 }
 
+/* Safe area: fixed full-screen panels need explicit top padding (body padding doesn't apply) */
+.fixed.inset-0,
+.mobile-full-overlay {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* Mobile responsive styles */
 @media (max-width: 767px) {
   .desktop-only { display: none !important; }
