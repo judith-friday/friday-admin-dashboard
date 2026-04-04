@@ -295,7 +295,7 @@ export default function ConversationList({
                 </div>
                 {conv.last_message_body && (
                   <p className="text-xs line-clamp-1 md:line-clamp-2" style={{color: '#64748b'}}>
-                    {conv.last_message_direction === 'outbound' ? '> ' : ''}{conv.last_message_body}
+                    {conv.last_message_direction === 'outbound' ? '> ' : conv.last_message_direction === 'system' ? '[sys] ' : ''}{conv.last_message_body}
                   </p>
                 )}
               </div>

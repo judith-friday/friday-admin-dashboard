@@ -58,7 +58,7 @@ async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS messages (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
-        direction VARCHAR(20) NOT NULL CHECK (direction IN ('inbound', 'outbound')),
+        direction VARCHAR(20) NOT NULL CHECK (direction IN ('inbound', 'outbound', 'system')),
         content TEXT NOT NULL,
         content_translated TEXT,
         language VARCHAR(10) DEFAULT 'en',

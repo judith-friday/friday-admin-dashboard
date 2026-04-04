@@ -93,7 +93,7 @@ export interface ConversationDetail {
 export interface MessageItem {
   id: string
   conversation_id: string
-  direction: 'inbound' | 'outbound'
+  direction: 'inbound' | 'outbound' | 'system'
   body: string
   translated_body?: string
   original_language?: string
