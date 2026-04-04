@@ -10,6 +10,7 @@ import {
   XMarkIcon,
   ChatBubbleLeftRightIcon,
   DocumentTextIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline'
 import { apiFetch, PendingAction } from './types'
 import ConsultChat from './ConsultChat'
@@ -31,6 +32,8 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
   const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set())
   const [notesMap, setNotesMap] = useState<Record<string, { id: string; user_id: string; content: string; created_at: string }[]>>({})
   const [newNoteText, setNewNoteText] = useState<Record<string, string>>({})
+  const [expandedHistory, setExpandedHistory] = useState<Set<string>>(new Set())
+  const [historyMap, setHistoryMap] = useState<Record<string, { id: string; field_changed: string; old_value: string | null; new_value: string | null; changed_by: string | null; changed_at: string }[]>>({})
 
   const fetchActions = useCallback(async () => {
     try {
@@ -132,6 +135,22 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
       setNewNoteText(prev => ({ ...prev, [actionId]: '' }))
       toast.success('Note added')
     } catch (err: any) { toast.error(err.message) }
+  }
+
+  const toggleHistory = async (actionId: string) => {
+    const next = new Set(expandedHistory)
+    if (next.has(actionId)) {
+      next.delete(actionId)
+    } else {
+      next.add(actionId)
+      if (!historyMap[actionId]) {
+        try {
+          const data = await apiFetch(`/api/pending-actions/${actionId}/history`)
+          setHistoryMap(prev => ({ ...prev, [actionId]: data.history || [] }))
+        } catch { setHistoryMap(prev => ({ ...prev, [actionId]: [] })) }
+      }
+    }
+    setExpandedHistory(next)
   }
 
   const startEdit = (action: PendingAction) => {
@@ -263,6 +282,33 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                         className="flex-1 text-xs rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
                       <button onClick={() => addNote(action.id)} className="px-2 py-1 text-xs rounded" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>Add</button>
                     </div>
+                  </div>
+                )}
+              </div>
+            )}
+            {editingId !== action.id && (
+              <div className="mb-2">
+                <button onClick={() => toggleHistory(action.id)} className="flex items-center text-xs gap-1 py-0.5" style={{color: '#64748b'}}>
+                  <ClockIcon className="h-3.5 w-3.5" />
+                  {historyMap[action.id] ? `${historyMap[action.id].length} change${historyMap[action.id].length !== 1 ? 's' : ''}` : 'History'}
+                </button>
+                {expandedHistory.has(action.id) && (
+                  <div className="mt-1 ml-1 space-y-1">
+                    {(historyMap[action.id] || []).length === 0 ? (
+                      <div className="text-xs" style={{color: '#475569'}}>No changes recorded</div>
+                    ) : (
+                      (historyMap[action.id] || []).map(h => (
+                        <div key={h.id} className="text-xs p-1.5 rounded" style={{background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)'}}>
+                          <div style={{color: '#94a3b8'}}>
+                            <span style={{color: '#6395ff'}}>{h.field_changed}</span>
+                            {h.old_value ? <>{' '}<span style={{color: '#f87171', textDecoration: 'line-through'}}>{h.old_value.length > 60 ? h.old_value.slice(0, 60) + '…' : h.old_value}</span></> : null}
+                            {' → '}
+                            <span style={{color: '#4ade80'}}>{(h.new_value || '(empty)').length > 60 ? (h.new_value || '(empty)').slice(0, 60) + '…' : h.new_value || '(empty)'}</span>
+                          </div>
+                          <div style={{color: '#475569', fontSize: '0.65rem'}}>{h.changed_by ? `${h.changed_by} · ` : ''}{new Date(h.changed_at).toLocaleString()}</div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 )}
               </div>
