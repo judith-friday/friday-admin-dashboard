@@ -38,14 +38,13 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
   const [capturing, setCapturing] = useState(false)
   const imgRef = useRef<HTMLDivElement>(null)
 
-  // Open modal immediately, capture screenshot in background
+  // Capture screenshot BEFORE opening modal so the modal isn't in the image
   const captureAndOpen = async () => {
     setBugWhat('')
     setBugExpect('')
     setBugSeverity('medium')
     setScreenshotData(null)
     setCapturing(true)
-    setBugReportOpen(true)
 
     try {
       const { toJpeg } = await import('html-to-image')
@@ -59,6 +58,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
       console.error('[BugReport] Screenshot capture failed:', err)
     } finally {
       setCapturing(false)
+      setBugReportOpen(true)
     }
   }
 
