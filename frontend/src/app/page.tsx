@@ -98,6 +98,7 @@ export default function MessageDashboard() {
   const searchTimerRef = useRef<NodeJS.Timeout | null>(null)
   const revisionInputRef = useRef<HTMLInputElement>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
+  const isMutedRef = useRef(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const [leftCollapsed, setLeftCollapsed] = useState(false)
   const [rightCollapsed, setRightCollapsed] = useState(false)
@@ -118,7 +119,32 @@ export default function MessageDashboard() {
     else setLoading(false)
     // Init mute state from localStorage
     const muted = localStorage.getItem('gms_muted')
-    if (muted === 'true') setIsMuted(true)
+    if (muted === 'true') {
+      setIsMuted(true)
+      isMutedRef.current = true
+    }
+  }, [])
+
+  // Initialize AudioContext on first user interaction (iOS PWA requires user gesture)
+  useEffect(() => {
+    const initAudio = () => {
+      try {
+        if (!audioCtxRef.current) {
+          audioCtxRef.current = new AudioContext()
+        }
+        if (audioCtxRef.current.state === 'suspended') {
+          audioCtxRef.current.resume()
+        }
+      } catch {}
+      document.removeEventListener('click', initAudio)
+      document.removeEventListener('touchstart', initAudio)
+    }
+    document.addEventListener('click', initAudio)
+    document.addEventListener('touchstart', initAudio)
+    return () => {
+      document.removeEventListener('click', initAudio)
+      document.removeEventListener('touchstart', initAudio)
+    }
   }, [])
 
   // Toggle mute handler — also unlocks AudioContext on user gesture (required for iOS PWA)
@@ -126,6 +152,7 @@ export default function MessageDashboard() {
     setIsMuted(prev => {
       const next = !prev
       localStorage.setItem('gms_muted', String(next))
+      isMutedRef.current = next
       if (!next) {
         // Unmuting — create/resume AudioContext during this user gesture to unlock iOS audio
         try {
@@ -391,7 +418,7 @@ export default function MessageDashboard() {
           }
           if (data.type === 'new_message') {
             toast.success('New message received')
-            if (!isMuted) playChime()
+            if (!isMutedRef.current) playChime()
             addNotification({
               type: 'new_message',
               title: `New message from ${data.data?.guestName || 'Guest'}`,
@@ -439,7 +466,7 @@ export default function MessageDashboard() {
     es.onopen = () => { errorCount = 0 }
 
     return () => es.close()
-  }, [token, selectedConvId, fetchConversations, fetchStats, fetchDetail, isMuted, playChime, addNotification, fetchNotifications])
+  }, [token, selectedConvId, fetchConversations, fetchStats, fetchDetail, playChime, addNotification, fetchNotifications])
 
   // Timeout fallback: clear revisionPending after 30s to prevent stuck state
   useEffect(() => {

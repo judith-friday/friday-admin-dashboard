@@ -4,12 +4,38 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 
 export default function useNotificationSound() {
   const [isMuted, setIsMuted] = useState(false)
+  const isMutedRef = useRef(false)
   const audioCtxRef = useRef<AudioContext | null>(null)
 
   // Init mute state from localStorage
   useEffect(() => {
     const muted = localStorage.getItem('gms_muted')
-    if (muted === 'true') setIsMuted(true)
+    if (muted === 'true') {
+      setIsMuted(true)
+      isMutedRef.current = true
+    }
+  }, [])
+
+  // Initialize AudioContext on first user interaction (iOS PWA requires user gesture)
+  useEffect(() => {
+    const initAudio = () => {
+      try {
+        if (!audioCtxRef.current) {
+          audioCtxRef.current = new AudioContext()
+        }
+        if (audioCtxRef.current.state === 'suspended') {
+          audioCtxRef.current.resume()
+        }
+      } catch {}
+      document.removeEventListener('click', initAudio)
+      document.removeEventListener('touchstart', initAudio)
+    }
+    document.addEventListener('click', initAudio)
+    document.addEventListener('touchstart', initAudio)
+    return () => {
+      document.removeEventListener('click', initAudio)
+      document.removeEventListener('touchstart', initAudio)
+    }
   }, [])
 
   // Toggle mute handler
@@ -17,11 +43,23 @@ export default function useNotificationSound() {
     setIsMuted(prev => {
       const next = !prev
       localStorage.setItem('gms_muted', String(next))
+      isMutedRef.current = next
+      if (!next) {
+        // Unmuting — create/resume AudioContext during this user gesture
+        try {
+          if (!audioCtxRef.current) {
+            audioCtxRef.current = new AudioContext()
+          }
+          if (audioCtxRef.current.state === 'suspended') {
+            audioCtxRef.current.resume()
+          }
+        } catch {}
+      }
       return next
     })
   }, [])
 
-  // Play notification chime using AudioContext (reused ref)
+  // Play notification chime using AudioContext (880Hz → 1100Hz sine wave, 0.3s)
   const playChime = useCallback(() => {
     try {
       if (!audioCtxRef.current) {
@@ -45,17 +83,5 @@ export default function useNotificationSound() {
     } catch {}
   }, [])
 
-  // Initialize AudioContext on first user interaction
-  useEffect(() => {
-    const initAudio = () => {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new AudioContext()
-      }
-      document.removeEventListener('click', initAudio)
-    }
-    document.addEventListener('click', initAudio)
-    return () => document.removeEventListener('click', initAudio)
-  }, [])
-
-  return { playChime, toggleMute, isMuted }
+  return { playChime, toggleMute, isMuted, isMutedRef }
 }
