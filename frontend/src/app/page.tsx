@@ -119,11 +119,22 @@ export default function MessageDashboard() {
     if (muted === 'true') setIsMuted(true)
   }, [])
 
-  // Toggle mute handler
+  // Toggle mute handler — also unlocks AudioContext on user gesture (required for iOS PWA)
   const toggleMute = useCallback(() => {
     setIsMuted(prev => {
       const next = !prev
       localStorage.setItem('gms_muted', String(next))
+      if (!next) {
+        // Unmuting — create/resume AudioContext during this user gesture to unlock iOS audio
+        try {
+          if (!audioCtxRef.current) {
+            audioCtxRef.current = new AudioContext()
+          }
+          if (audioCtxRef.current.state === 'suspended') {
+            audioCtxRef.current.resume()
+          }
+        } catch {}
+      }
       return next
     })
   }, [])
