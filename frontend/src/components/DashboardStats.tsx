@@ -13,6 +13,7 @@ import { useInstallPrompt } from './useInstallPrompt'
 import { toast } from 'react-hot-toast'
 import InstallInstructions from './InstallInstructions'
 import NotificationBell, { Notification } from './NotificationBell'
+import { trackEvent } from '../lib/analytics'
 
 interface DashboardStatsProps {
   stats: InboxStats | null
@@ -34,6 +35,8 @@ interface DashboardStatsProps {
   onMarkAllRead: () => void
   showNotificationPanel: boolean
   setShowNotificationPanel: (v: boolean) => void
+  showAnalytics: boolean
+  setShowAnalytics: (v: boolean) => void
 }
 
 function rtColor(mins?: number) {
@@ -57,6 +60,7 @@ export default function DashboardStats({
   showLearningQueue, setShowLearningQueue,
   notifications, onNotificationClick, onMarkAllRead,
   showNotificationPanel, setShowNotificationPanel,
+  showAnalytics, setShowAnalytics,
 }: DashboardStatsProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showInstallHelp, setShowInstallHelp] = useState(false)
@@ -109,9 +113,10 @@ export default function DashboardStats({
               <button onClick={toggleMute} className="ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded" style={{color: '#64748b'}} title={isMuted ? 'Unmute' : 'Mute'}>
                 {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
               </button>
-              <button onClick={() => { setShowTeachingsPanel(!showTeachingsPanel); if (!showTeachingsPanel) fetchTeachings() }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc'}} title="Teachings">{'\uD83E\uDDE0'}</button>
-              <button onClick={() => setShowLearningQueue(!showLearningQueue)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(34,197,94,0.1)', color: '#4ade80'}} title="Learning Queue">{'\u{1F9EA}'}</button>
+              <button onClick={() => { if (!showTeachingsPanel) trackEvent('panel_opened', { panel: 'teachings' }); setShowTeachingsPanel(!showTeachingsPanel); if (!showTeachingsPanel) fetchTeachings() }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc'}} title="Teachings">{'\uD83E\uDDE0'}</button>
+              <button onClick={() => { if (!showLearningQueue) trackEvent('panel_opened', { panel: 'learning_queue' }); setShowLearningQueue(!showLearningQueue) }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(34,197,94,0.1)', color: '#4ade80'}} title="Learning Queue">{'\u{1F9EA}'}</button>
               <button onClick={() => setShowBugReportsPanel(!showBugReportsPanel)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171'}} title="Bug Reports">{'\u{1F41B}'}</button>
+              <button onClick={() => { trackEvent('panel_opened', { panel: 'analytics' }); setShowAnalytics(true) }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}} title="Analytics">{'\u{1F4CA}'}</button>
               <button onClick={() => window.location.reload()} className="ml-1 min-w-[44px] min-h-[44px] flex items-center justify-center rounded" style={{color: '#64748b'}} title="Refresh app">
                 <ArrowPathIcon className="h-4 w-4" />
               </button>
@@ -130,7 +135,7 @@ export default function DashboardStats({
             {mobileMenuOpen && (
               <div className="absolute right-0 top-full mt-1 rounded-lg py-1 z-[999]" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.1)', minWidth: '160px', boxShadow: '0 8px 24px rgba(0,0,0,0.4)'}}>
                 {/* Group 1: Core features */}
-                <button onClick={() => { setShowNotificationPanel(true); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#fbbf24'}}>
+                <button onClick={() => { trackEvent('panel_opened', { panel: 'notifications' }); setShowNotificationPanel(true); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#fbbf24'}}>
                   <span>{'\uD83D\uDD14'}</span> Notifications
                   {notifications.filter(n => !n.read).length > 0 && (
                     <span className="inline-flex items-center justify-center rounded-full text-white font-bold" style={{minWidth: '18px', height: '18px', fontSize: '11px', padding: '0 4px', background: '#ef4444', lineHeight: 1}}>
@@ -138,15 +143,18 @@ export default function DashboardStats({
                     </span>
                   )}
                 </button>
-                <button onClick={() => { setShowTeachingsPanel(!showTeachingsPanel); if (!showTeachingsPanel) fetchTeachings(); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#c084fc'}}>
+                <button onClick={() => { if (!showTeachingsPanel) trackEvent('panel_opened', { panel: 'teachings' }); setShowTeachingsPanel(!showTeachingsPanel); if (!showTeachingsPanel) fetchTeachings(); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#c084fc'}}>
                   <span>{'\uD83E\uDDE0'}</span> Teachings
                 </button>
-                <button onClick={() => { setShowLearningQueue(!showLearningQueue); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#4ade80'}}>
+                <button onClick={() => { if (!showLearningQueue) trackEvent('panel_opened', { panel: 'learning_queue' }); setShowLearningQueue(!showLearningQueue); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#4ade80'}}>
                   <span>{'\u{1F9EA}'}</span> Learning Queue
                 </button>
                 {/* Group 2: Secondary */}
                 <div style={{borderTop: '1px solid rgba(255,255,255,0.06)', margin: '0.25rem 0'}} />
-                <button onClick={() => { setShowBugReportsPanel(!showBugReportsPanel); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#f87171'}}>
+                  <button onClick={() => { trackEvent('panel_opened', { panel: 'analytics' }); setShowAnalytics(true); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#6395ff'}}>
+                  <span>{'\u{1F4CA}'}</span> Analytics
+                </button>
+              <button onClick={() => { setShowBugReportsPanel(!showBugReportsPanel); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#f87171'}}>
                   <span>{'\u{1F41B}'}</span> Bug Reports
                 </button>
                 <button onClick={() => { setShowHelp(true); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#6395ff'}}>

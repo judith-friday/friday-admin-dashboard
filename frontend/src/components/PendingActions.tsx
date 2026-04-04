@@ -396,7 +396,7 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
       {!conversationFilter && (
         <div style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
           <button
-            onClick={() => { setShowResolved(!showResolved); if (!showResolved && resolvedActions.length === 0) fetchResolved() }}
+            onClick={() => { if (!showResolved) trackEvent('resolved_actions_viewed'); setShowResolved(!showResolved); if (!showResolved && resolvedActions.length === 0) fetchResolved() }}
             className="w-full p-3 flex items-center justify-between text-sm"
             style={{color: '#64748b'}}
           >

@@ -27,6 +27,7 @@ import ConversationList from '../components/ConversationList'
 import ConversationDetailView from '../components/ConversationDetail'
 import GuestInfo from '../components/GuestInfo'
 import InstallPrompt from '../components/InstallPrompt'
+import AnalyticsPanel from '../components/AnalyticsPanel'
 import { Notification } from '../components/NotificationBell'
 import NotificationPanel from '../components/NotificationPanel'
 import { trackEvent } from '../lib/analytics'
@@ -53,6 +54,7 @@ export default function MessageDashboard() {
   const [showTeachingsPanel, setShowTeachingsPanel] = useState(false)
   const [showBugReportsPanel, setShowBugReportsPanel] = useState(false)
   const [showLearningQueue, setShowLearningQueue] = useState(false)
+  const [showAnalytics, setShowAnalytics] = useState(false)
   const [showNotificationPanel, setShowNotificationPanel] = useState(false)
   const [teachings, setTeachings] = useState<any[]>([])
   const [revokeId, setRevokeId] = useState<string | null>(null)
@@ -98,6 +100,7 @@ export default function MessageDashboard() {
   const searchTimerRef = useRef<NodeJS.Timeout | null>(null)
   const revisionInputRef = useRef<HTMLInputElement>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
+  const convOpenTimeRef = useRef<{ convId: string; openedAt: number } | null>(null)
   const isMutedRef = useRef(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const [leftCollapsed, setLeftCollapsed] = useState(false)
@@ -382,6 +385,19 @@ export default function MessageDashboard() {
     setSearchResults(null)
   }, [])
 
+  // Track conversation time on page unload
+  useEffect(() => {
+    const handleUnload = () => {
+      if (convOpenTimeRef.current) {
+        const duration = Math.round((Date.now() - convOpenTimeRef.current.openedAt) / 1000)
+        if (duration >= 2) trackEvent('conversation_time', { conversation_id: convOpenTimeRef.current.convId, duration_seconds: duration })
+        convOpenTimeRef.current = null
+      }
+    }
+    window.addEventListener('beforeunload', handleUnload)
+    return () => window.removeEventListener('beforeunload', handleUnload)
+  }, [])
+
   // Initial load
   useEffect(() => {
     if (!token) return
@@ -552,6 +568,12 @@ export default function MessageDashboard() {
   }, [detail, showDraftHistory])
 
   const selectConversation = (conv: Conversation) => {
+    // Track time spent on previous conversation
+    if (convOpenTimeRef.current) {
+      const duration = Math.round((Date.now() - convOpenTimeRef.current.openedAt) / 1000)
+      if (duration >= 2) trackEvent('conversation_time', { conversation_id: convOpenTimeRef.current.convId, duration_seconds: duration })
+    }
+    convOpenTimeRef.current = { convId: conv.id, openedAt: Date.now() }
     trackEvent('conversation_opened', { conversation_id: conv.id })
     setSelectedConvId(conv.id); setMobileView('detail')
     fetchDetail(conv.id)
@@ -818,6 +840,7 @@ export default function MessageDashboard() {
     if (notesTimerRef.current) clearTimeout(notesTimerRef.current)
     notesTimerRef.current = setTimeout(async () => {
       try {
+        trackEvent('staff_notes_edited', { conversation_id: convId })
         await apiFetch(`/api/conversations/${convId}`, {
           method: 'PATCH',
           body: JSON.stringify({ notes: value }),
@@ -920,6 +943,11 @@ export default function MessageDashboard() {
       if (e.key === 'Escape') {
         if (showHelp) { setShowHelp(false); return }
         if (isInput) return
+        if (convOpenTimeRef.current) {
+          const duration = Math.round((Date.now() - convOpenTimeRef.current.openedAt) / 1000)
+          if (duration >= 2) trackEvent('conversation_time', { conversation_id: convOpenTimeRef.current.convId, duration_seconds: duration })
+          convOpenTimeRef.current = null
+        }
         setSelectedConvId(null)
         setDetail(null)
         return
@@ -1064,6 +1092,7 @@ export default function MessageDashboard() {
       <BugReport selectedConvId={selectedConvId} displayName={displayName} />
       <BugReportsPanel show={showBugReportsPanel} onClose={() => setShowBugReportsPanel(false)} />
       <LearningQueuePanel show={showLearningQueue} onClose={() => setShowLearningQueue(false)} displayName={displayName} />
+      <AnalyticsPanel show={showAnalytics} onClose={() => setShowAnalytics(false)} />
 
       <SendConfirmModal
         sendConfirm={sendConfirm}
@@ -1096,6 +1125,8 @@ export default function MessageDashboard() {
         onMarkAllRead={handleMarkAllRead}
         showNotificationPanel={showNotificationPanel}
         setShowNotificationPanel={setShowNotificationPanel}
+        showAnalytics={showAnalytics}
+        setShowAnalytics={setShowAnalytics}
       />
 
       <NotificationPanel

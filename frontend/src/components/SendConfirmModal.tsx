@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { trackEvent } from '../lib/analytics'
 
 export type LearnMode = 'learn' | 'no_learn' | 'normal'
 export type LearnScope = 'global' | 'property'
@@ -41,23 +42,27 @@ export default function SendConfirmModal({
   }
 
   const handleLearn = () => {
+    trackEvent('send_flow_choice', { choice: 'learn' })
     setStep('scope')
   }
 
   const handleScopeSelect = (scope: LearnScope) => {
     if (!sendConfirm) return
+    trackEvent('send_flow_scope', { scope })
     executeSend(sendConfirm.draftId, 'learn', scope)
     setStep('decide')
   }
 
   const handleNoLearn = () => {
     if (!sendConfirm) return
+    trackEvent('send_flow_choice', { choice: 'no_learn' })
     executeSend(sendConfirm.draftId, 'no_learn')
     setStep('decide')
   }
 
   const handleJustSend = () => {
     if (!sendConfirm) return
+    trackEvent('send_flow_choice', { choice: 'just_send' })
     executeSend(sendConfirm.draftId, 'normal')
     setStep('decide')
   }

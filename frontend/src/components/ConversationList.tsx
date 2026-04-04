@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { trackEvent } from '../lib/analytics'
 import { formatDistanceToNow } from 'date-fns'
 import {
   ChatBubbleLeftRightIcon,
@@ -198,7 +199,7 @@ export default function ConversationList({
             ['done', 'Done'],
             ['actions', 'Actions'],
           ] as [string, string][]).map(([key, label]) => (
-            <button key={key} onClick={() => setActiveTab(key as any)}
+            <button key={key} onClick={() => { if (key === 'actions') trackEvent('pending_actions_viewed'); setActiveTab(key as any) }}
               className="flex-1 py-1 text-center text-xs transition-all duration-200 ease-in-out hover:bg-white/5" style={{borderBottom: activeTab === key ? '2px solid #6395ff' : '2px solid transparent', color: activeTab === key ? '#6395ff' : '#64748b', fontWeight: activeTab === key ? 500 : 400, minWidth: 'fit-content', padding: '0.25rem 0.5rem'}}>
               {label}
               {key === 'unread' && unreadCount > 0 && (

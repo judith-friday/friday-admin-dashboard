@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { Draft } from './types'
 import ConsultChat from './ConsultChat'
+import { trackEvent } from '../lib/analytics'
 
 interface DraftPanelProps {
   drafts: Draft[]
@@ -116,25 +117,25 @@ export default function DraftPanel({
               )}
               </div>
               <div className="flex flex-wrap gap-2 items-center">
-                <button data-testid={`btn-approve-${draft.id}`} onClick={() => requestApproval(draft.id)}
+                <button data-testid={`btn-approve-${draft.id}`} onClick={() => { trackEvent('button_click', { button: 'approve_send', draft_id: draft.id }); requestApproval(draft.id) }}
                   className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
                   <PaperAirplaneIcon className="h-4 w-4 mr-1" /> Approve & Send
                 </button>
-                <button data-testid={`btn-toggle-revise-${draft.id}`} onClick={() => { setShowRevision(!showRevision); if (showRevision) setRevisionText('') }}
+                <button data-testid={`btn-toggle-revise-${draft.id}`} onClick={() => { trackEvent('button_click', { button: 'revise', draft_id: draft.id }); setShowRevision(!showRevision); if (showRevision) setRevisionText('') }}
                   className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: showRevision ? 'rgba(99,149,255,0.2)' : 'rgba(99,149,255,0.08)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.15)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
                   <ArrowPathIcon className="h-4 w-4 mr-1" /> Revise
                 </button>
                 {conversationId && (
-                  <button data-testid={`btn-ask-judith-review-${draft.id}`} onClick={() => setConsultDraftId(consultDraftId === draft.id ? null : draft.id)}
+                  <button data-testid={`btn-ask-judith-review-${draft.id}`} onClick={() => { const opening = consultDraftId !== draft.id; setConsultDraftId(opening ? draft.id : null); if (opening) trackEvent('button_click', { button: 'ask_judith', context: 'draft_review', draft_id: draft.id }) }}
                     className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(99,149,255,0.08)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.15)'}}>
                     <ChatBubbleLeftRightIcon className="h-4 w-4 mr-1" /> Ask Judith
                   </button>
                 )}
-                <button data-testid={`btn-edit-${draft.id}`} onClick={() => { setEditingDraft(draft.id); isEditingRef.current = true; setEditBody(draft.draft_body) }}
+                <button data-testid={`btn-edit-${draft.id}`} onClick={() => { trackEvent('button_click', { button: 'edit_draft', draft_id: draft.id }); setEditingDraft(draft.id); isEditingRef.current = true; setEditBody(draft.draft_body) }}
                   className="flex items-center px-2.5 py-1 text-xs rounded" style={{background: 'transparent', color: '#64748b', border: '1px solid rgba(255,255,255,0.08)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
                   <PencilSquareIcon className="h-3.5 w-3.5 mr-1" /> Edit
                 </button>
-                <button data-testid={`btn-reject-${draft.id}`} onClick={() => { setRejectingDraft(rejectingDraft === draft.id ? null : draft.id); setRejectReason('') }}
+                <button data-testid={`btn-reject-${draft.id}`} onClick={() => { trackEvent('button_click', { button: 'reject_draft', draft_id: draft.id }); setRejectingDraft(rejectingDraft === draft.id ? null : draft.id); setRejectReason('') }}
                   className="flex items-center px-2.5 py-1 text-xs rounded" style={{background: 'transparent', color: '#64748b', border: '1px solid rgba(255,255,255,0.08)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
                   <XMarkIcon className="h-3.5 w-3.5 mr-1" /> Reject
                 </button>
