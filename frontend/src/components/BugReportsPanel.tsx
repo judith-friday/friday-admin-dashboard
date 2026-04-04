@@ -25,6 +25,7 @@ interface BugReport {
   reviewed_by: string | null
   created_at: string
   updated_at: string | null
+  screenshot: string | null
 }
 
 interface BugReportsPanelProps {
@@ -59,6 +60,7 @@ export default function BugReportsPanel({ show, onClose }: BugReportsPanelProps)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [reopenComment, setReopenComment] = useState<string>('')
   const [reopenBugId, setReopenBugId] = useState<string | null>(null)
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
 
   const fetchBugs = useCallback(async () => {
     setLoading(true)
@@ -202,6 +204,22 @@ export default function BugReportsPanel({ show, onClose }: BugReportsPanelProps)
                       )}
                     </div>
 
+                    {/* Screenshot thumbnail */}
+                    {bug.screenshot && (
+                      <div
+                        className="rounded-lg overflow-hidden cursor-pointer transition-opacity hover:opacity-80"
+                        style={{ maxWidth: '200px', border: '1px solid rgba(255,255,255,0.08)' }}
+                        onClick={() => setLightboxSrc(bug.screenshot)}
+                      >
+                        <img
+                          src={bug.screenshot}
+                          alt="Bug screenshot"
+                          className="w-full h-auto block"
+                          style={{ borderRadius: '7px' }}
+                        />
+                      </div>
+                    )}
+
                     {/* Action buttons */}
                     <div className="flex gap-2 flex-wrap">
                       {bug.status === 'submitted' && (
@@ -321,6 +339,30 @@ export default function BugReportsPanel({ show, onClose }: BugReportsPanelProps)
           })}
         </div>
       </div>
+
+      {/* Screenshot lightbox */}
+      {lightboxSrc && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setLightboxSrc(null)}
+        >
+          <button
+            className="absolute top-4 right-4 text-xl min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full"
+            style={{ color: '#94a3b8', background: 'rgba(255,255,255,0.1)' }}
+            onClick={() => setLightboxSrc(null)}
+          >
+            {'\u2715'}
+          </button>
+          <img
+            src={lightboxSrc}
+            alt="Bug screenshot full"
+            className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
+            style={{ boxShadow: '0 0 40px rgba(0,0,0,0.5)' }}
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   )
 }
