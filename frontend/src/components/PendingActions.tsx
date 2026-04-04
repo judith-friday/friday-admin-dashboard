@@ -189,8 +189,8 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
             {action.property_code && <div className="text-xs mb-1" style={{color: '#64748b'}}>{action.property_code}</div>}
             {editingId === action.id ? (
               <div className="space-y-1">
-                <input type="text" value={editText} onChange={e => setEditText(e.target.value)}
-                  className="w-full text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(99,149,255,0.3)', color: '#f1f5f9'}} />
+                <textarea value={editText} onChange={e => { setEditText(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 192) + 'px' }}
+                  rows={3} className="w-full text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(99,149,255,0.3)', color: '#f1f5f9', resize: 'vertical', minHeight: '4.5em', maxHeight: '12em'}} />
                 <input type="datetime-local" value={editDueBy} onChange={e => setEditDueBy(e.target.value)}
                   className="w-full text-xs rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
                 <div className="flex space-x-2">
