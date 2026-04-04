@@ -18,6 +18,7 @@ interface NotificationBellProps {
   notifications: Notification[]
   onNotificationClick: (n: Notification) => void
   onMarkAllRead: () => void
+  variant?: 'icon' | 'menu-item'
 }
 
 const ICON_MAP: Record<string, string> = {
@@ -35,7 +36,7 @@ function timeAgo(ts: number): string {
   return `${Math.floor(diff / 86400)}d ago`
 }
 
-export default function NotificationBell({ notifications, onNotificationClick, onMarkAllRead }: NotificationBellProps) {
+export default function NotificationBell({ notifications, onNotificationClick, onMarkAllRead, variant = 'icon' }: NotificationBellProps) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -61,31 +62,56 @@ export default function NotificationBell({ notifications, onNotificationClick, o
   return (
     <div ref={ref} className="relative" style={{ zIndex: 100 }}>
       {/* Bell button */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="relative ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded"
-        style={{ color: '#64748b' }}
-        title="Notifications"
-      >
-        <BellIcon className="h-5 w-5" />
-        {unreadCount > 0 && (
-          <span
-            className="absolute flex items-center justify-center rounded-full text-white font-bold"
-            style={{
-              top: '4px',
-              right: '4px',
-              minWidth: '18px',
-              height: '18px',
-              fontSize: '11px',
-              padding: '0 4px',
-              background: '#ef4444',
-              lineHeight: 1,
-            }}
-          >
-            {unreadCount > 99 ? '99+' : unreadCount}
-          </span>
-        )}
-      </button>
+      {variant === 'menu-item' ? (
+        <button
+          onClick={() => setOpen(!open)}
+          className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2"
+          style={{ color: '#fbbf24' }}
+        >
+          <span>{'\uD83D\uDD14'}</span> Notifications
+          {unreadCount > 0 && (
+            <span
+              className="inline-flex items-center justify-center rounded-full text-white font-bold"
+              style={{
+                minWidth: '18px',
+                height: '18px',
+                fontSize: '11px',
+                padding: '0 4px',
+                background: '#ef4444',
+                lineHeight: 1,
+              }}
+            >
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(!open)}
+          className="relative ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded"
+          style={{ color: '#64748b' }}
+          title="Notifications"
+        >
+          <BellIcon className="h-5 w-5" />
+          {unreadCount > 0 && (
+            <span
+              className="absolute flex items-center justify-center rounded-full text-white font-bold"
+              style={{
+                top: '4px',
+                right: '4px',
+                minWidth: '18px',
+                height: '18px',
+                fontSize: '11px',
+                padding: '0 4px',
+                background: '#ef4444',
+                lineHeight: 1,
+              }}
+            >
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
+        </button>
+      )}
 
       {/* Dropdown */}
       {open && (
