@@ -145,6 +145,7 @@ export default function DraftPanel({
                   onConfirm={() => { setConsultDraftId(null); requestApproval(draft.id) }}
                   onCancel={() => setConsultDraftId(null)}
                   confirmLabel="Approve & Send"
+                  propertyCode={propertyName}
                 />
               )}
 
@@ -163,69 +164,6 @@ export default function DraftPanel({
                 </div>
               )}
 
-              {/* Revision input */}
-              <div className="mt-3">
-                <div className="flex space-x-2">
-                  <input data-testid="input-revision-text" type="text" value={revisionText} onChange={e => setRevisionText(e.target.value)}
-                    placeholder="Ask Judith to adjust... (e.g. 'make it shorter', 'add WiFi password')"
-                    className="flex-1 text-sm rounded px-2 py-1.5 outline-none revision-input" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
-                    disabled={revisingDraft === draft.id}
-                    onKeyDown={e => { if (e.key === 'Enter') handleRevision(draft.id, 'standard') }} />
-                </div>
-                <div className="flex flex-wrap items-center gap-2 mt-2">
-                  <button data-testid={`btn-revise-standard-${draft.id}`} onClick={() => handleRevision(draft.id, 'standard')}
-                    disabled={revisingDraft === draft.id || !revisionText.trim()}
-                    className="px-3 py-1 text-xs rounded disabled:opacity-50" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>
-                    {revisingDraft === draft.id ? 'Revising...' : 'Revise'}
-                  </button>
-                  <button data-testid={`btn-revise-teach-${draft.id}`} onClick={() => { if (!revisionText.trim()) return; setShowTeachPrompt(showTeachPrompt === draft.id ? null : draft.id) }}
-                    disabled={revisingDraft === draft.id || !revisionText.trim()}
-                    className="px-3 py-1 text-xs rounded disabled:opacity-50 flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
-                    <span className="mr-1">{'\uD83E\uDDE0'}</span> Revise & teach
-                  </button>
-                  <button data-testid={`btn-revise-one-time-${draft.id}`} onClick={() => handleRevision(draft.id, 'one_time')}
-                    disabled={revisingDraft === draft.id || !revisionText.trim()}
-                    className="text-xs disabled:opacity-50" style={{color: '#64748b'}}>
-                    one-time
-                  </button>
-                  {conversationId && (
-                    <button onClick={() => setConsultDraftId(consultDraftId === draft.id ? null : draft.id)}
-                      disabled={revisingDraft === draft.id || !revisionText.trim()}
-                      className="px-3 py-1 text-xs rounded disabled:opacity-50 flex items-center"
-                      style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.25)'}}>
-                      <ChatBubbleLeftRightIcon className="h-3.5 w-3.5 mr-1" /> Ask Judith First
-                    </button>
-                  )}
-                </div>
-                {showTeachPrompt === draft.id && (
-                  <div className="mt-2 p-2 rounded" style={{background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.15)'}}>
-                    <div className="text-xs mb-1.5" style={{color: '#c084fc'}}>Save this teaching to:</div>
-                    <div className="flex space-x-2">
-                      <button data-testid={`btn-teach-property-${draft.id}`} onClick={() => handleRevision(draft.id, 'teach', 'property', propertyName || undefined)}
-                        className="px-2 py-1 text-xs rounded" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
-                        {'\uD83D\uDCCD'} {propertyName || 'This property'} only
-                      </button>
-                      <button data-testid={`btn-teach-global-${draft.id}`} onClick={() => handleRevision(draft.id, 'teach', 'global')}
-                        className="px-2 py-1 text-xs rounded" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
-                        {'\uD83C\uDF10'} All properties
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Ask Judith First consultation chat */}
-                {consultDraftId === draft.id && conversationId && (
-                  <ConsultChat
-                    conversationId={conversationId}
-                    context="revision"
-                    initialInstruction={revisionText}
-                    draftBody={draft.draft_body}
-                    onConfirm={() => { setConsultDraftId(null); handleRevision(draft.id, 'teach') }}
-                    onCancel={() => setConsultDraftId(null)}
-                    confirmLabel="Confirm Revision"
-                  />
-                )}
-              </div>
             </>
           ))}
         </div>

@@ -14,6 +14,29 @@ interface ConsultChatProps {
   onConfirm: () => void
   onCancel: () => void
   confirmLabel: string
+  propertyCode?: string
+}
+
+function extractAndSaveTeaching(text: string, propertyCode?: string): string {
+  const match = text.match(/\[TEACH\]([\s\S]*?)\[\/TEACH\]/)
+  if (!match) return text
+  const instruction = match[1].trim()
+  // Fire and forget — save teaching
+  apiFetch('/api/teachings', {
+    method: 'POST',
+    body: JSON.stringify({
+      instruction,
+      scope: propertyCode ? 'property' : 'global',
+      property_code: propertyCode || null,
+      taught_by: 'consult_chat',
+    }),
+  }).then(() => {
+    console.log('[ConsultChat] Teaching saved:', instruction.substring(0, 60))
+  }).catch((err: any) => {
+    console.warn('[ConsultChat] Failed to save teaching:', err.message)
+  })
+  // Strip the [TEACH] tags from displayed text, add a confirmation note
+  return text.replace(/\[TEACH\][\s\S]*?\[\/TEACH\]/, '\u2705 Learned for future drafts.').trim()
 }
 
 interface ChatMessage {
@@ -23,7 +46,7 @@ interface ChatMessage {
 
 export default function ConsultChat({
   conversationId, context, initialInstruction, draftBody, contextData,
-  onConfirm, onCancel, confirmLabel,
+  onConfirm, onCancel, confirmLabel, propertyCode,
 }: ConsultChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [loading, setLoading] = useState(false)
@@ -32,7 +55,6 @@ export default function ConsultChat({
   const [error, setError] = useState<string | null>(null)
 
   const startedRef = useRef(false)
-  const exchangeCount = messages.filter(m => m.role === 'user').length
 
   useEffect(() => {
     if (startedRef.current) return
@@ -54,8 +76,9 @@ export default function ConsultChat({
             ...(contextData ? { contextData } : {}),
           }),
         })
-        const response = data.response as string
-        if (response) {
+        const rawResponse = data.response as string
+        if (rawResponse) {
+          const response = extractAndSaveTeaching(rawResponse, propertyCode)
           setMessages([userMsg, { role: 'assistant', content: response }])
         }
       } catch (err: any) {
@@ -91,14 +114,15 @@ export default function ConsultChat({
   }
 
   const handleReply = async () => {
-    if (!replyText.trim() || exchangeCount >= 3) return
+    if (!replyText.trim()) return
     trackEvent('ask_judith_message_sent', { context, messageLength: replyText.trim().length })
     const userMsg: ChatMessage = { role: 'user', content: replyText.trim() }
     const newMessages = [...messages, userMsg]
     setMessages(newMessages)
     setReplyText('')
-    const response = await sendConsult(replyText.trim(), newMessages)
-    if (response) {
+    const rawResponse = await sendConsult(replyText.trim(), newMessages)
+    if (rawResponse) {
+      const response = extractAndSaveTeaching(rawResponse, propertyCode)
       setMessages([...newMessages, { role: 'assistant', content: response }])
     }
   }
@@ -142,7 +166,7 @@ export default function ConsultChat({
       </div>
 
       {/* Reply input */}
-      {!loading && exchangeCount < 3 && messages.length >= 2 && (
+      {!loading && messages.length >= 2 && (
         <div className="px-3 pb-2">
           <div className="flex gap-2">
             <input type="text" value={replyText} onChange={e => setReplyText(e.target.value)}
@@ -156,7 +180,6 @@ export default function ConsultChat({
               Send
             </button>
           </div>
-          <span className="text-xs mt-1 block" style={{ color: '#475569' }}>{3 - exchangeCount} replies remaining</span>
         </div>
       )}
 
