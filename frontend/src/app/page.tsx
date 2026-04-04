@@ -28,6 +28,7 @@ import ConversationDetailView from '../components/ConversationDetail'
 import GuestInfo from '../components/GuestInfo'
 import InstallPrompt from '../components/InstallPrompt'
 import { Notification } from '../components/NotificationBell'
+import NotificationPanel from '../components/NotificationPanel'
 import { trackEvent } from '../lib/analytics'
 
 export default function MessageDashboard() {
@@ -52,6 +53,7 @@ export default function MessageDashboard() {
   const [showTeachingsPanel, setShowTeachingsPanel] = useState(false)
   const [showBugReportsPanel, setShowBugReportsPanel] = useState(false)
   const [showLearningQueue, setShowLearningQueue] = useState(false)
+  const [showNotificationPanel, setShowNotificationPanel] = useState(false)
   const [teachings, setTeachings] = useState<any[]>([])
   const [revokeId, setRevokeId] = useState<string | null>(null)
   const [revokeReason, setRevokeReason] = useState('')
@@ -1011,6 +1013,16 @@ export default function MessageDashboard() {
         setShowBugReportsPanel={setShowBugReportsPanel}
         showLearningQueue={showLearningQueue}
         setShowLearningQueue={setShowLearningQueue}
+        notifications={notifications}
+        onNotificationClick={handleNotificationClick}
+        onMarkAllRead={handleMarkAllRead}
+        showNotificationPanel={showNotificationPanel}
+        setShowNotificationPanel={setShowNotificationPanel}
+      />
+
+      <NotificationPanel
+        show={showNotificationPanel}
+        onClose={() => setShowNotificationPanel(false)}
         notifications={notifications}
         onNotificationClick={handleNotificationClick}
         onMarkAllRead={handleMarkAllRead}

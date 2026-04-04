@@ -31,6 +31,8 @@ interface DashboardStatsProps {
   notifications: Notification[]
   onNotificationClick: (n: Notification) => void
   onMarkAllRead: () => void
+  showNotificationPanel: boolean
+  setShowNotificationPanel: (v: boolean) => void
 }
 
 function rtColor(mins?: number) {
@@ -53,6 +55,7 @@ export default function DashboardStats({
   fetchTeachings, setShowHelp, showBugReportsPanel, setShowBugReportsPanel,
   showLearningQueue, setShowLearningQueue,
   notifications, onNotificationClick, onMarkAllRead,
+  showNotificationPanel, setShowNotificationPanel,
 }: DashboardStatsProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showInstallHelp, setShowInstallHelp] = useState(false)
@@ -123,7 +126,14 @@ export default function DashboardStats({
             {mobileMenuOpen && (
               <div className="absolute right-0 top-full mt-1 rounded-lg py-1 z-[999]" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.1)', minWidth: '160px', boxShadow: '0 8px 24px rgba(0,0,0,0.4)'}}>
                 {/* Group 1: Core features */}
-                <NotificationBell variant="menu-item" notifications={notifications} onNotificationClick={(n) => { onNotificationClick(n); setMobileMenuOpen(false) }} onMarkAllRead={onMarkAllRead} />
+                <button onClick={() => { setShowNotificationPanel(true); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#fbbf24'}}>
+                  <span>{'\uD83D\uDD14'}</span> Notifications
+                  {notifications.filter(n => !n.read).length > 0 && (
+                    <span className="inline-flex items-center justify-center rounded-full text-white font-bold" style={{minWidth: '18px', height: '18px', fontSize: '11px', padding: '0 4px', background: '#ef4444', lineHeight: 1}}>
+                      {notifications.filter(n => !n.read).length > 99 ? '99+' : notifications.filter(n => !n.read).length}
+                    </span>
+                  )}
+                </button>
                 <button onClick={() => { setShowTeachingsPanel(!showTeachingsPanel); if (!showTeachingsPanel) fetchTeachings(); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#c084fc'}}>
                   <span>{'\uD83E\uDDE0'}</span> Teachings
                 </button>
