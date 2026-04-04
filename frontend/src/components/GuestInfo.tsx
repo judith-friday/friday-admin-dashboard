@@ -147,8 +147,8 @@ export default function GuestInfo({
       <div className="p-3 space-y-1.5 text-xs" style={{color: '#94a3b8', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
         {detail.conversation.guest_email && <div>Email: {detail.conversation.guest_email}</div>}
         {detail.conversation.channel && <div>Channel: {detail.conversation.channel}</div>}
-        {detail.conversation.check_in_date && <div>Check-in: {format(new Date(detail.conversation.check_in_date), 'MMM d, yyyy')}{formatTime12h(detail.reservation?.planned_arrival)}</div>}
-        {detail.conversation.check_out_date && <div>Check-out: {format(new Date(detail.conversation.check_out_date), 'MMM d, yyyy')}{formatTime12h(detail.reservation?.planned_departure)}</div>}
+        {detail.conversation.check_in_date && <div>Check-in: {format(new Date(detail.conversation.check_in_date), 'MMM d, yyyy')}{formatTime12h(detail.reservation?.planned_arrival || detail.conversation.check_in_time)}</div>}
+        {detail.conversation.check_out_date && <div>Check-out: {format(new Date(detail.conversation.check_out_date), 'MMM d, yyyy')}{formatTime12h(detail.reservation?.planned_departure || detail.conversation.check_out_time)}</div>}
         {detail.conversation.num_guests && <div>{detail.conversation.num_guests} guest{detail.conversation.num_guests > 1 ? 's' : ''}</div>}
         <div>{detail.conversation.inbound_count || 0} inbound messages</div>
         {detail.conversation.sentiment && detail.conversation.sentiment !== 'neutral' && (
@@ -162,7 +162,7 @@ export default function GuestInfo({
       </div>
 
       {/* Financial info */}
-      {detail.reservation && (detail.reservation.nightly_rate || detail.reservation.total_price) && (() => {
+      {detail.reservation && (detail.reservation.nightly_rate || detail.reservation.total_price || detail.reservation.host_payout || detail.reservation.cleaning_fee) && (() => {
         const r = detail.reservation
         const currency = r.currency || 'EUR'
         const sym = currency === 'EUR' ? '\u20AC' : currency === 'USD' ? '$' : currency === 'GBP' ? '\u00A3' : currency === 'MUR' ? 'Rs' : currency + ' '
