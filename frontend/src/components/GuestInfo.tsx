@@ -79,6 +79,24 @@ function CollapsibleSection({ title, defaultOpen = false, count, children }: {
   )
 }
 
+// Detect AI-generated observation markers in notes
+const AI_NOTE_PATTERN = /\[Judith'?s? observation\]/i
+
+function splitNotes(raw: string): { aiNotes: string[]; manualNotes: string } {
+  if (!raw) return { aiNotes: [], manualNotes: '' }
+  const lines = raw.split('\n')
+  const ai: string[] = []
+  const manual: string[] = []
+  for (const line of lines) {
+    if (AI_NOTE_PATTERN.test(line)) {
+      ai.push(line.replace(AI_NOTE_PATTERN, '').trim())
+    } else {
+      manual.push(line)
+    }
+  }
+  return { aiNotes: ai, manualNotes: manual.join('\n').trim() }
+}
+
 export default function GuestInfo({
   detail, token, selectedConvId, mobileView, setMobileView, setDetail,
   handleMarkDone, handleReopen, showDoneWarning, setShowDoneWarning,
@@ -89,6 +107,8 @@ export default function GuestInfo({
   const [nextSteps, setNextSteps] = useState<NextStep[]>([])
   const [editingStepId, setEditingStepId] = useState<string | null>(null)
   const [editStepText, setEditStepText] = useState('')
+  const [editingNotes, setEditingNotes] = useState(false)
+  const [editNotesValue, setEditNotesValue] = useState('')
 
   // Fetch next steps from dedicated API
   useEffect(() => {
@@ -233,20 +253,85 @@ export default function GuestInfo({
 
       {/* Staff notes - always visible */}
       <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-        <h3 className="text-xs font-semibold mb-1" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Staff Notes</h3>
-        <textarea value={staffNotes}
-          onChange={e => handleNotesChange(e.target.value, detail.conversation.id)}
-          onBlur={async () => {
-            if (notesTimerRef.current) clearTimeout(notesTimerRef.current)
-            try {
-              await apiFetch(`/api/conversations/${detail.conversation.id}`, {
-                method: 'PATCH',
-                body: JSON.stringify({ notes: staffNotes }),
-              })
-            } catch { }
+        <div className="flex items-center justify-between mb-1.5">
+          <h3 className="text-xs font-semibold" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Staff Notes</h3>
+          {!editingNotes && staffNotes.trim() && (
+            <button onClick={() => { setEditingNotes(true); setEditNotesValue(staffNotes) }}
+              className="p-1 rounded" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>
+              <PencilIcon className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+
+        {/* AI-generated observations — read-only */}
+        {(() => {
+          const { aiNotes, manualNotes } = splitNotes(staffNotes)
+          return (
+            <>
+              {aiNotes.length > 0 && !editingNotes && (
+                <div className="space-y-1.5 mb-2">
+                  {aiNotes.map((note, i) => (
+                    <div key={i} className="rounded px-2 py-1.5 text-xs" style={{background: 'rgba(251,191,36,0.08)', borderLeft: '2px solid #fbbf24', color: '#e2e8f0'}}>
+                      <span className="block text-xs mb-0.5" style={{color: '#fbbf24', fontSize: '10px', fontWeight: 600}}>🤖 Judith's observation</span>
+                      {note}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Manual notes — read-only display */}
+              {manualNotes && !editingNotes && (
+                <div className="text-xs rounded px-2 py-1.5 mb-2 whitespace-pre-wrap" style={{background: 'rgba(255,255,255,0.04)', color: '#e2e8f0'}}>
+                  {manualNotes}
+                </div>
+              )}
+            </>
+          )
+        })()}
+
+        {/* Edit mode */}
+        {editingNotes && (
+          <div>
+            <textarea value={editNotesValue} onChange={e => setEditNotesValue(e.target.value)}
+              className="w-full text-xs rounded px-2 py-1.5 outline-none"
+              style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(99,149,255,0.3)', color: '#f1f5f9', resize: 'vertical', minHeight: '72px'}}
+              rows={3} autoFocus />
+            <div className="flex gap-1.5 mt-1.5">
+              <button onClick={async () => {
+                handleNotesChange(editNotesValue, detail.conversation.id)
+                if (notesTimerRef.current) clearTimeout(notesTimerRef.current)
+                try {
+                  await apiFetch(`/api/conversations/${detail.conversation.id}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ notes: editNotesValue }),
+                  })
+                } catch { }
+                setEditingNotes(false)
+              }} className="flex items-center gap-1 px-2 py-1 text-xs rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
+                <CheckIcon className="h-3 w-3" /> Save
+              </button>
+              <button onClick={() => setEditingNotes(false)}
+                className="flex items-center gap-1 px-2 py-1 text-xs rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
+                <XMarkIcon className="h-3 w-3" /> Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Add new notes — only when not editing */}
+        {!editingNotes && (
+          <textarea value="" onChange={e => {
+            const val = e.target.value
+            const updated = staffNotes ? staffNotes + '\n' + val : val
+            handleNotesChange(updated, detail.conversation.id)
+            setEditingNotes(true)
+            setEditNotesValue(updated)
           }}
-          placeholder="Add notes for Judith..."
-          className="w-full text-xs rounded px-2 py-1.5 resize-none outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} rows={2} />
+            placeholder="Add notes for Judith..."
+            className="w-full text-xs rounded px-2 py-1.5 outline-none"
+            style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', resize: 'vertical', minHeight: '48px'}}
+            rows={2} />
+        )}
       </div>
 
       {/* Auto-send toggle */}
