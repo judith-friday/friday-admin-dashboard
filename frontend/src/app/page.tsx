@@ -217,12 +217,16 @@ export default function MessageDashboard() {
     if (n.conversationId) {
       setSelectedConvId(n.conversationId)
       setMobileView('detail')
+      // Load conversation detail inline (fetchDetail defined later in hook order)
+      apiFetch(`/api/conversations/${n.conversationId}`).then((data: any) => {
+        setDetail(data)
+        apiFetch(`/api/conversations/${n.conversationId}/read`, { method: 'POST' }).catch(() => {})
+      }).catch(() => {})
     }
     // Mark read on server
     const t = getToken()
     if (t) apiFetch('/api/notifications/mark-read', {
       method: 'POST',
-      headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: n.id }),
     }).catch(() => {})
   }, [])
