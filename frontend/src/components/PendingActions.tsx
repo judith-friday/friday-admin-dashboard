@@ -12,6 +12,8 @@ import {
   ChatBubbleLeftRightIcon,
   DocumentTextIcon,
   ClockIcon,
+  ArrowDownTrayIcon,
+  InboxIcon,
 } from '@heroicons/react/24/outline'
 import { apiFetch, PendingAction } from './types'
 import ConsultChat from './ConsultChat'
@@ -19,7 +21,7 @@ import { trackEvent } from '../lib/analytics'
 
 type SortKey = 'urgency' | 'newest' | 'oldest' | 'guest'
 
-export default function PendingActionsTab({ token, conversationFilter }: { token: string; conversationFilter?: string }) {
+export default function PendingActionsTab({ token, conversationFilter, onNavigateToConversation }: { token: string; conversationFilter?: string; onNavigateToConversation?: (convId: string) => void }) {
   const [actions, setActions] = useState<PendingAction[]>([])
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<SortKey>('urgency')
@@ -113,6 +115,30 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
       setResolvedActions(resolved)
     } catch { } finally { setResolvedLoading(false) }
   }, [])
+
+  const exportResolvedCSV = () => {
+    const filtered = resolvedActions.filter(a => resolvedFilter === 'all' || a.status === resolvedFilter)
+    const escape = (s: string) => `"${(s || '').replace(/"/g, '""')}"`
+    const header = 'Guest Name,Property,Action,Status,Detected,Completed/Dismissed,Completed By,Notes'
+    const rows = filtered.map(a => [
+      escape(a.guest_name),
+      escape(a.property_name || a.property_code || ''),
+      escape(a.action_text),
+      a.status,
+      a.detected_at ? new Date(a.detected_at).toLocaleString() : '',
+      a.completed_at ? new Date(a.completed_at).toLocaleString() : '',
+      escape(a.completed_by || ''),
+      escape(a.completion_note || ''),
+    ].join(','))
+    const csv = [header, ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `resolved-actions-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   const toggleNotes = async (actionId: string) => {
     const next = new Set(expandedNotes)
@@ -382,18 +408,26 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
           </button>
           {showResolved && (
             <div>
-              <div className="px-3 pb-2 flex gap-1.5">
-                {(['all', 'completed', 'dismissed'] as const).map(f => (
-                  <button key={f} onClick={() => setResolvedFilter(f)}
-                    className="px-2 py-0.5 text-xs rounded"
-                    style={{
-                      background: resolvedFilter === f ? 'rgba(99,149,255,0.15)' : 'rgba(255,255,255,0.04)',
-                      color: resolvedFilter === f ? '#6395ff' : '#64748b',
-                      border: `1px solid ${resolvedFilter === f ? 'rgba(99,149,255,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                    }}>
-                    {f === 'all' ? 'All' : f === 'completed' ? 'Done' : 'Dismissed'}
+              <div className="px-3 pb-2 flex gap-1.5 items-center">
+                {(['all', 'completed', 'dismissed'] as const).map(f => {
+                  const count = f === 'all' ? resolvedActions.length : resolvedActions.filter(a => a.status === f).length
+                  return (
+                    <button key={f} onClick={() => setResolvedFilter(f)}
+                      className="px-2 py-0.5 text-xs rounded"
+                      style={{
+                        background: resolvedFilter === f ? 'rgba(99,149,255,0.15)' : 'rgba(255,255,255,0.04)',
+                        color: resolvedFilter === f ? '#6395ff' : '#64748b',
+                        border: `1px solid ${resolvedFilter === f ? 'rgba(99,149,255,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                      }}>
+                      {f === 'all' ? 'All' : f === 'completed' ? 'Done' : 'Dismissed'} ({count})
+                    </button>
+                  )
+                })}
+                {resolvedActions.length > 0 && (
+                  <button onClick={exportResolvedCSV} title="Export CSV" className="ml-auto p-1 rounded" style={{color: '#64748b', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)'}}>
+                    <ArrowDownTrayIcon className="h-3.5 w-3.5" />
                   </button>
-                ))}
+                )}
               </div>
               {resolvedLoading ? (
                 <div className="p-4 text-center text-xs" style={{color: '#475569'}}>Loading...</div>
@@ -401,10 +435,17 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                 resolvedActions
                   .filter(a => resolvedFilter === 'all' || a.status === resolvedFilter)
                   .map(action => (
-                    <div key={action.id} className="px-3 py-2" style={{borderTop: '1px solid rgba(255,255,255,0.03)', opacity: 0.55}}>
+                    <div key={action.id} className={`px-3 py-2${onNavigateToConversation ? ' cursor-pointer hover:bg-white/5' : ''}`}
+                      style={{borderTop: '1px solid rgba(255,255,255,0.03)', opacity: 0.55}}
+                      onClick={() => onNavigateToConversation?.(action.conversation_id)}>
                       <div className="flex justify-between items-start mb-0.5">
-                        <span className="text-xs font-medium" style={{color: '#94a3b8'}}>{action.guest_name}</span>
-                        <span className="px-1.5 py-0.5 rounded text-xs" style={{
+                        <div>
+                          <span className="text-xs font-medium" style={{color: '#94a3b8'}}>{action.guest_name}</span>
+                          {(action.property_name || action.property_code) && (
+                            <span className="text-xs ml-1.5" style={{color: '#475569'}}>{action.property_name || action.property_code}</span>
+                          )}
+                        </div>
+                        <span className="px-1.5 py-0.5 rounded text-xs shrink-0" style={{
                           background: action.status === 'completed' ? 'rgba(34,197,94,0.1)' : 'rgba(100,116,139,0.1)',
                           color: action.status === 'completed' ? '#4ade80' : '#94a3b8',
                           fontSize: '0.65rem',
@@ -412,7 +453,6 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                           {action.status === 'completed' ? 'Done' : 'Dismissed'}
                         </span>
                       </div>
-                      {action.property_code && <div className="text-xs mb-0.5" style={{color: '#475569'}}>{action.property_code}</div>}
                       <p className="text-xs mb-1" style={{color: '#64748b'}}>{action.action_text}</p>
                       <div className="text-xs" style={{color: '#475569', fontSize: '0.65rem'}}>
                         {action.completed_by && <span>{action.completed_by} · </span>}
@@ -423,7 +463,10 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                   ))
               )}
               {!resolvedLoading && resolvedActions.filter(a => resolvedFilter === 'all' || a.status === resolvedFilter).length === 0 && (
-                <div className="p-4 text-center text-xs" style={{color: '#475569'}}>No resolved actions</div>
+                <div className="p-6 text-center" style={{color: '#475569'}}>
+                  <InboxIcon className="h-8 w-8 mx-auto mb-2" style={{opacity: 0.5}} />
+                  <p className="text-xs">No resolved actions yet</p>
+                </div>
               )}
             </div>
           )}

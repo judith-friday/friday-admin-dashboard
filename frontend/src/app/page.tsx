@@ -1229,7 +1229,7 @@ export default function MessageDashboard() {
               <div className="px-4 py-3 flex-shrink-0" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
                 <h3 className="text-lg font-medium" style={{color: '#f1f5f9'}}>Pending Actions</h3>
               </div>
-              <PendingActionsTab token={token!} />
+              <PendingActionsTab token={token!} onNavigateToConversation={(convId) => { setSelectedConvId(convId); setActiveTab('all'); setMobileView('detail') }} />
             </div>
           ) : (
             <div className="flex-1 hidden md:flex items-center justify-center" style={{background: 'rgba(255,255,255,0.01)'}}>

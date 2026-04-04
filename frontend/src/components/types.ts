@@ -125,6 +125,7 @@ export interface PendingAction {
   conversation_id: string
   guest_name: string
   property_code?: string
+  property_name?: string
   action_text: string
   status: string
   detected_at: string
