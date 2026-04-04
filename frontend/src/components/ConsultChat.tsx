@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { ArrowPathIcon } from '@heroicons/react/24/outline'
 import { apiFetch } from './types'
 import { trackEvent } from '../lib/analytics'
 
@@ -11,9 +11,9 @@ interface ConsultChatProps {
   initialInstruction: string
   draftBody?: string
   contextData?: Record<string, any>
-  onConfirm: () => void
+  onConfirm?: () => void
   onCancel: () => void
-  confirmLabel: string
+  confirmLabel?: string
   propertyCode?: string
 }
 
@@ -39,19 +39,8 @@ function extractAndSaveTeaching(text: string, propertyCode?: string): string {
   return text.replace(/\[TEACH\][\s\S]*?\[\/TEACH\]/, '\u2705 Learned for future drafts.').trim()
 }
 
-function parseZones(text: string): { reasoning: string | null; draft: string | null } {
-  const reasoningMatch = text.match(/\[REASONING\]([\s\S]*?)\[\/REASONING\]/)
-  const draftMatch = text.match(/\[DRAFT\]([\s\S]*?)\[\/DRAFT\]/)
-
-  // If no tags found, treat entire response as reasoning (backward compatibility)
-  if (!reasoningMatch && !draftMatch) {
-    return { reasoning: text, draft: null }
-  }
-
-  return {
-    reasoning: reasoningMatch ? reasoningMatch[1].trim() : null,
-    draft: draftMatch ? draftMatch[1].trim() : null,
-  }
+function stripZoneTags(text: string): string {
+  return text.replace(/\[REASONING\]/g, '').replace(/\[\/REASONING\]/g, '').replace(/\[DRAFT\]/g, '').replace(/\[\/DRAFT\]/g, '').trim()
 }
 
 interface ChatMessage {
@@ -93,7 +82,7 @@ export default function ConsultChat({
         })
         const rawResponse = data.response as string
         if (rawResponse) {
-          const response = extractAndSaveTeaching(rawResponse, propertyCode)
+          const response = stripZoneTags(extractAndSaveTeaching(rawResponse, propertyCode))
           setMessages([userMsg, { role: 'assistant', content: response }])
         }
       } catch (err: any) {
@@ -137,7 +126,7 @@ export default function ConsultChat({
     setReplyText('')
     const rawResponse = await sendConsult(replyText.trim(), newMessages)
     if (rawResponse) {
-      const response = extractAndSaveTeaching(rawResponse, propertyCode)
+      const response = stripZoneTags(extractAndSaveTeaching(rawResponse, propertyCode))
       setMessages([...newMessages, { role: 'assistant', content: response }])
     }
   }
@@ -172,38 +161,14 @@ export default function ConsultChat({
             )
           }
 
-          const { reasoning, draft } = parseZones(msg.content)
           return (
             <div key={i} className="flex justify-start">
-              <div className="max-w-[85%] space-y-2">
-                {reasoning && (
-                  <div>
-                    <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: '#64748b' }}>
-                      Judith&apos;s Reasoning
-                    </div>
-                    <div className="px-3 py-2 rounded-lg text-sm whitespace-pre-wrap" style={{
-                      background: 'rgba(30,41,59,0.5)',
-                      color: '#94a3b8',
-                      border: '1px solid rgba(99,149,255,0.1)',
-                    }}>
-                      {reasoning}
-                    </div>
-                  </div>
-                )}
-                {draft && (
-                  <div>
-                    <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: '#6395ff' }}>
-                      Draft Message
-                    </div>
-                    <div className="px-3 py-2 rounded-lg text-sm whitespace-pre-wrap" style={{
-                      background: 'rgba(51,65,85,0.7)',
-                      color: '#f1f5f9',
-                      border: '1px solid rgba(99,149,255,0.3)',
-                    }}>
-                      {draft}
-                    </div>
-                  </div>
-                )}
+              <div className="max-w-[85%] px-3 py-2 rounded-lg text-sm whitespace-pre-wrap" style={{
+                background: 'rgba(30,41,59,0.5)',
+                color: '#e2e8f0',
+                border: '1px solid rgba(99,149,255,0.1)',
+              }}>
+                {msg.content}
               </div>
             </div>
           )
@@ -241,15 +206,17 @@ export default function ConsultChat({
       {/* Action buttons */}
       {!loading && (
         <div className="flex gap-2 px-3 pb-3">
-          <button onClick={onConfirm}
-            className="px-3 py-1.5 text-sm rounded"
-            style={{ background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>
-            {confirmLabel}
-          </button>
+          {onConfirm && confirmLabel && (
+            <button onClick={onConfirm}
+              className="px-3 py-1.5 text-sm rounded"
+              style={{ background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>
+              {confirmLabel}
+            </button>
+          )}
           <button onClick={onCancel}
-            className="px-3 py-1.5 text-sm rounded flex items-center"
+            className="px-3 py-1.5 text-sm rounded"
             style={{ background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <XMarkIcon className="h-3.5 w-3.5 mr-1" /> Cancel
+            Close
           </button>
         </div>
       )}

@@ -147,9 +147,7 @@ export default function DraftPanel({
                   context="draft_review"
                   initialInstruction={draft.draft_body}
                   draftBody={draft.draft_body}
-                  onConfirm={() => { setConsultDraftId(null); requestApproval(draft.id) }}
                   onCancel={() => setConsultDraftId(null)}
-                  confirmLabel="Approve & Send"
                   propertyCode={propertyName}
                 />
               )}
