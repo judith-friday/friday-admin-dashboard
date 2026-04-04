@@ -76,6 +76,37 @@ export default function ConversationDetail({
   // Track which outbound messages show original language (by message id)
   const [showMsgOriginal, setShowMsgOriginal] = useState<Record<string, boolean>>({})
 
+  // Format timestamp: relative for recent, absolute for older
+  const formatTimestamp = (dateStr: string) => {
+    const date = new Date(dateStr)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    const time = format(date, 'h:mm a')
+
+    if (diffMins < 1) return 'just now'
+    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffHours < 24 && date.getDate() === now.getDate()) return `${diffHours}h ago · ${time}`
+    if (diffDays === 1 || (diffDays < 2 && date.getDate() === now.getDate() - 1)) return `yesterday · ${time}`
+    return format(date, 'MMM d, h:mm a')
+  }
+
+  // Get date label for separators
+  const getDateLabel = (dateStr: string) => {
+    const date = new Date(dateStr)
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    const diffDays = Math.floor((today.getTime() - msgDate.getTime()) / 86400000)
+
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return 'Yesterday'
+    return format(date, 'MMMM d')
+  }
+
   const sentimentDot = (sentiment?: string) => {
     if (!sentiment || sentiment === 'neutral') return null
     const color = sentiment === 'upset' ? '#ef4444' : sentiment === 'frustrated' ? '#f59e0b' : sentiment === 'positive' ? '#22c55e' : '#64748b'
@@ -175,13 +206,34 @@ export default function ConversationDetail({
           // Sort chronologically — oldest first (guard against NaN timestamps)
           timeline.sort((a, b) => (a.time || 0) - (b.time || 0))
           return timeline
-        })().map((item, idx) => {
+        })().map((item, idx, arr) => {
+          // Date separator logic
+          const itemDate = new Date(item.type === 'sent_draft' ? ((item.data as Draft).sent_at || (item.data as Draft).updated_at) : (item.data as typeof detail.messages[0]).created_at)
+          const itemDateKey = `${itemDate.getFullYear()}-${itemDate.getMonth()}-${itemDate.getDate()}`
+          let showDateSeparator = false
+          if (idx === 0) {
+            showDateSeparator = true
+          } else {
+            const prevItem = arr[idx - 1]
+            const prevDate = new Date(prevItem.type === 'sent_draft' ? ((prevItem.data as Draft).sent_at || (prevItem.data as Draft).updated_at) : (prevItem.data as typeof detail.messages[0]).created_at)
+            const prevDateKey = `${prevDate.getFullYear()}-${prevDate.getMonth()}-${prevDate.getDate()}`
+            showDateSeparator = itemDateKey !== prevDateKey
+          }
+          const dateSeparator = showDateSeparator ? (
+            <div key={`date-${itemDateKey}`} className="flex items-center gap-3 py-2">
+              <div className="flex-1 h-px" style={{background: 'rgba(255,255,255,0.06)'}} />
+              <span className="text-xs font-medium flex-shrink-0" style={{color: '#64748b'}}>{getDateLabel(itemDate.toISOString())}</span>
+              <div className="flex-1 h-px" style={{background: 'rgba(255,255,255,0.06)'}} />
+            </div>
+          ) : null
           if (item.type === 'sent_draft') {
             const draft = item.data as Draft
             const isShowingTranslated = showTranslated[draft.id] && draft.translated_content
             const hasTranslation = draft.translated_content && draft.sent_language && draft.sent_language !== 'en'
             return (
-              <div key={`sent-${draft.id}`} className="rounded-lg p-3" style={{
+              <React.Fragment key={`sent-${draft.id}`}>
+              {dateSeparator}
+              <div className="rounded-lg p-3" style={{
                 background: 'rgba(34,197,94,0.06)',
                 border: '1px solid rgba(34,197,94,0.1)',
               }}>
@@ -212,6 +264,7 @@ export default function ConversationDetail({
                   {draft.reviewed_by === 'auto-send' ? 'Auto-sent by Judith' : `Approved by ${draft.reviewed_by || 'unknown'}`}{draft.revision_number && draft.revision_number > 1 ? ` (v${draft.revision_number})` : ''} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}
                 </div>
               </div>
+              </React.Fragment>
             )
           }
 
@@ -225,7 +278,9 @@ export default function ConversationDetail({
           // System notifications: muted centered style
           if (isSystem) {
             return (
-              <div key={msg.id} className="flex justify-center">
+              <React.Fragment key={msg.id}>
+              {dateSeparator}
+              <div className="flex justify-center">
                 <div className="max-w-lg px-4 py-2 rounded-lg text-center" style={{
                   background: 'rgba(100,116,139,0.08)',
                   border: '1px solid rgba(100,116,139,0.12)',
@@ -237,10 +292,11 @@ export default function ConversationDetail({
                   </div>
                   <p className="text-xs whitespace-pre-wrap" style={{color: '#94a3b8'}}>{msg.body}</p>
                   <div className="text-xs mt-1" style={{color: '#475569'}}>
-                    {format(new Date(msg.created_at), 'HH:mm')}
+                    {formatTimestamp(msg.created_at)}
                   </div>
                 </div>
               </div>
+              </React.Fragment>
             )
           }
 
@@ -256,7 +312,9 @@ export default function ConversationDetail({
           }
 
           return (
-            <div key={msg.id} className={`flex ${isOutbound ? 'justify-end' : 'justify-start'}`}>
+            <React.Fragment key={msg.id}>
+            {dateSeparator}
+            <div className={`flex ${isOutbound ? 'justify-end' : 'justify-start'}`}>
               <div className="max-w-xl px-4 py-2.5 rounded-lg" style={{
                 background: isOutbound ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.06)',
                 border: isOutbound ? '1px solid rgba(34,197,94,0.15)' : '1px solid rgba(255,255,255,0.08)',
@@ -309,13 +367,14 @@ export default function ConversationDetail({
                 )}
 
                 <div className="text-xs mt-1" style={{color: '#64748b'}}>
-                  {format(new Date(msg.created_at), 'HH:mm')} {msg.sender_name && `- ${msg.sender_name.toLowerCase() === 'hook' ? 'Automated message' : msg.sender_name}`}
+                  {formatTimestamp(msg.created_at)} {msg.sender_name && `· ${msg.sender_name.toLowerCase() === 'hook' ? 'Automated message' : msg.sender_name}`}
                   {!isOutbound && isNonEnglish && (
                     <span className="ml-1">{LANG_FLAGS[msg.original_language!] || ''} {LANG_NAMES[msg.original_language!] || msg.original_language}</span>
                   )}
                 </div>
               </div>
             </div>
+            </React.Fragment>
           )
         })}
 
