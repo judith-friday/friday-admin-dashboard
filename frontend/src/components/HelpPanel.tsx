@@ -33,7 +33,7 @@ const HELP_DATA: HelpEntry[] = [
               'Review the draft — check the confidence score for how much attention it needs',
               'Adjust if needed — type instructions like "add the WiFi password" or "be warmer"',
               'Approve & Send — a confirmation pops up with a 5-second undo window',
-              'Check ⏳ Action Items — things we promised guests but haven\'t done yet',
+              'Check Pending Actions — things we promised guests but haven\'t done yet',
             ].map((step, i) => (
               <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#94a3b8'}}>
                 <span className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{i+1}</span>
@@ -102,22 +102,25 @@ const HELP_DATA: HelpEntry[] = [
     ),
   },
   {
-    id: 'reviewing-drafts',
-    title: 'Reviewing Drafts',
+    id: 'draft-panel',
+    title: 'Draft Panel Actions',
     group: 'How It Works',
-    keywords: ['edit', 'revise', 'approve', 'reject', 'send'],
-    content: 'Read the draft in the center panel. Edit directly click Edit to make changes. Ask Judith to revise type an instruction. Approve and Send sends via booking platform. Reject discards with a reason helps Judith learn.',
+    keywords: ['draft', 'approve', 'revise', 'ask judith', 'edit', 'reject', 'send', 'panel', 'actions'],
+    content: 'Draft panel actions in order of priority. Approve and Send sends the draft. Revise give Judith revision instructions. Ask Judith get advisory help inline. Edit manually edit the draft text. Reject discard with a reason. Edit and Reject are secondary actions.',
     render: (hl) => (
-      <div className="space-y-1.5 text-xs" style={{color: '#94a3b8'}}>
-        {[
-          ['Read the draft', ' in the center panel'],
-          ['Edit directly', ' — click Edit to make changes'],
-          ['Ask Judith to revise', ' — type an instruction below the draft'],
-          ['Approve & Send', " — sends via the guest's booking platform"],
-          ['Reject', " — discards with a reason (helps Judith learn)"],
-        ].map(([bold, rest], i) => (
-          <div key={i}><span style={{color: '#e2e8f0', fontWeight: 500}}>{hl(bold)}</span>{hl(rest)}</div>
-        ))}
+      <div className="space-y-2">
+        <p className="text-xs" style={{color: '#94a3b8'}}>{hl('Actions in the draft panel, in order of priority:')}</p>
+        <div className="space-y-1.5 text-xs" style={{color: '#94a3b8'}}>
+          {[
+            ['Approve & Send', " — sends the draft via the guest's booking platform", '#4ade80'],
+            ['Revise', ' — give Judith revision instructions to adjust the draft', '#fbbf24'],
+            ['Ask Judith', ' — get advisory help inline below the draft', '#6395ff'],
+            ['Edit', ' — manually edit the draft text (secondary)', '#94a3b8'],
+            ['Reject', ' — discard with a reason, helps Judith learn (secondary)', '#f87171'],
+          ].map(([bold, rest, color], i) => (
+            <div key={i}><span style={{color: color as string, fontWeight: 500}}>{hl(bold as string)}</span>{hl(rest as string)}</div>
+          ))}
+        </div>
       </div>
     ),
   },
@@ -146,15 +149,21 @@ const HELP_DATA: HelpEntry[] = [
     id: 'pending-actions',
     title: 'Pending Actions',
     group: 'How It Works',
-    keywords: ['action', 'promise', 'urgency', 'overdue'],
-    content: 'When we promise something to a guest it appears in the Actions tab. Age badges show urgency under 2h 2-6h 6h+ overdue.',
+    keywords: ['action', 'promise', 'urgency', 'overdue', 'done', 'dismiss', 'resolved', 'filter', 'history'],
+    content: 'When we promise something to a guest it appears in Pending Actions. Mark actions as Done when completed or Dismiss if no longer relevant. No delete option. Resolved Actions tab shows history of completed and dismissed actions with filters. Age badges show urgency under 2h 2-6h 6h+ overdue.',
     render: (hl) => (
       <div>
         <p className="text-xs leading-relaxed" style={{color: '#94a3b8'}}>
-          {hl('When we promise something to a guest, it appears in the ')}
-          <span style={{color: '#fbbf24'}}>Actions</span>
-          {hl(' tab. Age badges show urgency:')}
+          {hl('When we promise something to a guest, it appears in ')}
+          <span style={{color: '#fbbf24'}}>Pending Actions</span>
+          {hl('.')}
         </p>
+        <div className="space-y-1.5 mt-2 text-xs" style={{color: '#94a3b8'}}>
+          <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Done</span> {hl('— mark when the action is completed')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#fbbf24'}}>Dismiss</span> {hl('— remove if no longer relevant')}</div>
+          <div>• {hl('No delete option — actions are preserved for history')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Resolved Actions</span> {hl('— history tab shows completed/dismissed actions with filters')}</div>
+        </div>
         <div className="flex gap-2 mt-2">
           <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>under 2h</span>
           <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>2-6h</span>
@@ -194,16 +203,41 @@ const HELP_DATA: HelpEntry[] = [
     id: 'staff-notes',
     title: 'Staff Notes',
     group: 'How It Works',
-    keywords: ['notes', 'context', 'vip', 'repeat', 'elderly'],
-    content: 'The notes field in the right panel is shared with Judith. Anything you write becomes context for future drafts. VIP guest husband proposed. Guest is elderly needs ground floor. Repeat guest prefers early check-in.',
+    keywords: ['notes', 'context', 'vip', 'repeat', 'elderly', 'ai', 'observations', 'amber', 'manual'],
+    content: 'Staff notes section in the info panel. AI observations shown read-only with amber indicator Judith auto-generates these. Click Edit button to modify existing notes. Separate Add notes input for new manual entries. Notes are shared with Judith and become context for future drafts. VIP guest husband proposed. Guest is elderly needs ground floor. Repeat guest prefers early check-in.',
     render: (hl) => (
       <div>
         <p className="text-xs leading-relaxed" style={{color: '#94a3b8'}}>
-          {hl('The notes field in the right panel is shared with Judith. Anything you write becomes context for future drafts.')}
+          {hl('Staff notes in the info panel are shared with Judith and become context for future drafts.')}
         </p>
+        <div className="space-y-1.5 mt-2 text-xs" style={{color: '#94a3b8'}}>
+          <div>• <span style={{fontWeight: 500, color: '#fbbf24'}}>AI observations</span> {hl('— shown read-only with an amber indicator. Judith auto-generates these from conversation context.')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Edit button</span> {hl('— click to modify existing notes')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Add notes</span> {hl('— separate input field for new manual entries')}</div>
+        </div>
         <div className="space-y-1 mt-2">
           {['"VIP guest, husband proposed here last year"', '"Guest is elderly, needs ground floor access"', '"Repeat guest, prefers early check-in"'].map(ex => (
             <div key={ex} className="rounded px-2 py-1 text-xs italic" style={{background: 'rgba(255,255,255,0.03)', color: '#e2e8f0'}}>{hl(ex)}</div>
+          ))}
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'info-panel',
+    title: 'Info Panel Layout',
+    group: 'How It Works',
+    keywords: ['info', 'panel', 'section', 'order', 'guest', 'financial', 'done', 'notes', 'next steps', 'actions', 'draft history', 'auto-send'],
+    content: 'The right-side info panel sections in order: Guest Info, Financial, Mark as Done, Staff Notes, Next Steps, Pending Actions, Draft History, Auto-Send.',
+    render: (hl) => (
+      <div>
+        <p className="text-xs leading-relaxed mb-2" style={{color: '#94a3b8'}}>{hl('The right-side info panel sections, in order:')}</p>
+        <div className="space-y-1.5">
+          {['Guest Info', 'Financial', 'Mark as Done', 'Staff Notes', 'Next Steps', 'Pending Actions', 'Draft History', 'Auto-Send'].map((section, i) => (
+            <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#94a3b8'}}>
+              <span className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{i+1}</span>
+              <span>{hl(section)}</span>
+            </div>
           ))}
         </div>
       </div>
@@ -388,16 +422,17 @@ const HELP_DATA: HelpEntry[] = [
   },
   {
     id: 'property-knowledge',
-    title: 'Property Knowledge',
+    title: 'Property Cards',
     group: 'How It Works',
-    keywords: ['property', 'wifi', 'check-in', 'parking', 'amenities', 'faq', 'edit', 'knowledge card'],
-    content: 'Click any property code in the sidebar to view its knowledge card WiFi check-in instructions parking amenities FAQs. If info is wrong click Edit fix it save. Judith uses updated info immediately. If no card exists you can create one. More info better drafts.',
+    keywords: ['property', 'wifi', 'check-in', 'parking', 'amenities', 'faq', 'edit', 'knowledge card', 'form'],
+    content: 'Click any property name in the sidebar to view or edit its details. Property cards use form fields not raw JSON for easy editing. WiFi check-in instructions parking amenities FAQs. If info is wrong click the field and fix it. Judith uses updated info immediately. More info better drafts.',
     render: (hl) => (
       <div className="space-y-2">
-        <p>{hl('Click any property code in the sidebar to view its knowledge card — WiFi, check-in instructions, parking, amenities, FAQs.')}</p>
+        <p>{hl('Click any property name in the sidebar to view or edit its details.')}</p>
         <div className="space-y-1.5 text-xs" style={{color: '#94a3b8'}}>
-          <div>• {hl('If info is wrong: click Edit, fix it, save. Judith uses updated info immediately.')}</div>
-          <div>• {hl('If no card exists: you can create one. More info = better drafts for that property.')}</div>
+          <div>• {hl('Property cards use form fields (not raw JSON) — easy to edit WiFi, check-in instructions, parking, amenities, FAQs')}</div>
+          <div>• {hl('If info is wrong: click the field, fix it, save. Judith uses updated info immediately.')}</div>
+          <div>• {hl('More info = better drafts for that property.')}</div>
         </div>
       </div>
     ),
@@ -424,18 +459,65 @@ const HELP_DATA: HelpEntry[] = [
   // ── AI Features ──────────────────────────────────────────────────────────
   {
     id: 'ask-judith',
-    title: '💬 Ask Judith (3 Contexts)',
+    title: '💬 Ask Judith',
     group: 'AI Features',
-    keywords: ['ask', 'judith', 'compose', 'draft review', 'revision', 'consultation', 'opinion', 'self-review', 'back-and-forth'],
-    content: 'From Compose: When writing a new message click Ask Judith to get her opinion on your draft before sending. From Draft Review: Click Ask Judith on any AI-generated draft to get a self-review she\'ll flag what she\'s confident about and what you should double-check. From Revision: When revising a draft click Ask Judith First to get her opinion on your revision instruction before applying it she\'ll tell you if the change makes sense given the property and policies. You can have up to 3 back-and-forth exchanges in each consultation.',
+    keywords: ['ask', 'judith', 'compose', 'draft review', 'revision', 'advisory', 'inline', 'chat', 'multiline'],
+    content: 'Ask Judith is advisory only she helps you think not writes for you. Two contexts. In Draft Review helps suggest revision instructions for the current draft. In Compose helps draft messages from scratch suggests phrasing tone and structure. Appears inline below the draft not a separate panel. Click X to close chat persists when you close and reopen. Multiline input supported.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>From Compose:</span> {hl("When writing a new message, click \"Ask Judith\" to get her opinion on your draft before sending")}</div>
-        <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>From Draft Review:</span> {hl("Click \"Ask Judith\" on any AI-generated draft to get a self-review — she'll flag what she's confident about and what you should double-check")}</div>
-        <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>From Revision:</span> {hl("When revising a draft, click \"Ask Judith First\" to get her opinion on your revision instruction before applying it — she'll tell you if the change makes sense given the property and policies")}</div>
-        <div className="mt-2 rounded-md px-2.5 py-1.5" style={{background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)', color: '#6395ff'}}>
-          {hl('You can have up to 3 back-and-forth exchanges in each consultation')}
+        <p>{hl('Ask Judith is advisory only — she helps you think, not writes for you.')}</p>
+        <div className="space-y-1.5">
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>In Draft Review:</span> {hl('helps suggest revision instructions for the current draft')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>In Compose:</span> {hl('helps draft messages from scratch — suggests phrasing, tone, and structure')}</div>
         </div>
+        <div className="space-y-1.5 mt-2">
+          <div>• {hl('Appears inline below the draft (not a separate panel)')}</div>
+          <div>• {hl('Click X to close — chat persists when you close and reopen')}</div>
+          <div>• {hl('Multiline input supported')}</div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'compose-flow',
+    title: '✏️ Compose Flow',
+    group: 'AI Features',
+    keywords: ['compose', 'write', 'message', 'send', 'learn', 'popup', 'channel'],
+    content: 'Compose flow: Write your message. Ask Judith can help you draft it suggests phrasing tone and structure. Click Send. Learn popup appears with three options: Learn choose scope global or property-specific creates a teaching. Don\'t Learn sends but blocks auto-learning. Just Send sends normally.',
+    render: (hl) => (
+      <div className="space-y-2">
+        <p className="text-xs" style={{color: '#94a3b8'}}>{hl('How to compose and send a new message:')}</p>
+        <div className="space-y-1.5">
+          {[
+            'Write your message in the compose area',
+            'Ask Judith can help you draft — suggests phrasing, tone, and structure',
+            'Click Send',
+            'Learn popup appears with options (see Send Flow below)',
+          ].map((step, i) => (
+            <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#94a3b8'}}>
+              <span className="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{i+1}</span>
+              <span>{hl(step)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'send-flow',
+    title: '📤 Send Flow',
+    group: 'AI Features',
+    keywords: ['send', 'learn', 'don\'t learn', 'just send', 'scope', 'global', 'property', 'teaching'],
+    content: 'After clicking Send a popup appears with three options. Learn choose scope Global or Property-specific creates a teaching so Judith learns from this message. Don\'t Learn sends the message but blocks auto-learning from it. Just Send sends normally with no special learning behavior. Channel selector available in the popup.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p>{hl('After clicking Send, a popup appears with three options:')}</p>
+        <div className="space-y-1.5">
+          <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Learn</span> {hl('— choose scope (Global or Property-specific), creates a teaching so Judith learns from this message')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#fbbf24'}}>Don\'t Learn</span> {hl('— sends the message but blocks auto-learning from it')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Just Send</span> {hl('— sends normally with no special learning behavior')}</div>
+        </div>
+        <div className="mt-1">• {hl('Channel selector is also available in the popup')}</div>
       </div>
     ),
   },
@@ -475,37 +557,22 @@ const HELP_DATA: HelpEntry[] = [
     ),
   },
   {
-    id: 'slack-notifications',
-    title: '📢 Slack Notifications',
+    id: 'notifications',
+    title: '🔔 Notifications',
     group: 'Messaging',
-    keywords: ['slack', 'notification', 'push', 'fr-guest-messages', 'deep link', 'new message', 'draft ready', 'auto-sent', 'low confidence', 'escalation', 'overdue', 'booking', 'inquiry'],
-    content: 'All GMS notifications go to #fr-guest-messages on Slack. Notifications use rich formatting with property names guest info dates channel icons and deep links. Types: new messages draft ready auto-sent confirmations low confidence alerts escalations overdue actions new bookings inquiries. Push notifications are enabled for all team members not just admins.',
+    keywords: ['bell', 'notification', 'unread', 'badge', 'push', 'slack', 'fr-guest-messages', 'in-app', 'alert'],
+    content: 'Bell icon in the header shows in-app notifications with unread badge count. Push notifications enabled for all team members. Slack notifications go to #fr-guest-messages with rich formatting property names guest info dates channel icons and deep links. Types: new messages draft ready auto-sent confirmations low confidence alerts escalations overdue actions new bookings inquiries.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div>• {hl('All GMS notifications go to #fr-guest-messages on Slack')}</div>
-        <div>• {hl('Notifications use rich formatting with property names, guest info, dates, channel icons, and deep links')}</div>
-        <div>• {hl('Types: new messages, draft ready, auto-sent confirmations, low confidence alerts, escalations, overdue actions, new bookings, inquiries')}</div>
-        <div>• {hl('Push notifications are enabled for all team members (not just admins)')}</div>
+        <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Bell icon</span> {hl('— in-app notifications in the header, red badge shows unread count')}</div>
+        <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Push notifications</span> {hl('— enabled for all team members')}</div>
+        <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Slack</span> {hl('— notifications go to #fr-guest-messages with rich formatting, property names, guest info, and deep links')}</div>
+        <div className="mt-1">{hl('Types: new messages, draft ready, auto-sent confirmations, low confidence alerts, escalations, overdue actions, new bookings, inquiries')}</div>
       </div>
     ),
   },
 
   // ── Dashboard ────────────────────────────────────────────────────────────
-  {
-    id: 'notification-bell',
-    title: '🔔 Notification Bell',
-    group: 'Dashboard',
-    keywords: ['bell', 'notification', 'unread', 'badge', 'alert', 'action item', 'draft status'],
-    content: 'The bell icon in the top right shows unread notifications. A red badge shows the count of unread items. Click to see recent draft statuses action items and system alerts. Notifications clear when you click them.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div>• {hl('The bell icon in the top right shows unread notifications')}</div>
-        <div>• {hl('A red badge shows the count of unread items')}</div>
-        <div>• {hl('Click to see recent draft statuses, action items, and system alerts')}</div>
-        <div>• {hl('Notifications clear when you click them')}</div>
-      </div>
-    ),
-  },
   {
     id: 'financial-info',
     title: '💰 Financial Info',
@@ -555,6 +622,20 @@ const HELP_DATA: HelpEntry[] = [
       </div>
     ),
   },
+  {
+    id: 'analytics',
+    title: '📊 Analytics',
+    group: 'Dashboard',
+    keywords: ['analytics', 'event', 'count', 'daily', 'activity', 'chart', 'header', 'hamburger', 'menu'],
+    content: 'Analytics dashboard accessible from the header icon or hamburger menu. Shows event counts for messages drafts approvals rejections and other actions. Daily activity chart visualizes trends over time.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <div>• {hl('Accessible from the header icon or hamburger menu')}</div>
+        <div>• {hl('Shows event counts for messages, drafts, approvals, rejections, and other actions')}</div>
+        <div>• {hl('Daily activity chart visualizes trends over time')}</div>
+      </div>
+    ),
+  },
 
   // ── Operations ───────────────────────────────────────────────────────────
   {
@@ -591,6 +672,36 @@ const HELP_DATA: HelpEntry[] = [
       </div>
     ),
   },
+  {
+    id: 'bug-reports',
+    title: '🐛 Bug Reports',
+    group: 'Operations',
+    keywords: ['bug', 'report', 'FAB', 'screenshot', 'analyze', 'category', 'component', 'assessment', 'floating', 'button'],
+    content: 'Report bugs using the floating action button (FAB) in the bottom-right corner. Captures a screenshot automatically. Judith auto-analyzes the bug report with category, component, and assessment. Bug reports are reviewed and tracked in the bug reports panel.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <div>• {hl('Report bugs using the floating action button (FAB) in the bottom-right corner')}</div>
+        <div>• {hl('Captures a screenshot automatically')}</div>
+        <div>• {hl('Judith auto-analyzes the report — assigns category, component, and assessment')}</div>
+        <div>• {hl('Bug reports are reviewed and tracked in the bug reports panel')}</div>
+      </div>
+    ),
+  },
+  {
+    id: 'pwa',
+    title: '📱 PWA & Updates',
+    group: 'Operations',
+    keywords: ['pwa', 'version', 'update', 'reload', 'toast', 'refresh', 'install', 'progressive web app'],
+    content: 'Friday Admin is a progressive web app (PWA) — install it on your phone or desktop for the best experience. Version check runs automatically and shows an auto-reload toast when a new version is available. Manual refresh button in the header to force-check for updates.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <div>• {hl('Install as a PWA on your phone or desktop for the best experience')}</div>
+        <div>• {hl('Version check runs automatically — an auto-reload toast appears when a new version is available')}</div>
+        <div>• {hl('Manual refresh button in the header to force-check for updates')}</div>
+      </div>
+    ),
+  },
+
   // ── Working with Judith ───────────────────────────────────────────────
   {
     id: 'how-judith-learns',
@@ -630,31 +741,6 @@ const HELP_DATA: HelpEntry[] = [
     ),
   },
   {
-    id: 'ask-judith-vs-auto-draft',
-    title: '💡 Ask Judith vs Auto-Draft',
-    group: 'Working with Judith',
-    keywords: ['ask', 'compose', 'auto', 'draft', 'review', 'revision', 'advise', 'write', 'self-check', 'conflict'],
-    content: 'Auto-draft Judith writes a reply based on everything she knows. Ask Judith Compose before you send your message ask Judith what she thinks. Ask Judith Draft Review before approving her draft ask her to self-check. Ask Judith Revision before committing a correction ask if it aligns with what she knows. Auto-draft she writes for you. Ask Judith she advises you.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        {[
-          {label: 'Auto-draft', desc: 'Judith writes a reply based on everything she knows — property details, brand voice, past teachings, guest history. This is her best guess at the right response.'},
-          {label: 'Ask Judith (Compose)', desc: 'Before you send YOUR message, ask Judith what she thinks about your tone, accuracy, and completeness.'},
-          {label: 'Ask Judith (Draft Review)', desc: "Before approving HER draft, ask her to self-check. She'll flag what she's confident about and what you should double-check."},
-          {label: 'Ask Judith (Revision)', desc: "Before committing a correction, ask her if it aligns with what she already knows. She'll flag conflicts with existing teachings or policies."},
-        ].map(item => (
-          <div key={item.label}>
-            <span className="font-semibold" style={{color: '#6395ff'}}>{item.label}:</span>{' '}
-            {hl(item.desc)}
-          </div>
-        ))}
-        <div className="rounded-md px-2.5 py-1.5 mt-2" style={{background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)', color: '#6395ff'}}>
-          {hl('Bottom line: Auto-draft = she writes for you. Ask Judith = she advises you.')}
-        </div>
-      </div>
-    ),
-  },
-  {
     id: 'tips-for-better-results',
     title: '✨ Tips for Better Results',
     group: 'Working with Judith',
@@ -675,22 +761,6 @@ const HELP_DATA: HelpEntry[] = [
             <span>{hl(tip)}</span>
           </div>
         ))}
-      </div>
-    ),
-  },
-
-  {
-    id: 'bug-reports',
-    title: '🐛 Bug Reports & Pending Review',
-    group: 'Operations',
-    keywords: ['bug', 'report', 'submitted', 'pending review', 'verify', 'reopen', 'filter', 'status'],
-    content: 'Report bugs using the bug report button bottom right on mobile menu on desktop. New bugs start in Submitted status. Once reviewed bugs move to Pending Review the reviewer can Verify close or Reopen. Filter bugs by status in the bug reports panel.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div>• {hl('Report bugs using the bug report button (bottom right on mobile, menu on desktop)')}</div>
-        <div>• {hl('New bugs start in "Submitted" status')}</div>
-        <div>• {hl('Once reviewed, bugs move to "Pending Review" — the reviewer can Verify (close) or Reopen')}</div>
-        <div>• {hl('Filter bugs by status in the bug reports panel')}</div>
       </div>
     ),
   },
