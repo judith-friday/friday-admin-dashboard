@@ -177,6 +177,40 @@ export default function MessageDashboard() {
     }, ...prev].slice(0, 50))
   }, [])
 
+  const fetchNotifications = useCallback(async () => {
+    const t = getToken()
+    if (!t) return
+    try {
+      const res = await apiFetch('/api/notifications', { headers: { Authorization: `Bearer ${t}` } })
+      if (!res.ok) return
+      const rows: any[] = await res.json()
+      const mapped: Notification[] = rows.map(r => ({
+        id: r.id,
+        type: r.type as Notification['type'],
+        title: r.title,
+        subtitle: r.subtitle || '',
+        preview: r.preview || '',
+        conversationId: r.conversation_id || '',
+        timestamp: new Date(r.created_at).getTime(),
+        read: r.read,
+      }))
+      setNotifications(prev => {
+        // Merge: API rows are source of truth, keep any local-only SSE entries that aren't in API yet
+        const apiIds = new Set(mapped.map(m => m.id))
+        const localOnly = prev.filter(p => !apiIds.has(p.id) && Date.now() - p.timestamp < 60000)
+        return [...localOnly, ...mapped].sort((a, b) => b.timestamp - a.timestamp).slice(0, 50)
+      })
+    } catch {}
+  }, [])
+
+  // Poll notifications every 30s
+  useEffect(() => {
+    if (!token) return
+    fetchNotifications()
+    const interval = setInterval(fetchNotifications, 30000)
+    return () => clearInterval(interval)
+  }, [token, fetchNotifications])
+
   const handleNotificationClick = useCallback((n: Notification) => {
     trackEvent('notification_clicked')
     setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x))
@@ -184,10 +218,24 @@ export default function MessageDashboard() {
       setSelectedConvId(n.conversationId)
       setMobileView('detail')
     }
+    // Mark read on server
+    const t = getToken()
+    if (t) apiFetch('/api/notifications/mark-read', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: n.id }),
+    }).catch(() => {})
   }, [])
 
   const handleMarkAllRead = useCallback(() => {
     setNotifications(prev => prev.map(x => ({ ...x, read: true })))
+    // Mark all read on server
+    const t = getToken()
+    if (t) apiFetch('/api/notifications/mark-read', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    }).catch(() => {})
   }, [])
 
   // Initialize AudioContext on first user interaction
@@ -366,6 +414,10 @@ export default function MessageDashboard() {
               conversationId: data.data?.conversationId || data.data?.conversation_id || '',
             })
           }
+          // Refresh from API to merge DB notifications
+          if (data.type === 'new_message' || data.type === 'draft_ready' || data.type === 'pending_action_new') {
+            setTimeout(fetchNotifications, 2000)
+          }
         }
       } catch { }
     }
@@ -383,7 +435,7 @@ export default function MessageDashboard() {
     es.onopen = () => { errorCount = 0 }
 
     return () => es.close()
-  }, [token, selectedConvId, fetchConversations, fetchStats, fetchDetail, isMuted, playChime, addNotification])
+  }, [token, selectedConvId, fetchConversations, fetchStats, fetchDetail, isMuted, playChime, addNotification, fetchNotifications])
 
   // Timeout fallback: clear revisionPending after 30s to prevent stuck state
   useEffect(() => {
