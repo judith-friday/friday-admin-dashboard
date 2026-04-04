@@ -71,9 +71,36 @@ export default function SendConfirmModal({
 
             {step === 'decide' ? (
               <>
-                <p className="text-sm mb-4" style={{color: '#94a3b8'}}>
-                  Before sending to <strong style={{color: '#f1f5f9'}}>{sendConfirm.guestName}</strong>, should Judith learn from how this draft was handled?
+                <p className="text-sm mb-3" style={{color: '#94a3b8'}}>
+                  Send this reply to <strong style={{color: '#f1f5f9'}}>{sendConfirm.guestName}</strong> at <strong style={{color: '#f1f5f9'}}>{sendConfirm.property}</strong>?
                 </p>
+
+                {/* Channel selector */}
+                <div className="mb-3">
+                  <label className="text-xs font-medium block mb-1" style={{color: '#64748b'}}>Send via:</label>
+                  <select value={sendChannel} onChange={e => setSendChannel(e.target.value)}
+                    data-testid="select-send-channel"
+                    className="w-full text-sm rounded px-2 py-1.5 outline-none"
+                    style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', fontSize: '16px'}}>
+                    <option value="airbnb" style={{background: '#1a1a2e'}}>Airbnb</option>
+                    <option value="booking" style={{background: '#1a1a2e'}}>Booking.com</option>
+                    <option value="whatsapp" style={{background: '#1a1a2e'}}>WhatsApp</option>
+                    <option value="email" style={{background: '#1a1a2e'}}>Email</option>
+                    <option value="direct" style={{background: '#1a1a2e'}}>Direct</option>
+                  </select>
+                  {sendChannel === 'booking' && <p className="text-xs mt-1" style={{color: '#64748b'}}>Booking.com messages delivered via Guesty email integration</p>}
+                  {sendChannel === 'whatsapp' && <p className="text-xs mt-1" style={{color: '#64748b'}}>Message sent via WhatsApp through Guesty</p>}
+                  {sendChannel === 'direct' && <p className="text-xs mt-1" style={{color: '#64748b'}}>Direct booking guests receive message via email</p>}
+                  {sendChannel === 'email' && <p className="text-xs mt-1" style={{color: '#64748b'}}>Sent as email to the guest</p>}
+                </div>
+
+                {/* Message preview */}
+                <div className="p-2 rounded text-xs mb-3" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#e2e8f0'}}>
+                  {sendConfirm.preview}
+                </div>
+
+                {/* Learn decision */}
+                <p className="text-xs mb-2" style={{color: '#64748b'}}>Should Judith learn from this?</p>
                 <div className="flex flex-col gap-2 mb-3">
                   <button
                     data-testid="btn-learn"
