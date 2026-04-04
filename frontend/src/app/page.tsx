@@ -67,10 +67,9 @@ export default function MessageDashboard() {
   const [cardReviseInput, setCardReviseInput] = useState('')
   const [cardSaving, setCardSaving] = useState(false)
   const [composeOpen, setComposeOpen] = useState(false)
-  const [composeMode, setComposeMode] = useState<'manual' | 'draft'>('manual')
   const [composeText, setComposeText] = useState('')
-  const [composeInstruction, setComposeInstruction] = useState('')
   const [composeSending, setComposeSending] = useState(false)
+  const [composeFix, setComposeFix] = useState(false)
   const [rejectingDraft, setRejectingDraft] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState('')
   const [sendConfirm, setSendConfirm] = useState<{draftId: string; guestName: string; property: string; channel: string; preview: string} | null>(null)
@@ -627,22 +626,46 @@ export default function MessageDashboard() {
     }, 1000)
     undoIntervalRef.current = interval
 
+    // Capture compose text before timeout (state may change)
+    const composeBody = draftId === '__compose__' ? composeText.trim() : null
+
     const timer = setTimeout(async () => {
       setUndoDraftId(null)
       setUndoCountdown(0)
       try {
-        const body: Record<string, any> = { reviewed_by: displayName, sent_via: sendChannel }
-        if (editedBody) body.draft_body = editedBody
-        if (learnMode && learnMode !== 'normal') body.learnMode = learnMode
-        if (scope) body.scope = scope
-        if (scope === 'property' && detail?.conversation.property_name) body.propertyCode = detail.conversation.property_name
+        if (draftId === '__compose__') {
+          // Direct send via compose endpoint
+          const reqBody: Record<string, any> = {
+            mode: 'direct_send',
+            body: composeBody,
+            sent_via: sendChannel,
+          }
+          if (learnMode && learnMode !== 'normal') reqBody.learnMode = learnMode
+          if (scope) reqBody.scope = scope
 
-        await apiFetch('/api/drafts/' + draftId + '/approve', {
-          method: 'POST',
-          body: JSON.stringify(body),
-        })
-        const learnMsg = learnMode === 'learn' ? ' (teaching saved)' : learnMode === 'no_learn' ? ' (learning skipped)' : ''
-        toast.success('Draft approved and sent' + learnMsg)
+          await apiFetch(`/api/conversations/${selectedConvId}/compose`, {
+            method: 'POST',
+            body: JSON.stringify(reqBody),
+          })
+          const learnMsg = learnMode === 'learn' ? ' (teaching saved)' : learnMode === 'no_learn' ? ' (learning skipped)' : ''
+          toast.success('Message sent' + learnMsg)
+          setComposeText('')
+          setComposeOpen(false)
+        } else {
+          // Standard draft approve flow
+          const body: Record<string, any> = { reviewed_by: displayName, sent_via: sendChannel }
+          if (editedBody) body.draft_body = editedBody
+          if (learnMode && learnMode !== 'normal') body.learnMode = learnMode
+          if (scope) body.scope = scope
+          if (scope === 'property' && detail?.conversation.property_name) body.propertyCode = detail.conversation.property_name
+
+          await apiFetch('/api/drafts/' + draftId + '/approve', {
+            method: 'POST',
+            body: JSON.stringify(body),
+          })
+          const learnMsg = learnMode === 'learn' ? ' (teaching saved)' : learnMode === 'no_learn' ? ' (learning skipped)' : ''
+          toast.success('Draft approved and sent' + learnMsg)
+        }
       } catch (err: any) {
         if (err.message?.includes('Cannot approve draft in state')) {
           toast.error('Draft already processed — refreshing...')
@@ -764,34 +787,36 @@ export default function MessageDashboard() {
     }
   }
 
-  const handleCompose = async () => {
-    if (!selectedConvId) return
-    setComposeSending(true)
+  const handleComposeSend = () => {
+    if (!selectedConvId || !detail || !composeText.trim()) return
+    const convChannel = detail.conversation.channel || ''
+    if (convChannel === 'direct' || convChannel === 'manual' || convChannel === 'unknown') {
+      setSendChannel('whatsapp')
+    } else {
+      setSendChannel(convChannel || 'airbnb')
+    }
+    setSendConfirm({
+      draftId: '__compose__',
+      guestName: detail.conversation.guest_name,
+      property: detail.conversation.property_name || 'Unknown',
+      channel: detail.conversation.channel || 'Unknown',
+      preview: composeText.trim().substring(0, 100) + (composeText.trim().length > 100 ? '...' : ''),
+    })
+  }
+
+  const handleComposeFix = async () => {
+    if (!selectedConvId || !composeText.trim()) return
+    setComposeFix(true)
     try {
-      if (composeMode === 'manual') {
-        if (!composeText.trim()) { toast.error('Please write a message'); setComposeSending(false); return }
-        await apiFetch(`/api/conversations/${selectedConvId}/compose`, {
-          method: 'POST',
-          body: JSON.stringify({ mode: 'manual', body: composeText.trim() })
-        })
-        toast.success('Draft created - review and approve to send')
-        setComposeText('')
-        setComposeOpen(false)
-      } else {
-        if (!composeInstruction.trim()) { toast.error('Please describe what to draft'); setComposeSending(false); return }
-        await apiFetch(`/api/conversations/${selectedConvId}/compose`, {
-          method: 'POST',
-          body: JSON.stringify({ mode: 'draft', instruction: composeInstruction.trim() })
-        })
-        toast.success('Judith is drafting - will appear for review shortly')
-        setComposeInstruction('')
-        setComposeOpen(false)
-      }
-      setTimeout(() => { if (selectedConvId) fetchDetail(selectedConvId) }, 2000)
+      const result = await apiFetch(`/api/conversations/${selectedConvId}/fix-message`, {
+        method: 'POST',
+        body: JSON.stringify({ body: composeText.trim() })
+      })
+      setComposeText(result.improved)
     } catch (err: any) {
-      toast.error('Compose failed: ' + err.message)
+      toast.error('Fix failed: ' + err.message)
     } finally {
-      setComposeSending(false)
+      setComposeFix(false)
     }
   }
 
@@ -1200,14 +1225,12 @@ export default function MessageDashboard() {
                 rtColor={rtColor}
                 composeOpen={composeOpen}
                 setComposeOpen={setComposeOpen}
-                composeMode={composeMode}
-                setComposeMode={setComposeMode}
                 composeText={composeText}
                 setComposeText={setComposeText}
-                composeInstruction={composeInstruction}
-                setComposeInstruction={setComposeInstruction}
                 composeSending={composeSending}
-                handleCompose={handleCompose}
+                handleComposeSend={handleComposeSend}
+                handleComposeFix={handleComposeFix}
+                composeFix={composeFix}
                 revisionPending={revisionPending}
                 editingDraft={editingDraft}
                 setEditingDraft={setEditingDraft}

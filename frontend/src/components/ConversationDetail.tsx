@@ -25,14 +25,12 @@ interface ConversationDetailProps {
   // ComposePanel props
   composeOpen: boolean
   setComposeOpen: (v: boolean) => void
-  composeMode: 'manual' | 'draft'
-  setComposeMode: (v: 'manual' | 'draft') => void
   composeText: string
   setComposeText: (v: string) => void
-  composeInstruction: string
-  setComposeInstruction: (v: string) => void
   composeSending: boolean
-  handleCompose: () => void
+  handleComposeSend: () => void
+  handleComposeFix: () => void
+  composeFix: boolean
   // DraftPanel props
   revisionPending: boolean
   editingDraft: string | null
@@ -60,9 +58,9 @@ export default function ConversationDetail({
   detail, mobileView, setMobileView, fetchPropertyCard, channelBadge,
   displayName, selectedConvId, fetchDetail, fetchConversations,
   showDraftHistory, setShowDraftHistory, messagesEndRef, rtColor,
-  composeOpen, setComposeOpen, composeMode, setComposeMode,
-  composeText, setComposeText, composeInstruction, setComposeInstruction,
-  composeSending, handleCompose,
+  composeOpen, setComposeOpen,
+  composeText, setComposeText,
+  composeSending, handleComposeSend, handleComposeFix, composeFix,
   revisionPending, editingDraft, setEditingDraft, isEditingRef,
   editBody, setEditBody, revisionText, setRevisionText, revisingDraft,
   rejectingDraft, setRejectingDraft, rejectReason, setRejectReason,
@@ -450,20 +448,18 @@ export default function ConversationDetail({
         >
           <ComposePanel
             composeOpen={composeOpen} setComposeOpen={setComposeOpen}
-            composeMode={composeMode} setComposeMode={setComposeMode}
             composeText={composeText} setComposeText={setComposeText}
-            composeInstruction={composeInstruction} setComposeInstruction={setComposeInstruction}
-            composeSending={composeSending} handleCompose={handleCompose}
+            composeSending={composeSending} handleComposeSend={handleComposeSend}
+            handleComposeFix={handleComposeFix} composeFix={composeFix}
             conversationId={selectedConvId}
           />
         </DraftPanel>
       ) : (
         <ComposePanel
           composeOpen={composeOpen} setComposeOpen={setComposeOpen}
-          composeMode={composeMode} setComposeMode={setComposeMode}
           composeText={composeText} setComposeText={setComposeText}
-          composeInstruction={composeInstruction} setComposeInstruction={setComposeInstruction}
-          composeSending={composeSending} handleCompose={handleCompose}
+          composeSending={composeSending} handleComposeSend={handleComposeSend}
+          handleComposeFix={handleComposeFix} composeFix={composeFix}
           conversationId={selectedConvId}
         />
       )}
