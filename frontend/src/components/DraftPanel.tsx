@@ -75,7 +75,7 @@ export default function DraftPanel({
   return (
     <>
       {readyDrafts.map(draft => (
-        <div key={draft.id} data-testid="container-draft-panel" className={`rounded-lg mx-3 flex-shrink-0 ${collapsed ? 'p-2 mb-0' : 'p-3 mb-1'}`} style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', borderTop: '1px solid rgba(255,255,255,0.06)', maxHeight: collapsed ? 'none' : '40vh', overflowY: collapsed ? 'hidden' : 'auto'}}>
+        <div key={draft.id} data-testid="container-draft-panel" className={`rounded-lg mx-3 flex-shrink-0 ${collapsed ? 'p-2 mb-0' : 'p-3 mb-1'}`} style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', borderTop: '1px solid rgba(255,255,255,0.06)', maxHeight: collapsed ? 'none' : consultDraftId === draft.id ? '70vh' : '40vh', overflowY: collapsed ? 'hidden' : 'auto'}}>
           <div className="flex items-center justify-between mb-1.5" onClick={() => setCollapsed(!collapsed)} style={{cursor: 'pointer'}}>
             <h4 className="text-xs font-medium flex items-center" style={{color: '#94a3b8'}}>
               <GlobeAltIcon className="h-3.5 w-3.5 mr-1" /> AI Draft
@@ -141,8 +141,9 @@ export default function DraftPanel({
               </div>
 
               {/* Ask Judith consultation on draft review (Surface B) */}
-              {consultDraftId === draft.id && conversationId && (
+              {conversationId && (
                 <ConsultChat
+                  active={consultDraftId === draft.id}
                   conversationId={conversationId}
                   context="draft_review"
                   initialInstruction={draft.draft_body}

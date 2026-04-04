@@ -15,6 +15,7 @@ interface ConsultChatProps {
   onCancel: () => void
   confirmLabel?: string
   propertyCode?: string
+  active?: boolean
 }
 
 function extractAndSaveTeaching(text: string, propertyCode?: string): string {
@@ -50,7 +51,7 @@ interface ChatMessage {
 
 export default function ConsultChat({
   conversationId, context, initialInstruction, draftBody, contextData,
-  onConfirm, onCancel, confirmLabel, propertyCode,
+  onConfirm, onCancel, confirmLabel, propertyCode, active = true,
 }: ConsultChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [loading, setLoading] = useState(false)
@@ -59,9 +60,11 @@ export default function ConsultChat({
   const [error, setError] = useState<string | null>(null)
 
   const startedRef = useRef(false)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (startedRef.current) return
+    if (!active || startedRef.current) return
     startedRef.current = true
     setStarted(true)
     const userMsg: ChatMessage = { role: 'user', content: initialInstruction }
@@ -91,7 +94,18 @@ export default function ConsultChat({
         setLoading(false)
       }
     })()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [active]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (active) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, loading, active])
+
+  const adjustTextareaHeight = () => {
+    const el = textareaRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = Math.min(el.scrollHeight, 96) + 'px'
+  }
 
   const sendConsult = async (instruction: string, history: ChatMessage[]) => {
     setLoading(true)
@@ -124,6 +138,7 @@ export default function ConsultChat({
     const newMessages = [...messages, userMsg]
     setMessages(newMessages)
     setReplyText('')
+    if (textareaRef.current) textareaRef.current.style.height = 'auto'
     const rawResponse = await sendConsult(replyText.trim(), newMessages)
     if (rawResponse) {
       const response = stripZoneTags(extractAndSaveTeaching(rawResponse, propertyCode))
@@ -131,9 +146,11 @@ export default function ConsultChat({
     }
   }
 
+  if (!started && !active) return null
+
   if (!started || (loading && messages.length <= 1)) {
     return (
-      <div className="mt-2 p-3 rounded-lg" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)' }}>
+      <div className="mt-2 p-3 rounded-lg" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', ...(active ? {} : { display: 'none' as const }) }}>
         <div className="flex items-center space-x-2">
           <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" style={{ color: '#6395ff' }} />
           <span className="text-xs" style={{ color: '#94a3b8' }}>Asking Judith...</span>
@@ -143,9 +160,16 @@ export default function ConsultChat({
   }
 
   return (
-    <div className="mt-2 rounded-lg" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)' }}>
+    <div className="mt-2 rounded-lg" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', ...(active ? {} : { display: 'none' as const }) }}>
+      {/* Header with close button */}
+      <div className="flex items-center justify-between px-3 pt-2">
+        <span className="text-xs font-medium" style={{ color: '#6395ff' }}>Ask Judith</span>
+        <button onClick={onCancel} className="p-0.5 rounded hover:bg-white/10" style={{ color: '#64748b' }}>
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
       {/* Chat messages */}
-      <div className="p-3 space-y-2 overflow-y-auto custom-scrollbar" style={{ maxHeight: '40vh' }}>
+      <div className="p-3 pt-1 space-y-2 overflow-y-auto custom-scrollbar" style={{ maxHeight: '40vh' }}>
         {messages.map((msg, i) => {
           if (msg.role === 'user') {
             return (
@@ -183,17 +207,19 @@ export default function ConsultChat({
         {error && (
           <div className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}>{error}</div>
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Reply input */}
       {!loading && messages.length >= 2 && (
         <div className="px-3 pb-2">
           <div className="flex gap-2">
-            <input type="text" value={replyText} onChange={e => setReplyText(e.target.value)}
+            <textarea ref={textareaRef} value={replyText} onChange={e => { setReplyText(e.target.value); setTimeout(adjustTextareaHeight, 0) }}
               placeholder="Reply to Judith..."
-              className="flex-1 text-base rounded px-2 py-1.5 outline-none"
-              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9' }}
-              onKeyDown={e => { if (e.key === 'Enter') handleReply() }} />
+              className="flex-1 text-base rounded px-2 py-1.5 outline-none resize-none"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', minHeight: '36px', maxHeight: '96px' }}
+              rows={1}
+              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleReply() } }} />
             <button onClick={handleReply} disabled={!replyText.trim()}
               className="px-2 py-1 text-xs rounded disabled:opacity-50"
               style={{ background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)' }}>
@@ -204,19 +230,12 @@ export default function ConsultChat({
       )}
 
       {/* Action buttons */}
-      {!loading && (
+      {!loading && onConfirm && confirmLabel && (
         <div className="flex gap-2 px-3 pb-3">
-          {onConfirm && confirmLabel && (
-            <button onClick={onConfirm}
-              className="px-3 py-1.5 text-sm rounded"
-              style={{ background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>
-              {confirmLabel}
-            </button>
-          )}
-          <button onClick={onCancel}
+          <button onClick={onConfirm}
             className="px-3 py-1.5 text-sm rounded"
-            style={{ background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)' }}>
-            Close
+            style={{ background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>
+            {confirmLabel}
           </button>
         </div>
       )}
