@@ -5,10 +5,11 @@ import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { apiFetch } from './types'
 
 interface ConsultChatProps {
-  conversationId: string
-  context: 'revision' | 'compose' | 'draft_review'
+  conversationId?: string
+  context: 'revision' | 'compose' | 'draft_review' | 'pending_action' | 'next_step' | 'teaching' | 'learning_candidate'
   initialInstruction: string
   draftBody?: string
+  contextData?: Record<string, any>
   onConfirm: () => void
   onCancel: () => void
   confirmLabel: string
@@ -20,7 +21,7 @@ interface ChatMessage {
 }
 
 export default function ConsultChat({
-  conversationId, context, initialInstruction, draftBody,
+  conversationId, context, initialInstruction, draftBody, contextData,
   onConfirm, onCancel, confirmLabel,
 }: ConsultChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -39,9 +40,10 @@ export default function ConsultChat({
         method: 'POST',
         body: JSON.stringify({
           instruction,
-          conversationId,
+          ...(conversationId ? { conversationId } : {}),
           context,
           ...(draftBody ? { draftBody } : {}),
+          ...(contextData ? { contextData } : {}),
           ...(history.length > 0 ? { history } : {}),
         }),
       })

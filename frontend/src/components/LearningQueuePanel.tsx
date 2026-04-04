@@ -3,7 +3,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { toast } from 'react-hot-toast'
 import { formatDistanceToNow } from 'date-fns'
+import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 import { apiFetch } from './types'
+import ConsultChat from './ConsultChat'
 
 interface TeachingCandidate {
   id: string
@@ -89,6 +91,7 @@ export default function LearningQueuePanel({ show, onClose, displayName }: Learn
   const [loadingComments, setLoadingComments] = useState<string | null>(null)
   const [showComments, setShowComments] = useState<string | null>(null)
   const [commentText, setCommentText] = useState('')
+  const [consultCandidateId, setConsultCandidateId] = useState<string | null>(null)
 
   const fetchCandidates = useCallback(async () => {
     setLoading(true)
@@ -610,7 +613,30 @@ export default function LearningQueuePanel({ show, onClose, displayName }: Learn
                 >
                   Reject
                 </button>
+                <button
+                  onClick={() => setConsultCandidateId(consultCandidateId === c.id ? null : c.id)}
+                  className="text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1"
+                  style={{ background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)' }}
+                >
+                  <ChatBubbleLeftRightIcon className="h-3 w-3" /> Ask Judith
+                </button>
               </div>
+            )}
+            {consultCandidateId === c.id && (
+              <ConsultChat
+                context="learning_candidate"
+                initialInstruction={`Help me understand this learning candidate: "${c.instruction}"`}
+                contextData={{
+                  instruction: c.instruction,
+                  confidence: c.confidence,
+                  evidenceCount: c.evidence_count,
+                  patternType: c.pattern_type,
+                  recommendation: c.recommendation,
+                }}
+                onConfirm={() => setConsultCandidateId(null)}
+                onCancel={() => setConsultCandidateId(null)}
+                confirmLabel="Got it"
+              />
             )}
           </div>
         )}

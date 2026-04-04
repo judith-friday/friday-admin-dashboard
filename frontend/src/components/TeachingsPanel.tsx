@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react'
 import { format, formatDistanceToNow } from 'date-fns'
+import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
+import ConsultChat from './ConsultChat'
 
 interface TeachingsPanelProps {
   showTeachingsPanel: boolean
@@ -52,22 +54,9 @@ export default function TeachingsPanel({
   apiFetch,
   fetchTeachings,
 }: TeachingsPanelProps) {
-  const [analyzingId, setAnalyzingId] = useState<string | null>(null)
   const [analyzingAll, setAnalyzingAll] = useState(false)
-  const [rewritingId, setRewritingId] = useState<string | null>(null)
   const [pendingRewrites, setPendingRewrites] = useState<Record<string, { rewrite_id: string, original: string, proposed: string }>>({})
-
-  const handleAnalyze = async (id: string) => {
-    setAnalyzingId(id)
-    try {
-      await apiFetch(`/api/teachings/${id}/analyze`, { method: 'POST' })
-      fetchTeachings()
-    } catch (err: any) {
-      console.error('Analyze failed:', err.message)
-    } finally {
-      setAnalyzingId(null)
-    }
-  }
+  const [consultTeachingId, setConsultTeachingId] = useState<string | null>(null)
 
   const fetchPendingRewrites = async () => {
     try {
@@ -79,18 +68,6 @@ export default function TeachingsPanel({
       setPendingRewrites(map)
     } catch (err: any) {
       console.error('Fetch pending rewrites failed:', err.message)
-    }
-  }
-
-  const handleRewrite = async (id: string) => {
-    setRewritingId(id)
-    try {
-      const res = await apiFetch(`/api/teachings/${id}/rewrite`, { method: 'POST' })
-      setPendingRewrites(prev => ({ ...prev, [id]: { rewrite_id: res.rewrite_id, original: res.original_instruction, proposed: res.proposed_instruction } }))
-    } catch (err: any) {
-      console.error('Rewrite failed:', err.message)
-    } finally {
-      setRewritingId(null)
     }
   }
 
@@ -214,13 +191,9 @@ export default function TeachingsPanel({
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <button onClick={() => handleAnalyze(t.id)} disabled={analyzingId === t.id}
-                      className="text-xs disabled:opacity-50" style={{color: '#6395ff'}}>
-                      {analyzingId === t.id ? '⏳' : '🔄 Analyze'}
-                    </button>
-                    <button onClick={() => handleRewrite(t.id)} disabled={rewritingId === t.id}
-                      className="text-xs disabled:opacity-50" style={{color: '#c084fc'}}>
-                      {rewritingId === t.id ? '⏳' : '✨ Let Judith fix it'}
+                    <button onClick={() => setConsultTeachingId(consultTeachingId === t.id ? null : t.id)}
+                      className="text-xs flex items-center gap-1" style={{color: '#c084fc'}}>
+                      <ChatBubbleLeftRightIcon className="h-3 w-3" /> Ask Judith
                     </button>
                     <button onClick={() => setRevokeId(t.id)} className="text-xs" data-testid={`btn-revoke-teaching-${t.id}`} style={{color: '#f87171'}}>Revoke</button>
                   </div>
@@ -234,14 +207,31 @@ export default function TeachingsPanel({
                   <div className="flex gap-2 mt-2">
                     <button onClick={() => approveRewrite(t.id, pendingRewrites[t.id].rewrite_id)}
                       className="text-xs px-3 py-1 rounded" style={{ background: 'rgba(34,197,94,0.2)', color: '#4ade80' }}>
-                      ✅ Approve
+                      Approve
                     </button>
                     <button onClick={() => rejectRewrite(t.id, pendingRewrites[t.id].rewrite_id)}
                       className="text-xs px-3 py-1 rounded" style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171' }}>
-                      ❌ Reject
+                      Reject
                     </button>
                   </div>
                 </div>
+              )}
+              {consultTeachingId === t.id && (
+                <ConsultChat
+                  context="teaching"
+                  initialInstruction={`Analyze this teaching and suggest improvements: "${t.instruction}"`}
+                  contextData={{
+                    instruction: t.instruction,
+                    scope: t.scope,
+                    propertyCode: t.property_code,
+                    source: t.source,
+                    recommendation: t.recommendation,
+                    relatedTeachings: activeTeachings.filter((at: any) => at.id !== t.id).map((at: any) => at.instruction),
+                  }}
+                  onConfirm={() => { setConsultTeachingId(null); fetchTeachings() }}
+                  onCancel={() => setConsultTeachingId(null)}
+                  confirmLabel="Done"
+                />
               )}
             </div>
           ))}

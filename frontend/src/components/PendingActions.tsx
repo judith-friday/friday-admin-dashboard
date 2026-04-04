@@ -8,8 +8,10 @@ import {
   PencilIcon,
   TrashIcon,
   XMarkIcon,
+  ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline'
 import { apiFetch, PendingAction } from './types'
+import ConsultChat from './ConsultChat'
 
 type SortKey = 'urgency' | 'newest' | 'oldest' | 'guest'
 
@@ -24,6 +26,7 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
   const [showAddForm, setShowAddForm] = useState(false)
   const [newAction, setNewAction] = useState({ conversation_id: '', action_text: '', due_by: '' })
   const [conversations, setConversations] = useState<{ id: string; guest_name: string }[]>([])
+  const [consultActionId, setConsultActionId] = useState<string | null>(null)
 
   const fetchActions = useCallback(async () => {
     try {
@@ -210,7 +213,7 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                   value={completionNotes[action.id] || ''}
                   onChange={e => setCompletionNotes({ ...completionNotes, [action.id]: e.target.value })}
                   className="w-full text-xs rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 flex-wrap gap-y-1">
                   <button data-testid={`btn-action-done-${action.id}`} onClick={() => handleAction(action.id, 'completed')}
                     className="px-2 py-1 text-xs rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Done</button>
                   <button data-testid={`btn-action-dismiss-${action.id}`} onClick={() => handleAction(action.id, 'dismissed')}
@@ -219,7 +222,26 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                     <PencilIcon className="h-3 w-3 mr-1" />Edit</button>
                   <button onClick={() => handleDelete(action.id)} className="px-2 py-1 text-xs rounded flex items-center" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)'}}>
                     <TrashIcon className="h-3 w-3 mr-1" />Delete</button>
+                  <button onClick={() => setConsultActionId(consultActionId === action.id ? null : action.id)} className="px-2 py-1 text-xs rounded flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
+                    <ChatBubbleLeftRightIcon className="h-3 w-3 mr-1" />Ask Judith</button>
                 </div>
+                {consultActionId === action.id && (
+                  <ConsultChat
+                    conversationId={action.conversation_id}
+                    context="pending_action"
+                    initialInstruction={`How should I handle this pending action? "${action.action_text}"`}
+                    contextData={{
+                      actionText: action.action_text,
+                      status: action.status,
+                      guestName: action.guest_name,
+                      propertyCode: action.property_code,
+                      dueBy: action.due_by,
+                    }}
+                    onConfirm={() => setConsultActionId(null)}
+                    onCancel={() => setConsultActionId(null)}
+                    confirmLabel="Got it"
+                  />
+                )}
               </div>
             ) : (
               <div className="text-xs" style={{color: '#64748b'}}>

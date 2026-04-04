@@ -9,9 +9,11 @@ import {
   ExclamationTriangleIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline'
 import { ConversationDetail, apiFetch } from './types'
 import PendingActionsTab from './PendingActions'
+import ConsultChat from './ConsultChat'
 
 interface GuestInfoProps {
   detail: ConversationDetail
@@ -79,6 +81,7 @@ export default function GuestInfo({
   doneWarningCount, setActiveTab, staffNotes, handleNotesChange,
   notesTimerRef, draftStateBadge,
 }: GuestInfoProps) {
+  const [consultStepIdx, setConsultStepIdx] = useState<number | null>(null)
   return (
     <>
       {/* Backdrop overlay on mobile */}
@@ -226,9 +229,30 @@ export default function GuestInfo({
         <CollapsibleSection title="Next Steps" defaultOpen={true} count={steps.length}>
           <div className="px-3 pb-3 space-y-1.5">
             {steps.map((s: any, i: number) => (
-              <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#e2e8f0'}}>
-                <span>{s.icon || '\uD83D\uDCCB'}</span>
-                <span>{s.text}{s.who && <span style={{color: '#6395ff'}}> \u2014 {s.who}</span>}</span>
+              <div key={i}>
+                <div className="flex items-start gap-2 text-xs" style={{color: '#e2e8f0'}}>
+                  <span>{s.icon || '\uD83D\uDCCB'}</span>
+                  <span className="flex-1">{s.text}{s.who && <span style={{color: '#6395ff'}}> {'\u2014'} {s.who}</span>}</span>
+                  <button onClick={() => setConsultStepIdx(consultStepIdx === i ? null : i)}
+                    className="shrink-0 px-1.5 py-0.5 rounded flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)', fontSize: '10px'}}>
+                    <ChatBubbleLeftRightIcon className="h-3 w-3 mr-0.5" />Ask
+                  </button>
+                </div>
+                {consultStepIdx === i && (
+                  <ConsultChat
+                    conversationId={selectedConvId}
+                    context="next_step"
+                    initialInstruction={`Why did you suggest this next step? "${s.text}"`}
+                    contextData={{
+                      stepText: s.text,
+                      who: s.who,
+                      guestName: detail.conversation.guest_name,
+                    }}
+                    onConfirm={() => setConsultStepIdx(null)}
+                    onCancel={() => setConsultStepIdx(null)}
+                    confirmLabel="Got it"
+                  />
+                )}
               </div>
             ))}
             <p className="text-xs mt-1" style={{color: '#475569', fontStyle: 'italic'}}>Judith's suggestions based on conversation context</p>
