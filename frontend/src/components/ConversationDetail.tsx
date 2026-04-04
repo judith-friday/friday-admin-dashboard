@@ -309,7 +309,7 @@ export default function ConversationDetail({
                 )}
 
                 <div className="text-xs mt-1" style={{color: '#64748b'}}>
-                  {format(new Date(msg.created_at), 'HH:mm')} {msg.sender_name && `- ${msg.sender_name}`}
+                  {format(new Date(msg.created_at), 'HH:mm')} {msg.sender_name && `- ${msg.sender_name.toLowerCase() === 'hook' ? 'Automated message' : msg.sender_name}`}
                   {!isOutbound && isNonEnglish && (
                     <span className="ml-1">{LANG_FLAGS[msg.original_language!] || ''} {LANG_NAMES[msg.original_language!] || msg.original_language}</span>
                   )}

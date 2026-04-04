@@ -6,6 +6,7 @@ html, body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
   overflow-x: hidden;
   max-width: 100vw;
+  touch-action: manipulation;
 }
 
 /* Custom scrollbar for dark theme - thin and rounded */
