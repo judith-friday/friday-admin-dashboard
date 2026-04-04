@@ -134,7 +134,7 @@ export default function GuestInfo({
       {mobileView === 'info' && (
         <div className="fixed inset-0 z-40 md:hidden" style={{background: 'rgba(0,0,0,0.5)'}} onClick={() => setMobileView('detail')} />
       )}
-    <div data-testid="section-guest-info" className={`w-72 overflow-y-auto custom-scrollbar ${mobileView === 'info' ? 'fixed inset-0 w-full z-50 md:relative md:w-72 pt-0' : 'hidden md:block'}`} style={{background: mobileView === 'info' ? '#0d1117' : 'rgba(255,255,255,0.05)', borderLeft: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
+    <div data-testid="section-guest-info" className={`w-72 overflow-y-auto custom-scrollbar ${mobileView === 'info' ? 'fixed inset-0 w-full z-50 md:relative md:w-72' : 'hidden md:block'}`} style={{background: mobileView === 'info' ? '#0d1117' : 'rgba(255,255,255,0.05)', borderLeft: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', ...(mobileView === 'info' ? {paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)'} : {})}}>
       {/* Header with close button on mobile */}
       <div className="p-3 sticky top-0 z-10" style={{borderBottom: '1px solid rgba(255,255,255,0.06)', background: mobileView === 'info' ? '#0d1117' : 'transparent'}}>
         <div className="flex items-center justify-between">
