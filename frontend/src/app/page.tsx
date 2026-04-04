@@ -183,9 +183,7 @@ export default function MessageDashboard() {
     const t = getToken()
     if (!t) return
     try {
-      const res = await apiFetch('/api/notifications', { headers: { Authorization: `Bearer ${t}` } })
-      if (!res.ok) return
-      const rows: any[] = await res.json()
+      const rows: any[] = await apiFetch('/api/notifications')
       const mapped: Notification[] = rows.map(r => ({
         id: r.id,
         type: r.type as Notification['type'],
