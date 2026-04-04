@@ -80,7 +80,7 @@ export default function SendConfirmModal({
                   <label className="text-xs font-medium block mb-1" style={{color: '#64748b'}}>Send via:</label>
                   <select value={sendChannel} onChange={e => setSendChannel(e.target.value)}
                     data-testid="select-send-channel"
-                    className="w-full text-sm rounded px-2 py-1.5 outline-none"
+                    className="w-full text-base rounded px-2 py-1.5 outline-none"
                     style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', fontSize: '16px'}}>
                     <option value="airbnb" style={{background: '#1a1a2e'}}>Airbnb</option>
                     <option value="booking" style={{background: '#1a1a2e'}}>Booking.com</option>

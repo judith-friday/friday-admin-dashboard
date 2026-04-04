@@ -821,7 +821,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search help…"
-              className="w-full pl-8 pr-8 py-1.5 rounded-md text-xs outline-none"
+              className="w-full pl-8 pr-8 py-1.5 rounded-md text-base outline-none"
               style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#e2e8f0' }}
               autoComplete="off"
             />

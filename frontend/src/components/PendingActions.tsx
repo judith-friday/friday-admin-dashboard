@@ -206,7 +206,7 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
           <span className="text-sm font-medium" style={{color: '#94a3b8'}}>{actions.length} pending action{actions.length !== 1 ? 's' : ''}</span>
           <div className="flex items-center gap-2">
             <select value={sortBy} onChange={e => setSortBy(e.target.value as SortKey)}
-              className="text-xs py-0.5 px-1.5 rounded outline-none" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
+              className="text-base py-0.5 px-1.5 rounded outline-none" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
               <option value="urgency">Urgency</option>
               <option value="newest">Newest first</option>
               <option value="oldest">Oldest first</option>
@@ -222,16 +222,16 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
       {showAddForm && (
         <form onSubmit={handleCreate} className="p-3 space-y-2" style={{borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(99,149,255,0.06)'}}>
           <select value={newAction.conversation_id} onChange={e => setNewAction({ ...newAction, conversation_id: e.target.value })}
-            className="w-full text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} required>
+            className="w-full text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} required>
             <option value="">Select conversation...</option>
             {conversations.map(c => <option key={c.id} value={c.id}>{c.guest_name}</option>)}
           </select>
           <input type="text" placeholder="Action text..." value={newAction.action_text}
             onChange={e => setNewAction({ ...newAction, action_text: e.target.value })}
-            className="w-full text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} required />
+            className="w-full text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} required />
           <input type="datetime-local" value={newAction.due_by}
             onChange={e => setNewAction({ ...newAction, due_by: e.target.value })}
-            className="w-full text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
+            className="w-full text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
           <div className="flex space-x-2">
             <button data-testid="btn-create-action" type="submit" className="px-3 py-1 text-xs rounded" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>Create</button>
             <button data-testid="btn-cancel-add-action" type="button" onClick={() => setShowAddForm(false)} className="px-3 py-1 text-xs rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Cancel</button>
@@ -255,9 +255,9 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
             {editingId === action.id ? (
               <div className="space-y-1">
                 <textarea value={editText} onChange={e => { setEditText(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 192) + 'px' }}
-                  rows={3} className="w-full text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(99,149,255,0.3)', color: '#f1f5f9', resize: 'vertical', minHeight: '4.5em', maxHeight: '12em'}} />
+                  rows={3} className="w-full text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(99,149,255,0.3)', color: '#f1f5f9', resize: 'vertical', minHeight: '4.5em', maxHeight: '12em'}} />
                 <input type="datetime-local" value={editDueBy} onChange={e => setEditDueBy(e.target.value)}
-                  className="w-full text-xs rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
+                  className="w-full text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
                 <div className="flex space-x-2">
                   <button onClick={() => handleEdit(action.id)} className="px-2 py-1 text-xs rounded" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>Save</button>
                   <button onClick={() => setEditingId(null)} className="px-2 py-1 text-xs rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Cancel</button>
@@ -288,7 +288,7 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                         value={newNoteText[action.id] || ''}
                         onChange={e => setNewNoteText(prev => ({ ...prev, [action.id]: e.target.value }))}
                         onKeyDown={e => e.key === 'Enter' && addNote(action.id)}
-                        className="flex-1 text-xs rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
+                        className="flex-1 text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
                       <button onClick={() => addNote(action.id)} className="px-2 py-1 text-xs rounded" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>Add</button>
                     </div>
                   </div>
@@ -327,7 +327,7 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                 <input type="text" placeholder="Note (optional)..."
                   value={completionNotes[action.id] || ''}
                   onChange={e => setCompletionNotes({ ...completionNotes, [action.id]: e.target.value })}
-                  className="w-full text-xs rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
+                  className="w-full text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
                 <div className="flex space-x-2 flex-wrap gap-y-1">
                   <button data-testid={`btn-action-done-${action.id}`} onClick={() => handleAction(action.id, 'completed')}
                     className="px-2 py-1 text-xs rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Done</button>

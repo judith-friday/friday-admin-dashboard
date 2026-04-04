@@ -531,7 +531,7 @@ export default function LearningQueuePanel({ show, onClose, displayName }: Learn
                       value={commentText}
                       onChange={e => setCommentText(e.target.value)}
                       placeholder="Add a comment..."
-                      className="flex-1 text-xs rounded px-2 py-1.5 outline-none"
+                      className="flex-1 text-base rounded px-2 py-1.5 outline-none"
                       style={{ background: 'rgba(0,0,0,0.3)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)' }}
                       onKeyDown={e => { if (e.key === 'Enter') postComment(c.id) }}
                       onClick={e => e.stopPropagation()}
@@ -555,7 +555,7 @@ export default function LearningQueuePanel({ show, onClose, displayName }: Learn
                 <textarea
                   value={editText}
                   onChange={e => setEditText(e.target.value)}
-                  className="w-full text-sm rounded-lg p-2 resize-none"
+                  className="w-full text-base rounded-lg p-2 resize-none"
                   style={{ background: 'rgba(0,0,0,0.4)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', minHeight: '60px' }}
                   rows={3}
                 />

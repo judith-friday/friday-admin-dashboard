@@ -271,7 +271,7 @@ export default function BugReportsPanel({ show, onClose }: BugReportsPanelProps)
                                 value={reopenComment}
                                 onChange={e => setReopenComment(e.target.value)}
                                 placeholder="Why is this being reopened?"
-                                className="flex-1 text-xs rounded-lg p-2 resize-none"
+                                className="flex-1 text-base rounded-lg p-2 resize-none"
                                 style={{ background: 'rgba(0,0,0,0.3)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', minHeight: '48px' }}
                                 rows={2}
                               />

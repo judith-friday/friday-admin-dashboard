@@ -293,7 +293,7 @@ export default function GuestInfo({
         {editingNotes && (
           <div>
             <textarea value={editNotesValue} onChange={e => setEditNotesValue(e.target.value)}
-              className="w-full text-xs rounded px-2 py-1.5 outline-none"
+              className="w-full text-base rounded px-2 py-1.5 outline-none"
               style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(99,149,255,0.3)', color: '#f1f5f9', resize: 'vertical', minHeight: '72px'}}
               rows={3} autoFocus />
             <div className="flex gap-1.5 mt-1.5">
@@ -328,7 +328,7 @@ export default function GuestInfo({
             setEditNotesValue(updated)
           }}
             placeholder="Add notes for Judith..."
-            className="w-full text-xs rounded px-2 py-1.5 outline-none"
+            className="w-full text-base rounded px-2 py-1.5 outline-none"
             style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', resize: 'vertical', minHeight: '48px'}}
             rows={2} />
         )}
@@ -364,7 +364,7 @@ export default function GuestInfo({
                 {editingStepId === s.id ? (
                   <div className="flex items-start gap-1.5">
                     <textarea value={editStepText} onChange={e => setEditStepText(e.target.value)}
-                      className="flex-1 text-xs rounded px-2 py-1 resize-none outline-none"
+                      className="flex-1 text-base rounded px-2 py-1 resize-none outline-none"
                       style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(99,149,255,0.3)', color: '#f1f5f9'}} rows={2} autoFocus />
                     <button onClick={() => handleStepEdit(s.id)}
                       className="shrink-0 p-1 rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>

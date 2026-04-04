@@ -139,7 +139,7 @@ export default function TeachingsPanel({
             <input type="text" value={newTeachingText} onChange={e => setNewTeachingText(e.target.value)}
               placeholder="Add a teaching..."
               data-testid="input-teaching-text"
-              className="flex-1 text-sm rounded px-2 py-1.5 outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
+              className="flex-1 text-base rounded px-2 py-1.5 outline-none" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
               onKeyDown={e => { if (e.key === 'Enter') handleAddTeaching() }} />
             <button onClick={handleAddTeaching} disabled={!newTeachingText.trim()}
               data-testid="btn-add-teaching"
@@ -185,7 +185,7 @@ export default function TeachingsPanel({
                 {revokeId === t.id ? (
                   <div className="flex items-center space-x-1">
                     <input type="text" value={revokeReason} onChange={e => setRevokeReason(e.target.value)}
-                      placeholder="Why?" className="text-xs rounded px-1.5 py-0.5 w-32 outline-none"
+                      placeholder="Why?" className="text-base rounded px-1.5 py-0.5 w-32 outline-none"
                       style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
                       onKeyDown={e => { if (e.key === 'Enter') handleRevokeTeaching(t.id) }} />
                     <button onClick={() => handleRevokeTeaching(t.id)} className="text-xs px-1.5 py-0.5 rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171'}}>OK</button>

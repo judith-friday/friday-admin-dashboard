@@ -140,7 +140,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
                   autoFocus
                   data-testid="input-bug-what"
                   placeholder="e.g. Draft didn't generate for new message"
-                  className="w-full text-sm rounded-lg px-3 py-2 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9'}} />
+                  className="w-full text-base rounded-lg px-3 py-2 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9'}} />
               </div>
               <div>
                 <label className="text-xs font-medium mb-1 block" style={{color: '#94a3b8'}}>What did you expect? (optional)</label>
@@ -149,7 +149,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
                   autoComplete="off"
                   data-testid="input-bug-expect"
                   placeholder="e.g. A draft should have appeared in the review panel"
-                  className="w-full text-sm rounded-lg px-3 py-2 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9'}} />
+                  className="w-full text-base rounded-lg px-3 py-2 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9'}} />
               </div>
 
               {/* Severity */}

@@ -69,7 +69,7 @@ export default function PropertyCard({
                     const parsed = JSON.parse(cardEditData);
                     parsed[key] = e.target.value;
                     setCardEditData(JSON.stringify(parsed, null, 2));
-                  }} className="w-full text-sm rounded px-2 py-1.5 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
+                  }} className="w-full text-base rounded px-2 py-1.5 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
                 ) : typeof value === 'object' && value !== null ? (
                   <textarea value={JSON.stringify(value, null, 2)} onChange={e => {
                     try {
@@ -77,14 +77,14 @@ export default function PropertyCard({
                       parsed[key] = JSON.parse(e.target.value);
                       setCardEditData(JSON.stringify(parsed, null, 2));
                     } catch {}
-                  }} onKeyDown={e => e.stopPropagation()} className="w-full text-xs font-mono rounded px-2 py-1.5 outline-none" rows={4} style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', resize: 'vertical'}} />
+                  }} onKeyDown={e => e.stopPropagation()} className="w-full text-base font-mono rounded px-2 py-1.5 outline-none" rows={4} style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', resize: 'vertical'}} />
                 ) : (
                   <input type="text" value={String(value)} onChange={e => {
                     const parsed = JSON.parse(cardEditData);
                     const num = Number(e.target.value);
                     parsed[key] = !isNaN(num) && e.target.value.trim() !== '' ? num : e.target.value;
                     setCardEditData(JSON.stringify(parsed, null, 2));
-                  }} className="w-full text-sm rounded px-2 py-1.5 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
+                  }} className="w-full text-base rounded px-2 py-1.5 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
                 )}
               </div>
             )); } catch { return null; } })()}
@@ -94,7 +94,7 @@ export default function PropertyCard({
                 value={cardEditData}
                 onChange={e => setCardEditData(e.target.value)}
                 onKeyDown={e => e.stopPropagation()}
-                className="w-full rounded-lg p-3 text-xs font-mono mt-2"
+                className="w-full rounded-lg p-3 text-base font-mono mt-2"
                 style={{background: 'rgba(0,0,0,0.3)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', minHeight: '200px', resize: 'vertical'}}
                 spellCheck={false}
               />

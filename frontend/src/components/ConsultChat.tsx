@@ -191,7 +191,7 @@ export default function ConsultChat({
           <div className="flex gap-2">
             <input type="text" value={replyText} onChange={e => setReplyText(e.target.value)}
               placeholder="Reply to Judith..."
-              className="flex-1 text-sm rounded px-2 py-1.5 outline-none"
+              className="flex-1 text-base rounded px-2 py-1.5 outline-none"
               style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9' }}
               onKeyDown={e => { if (e.key === 'Enter') handleReply() }} />
             <button onClick={handleReply} disabled={!replyText.trim()}

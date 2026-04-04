@@ -80,7 +80,7 @@ export default function ConversationList({
             placeholder="Search guests, properties, messages..."
             value={searchQuery}
             onChange={e => onSearchChange(e.target.value)}
-            className="w-full pl-8 pr-16 py-1.5 text-xs rounded-md outline-none transition-colors"
+            className="w-full pl-8 pr-16 py-1.5 text-base rounded-md outline-none transition-colors"
             style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}
           />
           <div className="absolute right-1 flex items-center space-x-0.5">
@@ -113,7 +113,7 @@ export default function ConversationList({
               <select
                 value={filterProperty}
                 onChange={e => onFilterChange(e.target.value, filterChannel, filterDateFrom, filterDateTo)}
-                className="flex-1 text-xs py-1 px-1.5 rounded outline-none"
+                className="flex-1 text-base py-1 px-1.5 rounded outline-none"
                 style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}
               >
                 <option value="">All properties</option>
@@ -122,7 +122,7 @@ export default function ConversationList({
               <select
                 value={filterChannel}
                 onChange={e => onFilterChange(filterProperty, e.target.value, filterDateFrom, filterDateTo)}
-                className="flex-1 text-xs py-1 px-1.5 rounded outline-none"
+                className="flex-1 text-base py-1 px-1.5 rounded outline-none"
                 style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}
               >
                 <option value="">All channels</option>
@@ -135,7 +135,7 @@ export default function ConversationList({
                 value={filterDateFrom}
                 onChange={e => onFilterChange(filterProperty, filterChannel, e.target.value, filterDateTo)}
                 placeholder="From"
-                className="flex-1 text-xs py-1 px-1.5 rounded outline-none"
+                className="flex-1 text-base py-1 px-1.5 rounded outline-none"
                 style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}
               />
               <input
@@ -143,7 +143,7 @@ export default function ConversationList({
                 value={filterDateTo}
                 onChange={e => onFilterChange(filterProperty, filterChannel, filterDateFrom, e.target.value)}
                 placeholder="To"
-                className="flex-1 text-xs py-1 px-1.5 rounded outline-none"
+                className="flex-1 text-base py-1 px-1.5 rounded outline-none"
                 style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}
               />
             </div>
@@ -220,7 +220,7 @@ export default function ConversationList({
         {/* Sort control */}
         <div className="px-3 py-1 flex items-center justify-end" style={{borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
           <select value={sortBy} onChange={e => setSortBy(e.target.value as typeof sortBy)}
-            className="text-xs py-0.5 px-1.5 rounded outline-none" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
+            className="text-base py-0.5 px-1.5 rounded outline-none" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
             <option value="recent">Most recent</option>
             <option value="oldest">Oldest first</option>
             <option value="guest">Guest name</option>

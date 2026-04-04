@@ -95,7 +95,7 @@ export default function DraftPanel({
           ) : (editingDraft === draft.id ? (
             <div className="space-y-2">
               <textarea value={editBody} onChange={e => setEditBody(e.target.value)}
-                className="w-full px-3 py-2 rounded text-sm outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', overflowWrap: 'break-word', maxWidth: '100%'}} rows={4} />
+                className="w-full px-3 py-2 rounded text-base outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', overflowWrap: 'break-word', maxWidth: '100%'}} rows={4} />
               <div className="flex flex-wrap gap-2">
                 <button data-testid={`btn-save-send-${draft.id}`} onClick={() => { handleDraftAction(draft.id, 'approve', editBody) }}
                   className="px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Save and Send</button>
@@ -161,7 +161,7 @@ export default function DraftPanel({
                     value={revisionText}
                     onChange={e => setRevisionText(e.target.value)}
                     placeholder="Revision instruction (e.g. make it shorter, add check-in time)"
-                    className="w-full text-sm rounded px-2 py-1.5 outline-none"
+                    className="w-full text-base rounded px-2 py-1.5 outline-none"
                     style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
                     onKeyDown={e => { if (e.key === 'Enter' && revisionText.trim()) { handleRevision(draft.id, 'standard'); setShowRevision(false); setRevisionText('') } }}
                   />
@@ -190,7 +190,7 @@ export default function DraftPanel({
                   <div className="flex space-x-2">
                     <input data-testid="input-reject-reason" type="text" value={rejectReason} onChange={e => setRejectReason(e.target.value)}
                       placeholder="Why? (optional — helps Judith learn)"
-                      className="flex-1 text-sm rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
+                      className="flex-1 text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
                       onKeyDown={e => { if (e.key === 'Enter') handleRejectWithReason(draft.id) }} />
                     <button onClick={() => handleRejectWithReason(draft.id)}
                       className="px-3 py-1 text-xs rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>{rejectReason.trim() ? 'Reject with feedback' : 'Dismiss'}</button>

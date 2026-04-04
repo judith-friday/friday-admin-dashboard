@@ -67,13 +67,13 @@ export default function ComposePanel({
                   <textarea data-testid="input-compose-message" value={composeText} onChange={e => setComposeText(e.target.value)}
                     onKeyDown={e => { e.stopPropagation(); if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleCompose() }}
                     placeholder="Type your message..."
-                    className="flex-1 text-sm rounded-lg px-3 py-1.5 outline-none" rows={2}
+                    className="flex-1 text-base rounded-lg px-3 py-1.5 outline-none" rows={2}
                     style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9', resize: 'vertical', maxHeight: '120px'}} />
                 ) : (
                   <textarea value={composeInstruction} onChange={e => setComposeInstruction(e.target.value)}
                     onKeyDown={e => { e.stopPropagation(); if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleCompose() }}
                     placeholder="e.g. Send check-in instructions, Follow up about AC..."
-                    className="flex-1 text-sm rounded-lg px-3 py-1.5 outline-none" rows={1}
+                    className="flex-1 text-base rounded-lg px-3 py-1.5 outline-none" rows={1}
                     style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9', resize: 'vertical', maxHeight: '120px'}} />
                 )}
                 <button onClick={() => setShowConsult(true)} disabled={!canAskJudith}

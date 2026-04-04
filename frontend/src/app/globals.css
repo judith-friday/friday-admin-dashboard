@@ -99,8 +99,9 @@ button:active {
   transform: translateY(0);
 }
 
-/* Input focus effects */
+/* Input focus effects + prevent iOS auto-zoom (requires >= 16px) */
 input, textarea, select {
+  font-size: 16px;
   transition: all 200ms ease-in-out;
 }
 
