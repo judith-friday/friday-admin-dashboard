@@ -145,7 +145,10 @@ export default function GuestInfo({
     } catch (err: any) { toast.error(err.message) }
   }
 
-  const activeSteps = nextSteps.filter(s => s.status === 'active')
+  const activeSteps = nextSteps.filter(s => s.status === 'active').filter((s, i, arr) => {
+    const norm = s.text.toLowerCase().replace(/\s+/g, ' ').trim()
+    return arr.findIndex(x => x.text.toLowerCase().replace(/\s+/g, ' ').trim() === norm) === i
+  })
   const resolvedSteps = nextSteps.filter(s => s.status !== 'active')
 
   return (
