@@ -115,18 +115,10 @@ export default function DraftPanel({
                 </div>
               )}
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 items-center">
                 <button data-testid={`btn-approve-${draft.id}`} onClick={() => requestApproval(draft.id)}
                   className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
                   <PaperAirplaneIcon className="h-4 w-4 mr-1" /> Approve & Send
-                </button>
-                <button data-testid={`btn-edit-${draft.id}`} onClick={() => { setEditingDraft(draft.id); isEditingRef.current = true; setEditBody(draft.draft_body) }}
-                  className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
-                  <PencilSquareIcon className="h-4 w-4 mr-1" /> Edit
-                </button>
-                <button data-testid={`btn-reject-${draft.id}`} onClick={() => { setRejectingDraft(rejectingDraft === draft.id ? null : draft.id); setRejectReason('') }}
-                  className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
-                  <XMarkIcon className="h-4 w-4 mr-1" /> Reject
                 </button>
                 <button data-testid={`btn-toggle-revise-${draft.id}`} onClick={() => { setShowRevision(!showRevision); if (showRevision) setRevisionText('') }}
                   className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: showRevision ? 'rgba(99,149,255,0.2)' : 'rgba(99,149,255,0.08)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.15)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
@@ -138,6 +130,14 @@ export default function DraftPanel({
                     <ChatBubbleLeftRightIcon className="h-4 w-4 mr-1" /> Ask Judith
                   </button>
                 )}
+                <button data-testid={`btn-edit-${draft.id}`} onClick={() => { setEditingDraft(draft.id); isEditingRef.current = true; setEditBody(draft.draft_body) }}
+                  className="flex items-center px-2.5 py-1 text-xs rounded" style={{background: 'transparent', color: '#64748b', border: '1px solid rgba(255,255,255,0.08)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
+                  <PencilSquareIcon className="h-3.5 w-3.5 mr-1" /> Edit
+                </button>
+                <button data-testid={`btn-reject-${draft.id}`} onClick={() => { setRejectingDraft(rejectingDraft === draft.id ? null : draft.id); setRejectReason('') }}
+                  className="flex items-center px-2.5 py-1 text-xs rounded" style={{background: 'transparent', color: '#64748b', border: '1px solid rgba(255,255,255,0.08)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
+                  <XMarkIcon className="h-3.5 w-3.5 mr-1" /> Reject
+                </button>
               </div>
 
               {/* Ask Judith consultation on draft review (Surface B) */}
