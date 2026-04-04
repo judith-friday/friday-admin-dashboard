@@ -137,6 +137,18 @@ export interface PendingAction {
   channel?: string
 }
 
+export interface NextStep {
+  id: string
+  conversation_id: string
+  text: string
+  who?: string
+  icon?: string
+  status: 'active' | 'completed' | 'dismissed'
+  created_at: string
+  resolved_at?: string
+  resolved_by?: string
+}
+
 export interface InboxStats {
   total_conversations: number
   needs_review_count: number

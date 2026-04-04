@@ -10,8 +10,11 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   ChatBubbleLeftRightIcon,
+  PencilIcon,
+  CheckIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline'
-import { ConversationDetail, apiFetch } from './types'
+import { ConversationDetail, NextStep, apiFetch } from './types'
 import PendingActionsTab from './PendingActions'
 import ConsultChat from './ConsultChat'
 
@@ -82,6 +85,46 @@ export default function GuestInfo({
   notesTimerRef, draftStateBadge,
 }: GuestInfoProps) {
   const [consultStepIdx, setConsultStepIdx] = useState<number | null>(null)
+  const [nextSteps, setNextSteps] = useState<NextStep[]>([])
+  const [editingStepId, setEditingStepId] = useState<string | null>(null)
+  const [editStepText, setEditStepText] = useState('')
+
+  // Fetch next steps from dedicated API
+  useEffect(() => {
+    if (!selectedConvId) return
+    let cancelled = false
+    apiFetch(`/api/conversations/${selectedConvId}/next-steps`)
+      .then(data => { if (!cancelled) setNextSteps(data.next_steps || []) })
+      .catch(() => { if (!cancelled) setNextSteps([]) })
+    return () => { cancelled = true }
+  }, [selectedConvId, detail])
+
+  const handleStepAction = async (stepId: string, status: 'completed' | 'dismissed') => {
+    try {
+      const updated = await apiFetch(`/api/next-steps/${stepId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      })
+      setNextSteps(prev => prev.map(s => s.id === stepId ? updated : s))
+      toast.success(status === 'completed' ? 'Step done' : 'Step dismissed')
+    } catch (err: any) { toast.error(err.message) }
+  }
+
+  const handleStepEdit = async (stepId: string) => {
+    try {
+      const updated = await apiFetch(`/api/next-steps/${stepId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ text: editStepText }),
+      })
+      setNextSteps(prev => prev.map(s => s.id === stepId ? updated : s))
+      setEditingStepId(null)
+      toast.success('Step updated')
+    } catch (err: any) { toast.error(err.message) }
+  }
+
+  const activeSteps = nextSteps.filter(s => s.status === 'active')
+  const resolvedSteps = nextSteps.filter(s => s.status !== 'active')
+
   return (
     <>
       {/* Backdrop overlay on mobile */}
@@ -225,40 +268,83 @@ export default function GuestInfo({
       </div>
 
       {/* Suggested next steps - collapsible */}
-      {detail.conversation.next_steps && (() => { try { const steps = JSON.parse(detail.conversation.next_steps); return steps.length > 0 ? (
-        <CollapsibleSection title="Next Steps" defaultOpen={true} count={steps.length}>
+      {nextSteps.length > 0 && (
+        <CollapsibleSection title="Next Steps" defaultOpen={true} count={activeSteps.length}>
           <div className="px-3 pb-3 space-y-1.5">
-            {steps.map((s: any, i: number) => (
-              <div key={i}>
-                <div className="flex items-start gap-2 text-xs" style={{color: '#e2e8f0'}}>
-                  <span>{s.icon || '\uD83D\uDCCB'}</span>
-                  <span className="flex-1">{s.text}{s.who && <span style={{color: '#6395ff'}}> {'\u2014'} {s.who}</span>}</span>
-                  <button onClick={() => setConsultStepIdx(consultStepIdx === i ? null : i)}
-                    className="shrink-0 px-1.5 py-0.5 rounded flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)', fontSize: '10px'}}>
-                    <ChatBubbleLeftRightIcon className="h-3 w-3 mr-0.5" />Ask
-                  </button>
-                </div>
-                {consultStepIdx === i && (
-                  <ConsultChat
-                    conversationId={selectedConvId}
-                    context="next_step"
-                    initialInstruction={`Why did you suggest this next step? "${s.text}"`}
-                    contextData={{
-                      stepText: s.text,
-                      who: s.who,
-                      guestName: detail.conversation.guest_name,
-                    }}
-                    onConfirm={() => setConsultStepIdx(null)}
-                    onCancel={() => setConsultStepIdx(null)}
-                    confirmLabel="Got it"
-                  />
+            {activeSteps.map((s, i) => (
+              <div key={s.id}>
+                {editingStepId === s.id ? (
+                  <div className="flex items-start gap-1.5">
+                    <textarea value={editStepText} onChange={e => setEditStepText(e.target.value)}
+                      className="flex-1 text-xs rounded px-2 py-1 resize-none outline-none"
+                      style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(99,149,255,0.3)', color: '#f1f5f9'}} rows={2} autoFocus />
+                    <button onClick={() => handleStepEdit(s.id)}
+                      className="shrink-0 p-1 rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
+                      <CheckIcon className="h-3 w-3" />
+                    </button>
+                    <button onClick={() => setEditingStepId(null)}
+                      className="shrink-0 p-1 rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
+                      <XMarkIcon className="h-3 w-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-start gap-2 text-xs" style={{color: '#e2e8f0'}}>
+                      <span>{s.icon || '\uD83D\uDCCB'}</span>
+                      <span className="flex-1">{s.text}{s.who && <span style={{color: '#6395ff'}}> {'\u2014'} {s.who}</span>}</span>
+                      <div className="shrink-0 flex items-center gap-1">
+                        <button onClick={() => handleStepAction(s.id, 'completed')} title="Done"
+                          className="p-0.5 rounded" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.25)'}}>
+                          <CheckIcon className="h-3 w-3" />
+                        </button>
+                        <button onClick={() => handleStepAction(s.id, 'dismissed')} title="Dismiss"
+                          className="p-0.5 rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
+                          <XMarkIcon className="h-3 w-3" />
+                        </button>
+                        <button onClick={() => { setEditingStepId(s.id); setEditStepText(s.text) }} title="Edit"
+                          className="p-0.5 rounded" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>
+                          <PencilIcon className="h-3 w-3" />
+                        </button>
+                        <button onClick={() => setConsultStepIdx(consultStepIdx === i ? null : i)}
+                          className="px-1.5 py-0.5 rounded flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)', fontSize: '10px'}}>
+                          <ChatBubbleLeftRightIcon className="h-3 w-3 mr-0.5" />Ask
+                        </button>
+                      </div>
+                    </div>
+                    {consultStepIdx === i && (
+                      <ConsultChat
+                        conversationId={selectedConvId}
+                        context="next_step"
+                        initialInstruction={`Why did you suggest this next step? "${s.text}"`}
+                        contextData={{
+                          stepText: s.text,
+                          who: s.who,
+                          guestName: detail.conversation.guest_name,
+                        }}
+                        onConfirm={() => setConsultStepIdx(null)}
+                        onCancel={() => setConsultStepIdx(null)}
+                        confirmLabel="Got it"
+                      />
+                    )}
+                  </>
                 )}
               </div>
             ))}
+            {resolvedSteps.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {resolvedSteps.map(s => (
+                  <div key={s.id} className="flex items-start gap-2 text-xs" style={{color: '#475569', textDecoration: 'line-through', opacity: 0.6}}>
+                    <span>{s.icon || '\uD83D\uDCCB'}</span>
+                    <span className="flex-1">{s.text}</span>
+                    <span className="shrink-0 text-xs" style={{fontSize: '10px'}}>{s.status === 'completed' ? 'Done' : 'Dismissed'}</span>
+                  </div>
+                ))}
+              </div>
+            )}
             <p className="text-xs mt-1" style={{color: '#475569', fontStyle: 'italic'}}>Judith's suggestions based on conversation context</p>
           </div>
         </CollapsibleSection>
-      ) : null; } catch { return null; } })()}
+      )}
 
       {/* Pending actions for this conversation - collapsible */}
       <CollapsibleSection title="Pending Actions" defaultOpen={true}>
