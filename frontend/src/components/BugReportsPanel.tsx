@@ -23,6 +23,10 @@ interface BugReport {
   review_comment: string | null
   reviewed_at: string | null
   reviewed_by: string | null
+  ai_category: string | null
+  ai_component: string | null
+  ai_assessment: string | null
+  ai_priority: string | null
   created_at: string
   updated_at: string | null
   screenshot: string | null
@@ -203,6 +207,42 @@ export default function BugReportsPanel({ show, onClose }: BugReportsPanelProps)
                         </div>
                       )}
                     </div>
+
+                    {/* Judith's AI Analysis */}
+                    {bug.ai_assessment ? (
+                      <div className="rounded-lg px-3 py-2.5 text-xs" style={{
+                        background: 'rgba(251,191,36,0.08)',
+                        borderLeft: '2px solid #fbbf24',
+                      }}>
+                        <span className="block text-xs mb-1.5" style={{ color: '#fbbf24', fontSize: '10px', fontWeight: 600 }}>
+                          {'\u{1F916}'} Judith's Analysis
+                        </span>
+                        <div className="flex gap-2 flex-wrap mb-1.5">
+                          {bug.ai_category && (
+                            <span className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(251,191,36,0.12)', color: '#fbbf24', fontSize: '10px' }}>
+                              {bug.ai_category}
+                            </span>
+                          )}
+                          {bug.ai_component && (
+                            <span className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(251,191,36,0.12)', color: '#fbbf24', fontSize: '10px' }}>
+                              {bug.ai_component}
+                            </span>
+                          )}
+                          {bug.ai_priority && (
+                            <span className="px-1.5 py-0.5 rounded" style={{
+                              background: (SEVERITY_COLORS[bug.ai_priority] || SEVERITY_COLORS.medium).bg,
+                              color: (SEVERITY_COLORS[bug.ai_priority] || SEVERITY_COLORS.medium).text,
+                              fontSize: '10px',
+                            }}>
+                              {bug.ai_priority} priority
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ color: '#e2e8f0', lineHeight: '1.4' }}>{bug.ai_assessment}</div>
+                      </div>
+                    ) : bug.status === 'submitted' && !bug.ai_category ? (
+                      <div className="text-xs italic" style={{ color: '#64748b' }}>Analysis pending...</div>
+                    ) : null}
 
                     {/* Screenshot thumbnail */}
                     {bug.screenshot && (
