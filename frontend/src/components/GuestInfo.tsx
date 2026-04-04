@@ -334,27 +334,6 @@ export default function GuestInfo({
         )}
       </div>
 
-      {/* Auto-send toggle */}
-      <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-medium" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Auto-send</span>
-          <button onClick={async () => {
-            const newVal = !detail.conversation.auto_send_enabled
-            try {
-              await apiFetch(`/api/conversations/${detail.conversation.id}`, {
-                method: 'PATCH',
-                body: JSON.stringify({ auto_send_enabled: newVal }),
-              })
-              setDetail(prev => prev ? { ...prev, conversation: { ...prev.conversation, auto_send_enabled: newVal } } : null)
-              toast.success(`Auto-send ${newVal ? 'enabled' : 'disabled'}`)
-            } catch (err: any) { toast.error(err.message) }
-          }} className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors" style={{background: detail.conversation.auto_send_enabled ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.1)'}}>
-            <span className="inline-block h-3.5 w-3.5 transform rounded-full transition-transform" style={{background: detail.conversation.auto_send_enabled ? '#4ade80' : '#64748b', transform: detail.conversation.auto_send_enabled ? 'translateX(18px)' : 'translateX(2px)'}} />
-          </button>
-        </div>
-        <p className="text-xs mt-1" style={{color: '#64748b'}}>{detail.conversation.auto_send_enabled ? 'On \u2014 routine replies \u226585% send automatically' : 'Off \u2014 all drafts require review'}</p>
-      </div>
-
       {/* Suggested next steps - collapsible */}
       {nextSteps.length > 0 && (
         <CollapsibleSection title="Next Steps" defaultOpen={true} count={activeSteps.length}>
@@ -455,6 +434,27 @@ export default function GuestInfo({
           </div>
         </CollapsibleSection>
       )}
+
+      {/* Auto-send toggle — rarely changed, keep at bottom */}
+      <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium" style={{color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Auto-send</span>
+          <button onClick={async () => {
+            const newVal = !detail.conversation.auto_send_enabled
+            try {
+              await apiFetch(`/api/conversations/${detail.conversation.id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ auto_send_enabled: newVal }),
+              })
+              setDetail(prev => prev ? { ...prev, conversation: { ...prev.conversation, auto_send_enabled: newVal } } : null)
+              toast.success(`Auto-send ${newVal ? 'enabled' : 'disabled'}`)
+            } catch (err: any) { toast.error(err.message) }
+          }} className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors" style={{background: detail.conversation.auto_send_enabled ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.1)'}}>
+            <span className="inline-block h-3.5 w-3.5 transform rounded-full transition-transform" style={{background: detail.conversation.auto_send_enabled ? '#4ade80' : '#64748b', transform: detail.conversation.auto_send_enabled ? 'translateX(18px)' : 'translateX(2px)'}} />
+          </button>
+        </div>
+        <p className="text-xs mt-1" style={{color: '#64748b'}}>{detail.conversation.auto_send_enabled ? 'On \u2014 routine replies \u226585% send automatically' : 'Off \u2014 all drafts require review'}</p>
+      </div>
 
     </div>
     </>
