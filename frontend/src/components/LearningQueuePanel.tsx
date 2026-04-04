@@ -6,6 +6,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 import { apiFetch } from './types'
 import ConsultChat from './ConsultChat'
+import { trackEvent } from '../lib/analytics'
 
 interface TeachingCandidate {
   id: string
@@ -614,7 +615,7 @@ export default function LearningQueuePanel({ show, onClose, displayName }: Learn
                   Reject
                 </button>
                 <button
-                  onClick={() => setConsultCandidateId(consultCandidateId === c.id ? null : c.id)}
+                  onClick={() => { const opening = consultCandidateId !== c.id; setConsultCandidateId(opening ? c.id : null); if (opening) trackEvent('ask_judith_opened', { context: 'learning_candidate', candidateId: c.id }) }}
                   className="text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1"
                   style={{ background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)' }}
                 >

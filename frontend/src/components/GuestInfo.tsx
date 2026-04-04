@@ -17,6 +17,7 @@ import {
 import { ConversationDetail, NextStep, apiFetch } from './types'
 import PendingActionsTab from './PendingActions'
 import ConsultChat from './ConsultChat'
+import { trackEvent } from '../lib/analytics'
 
 interface GuestInfoProps {
   detail: ConversationDetail
@@ -106,6 +107,7 @@ export default function GuestInfo({
         body: JSON.stringify({ status }),
       })
       setNextSteps(prev => prev.map(s => s.id === stepId ? updated : s))
+      trackEvent(status === 'completed' ? 'next_step_completed' : 'next_step_dismissed', { stepId, conversationId: selectedConvId })
       toast.success(status === 'completed' ? 'Step done' : 'Step dismissed')
     } catch (err: any) { toast.error(err.message) }
   }
@@ -118,6 +120,7 @@ export default function GuestInfo({
       })
       setNextSteps(prev => prev.map(s => s.id === stepId ? updated : s))
       setEditingStepId(null)
+      trackEvent('next_step_edited', { stepId, conversationId: selectedConvId })
       toast.success('Step updated')
     } catch (err: any) { toast.error(err.message) }
   }
@@ -305,7 +308,7 @@ export default function GuestInfo({
                           className="p-0.5 rounded" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>
                           <PencilIcon className="h-3 w-3" />
                         </button>
-                        <button onClick={() => setConsultStepIdx(consultStepIdx === i ? null : i)}
+                        <button onClick={() => { const opening = consultStepIdx !== i; setConsultStepIdx(opening ? i : null); if (opening) trackEvent('ask_judith_opened', { context: 'next_step', stepId: s.id, conversationId: selectedConvId }) }}
                           className="px-1.5 py-0.5 rounded flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)', fontSize: '10px'}}>
                           <ChatBubbleLeftRightIcon className="h-3 w-3 mr-0.5" />Ask
                         </button>

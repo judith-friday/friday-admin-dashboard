@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { format, formatDistanceToNow } from 'date-fns'
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 import ConsultChat from './ConsultChat'
+import { trackEvent } from '../lib/analytics'
 
 interface TeachingsPanelProps {
   showTeachingsPanel: boolean
@@ -97,6 +98,7 @@ export default function TeachingsPanel({
 
   const handleAnalyzeAll = async () => {
     setAnalyzingAll(true)
+    trackEvent('teaching_analyzed_bulk', { count: teachings.filter(t => t.status === 'active').length })
     try {
       await apiFetch('/api/teachings/analyze-all', { method: 'POST' })
       fetchTeachings()
@@ -191,7 +193,7 @@ export default function TeachingsPanel({
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <button onClick={() => setConsultTeachingId(consultTeachingId === t.id ? null : t.id)}
+                    <button onClick={() => { const opening = consultTeachingId !== t.id; setConsultTeachingId(opening ? t.id : null); if (opening) trackEvent('ask_judith_opened', { context: 'teaching', teachingId: t.id }) }}
                       className="text-xs flex items-center gap-1" style={{color: '#c084fc'}}>
                       <ChatBubbleLeftRightIcon className="h-3 w-3" /> Ask Judith
                     </button>

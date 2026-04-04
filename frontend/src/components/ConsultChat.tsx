@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { apiFetch } from './types'
+import { trackEvent } from '../lib/analytics'
 
 interface ConsultChatProps {
   conversationId?: string
@@ -68,6 +69,7 @@ export default function ConsultChat({
 
   const handleReply = async () => {
     if (!replyText.trim() || exchangeCount >= 3) return
+    trackEvent('ask_judith_message_sent', { context, messageLength: replyText.trim().length })
     const userMsg: ChatMessage = { role: 'user', content: replyText.trim() }
     const newMessages = [...messages, userMsg]
     setMessages(newMessages)

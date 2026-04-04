@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { apiFetch, PendingAction } from './types'
 import ConsultChat from './ConsultChat'
+import { trackEvent } from '../lib/analytics'
 
 type SortKey = 'urgency' | 'newest' | 'oldest' | 'guest'
 
@@ -133,6 +134,7 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
       })
       setNotesMap(prev => ({ ...prev, [actionId]: [...(prev[actionId] || []), note] }))
       setNewNoteText(prev => ({ ...prev, [actionId]: '' }))
+      trackEvent('pending_action_note_added', { actionId })
       toast.success('Note added')
     } catch (err: any) { toast.error(err.message) }
   }
@@ -143,6 +145,7 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
       next.delete(actionId)
     } else {
       next.add(actionId)
+      trackEvent('pending_action_history_viewed', { actionId })
       if (!historyMap[actionId]) {
         try {
           const data = await apiFetch(`/api/pending-actions/${actionId}/history`)
@@ -328,7 +331,7 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                     <PencilIcon className="h-3 w-3 mr-1" />Edit</button>
                   <button onClick={() => handleDelete(action.id)} className="px-2 py-1 text-xs rounded flex items-center" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)'}}>
                     <TrashIcon className="h-3 w-3 mr-1" />Delete</button>
-                  <button onClick={() => setConsultActionId(consultActionId === action.id ? null : action.id)} className="px-2 py-1 text-xs rounded flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
+                  <button onClick={() => { const opening = consultActionId !== action.id; setConsultActionId(opening ? action.id : null); if (opening) trackEvent('ask_judith_opened', { context: 'pending_action', actionId: action.id }) }} className="px-2 py-1 text-xs rounded flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
                     <ChatBubbleLeftRightIcon className="h-3 w-3 mr-1" />Ask Judith</button>
                 </div>
                 {consultActionId === action.id && (
