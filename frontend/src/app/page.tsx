@@ -20,7 +20,7 @@ import BugReport from '../components/BugReport'
 import BugReportsPanel from '../components/BugReportsPanel'
 import LearningQueuePanel from '../components/LearningQueuePanel'
 import PropertyCard from '../components/PropertyCard'
-import SendConfirmModal from '../components/SendConfirmModal'
+import SendConfirmModal, { LearnMode, LearnScope } from '../components/SendConfirmModal'
 import TeachingsPanel from '../components/TeachingsPanel'
 import DashboardStats from '../components/DashboardStats'
 import ConversationList from '../components/ConversationList'
@@ -514,8 +514,8 @@ export default function MessageDashboard() {
   }
 
   // Actual send after confirmation + undo countdown
-  const executeSend = async (draftId: string) => {
-    trackEvent('draft_sent', { conversation_id: selectedConvId })
+  const executeSend = async (draftId: string, learnMode: LearnMode = 'normal', scope?: LearnScope) => {
+    trackEvent('draft_sent', { conversation_id: selectedConvId, learnMode })
     setSendConfirm(null)
     setUndoDraftId(draftId)
     setUndoCountdown(5)
@@ -540,11 +540,18 @@ export default function MessageDashboard() {
       setUndoDraftId(null)
       setUndoCountdown(0)
       try {
+        const body: Record<string, any> = { reviewed_by: displayName, sent_via: sendChannel }
+        if (editedBody) body.draft_body = editedBody
+        if (learnMode && learnMode !== 'normal') body.learnMode = learnMode
+        if (scope) body.scope = scope
+        if (scope === 'property' && detail?.conversation.property_name) body.propertyCode = detail.conversation.property_name
+
         await apiFetch('/api/drafts/' + draftId + '/approve', {
           method: 'POST',
-          body: JSON.stringify({ reviewed_by: displayName, sent_via: sendChannel, ...(editedBody ? { draft_body: editedBody } : {}) }),
+          body: JSON.stringify(body),
         })
-        toast.success('Draft approved and sent')
+        const learnMsg = learnMode === 'learn' ? ' (teaching saved)' : learnMode === 'no_learn' ? ' (learning skipped)' : ''
+        toast.success('Draft approved and sent' + learnMsg)
       } catch (err: any) {
         if (err.message?.includes('Cannot approve draft in state')) {
           toast.error('Draft already processed — refreshing...')
