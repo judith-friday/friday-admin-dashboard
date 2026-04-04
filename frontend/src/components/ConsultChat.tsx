@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { apiFetch } from './types'
 import { trackEvent } from '../lib/analytics'
@@ -31,7 +31,40 @@ export default function ConsultChat({
   const [started, setStarted] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const startedRef = useRef(false)
   const exchangeCount = messages.filter(m => m.role === 'user').length
+
+  useEffect(() => {
+    if (startedRef.current) return
+    startedRef.current = true
+    setStarted(true)
+    const userMsg: ChatMessage = { role: 'user', content: initialInstruction }
+    setMessages([userMsg])
+    ;(async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const data = await apiFetch('/api/ai/consult', {
+          method: 'POST',
+          body: JSON.stringify({
+            instruction: initialInstruction,
+            ...(conversationId ? { conversationId } : {}),
+            context,
+            ...(draftBody ? { draftBody } : {}),
+            ...(contextData ? { contextData } : {}),
+          }),
+        })
+        const response = data.response as string
+        if (response) {
+          setMessages([userMsg, { role: 'assistant', content: response }])
+        }
+      } catch (err: any) {
+        setError(err.message || 'Failed to consult')
+      } finally {
+        setLoading(false)
+      }
+    })()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const sendConsult = async (instruction: string, history: ChatMessage[]) => {
     setLoading(true)
@@ -57,16 +90,6 @@ export default function ConsultChat({
     }
   }
 
-  const handleStart = async () => {
-    setStarted(true)
-    const userMsg: ChatMessage = { role: 'user', content: initialInstruction }
-    setMessages([userMsg])
-    const response = await sendConsult(initialInstruction, [])
-    if (response) {
-      setMessages([userMsg, { role: 'assistant', content: response }])
-    }
-  }
-
   const handleReply = async () => {
     if (!replyText.trim() || exchangeCount >= 3) return
     trackEvent('ask_judith_message_sent', { context, messageLength: replyText.trim().length })
@@ -80,8 +103,7 @@ export default function ConsultChat({
     }
   }
 
-  if (!started) {
-    handleStart()
+  if (!started || (loading && messages.length <= 1)) {
     return (
       <div className="mt-2 p-3 rounded-lg" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)' }}>
         <div className="flex items-center space-x-2">

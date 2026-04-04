@@ -115,7 +115,7 @@ export default function TeachingsPanel({
   const revokedTeachings = teachings.filter(t => t.status === 'revoked')
 
   return (
-    <div className="fixed inset-0 z-[60] flex" data-testid="modal-teachings-panel">
+    <div className="fixed inset-0 z-[60] flex" data-testid="modal-teachings-panel" style={{paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)'}}>
       <div className="flex-1 hidden md:block" style={{background: 'rgba(0,0,0,0.4)'}} onClick={() => setShowTeachingsPanel(false)} />
       <div className="w-full md:w-[480px] h-full overflow-y-auto custom-scrollbar" style={{background: '#0d1117', borderLeft: '1px solid rgba(255,255,255,0.08)'}}>
         <div className="sticky top-0 z-10 p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#0d1117'}}>
