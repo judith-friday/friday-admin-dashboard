@@ -4,7 +4,10 @@ html, body {
   color: #f1f5f9;
   background: #0d1117;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
-  overflow-x: hidden;
+  overflow: hidden;
+  height: 100dvh;
+  height: 100vh; /* fallback for older browsers */
+  height: 100dvh;
   max-width: 100vw;
   touch-action: manipulation;
 }
