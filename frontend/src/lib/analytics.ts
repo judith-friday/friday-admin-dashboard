@@ -1,7 +1,7 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://admin.friday.mu';
 
 let sessionId: string | null = null;
-let eventBuffer: Array<{ event_type: string; event_data?: any; session_id?: string; timestamp?: string }> = [];
+let eventBuffer: Array<{ event_type: string; event_data?: any; session_id?: string; user_name?: string; timestamp?: string }> = [];
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
 function getSessionId(): string {
@@ -25,12 +25,18 @@ function getToken(): string | null {
   return localStorage.getItem('gms_token') || null;
 }
 
+function getUserName(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('gms_display_name') || null;
+}
+
 export function trackEvent(eventType: string, eventData?: Record<string, any>): void {
   try {
     eventBuffer.push({
       event_type: eventType,
       event_data: eventData || {},
       session_id: getSessionId(),
+      user_name: getUserName() || undefined,
       timestamp: new Date().toISOString(),
     });
 
