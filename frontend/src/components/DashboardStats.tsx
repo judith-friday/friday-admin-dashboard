@@ -6,6 +6,7 @@ import {
   SpeakerXMarkIcon,
   Bars3Icon,
   XMarkIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline'
 import { InboxStats, clearToken } from './types'
 import { useInstallPrompt } from './useInstallPrompt'
@@ -111,6 +112,9 @@ export default function DashboardStats({
               <button onClick={() => { setShowTeachingsPanel(!showTeachingsPanel); if (!showTeachingsPanel) fetchTeachings() }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc'}} title="Teachings">{'\uD83E\uDDE0'}</button>
               <button onClick={() => setShowLearningQueue(!showLearningQueue)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(34,197,94,0.1)', color: '#4ade80'}} title="Learning Queue">{'\u{1F9EA}'}</button>
               <button onClick={() => setShowBugReportsPanel(!showBugReportsPanel)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171'}} title="Bug Reports">{'\u{1F41B}'}</button>
+              <button onClick={() => window.location.reload()} className="ml-1 min-w-[44px] min-h-[44px] flex items-center justify-center rounded" style={{color: '#64748b'}} title="Refresh app">
+                <ArrowPathIcon className="h-4 w-4" />
+              </button>
               <button data-testid="btn-help" onClick={() => setShowHelp(true)} className="ml-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}} title="Help">?</button>
               {!installed && (
                 <button onClick={async () => { resetDismissal(); if (canInstall) { await triggerInstall() } else { setShowInstallHelp(true) } }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(14,165,233,0.1)', color: '#38bdf8'}} title="Install App">{'\u{1F4F2}'}</button>
@@ -156,6 +160,9 @@ export default function DashboardStats({
                 <button onClick={() => { toggleMute(); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#e2e8f0'}}>
                   {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
                   {isMuted ? 'Unmute' : 'Mute'}
+                </button>
+                <button onClick={() => window.location.reload()} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#94a3b8'}}>
+                  <ArrowPathIcon className="h-4 w-4" /> Refresh
                 </button>
                 {/* Group 3: Session */}
                 <div style={{borderTop: '1px solid rgba(255,255,255,0.06)', margin: '0.25rem 0'}} />

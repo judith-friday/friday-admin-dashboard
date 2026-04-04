@@ -459,6 +459,48 @@ export default function MessageDashboard() {
     return () => clearInterval(iv)
   }, [token, fetchConversations, fetchStats])
 
+  // PWA version check — detect new deploys and prompt reload
+  const knownVersionRef = useRef<string | null>(null)
+  const lastVersionCheckRef = useRef<number>(0)
+  useEffect(() => {
+    // Fetch initial version on mount
+    apiFetch('/api/version').then((d: { version: string }) => {
+      knownVersionRef.current = d.version
+    }).catch(() => {})
+
+    const checkVersion = async () => {
+      const now = Date.now()
+      if (now - lastVersionCheckRef.current < 60000) return // throttle: once per 60s
+      lastVersionCheckRef.current = now
+      try {
+        const d: { version: string } = await apiFetch('/api/version')
+        if (knownVersionRef.current && d.version !== knownVersionRef.current) {
+          toast(
+            (t) => (
+              <span className="flex items-center gap-2">
+                New update available
+                <button onClick={() => { toast.dismiss(t.id); window.location.reload() }}
+                  style={{background: '#6395ff', color: '#fff', padding: '2px 10px', borderRadius: '4px', fontWeight: 600, fontSize: '13px'}}>
+                  Reload
+                </button>
+              </span>
+            ),
+            { duration: Infinity, id: 'version-update' }
+          )
+        }
+      } catch {}
+    }
+
+    const onFocus = () => checkVersion()
+    const onVisChange = () => { if (document.visibilityState === 'visible') checkVersion() }
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', onVisChange)
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      document.removeEventListener('visibilitychange', onVisChange)
+    }
+  }, [])
+
   // Auto-select first conversation on initial load (desktop only)
   useEffect(() => {
     if (!selectedConvId && conversations.length > 0 && !loading && window.innerWidth >= 768) {
