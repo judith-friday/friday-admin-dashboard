@@ -6,8 +6,9 @@ import {
   CheckIcon,
   PlusIcon,
   PencilIcon,
-  TrashIcon,
   XMarkIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
   ChatBubbleLeftRightIcon,
   DocumentTextIcon,
   ClockIcon,
@@ -35,6 +36,10 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
   const [newNoteText, setNewNoteText] = useState<Record<string, string>>({})
   const [expandedHistory, setExpandedHistory] = useState<Set<string>>(new Set())
   const [historyMap, setHistoryMap] = useState<Record<string, { id: string; field_changed: string; old_value: string | null; new_value: string | null; changed_by: string | null; changed_at: string }[]>>({})
+  const [resolvedActions, setResolvedActions] = useState<PendingAction[]>([])
+  const [showResolved, setShowResolved] = useState(false)
+  const [resolvedFilter, setResolvedFilter] = useState<'all' | 'completed' | 'dismissed'>('all')
+  const [resolvedLoading, setResolvedLoading] = useState(false)
 
   const fetchActions = useCallback(async () => {
     try {
@@ -99,14 +104,15 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
     } catch (err: any) { toast.error(err.message) }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this action?')) return
+  const fetchResolved = useCallback(async () => {
+    setResolvedLoading(true)
     try {
-      await apiFetch(`/api/pending-actions/${id}`, { method: 'DELETE' })
-      toast.success('Action deleted')
-      fetchActions()
-    } catch (err: any) { toast.error(err.message) }
-  }
+      const data = await apiFetch('/api/pending-actions?status=all')
+      const resolved = (data.actions || []).filter((a: PendingAction) => a.status === 'completed' || a.status === 'dismissed')
+      resolved.sort((a: PendingAction, b: PendingAction) => new Date(b.completed_at || b.detected_at).getTime() - new Date(a.completed_at || a.detected_at).getTime())
+      setResolvedActions(resolved)
+    } catch { } finally { setResolvedLoading(false) }
+  }, [])
 
   const toggleNotes = async (actionId: string) => {
     const next = new Set(expandedNotes)
@@ -329,8 +335,6 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                     className="px-2 py-1 text-xs rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Dismiss</button>
                   <button onClick={() => startEdit(action)} className="px-2 py-1 text-xs rounded flex items-center" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>
                     <PencilIcon className="h-3 w-3 mr-1" />Edit</button>
-                  <button onClick={() => handleDelete(action.id)} className="px-2 py-1 text-xs rounded flex items-center" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)'}}>
-                    <TrashIcon className="h-3 w-3 mr-1" />Delete</button>
                   <button onClick={() => { const opening = consultActionId !== action.id; setConsultActionId(opening ? action.id : null); if (opening) trackEvent('ask_judith_opened', { context: 'pending_action', actionId: action.id }) }} className="px-2 py-1 text-xs rounded flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
                     <ChatBubbleLeftRightIcon className="h-3 w-3 mr-1" />Ask Judith</button>
                 </div>
@@ -360,6 +364,70 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
             )}
           </div>
         ))
+      )}
+
+      {/* Resolved Actions History */}
+      {!conversationFilter && (
+        <div style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
+          <button
+            onClick={() => { setShowResolved(!showResolved); if (!showResolved && resolvedActions.length === 0) fetchResolved() }}
+            className="w-full p-3 flex items-center justify-between text-sm"
+            style={{color: '#64748b'}}
+          >
+            <span className="flex items-center gap-1.5">
+              {showResolved ? <ChevronDownIcon className="h-4 w-4" /> : <ChevronRightIcon className="h-4 w-4" />}
+              Resolved Actions
+              {resolvedActions.length > 0 && <span className="text-xs" style={{color: '#475569'}}>({resolvedActions.length})</span>}
+            </span>
+          </button>
+          {showResolved && (
+            <div>
+              <div className="px-3 pb-2 flex gap-1.5">
+                {(['all', 'completed', 'dismissed'] as const).map(f => (
+                  <button key={f} onClick={() => setResolvedFilter(f)}
+                    className="px-2 py-0.5 text-xs rounded"
+                    style={{
+                      background: resolvedFilter === f ? 'rgba(99,149,255,0.15)' : 'rgba(255,255,255,0.04)',
+                      color: resolvedFilter === f ? '#6395ff' : '#64748b',
+                      border: `1px solid ${resolvedFilter === f ? 'rgba(99,149,255,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                    }}>
+                    {f === 'all' ? 'All' : f === 'completed' ? 'Done' : 'Dismissed'}
+                  </button>
+                ))}
+              </div>
+              {resolvedLoading ? (
+                <div className="p-4 text-center text-xs" style={{color: '#475569'}}>Loading...</div>
+              ) : (
+                resolvedActions
+                  .filter(a => resolvedFilter === 'all' || a.status === resolvedFilter)
+                  .map(action => (
+                    <div key={action.id} className="px-3 py-2" style={{borderTop: '1px solid rgba(255,255,255,0.03)', opacity: 0.55}}>
+                      <div className="flex justify-between items-start mb-0.5">
+                        <span className="text-xs font-medium" style={{color: '#94a3b8'}}>{action.guest_name}</span>
+                        <span className="px-1.5 py-0.5 rounded text-xs" style={{
+                          background: action.status === 'completed' ? 'rgba(34,197,94,0.1)' : 'rgba(100,116,139,0.1)',
+                          color: action.status === 'completed' ? '#4ade80' : '#94a3b8',
+                          fontSize: '0.65rem',
+                        }}>
+                          {action.status === 'completed' ? 'Done' : 'Dismissed'}
+                        </span>
+                      </div>
+                      {action.property_code && <div className="text-xs mb-0.5" style={{color: '#475569'}}>{action.property_code}</div>}
+                      <p className="text-xs mb-1" style={{color: '#64748b'}}>{action.action_text}</p>
+                      <div className="text-xs" style={{color: '#475569', fontSize: '0.65rem'}}>
+                        {action.completed_by && <span>{action.completed_by} · </span>}
+                        {action.completed_at && <span>{new Date(action.completed_at).toLocaleString()}</span>}
+                        {action.completion_note && <span> · {action.completion_note}</span>}
+                      </div>
+                    </div>
+                  ))
+              )}
+              {!resolvedLoading && resolvedActions.filter(a => resolvedFilter === 'all' || a.status === resolvedFilter).length === 0 && (
+                <div className="p-4 text-center text-xs" style={{color: '#475569'}}>No resolved actions</div>
+              )}
+            </div>
+          )}
+        </div>
       )}
     </div>
   )
