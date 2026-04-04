@@ -292,10 +292,12 @@ export default function GuestInfo({
                   </div>
                 ) : (
                   <>
-                    <div className="flex items-start gap-2 text-xs" style={{color: '#e2e8f0'}}>
-                      <span>{s.icon || '\uD83D\uDCCB'}</span>
-                      <span className="flex-1">{s.text}{s.who && <span style={{color: '#6395ff'}}> {'\u2014'} {s.who}</span>}</span>
-                      <div className="shrink-0 flex items-center gap-1">
+                    <div className="text-xs" style={{color: '#e2e8f0'}}>
+                      <div className="flex items-start gap-2">
+                        <span>{s.icon || '\uD83D\uDCCB'}</span>
+                        <span>{s.text}{s.who && <span style={{color: '#6395ff'}}> {'\u2014'} {s.who}</span>}</span>
+                      </div>
+                      <div className="flex items-center gap-1 mt-1 ml-6">
                         <button onClick={() => handleStepAction(s.id, 'completed')} title="Done"
                           className="p-0.5 rounded" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.25)'}}>
                           <CheckIcon className="h-3 w-3" />
