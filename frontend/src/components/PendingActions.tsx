@@ -9,6 +9,7 @@ import {
   TrashIcon,
   XMarkIcon,
   ChatBubbleLeftRightIcon,
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline'
 import { apiFetch, PendingAction } from './types'
 import ConsultChat from './ConsultChat'
@@ -27,6 +28,9 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
   const [newAction, setNewAction] = useState({ conversation_id: '', action_text: '', due_by: '' })
   const [conversations, setConversations] = useState<{ id: string; guest_name: string }[]>([])
   const [consultActionId, setConsultActionId] = useState<string | null>(null)
+  const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set())
+  const [notesMap, setNotesMap] = useState<Record<string, { id: string; user_id: string; content: string; created_at: string }[]>>({})
+  const [newNoteText, setNewNoteText] = useState<Record<string, string>>({})
 
   const fetchActions = useCallback(async () => {
     try {
@@ -97,6 +101,36 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
       await apiFetch(`/api/pending-actions/${id}`, { method: 'DELETE' })
       toast.success('Action deleted')
       fetchActions()
+    } catch (err: any) { toast.error(err.message) }
+  }
+
+  const toggleNotes = async (actionId: string) => {
+    const next = new Set(expandedNotes)
+    if (next.has(actionId)) {
+      next.delete(actionId)
+    } else {
+      next.add(actionId)
+      if (!notesMap[actionId]) {
+        try {
+          const data = await apiFetch(`/api/pending-actions/${actionId}/notes`)
+          setNotesMap(prev => ({ ...prev, [actionId]: data.notes || [] }))
+        } catch { setNotesMap(prev => ({ ...prev, [actionId]: [] })) }
+      }
+    }
+    setExpandedNotes(next)
+  }
+
+  const addNote = async (actionId: string) => {
+    const text = (newNoteText[actionId] || '').trim()
+    if (!text) return
+    try {
+      const note = await apiFetch(`/api/pending-actions/${actionId}/notes`, {
+        method: 'POST',
+        body: JSON.stringify({ content: text }),
+      })
+      setNotesMap(prev => ({ ...prev, [actionId]: [...(prev[actionId] || []), note] }))
+      setNewNoteText(prev => ({ ...prev, [actionId]: '' }))
+      toast.success('Note added')
     } catch (err: any) { toast.error(err.message) }
   }
 
@@ -206,6 +240,32 @@ export default function PendingActionsTab({ token, conversationFilter }: { token
                 <p className="text-sm mb-2" style={{color: '#94a3b8'}}>{action.action_text}</p>
                 {action.due_by && <div className="text-xs mb-2" style={{color: '#64748b'}}>Due: {new Date(action.due_by).toLocaleString()}</div>}
               </>
+            )}
+            {action.status === 'pending' && editingId !== action.id && (
+              <div className="mb-2">
+                <button onClick={() => toggleNotes(action.id)} className="flex items-center text-xs gap-1 py-0.5" style={{color: '#6395ff'}}>
+                  <DocumentTextIcon className="h-3.5 w-3.5" />
+                  {notesMap[action.id] ? `${notesMap[action.id].length} note${notesMap[action.id].length !== 1 ? 's' : ''}` : 'Notes'}
+                </button>
+                {expandedNotes.has(action.id) && (
+                  <div className="mt-1 ml-1 space-y-1">
+                    {(notesMap[action.id] || []).map(note => (
+                      <div key={note.id} className="text-xs p-1.5 rounded" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)'}}>
+                        <div style={{color: '#94a3b8'}}>{note.content}</div>
+                        <div style={{color: '#475569', fontSize: '0.65rem'}}>{note.user_id ? `${note.user_id} · ` : ''}{new Date(note.created_at).toLocaleString()}</div>
+                      </div>
+                    ))}
+                    <div className="flex gap-1">
+                      <input type="text" placeholder="Add a note..."
+                        value={newNoteText[action.id] || ''}
+                        onChange={e => setNewNoteText(prev => ({ ...prev, [action.id]: e.target.value }))}
+                        onKeyDown={e => e.key === 'Enter' && addNote(action.id)}
+                        className="flex-1 text-xs rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
+                      <button onClick={() => addNote(action.id)} className="px-2 py-1 text-xs rounded" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>Add</button>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
             {action.status === 'pending' && editingId !== action.id ? (
               <div className="space-y-1">
