@@ -364,22 +364,22 @@ export default function GuestInfo({
                         <span>{s.icon || '\uD83D\uDCCB'}</span>
                         <span>{s.text}{s.who && <span style={{color: '#6395ff'}}> {'\u2014'} {s.who}</span>}</span>
                       </div>
-                      <div className="flex items-center gap-1 mt-1 ml-6">
+                      <div className="flex items-center gap-2 md:gap-1 mt-1 ml-6">
                         <button onClick={() => handleStepAction(s.id, 'completed')} title="Done"
-                          className="p-0.5 rounded" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.25)'}}>
-                          <CheckIcon className="h-3 w-3" />
+                          className="min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 p-2 md:p-0.5 rounded flex items-center justify-center" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.25)'}}>
+                          <CheckIcon className="h-5 w-5 md:h-3 md:w-3" />
                         </button>
                         <button onClick={() => handleStepAction(s.id, 'dismissed')} title="Dismiss"
-                          className="p-0.5 rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
-                          <XMarkIcon className="h-3 w-3" />
+                          className="min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 p-2 md:p-0.5 rounded flex items-center justify-center" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
+                          <XMarkIcon className="h-5 w-5 md:h-3 md:w-3" />
                         </button>
                         <button onClick={() => { setEditingStepId(s.id); setEditStepText(s.text) }} title="Edit"
-                          className="p-0.5 rounded" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>
-                          <PencilIcon className="h-3 w-3" />
+                          className="min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 p-2 md:p-0.5 rounded flex items-center justify-center" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>
+                          <PencilIcon className="h-5 w-5 md:h-3 md:w-3" />
                         </button>
                         <button onClick={() => { const opening = consultStepIdx !== i; setConsultStepIdx(opening ? i : null); if (opening) trackEvent('ask_judith_opened', { context: 'next_step', stepId: s.id, conversationId: selectedConvId }) }}
-                          className="px-1.5 py-0.5 rounded flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)', fontSize: '10px'}}>
-                          <ChatBubbleLeftRightIcon className="h-3 w-3 mr-0.5" />Ask
+                          className="min-h-[44px] md:min-h-0 px-3 py-2 md:px-1.5 md:py-0.5 rounded flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)', fontSize: '12px'}}>
+                          <ChatBubbleLeftRightIcon className="h-4 w-4 md:h-3 md:w-3 mr-1 md:mr-0.5" />Ask
                         </button>
                       </div>
                     </div>
