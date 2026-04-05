@@ -14,6 +14,7 @@ import {
   ClockIcon,
   ArrowDownTrayIcon,
   InboxIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline'
 import { apiFetch, PendingAction } from './types'
 import ConsultChat from './ConsultChat'
@@ -115,6 +116,17 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
       setResolvedActions(resolved)
     } catch { } finally { setResolvedLoading(false) }
   }, [])
+
+  const handleRevert = async (actionId: string) => {
+    try {
+      await apiFetch(`/api/pending-actions/${actionId}/revert`, { method: 'PATCH' })
+      toast.success('Action reopened')
+      fetchResolved()
+      fetchActions()
+    } catch {
+      toast.error('Failed to reopen action')
+    }
+  }
 
   const exportResolvedCSV = () => {
     const filtered = resolvedActions.filter(a => resolvedFilter === 'all' || a.status === resolvedFilter)
@@ -350,10 +362,6 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
             )}
             {action.status === 'pending' && editingId !== action.id ? (
               <div className="space-y-1">
-                <input type="text" placeholder="Note (optional)..."
-                  value={completionNotes[action.id] || ''}
-                  onChange={e => setCompletionNotes({ ...completionNotes, [action.id]: e.target.value })}
-                  className="w-full text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
                 <div className="flex space-x-2 flex-wrap gap-y-1">
                   <button data-testid={`btn-action-done-${action.id}`} onClick={() => handleAction(action.id, 'completed')}
                     className="px-2 py-1 text-xs rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Done</button>
@@ -454,10 +462,17 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
                         </span>
                       </div>
                       <p className="text-xs mb-1" style={{color: '#64748b'}}>{action.action_text}</p>
-                      <div className="text-xs" style={{color: '#475569', fontSize: '0.65rem'}}>
-                        {action.completed_by && <span>{action.completed_by} · </span>}
-                        {action.completed_at && <span>{new Date(action.completed_at).toLocaleString()}</span>}
-                        {action.completion_note && <span> · {action.completion_note}</span>}
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs" style={{color: '#475569', fontSize: '0.65rem'}}>
+                          {action.completed_by && <span>{action.completed_by} · </span>}
+                          {action.completed_at && <span>{new Date(action.completed_at).toLocaleString()}</span>}
+                          {action.completion_note && <span> · {action.completion_note}</span>}
+                        </div>
+                        <button onClick={(e) => { e.stopPropagation(); handleRevert(action.id) }}
+                          className="shrink-0 px-2 py-0.5 text-xs rounded flex items-center gap-1"
+                          style={{background: 'rgba(251,191,36,0.1)', color: '#fbbf24', border: '1px solid rgba(251,191,36,0.2)'}}>
+                          <ArrowPathIcon className="h-3 w-3" />Reopen
+                        </button>
                       </div>
                     </div>
                   ))
