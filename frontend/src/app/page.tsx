@@ -21,7 +21,7 @@ import BugReportsPanel from '../components/BugReportsPanel'
 import SendQueuePanel from '../components/SendQueuePanel'
 import PropertyCard from '../components/PropertyCard'
 import SendConfirmModal, { LearnMode, LearnScope } from '../components/SendConfirmModal'
-import UnifiedTeachingsPanel from '../components/UnifiedTeachingsPanel'
+import TeachingPanel from '../components/TeachingPanel'
 import DashboardStats from '../components/DashboardStats'
 import ConversationList from '../components/ConversationList'
 import ConversationDetailView from '../components/ConversationDetail'
@@ -1062,7 +1062,7 @@ export default function MessageDashboard() {
       <Toaster position="top-right" containerStyle={{ zIndex: 99999, pointerEvents: 'none' }} toastOptions={{ duration: 4000, style: { background: 'rgba(15,25,50,0.95)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', pointerEvents: 'auto' } }} />
       <HelpPanel isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
-      <UnifiedTeachingsPanel show={showTeachingsPanel} onClose={() => setShowTeachingsPanel(false)} displayName={displayName} />
+      <TeachingPanel show={showTeachingsPanel} onClose={() => setShowTeachingsPanel(false)} displayName={displayName} />
       {propertyCard && (
         <PropertyCard
           propertyCard={propertyCard}

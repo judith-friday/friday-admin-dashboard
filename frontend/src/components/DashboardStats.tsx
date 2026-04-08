@@ -122,7 +122,7 @@ export default function DashboardStats({
               <button onClick={toggleMute} className="ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded" style={{color: '#64748b'}} title={isMuted ? 'Unmute' : 'Mute'}>
                 {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
               </button>
-              <button onClick={() => { if (!showTeachingsPanel) trackEvent('panel_opened', { panel: 'teachings' }); setShowTeachingsPanel(!showTeachingsPanel) }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc'}} title="Teachings">{'\uD83E\uDDE0'}</button>
+              <button onClick={() => { if (!showTeachingsPanel) trackEvent('panel_opened', { panel: 'teachings' }); setShowTeachingsPanel(!showTeachingsPanel) }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc'}} title="Knowledge & Rules">{'\uD83E\uDDE0'}</button>
               <button onClick={() => setShowBugReportsPanel(!showBugReportsPanel)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171'}} title="Bug Reports">{'\u{1F41B}'}</button>
               <button onClick={() => { trackEvent('panel_opened', { panel: 'analytics' }); setShowAnalytics(true) }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}} title="Analytics">{'\u{1F4CA}'}</button>
               <button onClick={() => window.location.reload()} className="ml-1 min-w-[44px] min-h-[44px] flex items-center justify-center rounded" style={{color: '#64748b'}} title="Refresh app">
@@ -152,7 +152,7 @@ export default function DashboardStats({
                   )}
                 </button>
                 <button onClick={() => { if (!showTeachingsPanel) trackEvent('panel_opened', { panel: 'teachings' }); setShowTeachingsPanel(!showTeachingsPanel); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#c084fc'}}>
-                  <span>{'\uD83E\uDDE0'}</span> Teachings
+                  <span>{'\uD83E\uDDE0'}</span> Knowledge & Rules
                 </button>
                 {/* Group 2: Secondary */}
                 <div style={{borderTop: '1px solid rgba(255,255,255,0.06)', margin: '0.25rem 0'}} />
