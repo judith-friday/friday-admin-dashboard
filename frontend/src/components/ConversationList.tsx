@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef, useCallback, useEffect } from 'react'
 import { trackEvent } from '../lib/analytics'
 import { formatDistanceToNow } from 'date-fns'
 import {
@@ -57,6 +57,59 @@ export default function ConversationList({
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; convId: string } | null>(null)
   const longPressTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTriggered = React.useRef(false)
+
+  // Pull-to-refresh state
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const pullStartY = useRef(0)
+  const pulling = useRef(false)
+  const [pullDistance, setPullDistance] = useState(0)
+  const [refreshing, setRefreshing] = useState(false)
+  const isTouchDevice = useRef(false)
+
+  useEffect(() => {
+    isTouchDevice.current = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+  }, [])
+
+  const PULL_THRESHOLD = 70
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!isTouchDevice.current || refreshing) return
+    const el = scrollRef.current
+    if (el && el.scrollTop <= 0) {
+      pullStartY.current = e.touches[0].clientY
+      pulling.current = true
+    }
+  }, [refreshing])
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!pulling.current || refreshing) return
+    const el = scrollRef.current
+    if (el && el.scrollTop > 0) {
+      pulling.current = false
+      setPullDistance(0)
+      return
+    }
+    const dy = Math.max(0, e.touches[0].clientY - pullStartY.current)
+    // Dampen the pull distance for a natural feel
+    const dampened = Math.min(dy * 0.5, 120)
+    setPullDistance(dampened)
+  }, [refreshing])
+
+  const handleTouchEnd = useCallback(async () => {
+    if (!pulling.current) return
+    pulling.current = false
+    if (pullDistance >= PULL_THRESHOLD && onRefresh && !refreshing) {
+      setRefreshing(true)
+      setPullDistance(PULL_THRESHOLD) // hold at threshold during refresh
+      try {
+        await onRefresh()
+      } catch {}
+      // Small delay so spinner is visible
+      await new Promise(r => setTimeout(r, 300))
+      setRefreshing(false)
+    }
+    setPullDistance(0)
+  }, [pullDistance, onRefresh, refreshing])
 
   // Close context menu on click outside or Escape
   React.useEffect(() => {
@@ -228,7 +281,26 @@ export default function ConversationList({
             <option value="property">Property</option>
           </select>
         </div>
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar relative"
+          onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
+          {/* Pull-to-refresh indicator */}
+          {(pullDistance > 0 || refreshing) && (
+            <div className="flex items-center justify-center overflow-hidden transition-all duration-200" style={{
+              height: refreshing ? PULL_THRESHOLD : pullDistance,
+              minHeight: 0,
+            }}>
+              <div className={`flex items-center space-x-2 text-xs ${refreshing || pullDistance >= PULL_THRESHOLD ? 'opacity-100' : 'opacity-60'}`} style={{ color: '#94a3b8' }}>
+                <svg className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} style={{
+                  transform: refreshing ? undefined : `rotate(${Math.min(pullDistance / PULL_THRESHOLD, 1) * 360}deg)`,
+                  transition: refreshing ? undefined : 'transform 0.1s ease-out',
+                }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 4v5h5" /><path d="M20 20v-5h-5" />
+                  <path d="M20.49 9A9 9 0 0 0 5.64 5.64L4 9m16 6l-1.64 3.36A9 9 0 0 1 3.51 15" />
+                </svg>
+                <span>{refreshing ? 'Refreshing…' : pullDistance >= PULL_THRESHOLD ? 'Release to refresh' : 'Pull to refresh'}</span>
+              </div>
+            </div>
+          )}
           {filteredConversations.length === 0 ? (
             <div className="p-4 text-center" style={{color: '#64748b'}}>
               <ChatBubbleLeftRightIcon className="h-12 w-12 mx-auto mb-2" style={{color: '#334155'}} />
