@@ -79,6 +79,19 @@ export default function SendQueuePanel({ show, onClose, onNavigate }: SendQueueP
     }
   }
 
+  const handleClearAll = async () => {
+    if (!confirm('Mark all queued messages as failed?')) return
+    try {
+      await Promise.all(drafts.filter(d => d.state === 'send_queued').map(d =>
+        apiFetch(`/api/drafts/${d.id}/fail`, { method: 'POST' })
+      ))
+      toast.success('All queued messages cleared')
+      fetchQueue()
+    } catch (err: any) {
+      toast.error('Clear failed: ' + err.message)
+    }
+  }
+
   const handleCancel = async (id: string) => {
     setActioningId(id)
     try {
@@ -122,9 +135,17 @@ export default function SendQueuePanel({ show, onClose, onNavigate }: SendQueueP
               {queuedCount === 0 && failedCount === 0 && 'No pending messages'}
             </p>
           </div>
-          <button onClick={onClose} className="text-sm px-2 py-1 rounded" style={{ color: '#64748b' }}>
-            {'\u2715'}
-          </button>
+          <div className="flex items-center gap-2">
+            {queuedCount > 0 && (
+              <button onClick={handleClearAll} className="text-xs px-2 py-1 rounded"
+                style={{ color: '#f87171', background: 'rgba(239,68,68,0.1)' }}>
+                Clear All
+              </button>
+            )}
+            <button onClick={onClose} className="text-sm px-2 py-1 rounded" style={{ color: '#64748b' }}>
+              {'\u2715'}
+            </button>
+          </div>
         </div>
 
         {/* Filter tabs */}

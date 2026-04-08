@@ -1,0 +1,32 @@
+[    1674ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/notifications:0
+[    1677ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/conversations:0
+[    1706ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/conversations/filters:0
+[    1753ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/teachings:0
+[    1781ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://admin.friday.mu/:0
+[    1791ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/import/poller-status:0
+[  158972ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/auth/login:0
+[  171888ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/notifications:0
+[  171893ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/conversations:0
+[  171903ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/conversations/filters:0
+[  171975ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/teachings:0
+[  171989ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/import/poller-status:0
+[  172003ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://admin.friday.mu/:0
+[  280827ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/notifications:0
+[  280839ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/teachings:0
+[  280846ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/conversations:0
+[  280849ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/conversations/filters:0
+[  280927ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/import/poller-status:0
+[  280954ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://admin.friday.mu/:0
+[  325273ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/auth/login:0
+[  376885ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/auth/login:0
+[  415099ms] TypeError: Cannot read properties of undefined (reading 'guest_name')
+    at tJ (https://admin.friday.mu/_next/static/chunks/13t1tdt49tho7.js:177:240181)
+    at ay (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:62882)
+    at oJ (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:83139)
+    at iu (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:94741)
+    at sd (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137981)
+    at https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137826
+    at sf (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137834)
+    at se (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:133755)
+    at s$ (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:159532)
+    at MessagePort.O (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:7697)

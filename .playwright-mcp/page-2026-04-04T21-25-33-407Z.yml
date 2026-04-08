@@ -1,0 +1,474 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - button "🐛" [ref=e3]
+    - generic [ref=e304]:
+      - generic [ref=e305]:
+        - heading "Analytics Dashboard" [level=2] [ref=e306]
+        - button "Close" [ref=e307]
+      - generic [ref=e308]:
+        - generic [ref=e309]:
+          - generic [ref=e310]:
+            - generic [ref=e311]: From
+            - textbox [ref=e312]: 2026-03-05
+          - generic [ref=e313]:
+            - generic [ref=e314]: To
+            - textbox [ref=e315]: 2026-04-04
+          - generic [ref=e316]:
+            - generic [ref=e317]: User
+            - combobox [ref=e318]:
+              - option "All Users" [selected]
+              - option "Franny"
+              - option "Ishant"
+              - option "Matias"
+          - generic [ref=e319]: 964 events total
+        - generic [ref=e320]:
+          - heading "Page Views(710 total visits)" [level=3] [ref=e321]:
+            - text: Page Views
+            - generic [ref=e322]: (710 total visits)
+          - generic [ref=e324]:
+            - generic [ref=e325]:
+              - generic [ref=e326]: Ishant
+              - generic [ref=e327]: "320"
+            - generic [ref=e328]:
+              - generic [ref=e329]: Franny
+              - generic [ref=e330]: "210"
+            - generic [ref=e331]:
+              - generic [ref=e332]: Matias
+              - generic [ref=e333]: "180"
+          - generic [ref=e334]:
+            - generic [ref=e335]: Visits over time
+            - generic [ref=e337]:
+              - generic [ref=e338]:
+                - generic [ref=e339]: "12"
+                - 'generic "2026-03-06: 12 page views" [ref=e340]'
+                - generic [ref=e341]: 6/3
+              - generic [ref=e342]:
+                - generic [ref=e343]: "3"
+                - 'generic "2026-03-07: 3 page views" [ref=e344]'
+                - generic [ref=e345]: 7/3
+              - generic [ref=e346]:
+                - generic [ref=e347]: "28"
+                - 'generic "2026-03-08: 28 page views" [ref=e348]'
+                - generic [ref=e349]: 8/3
+              - generic [ref=e350]:
+                - generic [ref=e351]: "4"
+                - 'generic "2026-03-09: 4 page views" [ref=e352]'
+                - generic [ref=e353]: 9/3
+              - generic [ref=e354]:
+                - generic [ref=e355]: "16"
+                - 'generic "2026-03-10: 16 page views" [ref=e356]'
+                - generic [ref=e357]: 10/3
+              - generic [ref=e358]:
+                - generic [ref=e359]: "9"
+                - 'generic "2026-03-11: 9 page views" [ref=e360]'
+                - generic [ref=e361]: 11/3
+              - generic [ref=e362]:
+                - generic [ref=e363]: "16"
+                - 'generic "2026-03-12: 16 page views" [ref=e364]'
+                - generic [ref=e365]: 12/3
+              - generic [ref=e366]:
+                - generic [ref=e367]: "21"
+                - 'generic "2026-03-13: 21 page views" [ref=e368]'
+                - generic [ref=e369]: 13/3
+              - generic [ref=e370]:
+                - generic [ref=e371]: "23"
+                - 'generic "2026-03-14: 23 page views" [ref=e372]'
+                - generic [ref=e373]: 14/3
+              - generic [ref=e374]:
+                - generic [ref=e375]: "30"
+                - 'generic "2026-03-15: 30 page views" [ref=e376]'
+                - generic [ref=e377]: 15/3
+              - generic [ref=e378]:
+                - generic [ref=e379]: "19"
+                - 'generic "2026-03-16: 19 page views" [ref=e380]'
+                - generic [ref=e381]: 16/3
+              - generic [ref=e382]:
+                - generic [ref=e383]: "14"
+                - 'generic "2026-03-17: 14 page views" [ref=e384]'
+                - generic [ref=e385]: 17/3
+              - generic [ref=e386]:
+                - generic [ref=e387]: "28"
+                - 'generic "2026-03-18: 28 page views" [ref=e388]'
+                - generic [ref=e389]: 18/3
+              - generic [ref=e390]:
+                - generic [ref=e391]: "14"
+                - 'generic "2026-03-19: 14 page views" [ref=e392]'
+                - generic [ref=e393]: 19/3
+              - generic [ref=e394]:
+                - generic [ref=e395]: "11"
+                - 'generic "2026-03-20: 11 page views" [ref=e396]'
+                - generic [ref=e397]: 20/3
+              - generic [ref=e398]:
+                - generic [ref=e399]: "20"
+                - 'generic "2026-03-21: 20 page views" [ref=e400]'
+                - generic [ref=e401]: 21/3
+              - generic [ref=e402]:
+                - generic [ref=e403]: "15"
+                - 'generic "2026-03-22: 15 page views" [ref=e404]'
+                - generic [ref=e405]: 22/3
+              - generic [ref=e406]:
+                - generic [ref=e407]: "7"
+                - 'generic "2026-03-23: 7 page views" [ref=e408]'
+                - generic [ref=e409]: 23/3
+              - generic [ref=e410]:
+                - generic [ref=e411]: "28"
+                - 'generic "2026-03-24: 28 page views" [ref=e412]'
+                - generic [ref=e413]: 24/3
+              - generic [ref=e414]:
+                - generic [ref=e415]: "26"
+                - 'generic "2026-03-25: 26 page views" [ref=e416]'
+                - generic [ref=e417]: 25/3
+              - generic [ref=e418]:
+                - generic [ref=e419]: "7"
+                - 'generic "2026-03-26: 7 page views" [ref=e420]'
+                - generic [ref=e421]: 26/3
+              - generic [ref=e422]:
+                - generic [ref=e423]: "16"
+                - 'generic "2026-03-27: 16 page views" [ref=e424]'
+                - generic [ref=e425]: 27/3
+              - generic [ref=e426]:
+                - generic [ref=e427]: "11"
+                - 'generic "2026-03-28: 11 page views" [ref=e428]'
+                - generic [ref=e429]: 28/3
+              - generic [ref=e430]:
+                - generic [ref=e431]: "19"
+                - 'generic "2026-03-29: 19 page views" [ref=e432]'
+                - generic [ref=e433]: 29/3
+              - generic [ref=e434]:
+                - generic [ref=e435]: "21"
+                - 'generic "2026-03-30: 21 page views" [ref=e436]'
+                - generic [ref=e437]: 30/3
+              - generic [ref=e438]:
+                - generic [ref=e439]: "6"
+                - 'generic "2026-03-31: 6 page views" [ref=e440]'
+                - generic [ref=e441]: 31/3
+              - generic [ref=e442]:
+                - generic [ref=e443]: "17"
+                - 'generic "2026-04-01: 17 page views" [ref=e444]'
+                - generic [ref=e445]: 1/4
+              - generic [ref=e446]:
+                - generic [ref=e447]: "28"
+                - 'generic "2026-04-02: 28 page views" [ref=e448]'
+                - generic [ref=e449]: 2/4
+              - generic [ref=e450]:
+                - generic [ref=e451]: "7"
+                - 'generic "2026-04-03: 7 page views" [ref=e452]'
+                - generic [ref=e453]: 3/4
+              - generic [ref=e454]:
+                - generic [ref=e455]: "12"
+                - 'generic "2026-04-04: 12 page views" [ref=e456]'
+                - generic [ref=e457]: 4/4
+        - generic [ref=e458]:
+          - heading "Feature Usage(254 interactions, excludes page views)" [level=3] [ref=e459]:
+            - text: Feature Usage
+            - generic [ref=e460]: (254 interactions, excludes page views)
+          - generic [ref=e461]:
+            - generic [ref=e462]:
+              - generic "draft_approved" [ref=e463]: Draft Approved
+              - generic [ref=e466]: "105"
+              - generic [ref=e467]: 41.3%
+            - generic [ref=e468]:
+              - generic "draft_rejected" [ref=e469]: Draft Rejected
+              - generic [ref=e472]: "16"
+              - generic [ref=e473]: 6.3%
+            - generic [ref=e474]:
+              - generic "draft_revised" [ref=e475]: Draft Revised
+              - generic [ref=e478]: "21"
+              - generic [ref=e479]: 8.3%
+            - generic [ref=e480]:
+              - generic "compose_sent" [ref=e481]: Compose Sent
+              - generic [ref=e484]: "38"
+              - generic [ref=e485]: 15.0%
+            - generic [ref=e486]:
+              - generic "ask_judith" [ref=e487]: Ask Judith
+              - generic [ref=e490]: "14"
+              - generic [ref=e491]: 5.5%
+            - generic [ref=e492]:
+              - generic "teaching_added" [ref=e493]: Teaching Added
+              - generic [ref=e496]: "7"
+              - generic [ref=e497]: 2.8%
+            - generic [ref=e498]:
+              - generic "action_done" [ref=e499]: Action Done
+              - generic [ref=e502]: "42"
+              - generic [ref=e503]: 16.5%
+            - generic [ref=e504]:
+              - generic "action_dismissed" [ref=e505]: Action Dismissed
+              - generic [ref=e508]: "11"
+              - generic [ref=e509]: 4.3%
+        - generic [ref=e510]:
+          - heading "Daily Activity (Last 30 days)" [level=3] [ref=e511]
+          - generic [ref=e513]:
+            - generic [ref=e514]:
+              - generic [ref=e515]: "18"
+              - 'generic "2026-03-06: 18 events" [ref=e516]'
+              - generic [ref=e517]: 6/3
+            - generic [ref=e518]:
+              - generic [ref=e519]: "5"
+              - 'generic "2026-03-07: 5 events" [ref=e520]'
+              - generic [ref=e521]: 7/3
+            - generic [ref=e522]:
+              - generic [ref=e523]: "41"
+              - 'generic "2026-03-08: 41 events" [ref=e524]'
+              - generic [ref=e525]: 8/3
+            - generic [ref=e526]:
+              - generic [ref=e527]: "6"
+              - 'generic "2026-03-09: 6 events" [ref=e528]'
+              - generic [ref=e529]: 9/3
+            - generic [ref=e530]:
+              - generic [ref=e531]: "23"
+              - 'generic "2026-03-10: 23 events" [ref=e532]'
+              - generic [ref=e533]: 10/3
+            - generic [ref=e534]:
+              - generic [ref=e535]: "14"
+              - 'generic "2026-03-11: 14 events" [ref=e536]'
+              - generic [ref=e537]: 11/3
+            - generic [ref=e538]:
+              - generic [ref=e539]: "24"
+              - 'generic "2026-03-12: 24 events" [ref=e540]'
+              - generic [ref=e541]: 12/3
+            - generic [ref=e542]:
+              - generic [ref=e543]: "31"
+              - 'generic "2026-03-13: 31 events" [ref=e544]'
+              - generic [ref=e545]: 13/3
+            - generic [ref=e546]:
+              - generic [ref=e547]: "33"
+              - 'generic "2026-03-14: 33 events" [ref=e548]'
+              - generic [ref=e549]: 14/3
+            - generic [ref=e550]:
+              - generic [ref=e551]: "44"
+              - 'generic "2026-03-15: 44 events" [ref=e552]'
+              - generic [ref=e553]: 15/3
+            - generic [ref=e554]:
+              - generic [ref=e555]: "28"
+              - 'generic "2026-03-16: 28 events" [ref=e556]'
+              - generic [ref=e557]: 16/3
+            - generic [ref=e558]:
+              - generic [ref=e559]: "20"
+              - 'generic "2026-03-17: 20 events" [ref=e560]'
+              - generic [ref=e561]: 17/3
+            - generic [ref=e562]:
+              - generic [ref=e563]: "41"
+              - 'generic "2026-03-18: 41 events" [ref=e564]'
+              - generic [ref=e565]: 18/3
+            - generic [ref=e566]:
+              - generic [ref=e567]: "20"
+              - 'generic "2026-03-19: 20 events" [ref=e568]'
+              - generic [ref=e569]: 19/3
+            - generic [ref=e570]:
+              - generic [ref=e571]: "17"
+              - 'generic "2026-03-20: 17 events" [ref=e572]'
+              - generic [ref=e573]: 20/3
+            - generic [ref=e574]:
+              - generic [ref=e575]: "29"
+              - 'generic "2026-03-21: 29 events" [ref=e576]'
+              - generic [ref=e577]: 21/3
+            - generic [ref=e578]:
+              - generic [ref=e579]: "22"
+              - 'generic "2026-03-22: 22 events" [ref=e580]'
+              - generic [ref=e581]: 22/3
+            - generic [ref=e582]:
+              - generic [ref=e583]: "11"
+              - 'generic "2026-03-23: 11 events" [ref=e584]'
+              - generic [ref=e585]: 23/3
+            - generic [ref=e586]:
+              - generic [ref=e587]: "40"
+              - 'generic "2026-03-24: 40 events" [ref=e588]'
+              - generic [ref=e589]: 24/3
+            - generic [ref=e590]:
+              - generic [ref=e591]: "38"
+              - 'generic "2026-03-25: 38 events" [ref=e592]'
+              - generic [ref=e593]: 25/3
+            - generic [ref=e594]:
+              - generic [ref=e595]: "10"
+              - 'generic "2026-03-26: 10 events" [ref=e596]'
+              - generic [ref=e597]: 26/3
+            - generic [ref=e598]:
+              - generic [ref=e599]: "23"
+              - 'generic "2026-03-27: 23 events" [ref=e600]'
+              - generic [ref=e601]: 27/3
+            - generic [ref=e602]:
+              - generic [ref=e603]: "17"
+              - 'generic "2026-03-28: 17 events" [ref=e604]'
+              - generic [ref=e605]: 28/3
+            - generic [ref=e606]:
+              - generic [ref=e607]: "28"
+              - 'generic "2026-03-29: 28 events" [ref=e608]'
+              - generic [ref=e609]: 29/3
+            - generic [ref=e610]:
+              - generic [ref=e611]: "31"
+              - 'generic "2026-03-30: 31 events" [ref=e612]'
+              - generic [ref=e613]: 30/3
+            - generic [ref=e614]:
+              - generic [ref=e615]: "9"
+              - 'generic "2026-03-31: 9 events" [ref=e616]'
+              - generic [ref=e617]: 31/3
+            - generic [ref=e618]:
+              - generic [ref=e619]: "25"
+              - 'generic "2026-04-01: 25 events" [ref=e620]'
+              - generic [ref=e621]: 1/4
+            - generic [ref=e622]:
+              - generic [ref=e623]: "40"
+              - 'generic "2026-04-02: 40 events" [ref=e624]'
+              - generic [ref=e625]: 2/4
+            - generic [ref=e626]:
+              - generic [ref=e627]: "11"
+              - 'generic "2026-04-03: 11 events" [ref=e628]'
+              - generic [ref=e629]: 3/4
+            - generic [ref=e630]:
+              - generic [ref=e631]: "18"
+              - 'generic "2026-04-04: 18 events" [ref=e632]'
+              - generic [ref=e633]: 4/4
+        - generic [ref=e634]:
+          - heading "Per-User Breakdown" [level=3] [ref=e635]
+          - generic [ref=e636]:
+            - button "Ishant 80 events" [ref=e637]:
+              - generic [ref=e638]: Ishant
+              - generic [ref=e639]: 80 events
+            - button "Franny 46 events" [ref=e640]:
+              - generic [ref=e641]: Franny
+              - generic [ref=e642]: 46 events
+            - button "Matias 31 events" [ref=e643]:
+              - generic [ref=e644]: Matias
+              - generic [ref=e645]: 31 events
+          - table [ref=e647]:
+            - rowgroup [ref=e648]:
+              - row "User Event Type Count" [ref=e649]:
+                - columnheader "User" [ref=e650]
+                - columnheader "Event Type" [ref=e651]
+                - columnheader "Count" [ref=e652]
+            - rowgroup [ref=e653]:
+              - row "Ishant Draft Approved 45" [ref=e654]:
+                - cell "Ishant" [ref=e655]
+                - cell "Draft Approved" [ref=e656]
+                - cell "45" [ref=e657]
+              - row "Ishant Draft Rejected 8" [ref=e658]:
+                - cell "Ishant" [ref=e659]
+                - cell "Draft Rejected" [ref=e660]
+                - cell "8" [ref=e661]
+              - row "Ishant Draft Revised 12" [ref=e662]:
+                - cell "Ishant" [ref=e663]
+                - cell "Draft Revised" [ref=e664]
+                - cell "12" [ref=e665]
+              - row "Ishant Compose Sent 15" [ref=e666]:
+                - cell "Ishant" [ref=e667]
+                - cell "Compose Sent" [ref=e668]
+                - cell "15" [ref=e669]
+              - row "Franny Draft Approved 32" [ref=e670]:
+                - cell "Franny" [ref=e671]
+                - cell "Draft Approved" [ref=e672]
+                - cell "32" [ref=e673]
+              - row "Franny Draft Rejected 5" [ref=e674]:
+                - cell "Franny" [ref=e675]
+                - cell "Draft Rejected" [ref=e676]
+                - cell "5" [ref=e677]
+              - row "Franny Draft Revised 9" [ref=e678]:
+                - cell "Franny" [ref=e679]
+                - cell "Draft Revised" [ref=e680]
+                - cell "9" [ref=e681]
+              - row "Matias Draft Approved 28" [ref=e682]:
+                - cell "Matias" [ref=e683]
+                - cell "Draft Approved" [ref=e684]
+                - cell "28" [ref=e685]
+              - row "Matias Draft Rejected 3" [ref=e686]:
+                - cell "Matias" [ref=e687]
+                - cell "Draft Rejected" [ref=e688]
+                - cell "3" [ref=e689]
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - heading "Friday GMS" [level=1] [ref=e9]
+        - button "Menu" [ref=e11]:
+          - img [ref=e690]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e17]:
+          - img
+          - textbox "Search guests, properties, messages..." [ref=e18]
+          - generic [ref=e19]:
+            - button "Refresh" [ref=e20]:
+              - img [ref=e21]
+            - button "Filters" [ref=e23]:
+              - img [ref=e24]
+        - generic [ref=e26]:
+          - button "All" [ref=e27]
+          - button "Unread3" [ref=e28]
+          - button "Review" [ref=e29]
+          - button "Open" [ref=e30]
+          - button "Done" [ref=e31]
+          - button "Actions" [ref=e32]
+        - generic [ref=e259]:
+          - generic [ref=e260]:
+            - generic [ref=e261]: 0 pending actions
+            - generic [ref=e262]:
+              - combobox [ref=e263]:
+                - option "Urgency" [selected]
+                - option "Newest first"
+                - option "Oldest first"
+                - option "Guest name"
+              - button "Add" [ref=e264]:
+                - img [ref=e265]
+                - text: Add
+          - generic [ref=e267]:
+            - img [ref=e268]
+            - paragraph [ref=e270]: No pending actions
+          - button "Resolved Actions" [ref=e272]:
+            - generic [ref=e273]:
+              - img [ref=e274]
+              - text: Resolved Actions
+      - generic:
+        - generic:
+          - generic [ref=e93] [cursor=pointer]:
+            - generic [ref=e94]: ← Back to inbox
+            - button "ℹ️ Info" [ref=e95]
+          - generic [ref=e96]:
+            - generic:
+              - generic:
+                - heading "Jean-Pierre Moreau" [level=2]
+                - generic "positive"
+                - generic [ref=e101] [cursor=pointer]: Maritim Resort & Spa
+                - generic [ref=e102]: Email
+            - button "Spa packages inquiry":
+              - img [ref=e104]
+              - generic: Spa packages inquiry
+          - generic [ref=e107]:
+            - generic [ref=e110]: April 3
+            - generic [ref=e113]:
+              - paragraph: Bonjour, je voudrais réserver une chambre pour le 12 au 15 avril.
+              - generic: yesterday · 2:30 PM · Jean-Pierre Moreau
+            - generic [ref=e117]:
+              - paragraph: Bonjour Jean-Pierre! Merci pour votre message.
+              - generic: yesterday · 3:00 PM · Judith AI
+            - generic [ref=e122]: Yesterday
+            - generic [ref=e125]:
+              - paragraph: Les tarifs pour le spa? Petit-déjeuner inclus?
+              - generic: yesterday · 1:00 PM · Jean-Pierre Moreau
+            - generic [ref=e129]:
+              - paragraph: "Le petit-déjeuner est inclus. Pour le spa: - Massage (60 min): 120 EUR - Soin visage (45 min): 90 EUR - Forfait journée: 250 EUR"
+              - generic: yesterday · 1:30 PM · Judith AI
+            - generic [ref=e133]:
+              - paragraph: Le forfait bien-être journée me plaît! Disponible le 13 avril?
+              - generic: yesterday · 10:30 PM · Jean-Pierre Moreau
+          - generic [ref=e137]:
+            - generic:
+              - heading "AI Draft 0.92%" [level=4] [ref=e139] [cursor=pointer]:
+                - img [ref=e140]
+                - text: AI Draft
+                - generic [ref=e142]: 0.92%
+              - generic [ref=e143] [cursor=pointer]: Needs Review
+            - generic [ref=e147]: "Excellent choix! Le forfait du 13 avril est disponible: - Spa toute la journée - Massage 60 min - Soin du visage - Déjeuner au bord de la piscine Je confirme?"
+            - generic:
+              - button "Approve & Send" [ref=e149]:
+                - img [ref=e150]
+                - text: Approve & Send
+              - button "Revise" [ref=e152]:
+                - img [ref=e153]
+                - text: Revise
+              - button "Ask Judith" [ref=e155]:
+                - img [ref=e156]
+                - text: Ask Judith
+              - button "Edit" [ref=e158]:
+                - img [ref=e159]
+                - text: Edit
+              - button "Reject" [ref=e161]:
+                - img [ref=e162]
+                - text: Reject
+  - alert [ref=e90]

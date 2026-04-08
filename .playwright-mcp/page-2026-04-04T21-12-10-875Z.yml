@@ -1,0 +1,168 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - button "🐛" [ref=e3]
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - heading "Friday GMS" [level=1] [ref=e9]
+        - generic [ref=e10]:
+          - generic [ref=e12]: to review
+          - generic [ref=e13]:
+            - generic "Median of per-conversation average response times over the last 30 days" [ref=e14]: —
+            - generic [ref=e15]: Team RT (30d)
+          - generic [ref=e17]: new today
+          - generic [ref=e19]: actions
+          - button "Ishant · Logout" [ref=e20]
+          - button "Notifications" [ref=e22]:
+            - img [ref=e23]
+          - button "Mute" [ref=e25]:
+            - img [ref=e26]
+          - button "🧠" [ref=e28]
+          - button "🧪" [ref=e29]
+          - button "🐛" [ref=e30]
+          - button "📊" [ref=e31]
+          - button "Refresh app" [ref=e32]:
+            - img [ref=e33]
+          - button "?" [ref=e35]
+          - button "📲" [ref=e36]
+    - generic [ref=e37]:
+      - button "«" [ref=e38]
+      - button "»" [ref=e39]
+      - generic [ref=e40]:
+        - generic [ref=e42]:
+          - img
+          - textbox "Search guests, properties, messages..." [ref=e43]
+          - generic [ref=e44]:
+            - button "Refresh" [ref=e45]:
+              - img [ref=e46]
+            - button "Filters" [ref=e48]:
+              - img [ref=e49]
+        - generic [ref=e51]:
+          - button "All" [ref=e52]
+          - button "Unread3" [ref=e53]
+          - button "Review" [ref=e54]
+          - button "Open" [ref=e55]
+          - button "Done" [ref=e56]
+          - button "Actions" [ref=e57]
+        - combobox [ref=e59]:
+          - option "Most recent" [selected]
+          - option "Oldest first"
+          - option "Guest name"
+          - option "Property"
+        - generic [ref=e60]:
+          - generic [ref=e61] [cursor=pointer]:
+            - generic [ref=e62]:
+              - generic [ref=e63]:
+                - generic [ref=e65]: Akiko Tanaka
+                - generic [ref=e66]: WhatsApp
+              - generic [ref=e67]: about 1 hour ago
+            - generic [ref=e68]:
+              - generic [ref=e69]: LUX* Grand Baie
+              - generic [ref=e70]: Open
+          - generic [ref=e71] [cursor=pointer]:
+            - generic [ref=e72]:
+              - generic [ref=e73]:
+                - generic [ref=e75]: Jean-Pierre Moreau
+                - generic [ref=e76]: Email
+              - generic [ref=e77]: about 3 hours ago
+            - generic [ref=e78]:
+              - generic [ref=e79]: Maritim Resort & Spa
+              - generic [ref=e80]: Open
+          - generic [ref=e81] [cursor=pointer]:
+            - generic [ref=e82]:
+              - generic [ref=e83]:
+                - generic [ref=e85]: Sarah Williams
+                - generic [ref=e86]: WhatsApp
+              - generic [ref=e87]: about 4 hours ago
+            - generic [ref=e88]:
+              - generic [ref=e89]: LUX* Grand Baie
+              - generic [ref=e90]: Open
+          - generic [ref=e91] [cursor=pointer]:
+            - button "Mark as unread" [ref=e92]:
+              - img [ref=e93]
+            - generic [ref=e95]:
+              - generic [ref=e96]:
+                - generic [ref=e97]: Hans Mueller
+                - generic [ref=e98]: Email
+              - generic [ref=e99]: about 6 hours ago
+            - generic [ref=e100]:
+              - generic [ref=e101]: Constance Belle Mare
+              - generic [ref=e102]: Open
+          - generic [ref=e103] [cursor=pointer]:
+            - button "Mark as unread" [ref=e104]:
+              - img [ref=e105]
+            - generic [ref=e107]:
+              - generic [ref=e108]:
+                - generic [ref=e109]: Maria Costa
+                - generic [ref=e110]: Email
+              - generic [ref=e111]: about 9 hours ago
+            - generic [ref=e112]:
+              - generic [ref=e113]: Maritim Resort & Spa
+              - generic [ref=e114]: Done
+      - generic [ref=e115]:
+        - generic [ref=e116]:
+          - generic [ref=e117]:
+            - generic [ref=e119]:
+              - heading "Jean-Pierre Moreau" [level=2] [ref=e120]
+              - generic "positive" [ref=e121]
+              - generic [ref=e122] [cursor=pointer]: Maritim Resort & Spa
+              - generic [ref=e123]: Email
+            - button "Guest asking about spa packages and room availability for April 12-15" [ref=e124]:
+              - img [ref=e125]
+              - generic [ref=e127]: Guest asking about spa packages and room availability for April 12-15
+          - generic [ref=e128]:
+            - generic [ref=e131]: April 3
+            - generic [ref=e134]:
+              - paragraph [ref=e135]: Bonjour, je voudrais réserver une chambre pour le 12 au 15 avril. Est-ce que vous avez des chambres avec vue sur la mer?
+              - generic [ref=e136]: yesterday · 2:30 PM · Jean-Pierre Moreau
+            - generic [ref=e138]:
+              - paragraph [ref=e139]: Bonjour Jean-Pierre! Merci pour votre message. Nous serions ravis de vous accueillir à nouveau. Laissez-moi vérifier la disponibilité pour ces dates.
+              - generic [ref=e140]: yesterday · 3:00 PM · Judith AI
+            - generic [ref=e143]: Yesterday
+            - generic [ref=e146]:
+              - paragraph [ref=e147]: Merci! Pouvez-vous aussi me dire les tarifs pour le spa? Et est-ce que le petit-déjeuner est inclus?
+              - generic [ref=e148]: yesterday · 1:00 PM · Jean-Pierre Moreau
+            - generic [ref=e150]:
+              - paragraph [ref=e151]: "Le petit-déjeuner buffet est inclus dans tous nos forfaits. Pour le spa: - Massage relaxant (60 min): 120 EUR - Soin du visage (45 min): 90 EUR - Forfait bien-être journée: 250 EUR Souhaitez-vous que je réserve un soin en particulier?"
+              - generic [ref=e152]: yesterday · 1:30 PM · Judith AI
+            - generic [ref=e154]:
+              - paragraph [ref=e155]: Le forfait bien-être journée me plaît beaucoup! Est-ce disponible le 13 avril?
+              - generic [ref=e156]: yesterday · 10:30 PM · Jean-Pierre Moreau
+          - button "Compose" [ref=e160]:
+            - img [ref=e161]
+            - text: Compose
+        - generic [ref=e163]:
+          - heading "Guest Info" [level=3] [ref=e166]
+          - generic [ref=e167]:
+            - generic [ref=e168]: "Email: jp.moreau@gmail.com"
+            - generic [ref=e169]: "Channel: email"
+            - generic [ref=e170]: 0 inbound messages
+            - generic [ref=e173]: Positive sentiment
+          - button "Mark as Done" [ref=e175]:
+            - img [ref=e176]
+            - text: Mark as Done
+          - generic [ref=e178]:
+            - generic [ref=e179]:
+              - heading "Staff Notes" [level=3] [ref=e180]
+              - button [ref=e181]:
+                - img [ref=e182]
+            - generic [ref=e184]: VIP guest - returning customer. Prefers ocean view rooms.
+            - textbox "Add notes for Judith..." [ref=e185]
+          - generic [ref=e186]:
+            - button "Pending Actions" [ref=e187]:
+              - generic [ref=e188]:
+                - img [ref=e189]
+                - text: Pending Actions
+            - generic [ref=e192]:
+              - img [ref=e193]
+              - paragraph [ref=e195]: No pending actions
+          - button "Draft History 1" [ref=e197]:
+            - generic [ref=e198]:
+              - img [ref=e199]
+              - text: Draft History
+              - generic [ref=e201]: "1"
+          - generic [ref=e202]:
+            - generic [ref=e203]:
+              - generic [ref=e204]: Auto-send
+              - button [ref=e205]
+            - paragraph [ref=e207]: Off — all drafts require review
+  - alert [ref=e214]

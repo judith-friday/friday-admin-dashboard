@@ -1,0 +1,71 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - button "🐛" [ref=e116]
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - heading "Friday GMS" [level=1] [ref=e9]
+        - button "Menu" [ref=e11]:
+          - img [ref=e12]
+    - generic [ref=e118]:
+      - generic [ref=e119] [cursor=pointer]:
+        - generic [ref=e120]: ← Back to inbox
+        - button "ℹ️ Info" [ref=e121]
+      - generic [ref=e122]:
+        - generic [ref=e124]:
+          - heading "Jean-Pierre Moreau" [level=2] [ref=e125]
+          - generic "positive" [ref=e126]
+          - generic [ref=e127] [cursor=pointer]: Maritim Resort & Spa
+          - generic [ref=e128]: Email
+        - button "Spa packages inquiry" [ref=e129]:
+          - img [ref=e130]
+          - generic [ref=e132]: Spa packages inquiry
+      - generic [ref=e133]:
+        - generic [ref=e136]: April 3
+        - generic [ref=e139]:
+          - paragraph [ref=e140]: Bonjour, je voudrais réserver une chambre pour le 12 au 15 avril.
+          - generic [ref=e141]: yesterday · 2:30 PM · Jean-Pierre Moreau
+        - generic [ref=e143]:
+          - paragraph [ref=e144]: Bonjour Jean-Pierre! Merci pour votre message.
+          - generic [ref=e145]: yesterday · 3:00 PM · Judith AI
+        - generic [ref=e148]: Yesterday
+        - generic [ref=e151]:
+          - paragraph [ref=e152]: Les tarifs pour le spa? Petit-déjeuner inclus?
+          - generic [ref=e153]: yesterday · 1:00 PM · Jean-Pierre Moreau
+        - generic [ref=e155]:
+          - paragraph [ref=e156]: "Le petit-déjeuner est inclus. Pour le spa: - Massage (60 min): 120 EUR - Soin visage (45 min): 90 EUR - Forfait journée: 250 EUR"
+          - generic [ref=e157]: yesterday · 1:30 PM · Judith AI
+        - generic [ref=e159]:
+          - paragraph [ref=e160]: Le forfait bien-être journée me plaît! Disponible le 13 avril?
+          - generic [ref=e161]: yesterday · 10:30 PM · Jean-Pierre Moreau
+      - generic [ref=e163]:
+        - generic [ref=e164] [cursor=pointer]:
+          - heading "AI Draft 0.92%" [level=4] [ref=e165]:
+            - img [ref=e166]
+            - text: AI Draft
+            - generic [ref=e168]: 0.92%
+          - generic [ref=e169]: Needs Review
+          - img [ref=e170]
+        - generic [ref=e173]: "Excellent choix! Le forfait du 13 avril est disponible: - Spa toute la journée - Massage 60 min - Soin du visage - Déjeuner au bord de la piscine Je confirme?"
+        - generic [ref=e174]:
+          - button "Approve & Send" [ref=e175]:
+            - img [ref=e176]
+            - text: Approve & Send
+          - button "Revise" [ref=e178]:
+            - img [ref=e179]
+            - text: Revise
+          - button "Ask Judith" [active] [ref=e181]:
+            - img [ref=e182]
+            - text: Ask Judith
+          - button "Edit" [ref=e184]:
+            - img [ref=e185]
+            - text: Edit
+          - button "Reject" [ref=e187]:
+            - img [ref=e188]
+            - text: Reject
+        - generic [ref=e190]:
+          - generic [ref=e191]:
+            - generic [ref=e192]: Ask Judith
+            - button [ref=e193]:
+              - img [ref=e194]
+          - generic [ref=e198]: "Excellent choix! Le forfait du 13 avril est disponible: - Spa toute la journée - Massage 60 min - Soin du visage - Déjeuner au bord de la piscine Je confirme?"
+  - alert [ref=e90]

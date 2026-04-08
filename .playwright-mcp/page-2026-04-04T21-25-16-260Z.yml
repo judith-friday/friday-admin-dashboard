@@ -1,0 +1,102 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - button "🐛" [ref=e3]
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - heading "Friday GMS" [level=1] [ref=e9]
+        - button "Menu" [ref=e11]:
+          - img [ref=e233]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e17]:
+          - img
+          - textbox "Search guests, properties, messages..." [ref=e18]
+          - generic [ref=e19]:
+            - button "Refresh" [ref=e20]:
+              - img [ref=e21]
+            - button "Filters" [ref=e23]:
+              - img [ref=e24]
+        - generic [ref=e26]:
+          - button "All" [ref=e27]
+          - button "Unread3" [ref=e28]
+          - button "Review" [ref=e29]
+          - button "Open" [ref=e30]
+          - button "Done" [ref=e31]
+          - button "Actions" [active] [ref=e32]
+        - generic [ref=e259]:
+          - generic [ref=e260]:
+            - generic [ref=e261]: 0 pending actions
+            - generic [ref=e262]:
+              - combobox [ref=e263]:
+                - option "Urgency" [selected]
+                - option "Newest first"
+                - option "Oldest first"
+                - option "Guest name"
+              - button "Add" [ref=e264]:
+                - img [ref=e265]
+                - text: Add
+          - generic [ref=e267]:
+            - img [ref=e268]
+            - paragraph [ref=e270]: No pending actions
+          - button "Resolved Actions" [ref=e272]:
+            - generic [ref=e273]:
+              - img [ref=e274]
+              - text: Resolved Actions
+      - generic:
+        - generic:
+          - generic [ref=e93] [cursor=pointer]:
+            - generic [ref=e94]: ← Back to inbox
+            - button "ℹ️ Info" [ref=e95]
+          - generic [ref=e96]:
+            - generic:
+              - generic:
+                - heading "Jean-Pierre Moreau" [level=2]
+                - generic "positive"
+                - generic [ref=e101] [cursor=pointer]: Maritim Resort & Spa
+                - generic [ref=e102]: Email
+            - button "Spa packages inquiry":
+              - img [ref=e104]
+              - generic: Spa packages inquiry
+          - generic [ref=e107]:
+            - generic [ref=e110]: April 3
+            - generic [ref=e113]:
+              - paragraph: Bonjour, je voudrais réserver une chambre pour le 12 au 15 avril.
+              - generic: yesterday · 2:30 PM · Jean-Pierre Moreau
+            - generic [ref=e117]:
+              - paragraph: Bonjour Jean-Pierre! Merci pour votre message.
+              - generic: yesterday · 3:00 PM · Judith AI
+            - generic [ref=e122]: Yesterday
+            - generic [ref=e125]:
+              - paragraph: Les tarifs pour le spa? Petit-déjeuner inclus?
+              - generic: yesterday · 1:00 PM · Jean-Pierre Moreau
+            - generic [ref=e129]:
+              - paragraph: "Le petit-déjeuner est inclus. Pour le spa: - Massage (60 min): 120 EUR - Soin visage (45 min): 90 EUR - Forfait journée: 250 EUR"
+              - generic: yesterday · 1:30 PM · Judith AI
+            - generic [ref=e133]:
+              - paragraph: Le forfait bien-être journée me plaît! Disponible le 13 avril?
+              - generic: yesterday · 10:30 PM · Jean-Pierre Moreau
+          - generic [ref=e137]:
+            - generic:
+              - heading "AI Draft 0.92%" [level=4] [ref=e139] [cursor=pointer]:
+                - img [ref=e140]
+                - text: AI Draft
+                - generic [ref=e142]: 0.92%
+              - generic [ref=e143] [cursor=pointer]: Needs Review
+            - generic [ref=e147]: "Excellent choix! Le forfait du 13 avril est disponible: - Spa toute la journée - Massage 60 min - Soin du visage - Déjeuner au bord de la piscine Je confirme?"
+            - generic:
+              - button "Approve & Send" [ref=e149]:
+                - img [ref=e150]
+                - text: Approve & Send
+              - button "Revise" [ref=e152]:
+                - img [ref=e153]
+                - text: Revise
+              - button "Ask Judith" [ref=e155]:
+                - img [ref=e156]
+                - text: Ask Judith
+              - button "Edit" [ref=e158]:
+                - img [ref=e159]
+                - text: Edit
+              - button "Reject" [ref=e161]:
+                - img [ref=e162]
+                - text: Reject
+  - alert [ref=e90]

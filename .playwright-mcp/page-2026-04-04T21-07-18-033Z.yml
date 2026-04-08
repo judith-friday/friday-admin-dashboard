@@ -1,0 +1,5 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e12]:
+    - generic [ref=e13]: Welcome back, Ishant 👋
+    - generic [ref=e14]: Loading your inbox...

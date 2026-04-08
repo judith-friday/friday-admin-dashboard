@@ -1,0 +1,157 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - button "🐛" [ref=e3]
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - heading "Friday GMS" [level=1] [ref=e9]
+        - button "Menu" [ref=e11]:
+          - img [ref=e233]
+    - generic [ref=e236]:
+      - generic [ref=e237]:
+        - generic [ref=e238]:
+          - heading "🔔 Notifications" [level=2] [ref=e239]
+          - generic [ref=e240]:
+            - button "Mark all read" [ref=e241]
+            - button "✕" [ref=e242]
+        - paragraph [ref=e243]: 2 unread notifications
+      - generic [ref=e244]:
+        - button "📩 New message from Sarah 4h ago" [ref=e245]:
+          - generic [ref=e246]: 📩
+          - generic [ref=e248]:
+            - generic [ref=e249]: New message from Sarah
+            - generic [ref=e250]: 4h ago
+        - button "📝 Draft for Hans Mueller 6h ago" [ref=e252]:
+          - generic [ref=e253]: 📝
+          - generic [ref=e255]:
+            - generic [ref=e256]: Draft for Hans Mueller
+            - generic [ref=e257]: 6h ago
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e17]:
+          - img
+          - textbox "Search guests, properties, messages..." [ref=e18]
+          - generic [ref=e19]:
+            - button "Refresh" [ref=e20]:
+              - img [ref=e21]
+            - button "Filters" [ref=e23]:
+              - img [ref=e24]
+        - generic [ref=e26]:
+          - button "All" [ref=e27]
+          - button "Unread3" [ref=e28]
+          - button "Review" [ref=e29]
+          - button "Open" [ref=e30]
+          - button "Done" [ref=e31]
+          - button "Actions" [ref=e32]
+        - combobox [ref=e34]:
+          - option "Most recent" [selected]
+          - option "Oldest first"
+          - option "Guest name"
+          - option "Property"
+        - generic [ref=e35]:
+          - generic [ref=e36] [cursor=pointer]:
+            - generic [ref=e37]:
+              - generic [ref=e38]:
+                - generic [ref=e40]: Akiko Tanaka
+                - generic [ref=e41]: WhatsApp
+              - generic [ref=e42]: about 1 hour ago
+            - generic [ref=e43]:
+              - generic [ref=e44]: LUX* Grand Baie
+              - generic [ref=e45]: Review
+          - generic [ref=e46] [cursor=pointer]:
+            - generic [ref=e47]:
+              - generic [ref=e48]:
+                - generic [ref=e50]: Jean-Pierre Moreau
+                - generic [ref=e51]: Email
+              - generic [ref=e52]: about 3 hours ago
+            - generic [ref=e53]:
+              - generic [ref=e54]: Maritim Resort & Spa
+              - generic [ref=e55]: Review
+          - generic [ref=e56] [cursor=pointer]:
+            - generic [ref=e57]:
+              - generic [ref=e58]:
+                - generic [ref=e60]: Sarah Williams
+                - generic [ref=e61]: WhatsApp
+              - generic [ref=e62]: about 4 hours ago
+            - generic [ref=e63]:
+              - generic [ref=e64]: LUX* Grand Baie
+              - generic [ref=e65]: Open
+          - generic [ref=e66] [cursor=pointer]:
+            - button "Mark as unread" [ref=e67]:
+              - img [ref=e68]
+            - generic [ref=e70]:
+              - generic [ref=e71]:
+                - generic [ref=e72]: Hans Mueller
+                - generic [ref=e73]: Email
+              - generic [ref=e74]: about 6 hours ago
+            - generic [ref=e75]:
+              - generic [ref=e76]: Constance Belle Mare
+              - generic [ref=e77]: Review
+          - generic [ref=e78] [cursor=pointer]:
+            - button "Mark as unread" [ref=e79]:
+              - img [ref=e80]
+            - generic [ref=e82]:
+              - generic [ref=e83]:
+                - generic [ref=e84]: Maria Costa
+                - generic [ref=e85]: Email
+              - generic [ref=e86]: about 9 hours ago
+            - generic [ref=e87]:
+              - generic [ref=e88]: Maritim Resort & Spa
+              - generic [ref=e89]: Done
+      - generic:
+        - generic:
+          - generic [ref=e93] [cursor=pointer]:
+            - generic [ref=e94]: ← Back to inbox
+            - button "ℹ️ Info" [ref=e95]
+          - generic [ref=e96]:
+            - generic:
+              - generic:
+                - heading "Jean-Pierre Moreau" [level=2]
+                - generic "positive"
+                - generic [ref=e101] [cursor=pointer]: Maritim Resort & Spa
+                - generic [ref=e102]: Email
+            - button "Spa packages inquiry":
+              - img [ref=e104]
+              - generic: Spa packages inquiry
+          - generic [ref=e107]:
+            - generic [ref=e110]: April 3
+            - generic [ref=e113]:
+              - paragraph: Bonjour, je voudrais réserver une chambre pour le 12 au 15 avril.
+              - generic: yesterday · 2:30 PM · Jean-Pierre Moreau
+            - generic [ref=e117]:
+              - paragraph: Bonjour Jean-Pierre! Merci pour votre message.
+              - generic: yesterday · 3:00 PM · Judith AI
+            - generic [ref=e122]: Yesterday
+            - generic [ref=e125]:
+              - paragraph: Les tarifs pour le spa? Petit-déjeuner inclus?
+              - generic: yesterday · 1:00 PM · Jean-Pierre Moreau
+            - generic [ref=e129]:
+              - paragraph: "Le petit-déjeuner est inclus. Pour le spa: - Massage (60 min): 120 EUR - Soin visage (45 min): 90 EUR - Forfait journée: 250 EUR"
+              - generic: yesterday · 1:30 PM · Judith AI
+            - generic [ref=e133]:
+              - paragraph: Le forfait bien-être journée me plaît! Disponible le 13 avril?
+              - generic: yesterday · 10:30 PM · Jean-Pierre Moreau
+          - generic [ref=e137]:
+            - generic:
+              - heading "AI Draft 0.92%" [level=4] [ref=e139] [cursor=pointer]:
+                - img [ref=e140]
+                - text: AI Draft
+                - generic [ref=e142]: 0.92%
+              - generic [ref=e143] [cursor=pointer]: Needs Review
+            - generic [ref=e147]: "Excellent choix! Le forfait du 13 avril est disponible: - Spa toute la journée - Massage 60 min - Soin du visage - Déjeuner au bord de la piscine Je confirme?"
+            - generic:
+              - button "Approve & Send" [ref=e149]:
+                - img [ref=e150]
+                - text: Approve & Send
+              - button "Revise" [ref=e152]:
+                - img [ref=e153]
+                - text: Revise
+              - button "Ask Judith" [ref=e155]:
+                - img [ref=e156]
+                - text: Ask Judith
+              - button "Edit" [ref=e158]:
+                - img [ref=e159]
+                - text: Edit
+              - button "Reject" [ref=e161]:
+                - img [ref=e162]
+                - text: Reject
+  - alert [ref=e90]

@@ -1,0 +1,80 @@
+[    1240ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/notifications:0
+[    1243ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/conversations:0
+[    1260ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/conversations/filters:0
+[    1265ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/teachings:0
+[    1346ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://admin.friday.mu/api/import/poller-status:0
+[    1347ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://admin.friday.mu/:0
+[   47088ms] TypeError: Cannot read properties of undefined (reading 'guest_name')
+    at tJ (https://admin.friday.mu/_next/static/chunks/13t1tdt49tho7.js:177:240181)
+    at ay (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:62882)
+    at oJ (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:83139)
+    at iu (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:94741)
+    at sd (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137981)
+    at https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137826
+    at sf (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137834)
+    at se (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:133755)
+    at s$ (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:159532)
+    at MessagePort.O (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:7697)
+[  111172ms] TypeError: Cannot read properties of undefined (reading 'guest_name')
+    at tJ (https://admin.friday.mu/_next/static/chunks/13t1tdt49tho7.js:177:240181)
+    at ay (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:62882)
+    at oJ (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:83139)
+    at iu (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:94741)
+    at sd (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137981)
+    at https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137826
+    at sf (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137834)
+    at se (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:133755)
+    at s$ (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:159532)
+    at MessagePort.O (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:7697)
+[  147469ms] TypeError: Cannot read properties of undefined (reading 'guest_name')
+    at tJ (https://admin.friday.mu/_next/static/chunks/13t1tdt49tho7.js:177:240181)
+    at ay (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:62882)
+    at oJ (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:83139)
+    at iu (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:94741)
+    at sd (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137981)
+    at https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137826
+    at sf (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137834)
+    at se (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:133755)
+    at s$ (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:159532)
+    at MessagePort.O (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:7697)
+[  230720ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ https://admin.friday.mu/:0
+[  372686ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ https://admin.friday.mu/:0
+[  479378ms] TypeError: Cannot read properties of undefined (reading 'map')
+    at https://admin.friday.mu/_next/static/chunks/13t1tdt49tho7.js:177:274356
+    at Object.ol [as useMemo] (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:71734)
+    at r.useMemo (https://admin.friday.mu/_next/static/chunks/0rsx4vi_2s2nh.js:1:14178)
+    at tX (https://admin.friday.mu/_next/static/chunks/13t1tdt49tho7.js:177:274320)
+    at ay (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:62882)
+    at oJ (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:83139)
+    at iu (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:94741)
+    at sd (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137981)
+    at https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137826
+    at sf (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137834)
+[  562027ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ https://admin.friday.mu/:0
+[  574084ms] TypeError: Cannot read properties of undefined (reading 'map')
+    at tX (https://admin.friday.mu/_next/static/chunks/13t1tdt49tho7.js:177:274952)
+    at ay (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:62882)
+    at oJ (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:83139)
+    at iu (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:94741)
+    at sd (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137981)
+    at https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137826
+    at sf (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:137834)
+    at se (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:133755)
+    at s$ (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:159532)
+    at MessagePort.O (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:7697)
+[  650914ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ https://admin.friday.mu/:0
+[  807607ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ https://admin.friday.mu/:0
+[  925975ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ https://admin.friday.mu/:0
+[  930510ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ https://admin.friday.mu/:0
+[ 1105949ms] NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at i7 (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:116044)
+    at ur (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:117623)
+    at ua (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:117875)
+    at ur (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:117749)
+    at ua (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:120057)
+    at ur (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:117749)
+    at ua (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:117875)
+    at ur (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:117749)
+    at ua (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:117875)
+    at ur (https://admin.friday.mu/_next/static/chunks/0d6g5e9tb5zpw.js:1:117749)
+[ 1120900ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ https://admin.friday.mu/:0

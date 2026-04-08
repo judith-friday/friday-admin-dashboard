@@ -105,12 +105,21 @@ export default function DashboardStats({
                   {stats.pending_actions_count === 1 ? 'action' : 'actions'} {stats.overdue_actions_count > 0 && <span style={{color: '#f87171'}}>({stats.overdue_actions_count} overdue)</span>}
                 </div>
               </div>
+              <div className="flex items-center gap-1.5 ml-1">
               {pollerStatus && pollerStatus.api_down && (
                 <button onClick={() => setShowSendQueue(true)} className="text-xs px-2 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}} title="Guesty API is down \u2014 click to view send queue">{'\u26A0'} API Down</button>
               )}
-              <button onClick={() => setShowSendQueue(true)} className="text-xs px-2 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity"
+              <button onClick={() => setShowSendQueue(true)} className="relative px-1.5 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity"
                 style={{background: queueCount > 0 ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.05)', color: queueCount > 0 ? '#fbbf24' : '#64748b'}}
-                title="Message queue">{'\uD83D\uDCE4'} {queueCount > 0 ? `${queueCount} queued` : 'Queue'}</button>
+                title="Message queue">
+                {'\uD83D\uDCE4'}
+                {queueCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 inline-flex items-center justify-center rounded-full text-white font-bold" style={{minWidth: '16px', height: '16px', fontSize: '10px', padding: '0 3px', background: '#f59e0b', lineHeight: 1}}>
+                    {queueCount > 99 ? '99+' : queueCount}
+                  </span>
+                )}
+              </button>
+              </div>
               <button onClick={() => { clearToken(); setTokenState(null) }}
                 className="text-xs ml-4" style={{color: '#64748b'}}>{displayName} {'\u00B7'} Logout</button>
               <NotificationBell notifications={notifications} onNotificationClick={onNotificationClick} onMarkAllRead={onMarkAllRead} />
