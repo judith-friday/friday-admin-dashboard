@@ -116,6 +116,7 @@ export interface Draft {
   revision_instruction?: string
   revision_number?: number
   sent_at?: string
+  sent_via?: string | null
   created_at: string
   updated_at: string
 }

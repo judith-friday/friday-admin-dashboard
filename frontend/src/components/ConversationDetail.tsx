@@ -259,7 +259,7 @@ export default function ConversationDetail({
                   {isShowingTranslated ? draft.translated_content : draft.draft_body}
                 </p>
                 <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>
-                  {draft.reviewed_by === 'auto-send' ? 'Auto-sent by Judith' : `Approved by ${draft.reviewed_by || 'unknown'}`}{draft.revision_number && draft.revision_number > 1 ? ` (v${draft.revision_number})` : ''} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}
+                  {draft.reviewed_by === 'auto-send' ? 'Auto-sent by Judith' : `Approved by ${draft.reviewed_by || 'unknown'}`}{draft.revision_number && draft.revision_number > 1 ? ` (v${draft.revision_number})` : ''} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}{draft.sent_via && ` · via ${draft.sent_via === 'booking' ? 'Booking.com' : draft.sent_via === 'airbnb' ? 'Airbnb' : draft.sent_via === 'whatsapp' ? 'WhatsApp' : draft.sent_via.charAt(0).toUpperCase() + draft.sent_via.slice(1)}`}
                 </div>
               </div>
               </React.Fragment>
