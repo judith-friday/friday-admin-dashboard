@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { trackEvent } from '../lib/analytics'
+import TeachingSummary from './TeachingSummary'
 
 export type LearnMode = 'learn' | 'no_learn' | 'normal'
 export type LearnScope = 'global' | 'property'
@@ -101,6 +102,9 @@ export default function SendConfirmModal({
                 <div className="p-2 rounded text-xs mb-3" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#e2e8f0'}}>
                   {sendConfirm.preview}
                 </div>
+
+                {/* Teaching summary */}
+                <TeachingSummary propertyCode={sendConfirm.property} />
 
                 {/* Learn decision */}
                 <p className="text-xs mb-2" style={{color: '#64748b'}}>Should Judith learn from this?</p>
