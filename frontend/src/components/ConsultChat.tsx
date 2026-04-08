@@ -29,7 +29,11 @@ function stripTeachTags(text: string): string {
 }
 
 function stripZoneTags(text: string): string {
-  return text.replace(/\[REASONING\]/g, '').replace(/\[\/REASONING\]/g, '').replace(/\[DRAFT\]/g, '').replace(/\[\/DRAFT\]/g, '').trim()
+  return text
+    .replace(/\[REASONING\]/g, '').replace(/\[\/REASONING\]/g, '')
+    .replace(/\[DRAFT\]/g, '').replace(/\[\/DRAFT\]/g, '')
+    .replace(/\[DRAFT_UPDATE\][\s\S]*?\[\/DRAFT_UPDATE\]/g, '')
+    .trim()
 }
 
 interface TeachingActionData {
@@ -229,7 +233,7 @@ export default function ConsultChat({
         </div>
       )}
       {/* Chat messages */}
-      <div className="p-3 pt-1 space-y-2 overflow-y-auto custom-scrollbar" style={{ maxHeight: '40vh' }}>
+      <div className="p-3 pt-1 space-y-2 overflow-y-auto custom-scrollbar consult-chat-messages" style={{ maxHeight: '40vh' }}>
         {messages.map((msg, i) => {
           if (msg.role === 'user') {
             return (
