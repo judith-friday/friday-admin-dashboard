@@ -8,26 +8,36 @@ import { toast } from 'react-hot-toast'
 import ComposePanel from './ComposePanel'
 import DraftPanel from './DraftPanel'
 
-function formatSenderWithChannel(senderName: string | null, channel: string | null): string {
+function formatChannelName(channel: string | null): string | null {
+  if (!channel) return null
+  if (channel === 'booking') return 'Booking.com'
+  if (channel === 'airbnb') return 'Airbnb'
+  if (channel === 'whatsapp') return 'WhatsApp'
+  if (channel === 'email') return 'Email'
+  if (channel === 'direct') return 'Direct'
+  return channel.charAt(0).toUpperCase() + channel.slice(1)
+}
+
+function formatSenderWithChannel(senderName: string | null, channel?: string | null, sentBy?: string | null, sentViaSystem?: string | null): string {
   if (!senderName) return ''
   if (senderName.toLowerCase() === 'hook') return 'Automated message'
 
-  const personName = senderName.replace(/\s*via\s+(Compose|Judith|compose|judith)$/i, '').trim()
+  const channelName = formatChannelName(channel ?? null)
 
-  const channelName = channel
-    ? channel === 'booking' ? 'Booking.com'
-    : channel === 'airbnb' ? 'Airbnb'
-    : channel === 'whatsapp' ? 'WhatsApp'
-    : channel === 'email' ? 'Email'
-    : channel === 'direct' ? 'Direct'
-    : channel.charAt(0).toUpperCase() + channel.slice(1)
-    : null
-
-  if (/via (Compose|Judith)/i.test(senderName)) {
-    return channelName ? `${personName} via ${channelName}` : personName
+  // Use explicit fields if available
+  if (sentViaSystem) {
+    const who = sentBy || 'Team'
+    const via = sentViaSystem === 'friday' ? 'Friday' : 'Guesty'
+    return channelName ? `${who} via ${via} on ${channelName}` : `${who} via ${via}`
   }
 
-  return `${personName} via Guesty`
+  // Fallback: parse from sender_name for older messages without sent_via_system
+  const personName = senderName.replace(/\s*via\s+(Compose|Judith|compose|judith)$/i, '').trim()
+  if (/via (Compose|Judith)/i.test(senderName)) {
+    return channelName ? `${personName} via Friday on ${channelName}` : `${personName} via Friday`
+  }
+
+  return channelName ? `${personName} via Guesty on ${channelName}` : `${personName} via Guesty`
 }
 
 interface ConversationDetailProps {
@@ -282,7 +292,7 @@ export default function ConversationDetail({
                   {isShowingTranslated ? draft.translated_content : draft.draft_body}
                 </p>
                 <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>
-                  {draft.reviewed_by === 'auto-send' ? 'Auto-sent by Judith' : `Approved by ${draft.reviewed_by || 'unknown'}`}{draft.revision_number && draft.revision_number > 1 ? ` (v${draft.revision_number})` : ''} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}{draft.sent_via && ` · via ${draft.sent_via === 'booking' ? 'Booking.com' : draft.sent_via === 'airbnb' ? 'Airbnb' : draft.sent_via === 'whatsapp' ? 'WhatsApp' : draft.sent_via.charAt(0).toUpperCase() + draft.sent_via.slice(1)}`}
+                  {draft.reviewed_by === 'auto-send' ? 'Auto-sent by Judith' : `${draft.reviewed_by || 'Team'} via Friday${draft.sent_via ? ` on ${formatChannelName(draft.sent_via)}` : ''}`}{draft.revision_number && draft.revision_number > 1 ? ` (v${draft.revision_number})` : ''} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}
                 </div>
               </div>
               </React.Fragment>
@@ -388,7 +398,7 @@ export default function ConversationDetail({
                 )}
 
                 <div className="text-xs mt-1" style={{color: '#64748b'}}>
-                  {formatTimestamp(msg.created_at)} {msg.sender_name && ` · ${formatSenderWithChannel(msg.sender_name, detail.conversation.channel)}`}
+                  {formatTimestamp(msg.created_at)} {msg.sender_name && ` · ${formatSenderWithChannel(msg.sender_name, detail.conversation.channel, msg.sent_by, msg.sent_via_system)}`}
                   {!isOutbound && isNonEnglish && (
                     <span className="ml-1">{LANG_FLAGS[msg.original_language!] || ''} {LANG_NAMES[msg.original_language!] || msg.original_language}</span>
                   )}

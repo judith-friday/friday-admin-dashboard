@@ -98,6 +98,8 @@ export interface MessageItem {
   translated_body?: string
   original_language?: string
   sender_name?: string
+  sent_by?: string | null
+  sent_via_system?: 'friday' | 'guesty' | null
   created_at: string
 }
 

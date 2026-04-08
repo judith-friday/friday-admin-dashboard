@@ -89,6 +89,7 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
   const [pendingRewrites, setPendingRewrites] = useState<Record<string, { rewrite_id: string; original: string; proposed: string }>>({})
   const [consultTeachingId, setConsultTeachingId] = useState<string | null>(null)
   const [showRevoked, setShowRevoked] = useState(false)
+  const [expandedTeachingId, setExpandedTeachingId] = useState<string | null>(null)
 
   // Candidates (Review Queue) state
   const [candidates, setCandidates] = useState<TeachingCandidate[]>([])
@@ -251,6 +252,7 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
     trackEvent('teaching_analyzed_bulk', { count: teachings.filter((t: any) => t.status === 'active').length })
     try {
       await apiFetch('/api/teachings/analyze-all', { method: 'POST' })
+      toast.success('Analysis complete')
       fetchTeachings()
       fetchMetrics()
     } catch (err: any) {
@@ -468,7 +470,7 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
 
             {/* Active/paused rules */}
             {filteredTeachings.length === 0 ? (
-              <div className="text-center py-8" style={{ color: '#64748b' }}>{searchQuery ? 'No rules match your search.' : 'No active rules.'}</div>
+              <div className="text-center py-8" style={{ color: '#64748b' }}>{(searchQuery || scopeFilter || propertyFilter || creatorFilter) ? 'No matching rules.' : 'No active rules.'}</div>
             ) : (
               <div className="space-y-2">
                 {filteredTeachings.map((t: any) => renderTeachingCard(t))}
@@ -504,7 +506,7 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
             </div>
 
             {!statusFilter && pendingReview.length > 0 && (
-              <div className="px-5 py-2">
+              <div className="px-5 py-2 space-y-2">
                 <div className="text-xs font-medium mb-2" style={{ color: '#6395ff' }}>{'\u{1F4CB}'} Pending Review</div>
                 {pendingReview.map(c => renderCandidate(c))}
               </div>
@@ -545,7 +547,7 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
                   <MetricCard label="Auto-detected" value={metrics.auto_teachings} color="#c084fc" />
                   <MetricCard label="Manual" value={metrics.active_teachings - metrics.auto_teachings} color="#6395ff" />
                   <MetricCard label="Events (7d)" value={metrics.recent_events} color="#38bdf8" />
-                  <MetricCard label="Pending Review" value={metrics.candidates_by_status.find(c => c.status === 'pending_review')?.count || '0'} color="#fbbf24" />
+                  <MetricCard label="Pending Review" value={metrics.candidates_by_status.find(c => c.status === 'pending_review')?.count || '0'} color="#fbbf24" className="col-span-2" />
                 </div>
                 {metrics.clusters_by_type.length > 0 && (
                   <div>
@@ -600,7 +602,7 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
                     </div>
                   </div>
                   <div className="flex gap-2 mt-2">
-                    <button disabled={actionInProgress === c.id} onClick={() => handleAction(c.id, 'approve')} className="text-xs px-3 py-1.5 rounded-lg" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)', opacity: actionInProgress === c.id ? 0.5 : 1 }}>Approve Teaching</button>
+                    <button disabled={actionInProgress === c.id} onClick={() => handleAction(c.id, 'approve')} className="text-xs px-3 py-1.5 rounded-lg" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)', opacity: actionInProgress === c.id ? 0.5 : 1 }}>Apply Correction</button>
                     <button disabled={actionInProgress === c.id} onClick={() => handleAction(c.id, 'reject')} className="text-xs px-3 py-1.5 rounded-lg" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', opacity: actionInProgress === c.id ? 0.5 : 1 }}>Dismiss</button>
                   </div>
                 </div>
@@ -617,100 +619,127 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
   function renderTeachingCard(t: any) {
     const isEditing = editingTeachingId === t.id
     const isRevoking = revokeId === t.id
+    const isExpanded = expandedTeachingId === t.id
     const statusColor = t.status === 'active' ? '#4ade80' : t.status === 'paused' ? '#fbbf24' : '#f87171'
     const statusBg = t.status === 'active' ? 'rgba(34,197,94,0.15)' : t.status === 'paused' ? 'rgba(234,179,8,0.15)' : 'rgba(239,68,68,0.15)'
 
     return (
-      <div key={t.id} className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', opacity: t.status === 'revoked' ? 0.5 : t.status === 'paused' ? 0.7 : 1 }}>
-        {/* Instruction text — click to edit inline */}
-        {isEditing ? (
-          <textarea
-            autoFocus
-            value={editingTeachingText}
-            onChange={e => setEditingTeachingText(e.target.value)}
-            onBlur={() => handleSaveInlineEdit(t.id)}
-            onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSaveInlineEdit(t.id) } if (e.key === 'Escape') setEditingTeachingId(null) }}
-            className="w-full text-sm rounded-lg p-2 resize-none outline-none"
-            style={{ background: 'rgba(0,0,0,0.4)', color: '#e2e8f0', border: '1px solid rgba(168,85,247,0.4)', minHeight: '40px' }}
-            rows={2}
-          />
-        ) : (
-          <p
-            className="text-sm cursor-pointer hover:opacity-80"
-            style={{ color: t.status === 'revoked' ? '#64748b' : '#e2e8f0', textDecoration: t.status === 'revoked' ? 'line-through' : undefined }}
-            onClick={() => { if (t.status !== 'revoked') { setEditingTeachingId(t.id); setEditingTeachingText(t.instruction) } }}
-            title={t.status !== 'revoked' ? 'Click to edit' : undefined}
-          >
-            {t.instruction}
-          </p>
-        )}
-
-        {/* Friday's recommendation */}
-        {t.recommendation && !isEditing && (
-          <div className="text-xs mt-2 p-2 rounded" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)', color: '#94a3b8' }}>
-            <span style={{ color: '#6395ff', fontWeight: 500 }}>{'\u{1F4AC}'} Friday&apos;s take:</span>{' '}{t.recommendation}
-            {t.recommendation_updated_at && <span className="ml-2" style={{ color: '#475569', fontSize: '10px' }}>{formatDistanceToNow(new Date(t.recommendation_updated_at), { addSuffix: true })}</span>}
-          </div>
-        )}
-
-        {/* Badges row: scope, creator, date */}
-        {!isEditing && (
-          <div className="flex items-center flex-wrap gap-2 mt-2">
-            <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: t.scope === 'global' ? 'rgba(99,149,255,0.15)' : 'rgba(245,158,11,0.15)', color: t.scope === 'global' ? '#6395ff' : '#fbbf24' }}>
-              {t.scope === 'global' ? 'Global' : t.property_code}
-            </span>
-            {t.status === 'paused' && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: statusBg, color: statusColor }}>Paused</span>}
-            <span className="text-xs" style={{ color: '#64748b' }}>
-              {t.taught_by || 'System'} {'\u00B7'} {t.taught_at ? format(new Date(t.taught_at), 'MMM d') : ''}
-            </span>
-          </div>
-        )}
-
-        {/* Action buttons */}
-        {!isEditing && !isRevoking && t.status !== 'revoked' && (
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
-            {t.status === 'active' && <button onClick={() => handlePauseTeaching(t.id)} className="text-xs px-2 py-1 rounded-lg transition-all" style={{ background: 'rgba(234,179,8,0.15)', color: '#fbbf24', border: '1px solid rgba(234,179,8,0.3)' }}>Pause</button>}
-            {t.status === 'paused' && <button onClick={() => handleResumeTeaching(t.id)} className="text-xs px-2 py-1 rounded-lg transition-all" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>Resume</button>}
-            <button onClick={() => setRevokeId(t.id)} className="text-xs px-2 py-1 rounded-lg transition-all" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)' }}>Revoke</button>
-            <button onClick={() => { const opening = consultTeachingId !== t.id; setConsultTeachingId(opening ? t.id : null); if (opening) trackEvent('ask_judith_opened', { context: 'teaching', teachingId: t.id }) }} className="text-xs px-2 py-1 rounded-lg transition-all flex items-center gap-1" style={{ background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)' }}>
-              <ChatBubbleLeftRightIcon className="h-3 w-3" /> Ask Friday
-            </button>
-          </div>
-        )}
-
-        {/* Revoke confirmation */}
-        {isRevoking && (
-          <div className="flex items-center gap-2 mt-2">
-            <input type="text" value={revokeReason} onChange={e => setRevokeReason(e.target.value)} placeholder="Reason for revoking..." className="flex-1 text-base rounded px-2 py-1 outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9' }} onKeyDown={e => { if (e.key === 'Enter') handleRevokeTeaching(t.id) }} />
-            <button onClick={() => handleRevokeTeaching(t.id)} className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171' }}>OK</button>
-            <button onClick={() => setRevokeId(null)} className="text-xs" style={{ color: '#64748b' }}>{'\u2715'}</button>
-          </div>
-        )}
-
-        {/* Revoked info */}
-        {t.status === 'revoked' && (
-          <div className="mt-1">
-            <p className="text-xs" style={{ color: '#475569' }}>{t.revoked_by ? `Revoked by ${t.revoked_by}` : ''}</p>
-            {t.revoke_reason && <p className="text-xs" style={{ color: '#f87171' }}>Reason: {t.revoke_reason}</p>}
-          </div>
-        )}
-
-        {/* Pending rewrite */}
-        {pendingRewrites[t.id] && (
-          <div className="mt-2 p-2 rounded" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <div className="text-xs mb-1" style={{ color: '#64748b' }}>Proposed rewrite:</div>
-            <p className="text-sm line-through mb-1" style={{ color: '#64748b' }}>{pendingRewrites[t.id].original}</p>
-            <p className="text-sm" style={{ color: '#4ade80' }}>{pendingRewrites[t.id].proposed}</p>
-            <div className="flex gap-2 mt-2">
-              <button onClick={() => approveRewrite(t.id, pendingRewrites[t.id].rewrite_id)} className="text-xs px-3 py-1 rounded" style={{ background: 'rgba(34,197,94,0.2)', color: '#4ade80' }}>Approve</button>
-              <button onClick={() => rejectRewrite(t.id, pendingRewrites[t.id].rewrite_id)} className="text-xs px-3 py-1 rounded" style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171' }}>Reject</button>
+      <div key={t.id} className="rounded-lg p-3 cursor-pointer transition-all" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', opacity: t.status === 'revoked' ? 0.5 : t.status === 'paused' ? 0.7 : 1 }} onClick={() => { if (!isEditing) setExpandedTeachingId(isExpanded ? null : t.id) }}>
+        {/* Collapsed: instruction (truncated) + scope badge + paused badge */}
+        {!isExpanded && !isEditing && (
+          <>
+            <p
+              className="text-sm line-clamp-2"
+              style={{ color: t.status === 'revoked' ? '#64748b' : '#e2e8f0', textDecoration: t.status === 'revoked' ? 'line-through' : undefined }}
+            >
+              {t.instruction}
+            </p>
+            <div className="flex items-center flex-wrap gap-2 mt-1.5">
+              <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: t.scope === 'global' ? 'rgba(99,149,255,0.15)' : 'rgba(245,158,11,0.15)', color: t.scope === 'global' ? '#6395ff' : '#fbbf24' }}>
+                {t.scope === 'global' ? 'Global' : t.property_code}
+              </span>
+              {t.status === 'paused' && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: statusBg, color: statusColor }}>Paused</span>}
             </div>
-          </div>
+          </>
         )}
 
-        {/* Consult chat */}
-        {consultTeachingId === t.id && (
-          <ConsultChat context="teaching" initialInstruction={`Analyze this teaching and suggest improvements: "${t.instruction}"`} contextData={{ instruction: t.instruction, scope: t.scope, propertyCode: t.property_code, source: t.source, recommendation: t.recommendation, relatedTeachings: activeTeachings.filter((at: any) => at.id !== t.id).map((at: any) => at.instruction) }} onConfirm={() => { setConsultTeachingId(null); fetchTeachings() }} onCancel={() => setConsultTeachingId(null)} confirmLabel="Done" />
+        {/* Expanded: full content */}
+        {(isExpanded || isEditing) && (
+          <>
+            {/* Instruction text — click to edit inline */}
+            {isEditing ? (
+              <textarea
+                autoFocus
+                value={editingTeachingText}
+                onChange={e => setEditingTeachingText(e.target.value)}
+                onBlur={() => handleSaveInlineEdit(t.id)}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSaveInlineEdit(t.id) } if (e.key === 'Escape') setEditingTeachingId(null) }}
+                className="w-full text-sm rounded-lg p-2 resize-none outline-none"
+                style={{ background: 'rgba(0,0,0,0.4)', color: '#e2e8f0', border: '1px solid rgba(168,85,247,0.4)', minHeight: '40px' }}
+                rows={2}
+                onClick={e => e.stopPropagation()}
+              />
+            ) : (
+              <p
+                className="text-sm cursor-pointer hover:opacity-80"
+                style={{ color: t.status === 'revoked' ? '#64748b' : '#e2e8f0', textDecoration: t.status === 'revoked' ? 'line-through' : undefined }}
+                onClick={e => { e.stopPropagation(); if (t.status !== 'revoked') { setEditingTeachingId(t.id); setEditingTeachingText(t.instruction) } }}
+                title={t.status !== 'revoked' ? 'Click to edit' : undefined}
+              >
+                {t.instruction}
+              </p>
+            )}
+
+            {/* Friday's recommendation */}
+            {t.recommendation && !isEditing && (
+              <div className="text-xs mt-2 p-2 rounded" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)', color: '#94a3b8' }}>
+                <span style={{ color: '#6395ff', fontWeight: 500 }}>{'\u{1F4AC}'} Friday&apos;s take:</span>{' '}{t.recommendation}
+                {t.recommendation_updated_at && <span className="ml-2" style={{ color: '#475569', fontSize: '10px' }}>{formatDistanceToNow(new Date(t.recommendation_updated_at), { addSuffix: true })}</span>}
+              </div>
+            )}
+
+            {/* Badges row: scope, creator, date */}
+            {!isEditing && (
+              <div className="flex items-center flex-wrap gap-2 mt-2">
+                <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: t.scope === 'global' ? 'rgba(99,149,255,0.15)' : 'rgba(245,158,11,0.15)', color: t.scope === 'global' ? '#6395ff' : '#fbbf24' }}>
+                  {t.scope === 'global' ? 'Global' : t.property_code}
+                </span>
+                {t.status === 'paused' && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: statusBg, color: statusColor }}>Paused</span>}
+                <span className="text-xs" style={{ color: '#64748b' }}>
+                  {t.taught_by || 'System'} {'\u00B7'} {t.taught_at ? format(new Date(t.taught_at), 'MMM d') : ''}
+                </span>
+              </div>
+            )}
+
+            {/* Action buttons */}
+            {!isEditing && !isRevoking && t.status !== 'revoked' && (
+              <div className="flex items-center gap-2 mt-2 flex-wrap" onClick={e => e.stopPropagation()}>
+                {t.status === 'active' && <button onClick={() => handlePauseTeaching(t.id)} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(234,179,8,0.15)', color: '#fbbf24', border: '1px solid rgba(234,179,8,0.3)' }}>Pause</button>}
+                {t.status === 'paused' && <button onClick={() => handleResumeTeaching(t.id)} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>Resume</button>}
+                <button onClick={() => setRevokeId(t.id)} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)' }}>Revoke</button>
+                <button onClick={() => { const opening = consultTeachingId !== t.id; setConsultTeachingId(opening ? t.id : null); if (opening) trackEvent('ask_judith_opened', { context: 'teaching', teachingId: t.id }) }} className="text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1" style={{ background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)' }}>
+                  <ChatBubbleLeftRightIcon className="h-3 w-3" /> Ask Friday
+                </button>
+              </div>
+            )}
+
+            {/* Revoke confirmation */}
+            {isRevoking && (
+              <div className="flex items-center gap-2 mt-2" onClick={e => e.stopPropagation()}>
+                <input type="text" value={revokeReason} onChange={e => setRevokeReason(e.target.value)} placeholder="Reason for revoking..." className="flex-1 text-base rounded px-2 py-1 outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9' }} onKeyDown={e => { if (e.key === 'Enter') handleRevokeTeaching(t.id) }} />
+                <button onClick={() => handleRevokeTeaching(t.id)} className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171' }}>OK</button>
+                <button onClick={() => setRevokeId(null)} className="text-xs" style={{ color: '#64748b' }}>{'\u2715'}</button>
+              </div>
+            )}
+
+            {/* Revoked info */}
+            {t.status === 'revoked' && (
+              <div className="mt-1">
+                <p className="text-xs" style={{ color: '#475569' }}>{t.revoked_by ? `Revoked by ${t.revoked_by}` : ''}</p>
+                {t.revoke_reason && <p className="text-xs" style={{ color: '#f87171' }}>Reason: {t.revoke_reason}</p>}
+              </div>
+            )}
+
+            {/* Pending rewrite */}
+            {pendingRewrites[t.id] && (
+              <div className="mt-2 p-2 rounded" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)' }} onClick={e => e.stopPropagation()}>
+                <div className="text-xs mb-1" style={{ color: '#64748b' }}>Proposed rewrite:</div>
+                <p className="text-sm line-through mb-1" style={{ color: '#64748b' }}>{pendingRewrites[t.id].original}</p>
+                <p className="text-sm" style={{ color: '#4ade80' }}>{pendingRewrites[t.id].proposed}</p>
+                <div className="flex gap-2 mt-2">
+                  <button onClick={() => approveRewrite(t.id, pendingRewrites[t.id].rewrite_id)} className="text-xs px-3 py-1 rounded" style={{ background: 'rgba(34,197,94,0.2)', color: '#4ade80' }}>Approve</button>
+                  <button onClick={() => rejectRewrite(t.id, pendingRewrites[t.id].rewrite_id)} className="text-xs px-3 py-1 rounded" style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171' }}>Reject</button>
+                </div>
+              </div>
+            )}
+
+            {/* Consult chat */}
+            {consultTeachingId === t.id && (
+              <div onClick={e => e.stopPropagation()}>
+                <ConsultChat context="teaching" initialInstruction={`Analyze this teaching and suggest improvements: "${t.instruction}"`} contextData={{ instruction: t.instruction, scope: t.scope, propertyCode: t.property_code, source: t.source, recommendation: t.recommendation, relatedTeachings: activeTeachings.filter((at: any) => at.id !== t.id).map((at: any) => at.instruction) }} onConfirm={() => { setConsultTeachingId(null); fetchTeachings() }} onCancel={() => setConsultTeachingId(null)} confirmLabel="Done" />
+              </div>
+            )}
+          </>
         )}
       </div>
     )
@@ -724,7 +753,7 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
     const isCandidateEditing = editingId === c.id
 
     return (
-      <div key={c.id} className="rounded-lg p-3 mb-2 transition-all cursor-pointer" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }} onClick={() => loadEvidence(c.id)}>
+      <div key={c.id} className="rounded-lg p-3 transition-all cursor-pointer" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }} onClick={() => loadEvidence(c.id)}>
         <div className="flex items-start gap-2">
           <span className="text-sm mt-0.5">{pattern.emoji}</span>
           <div className="flex-1 min-w-0">
@@ -814,9 +843,9 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
   }
 }
 
-function MetricCard({ label, value, color }: { label: string; value: number | string; color: string }) {
+function MetricCard({ label, value, color, className }: { label: string; value: number | string; color: string; className?: string }) {
   return (
-    <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+    <div className={`rounded-lg p-3 ${className || ''}`} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
       <div className="text-2xl font-bold" style={{ color }}>{value}</div>
       <div className="text-xs mt-1" style={{ color: '#64748b' }}>{label}</div>
     </div>
