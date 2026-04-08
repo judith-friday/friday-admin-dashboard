@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { ArrowPathIcon } from '@heroicons/react/24/outline'
 import { apiFetch } from './types'
 import { trackEvent } from '../lib/analytics'
+import TeachingCard from './TeachingCard'
+import ConflictBanner from './ConflictBanner'
 
 interface ConsultChatProps {
   conversationId?: string
@@ -20,30 +22,24 @@ interface ConsultChatProps {
   chips?: Array<{label: string, instruction: string}>
 }
 
-function extractAndSaveTeaching(text: string, propertyCode?: string): string {
-  const match = text.match(/\[TEACH\]([\s\S]*?)\[\/TEACH\]/)
-  if (!match) return text
-  const instruction = match[1].trim()
-  // Fire and forget — save teaching
-  apiFetch('/api/teachings', {
-    method: 'POST',
-    body: JSON.stringify({
-      instruction,
-      scope: propertyCode ? 'property' : 'global',
-      property_code: propertyCode || null,
-      taught_by: 'consult_chat',
-    }),
-  }).then(() => {
-    console.log('[ConsultChat] Teaching saved:', instruction.substring(0, 60))
-  }).catch((err: any) => {
-    console.warn('[ConsultChat] Failed to save teaching:', err.message)
-  })
-  // Strip the [TEACH] tags from displayed text, add a confirmation note
-  return text.replace(/\[TEACH\][\s\S]*?\[\/TEACH\]/, '\u2705 Learned for future drafts.').trim()
+function stripTeachTags(text: string): string {
+  // Strip [TEACH] tags from display text — teaching actions are now handled via structured API response
+  return text.replace(/\[TEACH\][\s\S]*?\[\/TEACH\]/g, '').trim()
 }
 
 function stripZoneTags(text: string): string {
   return text.replace(/\[REASONING\]/g, '').replace(/\[\/REASONING\]/g, '').replace(/\[DRAFT\]/g, '').replace(/\[\/DRAFT\]/g, '').trim()
+}
+
+interface TeachingActionData {
+  action: 'create' | 'update' | 'flag_conflict'
+  instruction: string
+  scope?: string
+  propertyCode?: string
+  reason?: string
+  existingTeachingId?: string
+  conflictingTeachingId?: string
+  conflictingTeachingIndex?: string
 }
 
 interface ChatMessage {
@@ -62,6 +58,7 @@ export default function ConsultChat({
   const [started, setStarted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [draftUpdated, setDraftUpdated] = useState(false)
+  const [teachingAction, setTeachingAction] = useState<TeachingActionData | null>(null)
 
   const startedRef = useRef(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -90,13 +87,16 @@ export default function ConsultChat({
         const rawResponse = data.response as string
         const draftUpdateContent = data.draft_update as string | undefined
         if (rawResponse) {
-          const response = stripZoneTags(extractAndSaveTeaching(rawResponse, propertyCode))
+          const response = stripZoneTags(stripTeachTags(rawResponse))
           setMessages([userMsg, { role: 'assistant', content: response }])
         }
         if (draftUpdateContent && onDraftUpdate) {
           onDraftUpdate(draftUpdateContent)
           setDraftUpdated(true)
           setTimeout(() => setDraftUpdated(false), 3000)
+        }
+        if (data.teaching_action) {
+          setTeachingAction(data.teaching_action as TeachingActionData)
         }
       } catch (err: any) {
         setError(err.message || 'Failed to consult')
@@ -117,7 +117,7 @@ export default function ConsultChat({
     el.style.height = Math.min(el.scrollHeight, 96) + 'px'
   }
 
-  const sendConsult = async (instruction: string, history: ChatMessage[]): Promise<{response: string | null, draftUpdate?: string}> => {
+  const sendConsult = async (instruction: string, history: ChatMessage[]): Promise<{response: string | null, draftUpdate?: string, teachingAction?: TeachingActionData}> => {
     try {
       const data = await apiFetch('/api/ai/consult', {
         method: 'POST',
@@ -130,7 +130,7 @@ export default function ConsultChat({
           ...(history.length > 0 ? { history } : {}),
         }),
       })
-      return { response: data.response as string, draftUpdate: data.draft_update as string | undefined }
+      return { response: data.response as string, draftUpdate: data.draft_update as string | undefined, teachingAction: data.teaching_action as TeachingActionData | undefined }
     } catch (err: any) {
       throw err
     }
@@ -145,13 +145,16 @@ export default function ConsultChat({
     try {
       const result = await sendConsult(instruction, newMessages)
       if (result.response) {
-        const response = stripZoneTags(extractAndSaveTeaching(result.response, propertyCode))
+        const response = stripZoneTags(stripTeachTags(result.response))
         setMessages(prev => [...prev, { role: 'assistant', content: response }])
       }
       if (result.draftUpdate && onDraftUpdate) {
         onDraftUpdate(result.draftUpdate)
         setDraftUpdated(true)
         setTimeout(() => setDraftUpdated(false), 3000)
+      }
+      if (result.teachingAction) {
+        setTeachingAction(result.teachingAction)
       }
     } catch (err: any) {
       setError(err.message || 'Failed to consult')
@@ -237,6 +240,60 @@ export default function ConsultChat({
           <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
           Draft updated
         </div>
+      )}
+
+      {/* Teaching action cards */}
+      {teachingAction && teachingAction.action === 'create' && (
+        <TeachingCard
+          instruction={teachingAction.instruction}
+          suggestedScope={(teachingAction.scope as 'global' | 'property') || 'global'}
+          propertyCode={teachingAction.propertyCode || propertyCode}
+          onConfirm={() => setTeachingAction(null)}
+          onDismiss={() => setTeachingAction(null)}
+        />
+      )}
+      {teachingAction && teachingAction.action === 'update' && (
+        <TeachingCard
+          instruction={teachingAction.instruction}
+          suggestedScope="global"
+          propertyCode={teachingAction.propertyCode || propertyCode}
+          onConfirm={async () => {
+            if (teachingAction.existingTeachingId) {
+              await apiFetch(`/api/teachings/${teachingAction.existingTeachingId}/revoke`, {
+                method: 'PATCH',
+                body: JSON.stringify({ revoke_reason: 'Updated via Ask Judith' }),
+              })
+            }
+            setTeachingAction(null)
+          }}
+          onDismiss={() => setTeachingAction(null)}
+        />
+      )}
+      {teachingAction && teachingAction.action === 'flag_conflict' && (
+        <ConflictBanner
+          message={teachingAction.reason || 'This conflicts with an existing teaching.'}
+          existingTeaching={teachingAction.conflictingTeachingIndex || undefined}
+          onUpdateTeaching={async () => {
+            if (teachingAction.conflictingTeachingId) {
+              await apiFetch(`/api/teachings/${teachingAction.conflictingTeachingId}/revoke`, {
+                method: 'PATCH',
+                body: JSON.stringify({ revoke_reason: 'Updated via Ask Judith conflict resolution' }),
+              })
+            }
+            await apiFetch('/api/teachings', {
+              method: 'POST',
+              body: JSON.stringify({
+                instruction: teachingAction.instruction,
+                scope: 'global',
+                source: 'direct',
+                taught_by: 'team',
+              }),
+            })
+            setTeachingAction(null)
+          }}
+          onException={() => setTeachingAction(null)}
+          onDismiss={() => setTeachingAction(null)}
+        />
       )}
 
       {/* Quick action chips */}
