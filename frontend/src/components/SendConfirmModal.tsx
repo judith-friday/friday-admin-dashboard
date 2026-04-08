@@ -23,6 +23,7 @@ interface SendConfirmModalProps {
   undoDraftId: string | null
   undoCountdown: number
   cancelSend: () => void
+  sessionTeachings?: Array<{ id: string; instruction: string; scope: string }>
 }
 
 export default function SendConfirmModal({
@@ -34,6 +35,7 @@ export default function SendConfirmModal({
   undoDraftId,
   undoCountdown,
   cancelSend,
+  sessionTeachings = [],
 }: SendConfirmModalProps) {
   const [step, setStep] = useState<'decide' | 'scope'>('decide')
 
@@ -103,8 +105,8 @@ export default function SendConfirmModal({
                   {sendConfirm.preview}
                 </div>
 
-                {/* Teaching summary */}
-                <TeachingSummary propertyCode={sendConfirm.property} />
+                {/* Teaching summary — only show teachings created during this session */}
+                {sessionTeachings.length > 0 && <TeachingSummary teachings={sessionTeachings} />}
 
                 {/* Learn decision */}
                 <p className="text-xs mb-2" style={{color: '#64748b'}}>Should Judith learn from this?</p>

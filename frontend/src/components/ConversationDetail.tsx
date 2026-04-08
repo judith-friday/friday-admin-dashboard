@@ -74,6 +74,7 @@ interface ConversationDetailProps {
   handleRevision: (draftId: string, mode: 'standard' | 'teach' | 'one_time', tScope?: 'global' | 'property', tPropCode?: string) => void
   handleRejectWithReason: (draftId: string) => void
   draftStateBadge: (state?: string) => React.ReactNode
+  onTeachingCreated?: (teaching: { id: string; instruction: string; scope: string }) => void
 }
 
 export default function ConversationDetail({
@@ -88,7 +89,7 @@ export default function ConversationDetail({
   rejectingDraft, setRejectingDraft, rejectReason, setRejectReason,
   showTeachPrompt, setShowTeachPrompt,
   requestApproval, handleDraftAction, handleRevision, handleRejectWithReason,
-  draftStateBadge,
+  draftStateBadge, onTeachingCreated,
 }: ConversationDetailProps) {
   const [summaryExpanded, setSummaryExpanded] = useState(false)
   // Track which sent drafts show translated version (by draft id)
@@ -467,6 +468,7 @@ export default function ConversationDetail({
           draftStateBadge={draftStateBadge}
           propertyName={detail.conversation.property_name}
           conversationId={selectedConvId}
+          onTeachingCreated={onTeachingCreated}
         >
           <ComposePanel
             composeOpen={composeOpen} setComposeOpen={setComposeOpen}
@@ -474,6 +476,7 @@ export default function ConversationDetail({
             composeSending={composeSending} handleComposeSend={handleComposeSend}
             handleComposeFix={handleComposeFix} composeFix={composeFix}
             conversationId={selectedConvId}
+            onTeachingCreated={onTeachingCreated}
           />
         </DraftPanel>
       ) : (
@@ -483,6 +486,7 @@ export default function ConversationDetail({
           composeSending={composeSending} handleComposeSend={handleComposeSend}
           handleComposeFix={handleComposeFix} composeFix={composeFix}
           conversationId={selectedConvId}
+          onTeachingCreated={onTeachingCreated}
         />
       )}
       </div>

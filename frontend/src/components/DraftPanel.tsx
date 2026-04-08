@@ -41,6 +41,7 @@ interface DraftPanelProps {
   propertyName?: string
   children?: React.ReactNode
   conversationId?: string
+  onTeachingCreated?: (teaching: { id: string; instruction: string; scope: string }) => void
 }
 
 export default function DraftPanel({
@@ -49,7 +50,7 @@ export default function DraftPanel({
   rejectingDraft, setRejectingDraft, rejectReason, setRejectReason,
   showTeachPrompt, setShowTeachPrompt,
   requestApproval, handleDraftAction, handleRevision, handleRejectWithReason,
-  draftStateBadge, propertyName, children, conversationId,
+  draftStateBadge, propertyName, children, conversationId, onTeachingCreated,
 }: DraftPanelProps) {
   const [collapsed, setCollapsed] = useState(false)
   const [consultDraftId, setConsultDraftId] = useState<string | null>(null)
@@ -162,6 +163,7 @@ export default function DraftPanel({
                     { label: '🎯 Fix issues', instruction: 'Fix any issues you found and give me the updated draft.' },
                     { label: '📋 Check teachings', instruction: 'Does this draft follow all active teachings? Flag any violations.' },
                   ]}
+                  onTeachingCreated={onTeachingCreated}
                 />
               )}
 

@@ -10,10 +10,11 @@ interface TeachingCardProps {
   propertyCode?: string
   onDismiss: () => void
   onConfirm?: (scope: string, propertyCode?: string) => void
+  onTeachingCreated?: (teaching: { id: string; instruction: string; scope: string }) => void
 }
 
 export default function TeachingCard({
-  instruction, suggestedScope = 'global', propertyCode, onDismiss, onConfirm,
+  instruction, suggestedScope = 'global', propertyCode, onDismiss, onConfirm, onTeachingCreated,
 }: TeachingCardProps) {
   const [scope, setScope] = useState<'global' | 'property'>(suggestedScope)
   const [saving, setSaving] = useState(false)
@@ -22,7 +23,7 @@ export default function TeachingCard({
   const handleConfirm = async () => {
     setSaving(true)
     try {
-      await apiFetch('/api/teachings', {
+      const result = await apiFetch('/api/teachings', {
         method: 'POST',
         body: JSON.stringify({
           instruction,
@@ -32,6 +33,10 @@ export default function TeachingCard({
         }),
       })
       setSaved(true)
+      const teachingId = result?.id || result?.teaching?.id
+      if (teachingId && onTeachingCreated) {
+        onTeachingCreated({ id: teachingId, instruction, scope })
+      }
       if (onConfirm) onConfirm(scope, scope === 'property' ? propertyCode : undefined)
       setTimeout(onDismiss, 2000)
     } catch (err: any) {

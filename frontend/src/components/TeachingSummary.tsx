@@ -1,47 +1,16 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { BookOpenIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
-import { apiFetch } from './types'
-
-interface Teaching {
-  id: string
-  instruction: string
-  scope: string
-  property_code: string | null
-}
 
 interface TeachingSummaryProps {
-  propertyCode?: string
+  teachings: Array<{ id: string; instruction: string; scope: string }>
 }
 
-export default function TeachingSummary({ propertyCode }: TeachingSummaryProps) {
-  const [teachings, setTeachings] = useState<Teaching[]>([])
+export default function TeachingSummary({ teachings }: TeachingSummaryProps) {
   const [expanded, setExpanded] = useState(false)
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      try {
-        const data = await apiFetch('/api/teachings?status=active')
-        if (cancelled) return
-        const all: Teaching[] = data.teachings || []
-        // Filter to teachings relevant to this property (global + property-scoped)
-        const relevant = all.filter(t =>
-          t.scope === 'global' || (t.scope === 'property' && t.property_code === propertyCode)
-        )
-        setTeachings(relevant)
-      } catch {
-        // Silently fail — teaching summary is informational only
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    })()
-    return () => { cancelled = true }
-  }, [propertyCode])
-
-  if (loading || teachings.length === 0) return null
+  if (teachings.length === 0) return null
 
   return (
     <div className="mb-3 rounded-lg" style={{ background: 'rgba(168,85,247,0.06)', border: '1px solid rgba(168,85,247,0.12)' }}>
@@ -52,7 +21,7 @@ export default function TeachingSummary({ propertyCode }: TeachingSummaryProps) 
       >
         <span className="flex items-center text-xs font-medium" style={{ color: '#c084fc' }}>
           <BookOpenIcon className="h-3.5 w-3.5 mr-1.5" />
-          {teachings.length} teaching{teachings.length !== 1 ? 's' : ''} applied
+          {teachings.length} teaching{teachings.length !== 1 ? 's' : ''} learned this session
         </span>
         {expanded
           ? <ChevronUpIcon className="h-3.5 w-3.5" style={{ color: '#c084fc' }} />
@@ -69,7 +38,7 @@ export default function TeachingSummary({ propertyCode }: TeachingSummaryProps) 
                 fontSize: '10px',
                 lineHeight: '1',
               }}>
-                {t.scope === 'global' ? 'Global' : t.property_code || 'Property'}
+                {t.scope === 'global' ? 'Global' : 'Property'}
               </span>
               <span>{t.instruction}</span>
             </div>

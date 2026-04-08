@@ -14,13 +14,14 @@ interface ComposePanelProps {
   handleComposeFix: () => void
   composeFix: boolean
   conversationId?: string
+  onTeachingCreated?: (teaching: { id: string; instruction: string; scope: string }) => void
 }
 
 export default function ComposePanel({
   composeOpen, setComposeOpen,
   composeText, setComposeText,
   composeSending, handleComposeSend, handleComposeFix, composeFix,
-  conversationId,
+  conversationId, onTeachingCreated,
 }: ComposePanelProps) {
   const [showConsult, setShowConsult] = useState(false)
 
@@ -106,6 +107,7 @@ export default function ComposePanel({
                 { label: '✂️ Shorter', instruction: 'Make this message shorter and more concise.' },
                 { label: '📋 Check rules', instruction: 'Check this message against active teachings and platform rules. Flag any issues.' },
               ]}
+              onTeachingCreated={onTeachingCreated}
             />
           )}
         </div>

@@ -20,6 +20,7 @@ interface ConsultChatProps {
   active?: boolean
   onDraftUpdate?: (content: string) => void
   chips?: Array<{label: string, instruction: string}>
+  onTeachingCreated?: (teaching: { id: string; instruction: string; scope: string }) => void
 }
 
 function stripTeachTags(text: string): string {
@@ -50,7 +51,7 @@ interface ChatMessage {
 export default function ConsultChat({
   conversationId, context, initialInstruction, draftBody, contextData,
   onConfirm, onCancel, confirmLabel, propertyCode, active = true,
-  onDraftUpdate, chips,
+  onDraftUpdate, chips, onTeachingCreated,
 }: ConsultChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [loading, setLoading] = useState(false)
@@ -250,6 +251,7 @@ export default function ConsultChat({
           propertyCode={teachingAction.propertyCode || propertyCode}
           onConfirm={() => setTeachingAction(null)}
           onDismiss={() => setTeachingAction(null)}
+          onTeachingCreated={onTeachingCreated}
         />
       )}
       {teachingAction && teachingAction.action === 'update' && (
@@ -267,6 +269,7 @@ export default function ConsultChat({
             setTeachingAction(null)
           }}
           onDismiss={() => setTeachingAction(null)}
+          onTeachingCreated={onTeachingCreated}
         />
       )}
       {teachingAction && teachingAction.action === 'flag_conflict' && (
@@ -280,7 +283,7 @@ export default function ConsultChat({
                 body: JSON.stringify({ revoke_reason: 'Updated via Ask Judith conflict resolution' }),
               })
             }
-            await apiFetch('/api/teachings', {
+            const result = await apiFetch('/api/teachings', {
               method: 'POST',
               body: JSON.stringify({
                 instruction: teachingAction.instruction,
@@ -289,6 +292,10 @@ export default function ConsultChat({
                 taught_by: 'team',
               }),
             })
+            const teachingId = result?.id || result?.teaching?.id
+            if (teachingId && onTeachingCreated) {
+              onTeachingCreated({ id: teachingId, instruction: teachingAction.instruction, scope: 'global' })
+            }
             setTeachingAction(null)
           }}
           onException={() => setTeachingAction(null)}

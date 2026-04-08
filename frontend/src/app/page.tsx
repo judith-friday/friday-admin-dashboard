@@ -19,10 +19,9 @@ import LoginScreen from '../components/LoginScreen'
 import BugReport from '../components/BugReport'
 import BugReportsPanel from '../components/BugReportsPanel'
 import SendQueuePanel from '../components/SendQueuePanel'
-import LearningQueuePanel from '../components/LearningQueuePanel'
 import PropertyCard from '../components/PropertyCard'
 import SendConfirmModal, { LearnMode, LearnScope } from '../components/SendConfirmModal'
-import TeachingsPanel from '../components/TeachingsPanel'
+import UnifiedTeachingsPanel from '../components/UnifiedTeachingsPanel'
 import DashboardStats from '../components/DashboardStats'
 import ConversationList from '../components/ConversationList'
 import ConversationDetailView from '../components/ConversationDetail'
@@ -39,6 +38,7 @@ export default function MessageDashboard() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConvId, setSelectedConvId] = useState<string | null>(null)
   const [detail, setDetail] = useState<ConversationDetail | null>(null)
+  const [sessionTeachings, setSessionTeachings] = useState<Array<{ id: string; instruction: string; scope: string }>>([])
   const [stats, setStats] = useState<InboxStats | null>(null)
   const [pollerStatus, setPollerStatus] = useState<{api_down: boolean, send_queue_length: number} | null>(null)
   const [queueCount, setQueueCount] = useState(0)
@@ -55,14 +55,9 @@ export default function MessageDashboard() {
   const [teachScope, setTeachScope] = useState<'global' | 'property'>('global')
   const [showTeachingsPanel, setShowTeachingsPanel] = useState(false)
   const [showBugReportsPanel, setShowBugReportsPanel] = useState(false)
-  const [showLearningQueue, setShowLearningQueue] = useState(false)
   const [showAnalytics, setShowAnalytics] = useState(false)
   const [showSendQueue, setShowSendQueue] = useState(false)
   const [showNotificationPanel, setShowNotificationPanel] = useState(false)
-  const [teachings, setTeachings] = useState<any[]>([])
-  const [revokeId, setRevokeId] = useState<string | null>(null)
-  const [revokeReason, setRevokeReason] = useState('')
-  const [newTeachingText, setNewTeachingText] = useState('')
   const [propertyCard, setPropertyCard] = useState<{code: string; data: any; loading: boolean} | null>(null)
   const [cardEditing, setCardEditing] = useState(false)
   const [cardEditData, setCardEditData] = useState<string>('')
@@ -114,6 +109,16 @@ export default function MessageDashboard() {
       return stored ? JSON.parse(stored) : []
     } catch { return [] }
   })
+
+  // Clear session teachings when switching conversations
+  useEffect(() => { setSessionTeachings([]) }, [selectedConvId])
+
+  const handleTeachingCreated = useCallback((teaching: { id: string; instruction: string; scope: string }) => {
+    setSessionTeachings(prev => {
+      if (prev.some(t => t.id === teaching.id)) return prev
+      return [...prev, teaching]
+    })
+  }, [])
 
   // Init auth
   useEffect(() => {
@@ -745,14 +750,6 @@ export default function MessageDashboard() {
     }
   }
 
-  const fetchTeachings = async () => {
-    try {
-      const data = await apiFetch('/api/teachings')
-      setTeachings(data.teachings || [])
-    } catch {}
-  }
-
-
   const fetchPropertyCard = async (code: string) => {
     setPropertyCard({ code, data: null, loading: true })
     setCardEditHistory([])
@@ -1133,6 +1130,7 @@ export default function MessageDashboard() {
         undoDraftId={undoDraftId}
         undoCountdown={undoCountdown}
         cancelSend={cancelSend}
+        sessionTeachings={sessionTeachings}
       />
 
       <DashboardStats
@@ -1259,6 +1257,7 @@ export default function MessageDashboard() {
                 handleRevision={handleRevision}
                 handleRejectWithReason={handleRejectWithReason}
                 draftStateBadge={draftStateBadge}
+                onTeachingCreated={handleTeachingCreated}
               />
 
               {!rightCollapsed ? (
