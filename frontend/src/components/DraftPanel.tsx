@@ -151,6 +151,17 @@ export default function DraftPanel({
                   draftBody={draft.draft_body}
                   onCancel={() => setConsultDraftId(null)}
                   propertyCode={propertyName}
+                  onDraftUpdate={(content) => {
+                    setEditingDraft(draft.id)
+                    isEditingRef.current = true
+                    setEditBody(content)
+                  }}
+                  chips={[
+                    { label: '🔍 Review draft', instruction: 'Review this draft for issues — tone, accuracy, teaching violations, missing details.' },
+                    { label: '✂️ Shorter', instruction: 'Make this draft shorter and more concise. Keep the key information.' },
+                    { label: '🎯 Fix issues', instruction: 'Fix any issues you found and give me the updated draft.' },
+                    { label: '📋 Check teachings', instruction: 'Does this draft follow all active teachings? Flag any violations.' },
+                  ]}
                 />
               )}
 
