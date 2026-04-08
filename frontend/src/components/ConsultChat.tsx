@@ -16,6 +16,8 @@ interface ConsultChatProps {
   confirmLabel?: string
   propertyCode?: string
   active?: boolean
+  onDraftUpdate?: (content: string) => void
+  chips?: Array<{label: string, instruction: string}>
 }
 
 function extractAndSaveTeaching(text: string, propertyCode?: string): string {
@@ -52,12 +54,14 @@ interface ChatMessage {
 export default function ConsultChat({
   conversationId, context, initialInstruction, draftBody, contextData,
   onConfirm, onCancel, confirmLabel, propertyCode, active = true,
+  onDraftUpdate, chips,
 }: ConsultChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [loading, setLoading] = useState(false)
   const [replyText, setReplyText] = useState('')
   const [started, setStarted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [draftUpdated, setDraftUpdated] = useState(false)
 
   const startedRef = useRef(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -84,9 +88,15 @@ export default function ConsultChat({
           }),
         })
         const rawResponse = data.response as string
+        const draftUpdateContent = data.draft_update as string | undefined
         if (rawResponse) {
           const response = stripZoneTags(extractAndSaveTeaching(rawResponse, propertyCode))
           setMessages([userMsg, { role: 'assistant', content: response }])
+        }
+        if (draftUpdateContent && onDraftUpdate) {
+          onDraftUpdate(draftUpdateContent)
+          setDraftUpdated(true)
+          setTimeout(() => setDraftUpdated(false), 3000)
         }
       } catch (err: any) {
         setError(err.message || 'Failed to consult')
@@ -107,9 +117,7 @@ export default function ConsultChat({
     el.style.height = Math.min(el.scrollHeight, 96) + 'px'
   }
 
-  const sendConsult = async (instruction: string, history: ChatMessage[]) => {
-    setLoading(true)
-    setError(null)
+  const sendConsult = async (instruction: string, history: ChatMessage[]): Promise<{response: string | null, draftUpdate?: string}> => {
     try {
       const data = await apiFetch('/api/ai/consult', {
         method: 'POST',
@@ -122,10 +130,31 @@ export default function ConsultChat({
           ...(history.length > 0 ? { history } : {}),
         }),
       })
-      return data.response as string
+      return { response: data.response as string, draftUpdate: data.draft_update as string | undefined }
+    } catch (err: any) {
+      throw err
+    }
+  }
+
+  const sendAndProcess = async (instruction: string) => {
+    const userMsg: ChatMessage = { role: 'user', content: instruction }
+    const newMessages = [...messages, userMsg]
+    setMessages(newMessages)
+    setLoading(true)
+    setError(null)
+    try {
+      const result = await sendConsult(instruction, newMessages)
+      if (result.response) {
+        const response = stripZoneTags(extractAndSaveTeaching(result.response, propertyCode))
+        setMessages(prev => [...prev, { role: 'assistant', content: response }])
+      }
+      if (result.draftUpdate && onDraftUpdate) {
+        onDraftUpdate(result.draftUpdate)
+        setDraftUpdated(true)
+        setTimeout(() => setDraftUpdated(false), 3000)
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to consult')
-      return null
     } finally {
       setLoading(false)
     }
@@ -134,16 +163,9 @@ export default function ConsultChat({
   const handleReply = async () => {
     if (!replyText.trim()) return
     trackEvent('ask_judith_message_sent', { context, messageLength: replyText.trim().length })
-    const userMsg: ChatMessage = { role: 'user', content: replyText.trim() }
-    const newMessages = [...messages, userMsg]
-    setMessages(newMessages)
+    await sendAndProcess(replyText.trim())
     setReplyText('')
     if (textareaRef.current) textareaRef.current.style.height = 'auto'
-    const rawResponse = await sendConsult(replyText.trim(), newMessages)
-    if (rawResponse) {
-      const response = stripZoneTags(extractAndSaveTeaching(rawResponse, propertyCode))
-      setMessages([...newMessages, { role: 'assistant', content: response }])
-    }
   }
 
   if (!started && !active) return null
@@ -209,6 +231,27 @@ export default function ConsultChat({
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {draftUpdated && (
+        <div className="mx-3 mb-1 px-2 py-1 rounded text-xs flex items-center gap-1.5" style={{background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.15)'}}>
+          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+          Draft updated
+        </div>
+      )}
+
+      {/* Quick action chips */}
+      {chips && chips.length > 0 && !loading && (
+        <div className="px-3 pb-1 flex flex-wrap gap-1.5">
+          {chips.map((chip, i) => (
+            <button key={i}
+              onClick={() => sendAndProcess(chip.instruction)}
+              className="px-2 py-1 text-xs rounded-full"
+              style={{background: 'rgba(99,149,255,0.08)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.15)'}}>
+              {chip.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Reply input */}
       {!loading && messages.length >= 2 && (
