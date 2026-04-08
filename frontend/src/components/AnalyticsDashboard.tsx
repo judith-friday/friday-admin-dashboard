@@ -90,15 +90,19 @@ function useSectionData<T>(path: string, active: boolean) {
 // ══════════════════════════════════════════════════════════
 
 function DevFeatureUsage({ active }: { active: boolean }) {
-  const { data, loading, error } = useSectionData<{ features: { event_type: string; count: number }[] }>('/api/analytics/v2/developer/feature-usage', active)
+  const { data: raw, loading, error } = useSectionData<{ data: { event_type: string; count: string }[] }>('/api/analytics/v2/developer/feature-usage', active)
   if (loading) return <LoadingState />
   if (error) return <ErrorState />
-  if (!data?.features?.length) return <EmptyState />
-  const max = Math.max(...data.features.map(f => f.count), 1)
-  const total = data.features.reduce((s, f) => s + f.count, 0)
+  if (!raw?.data?.length) return <EmptyState />
+  // Aggregate by event_type across days
+  const agg: Record<string, number> = {}
+  for (const r of raw.data) agg[r.event_type] = (agg[r.event_type] || 0) + Number(r.count || 0)
+  const features = Object.entries(agg).map(([event_type, count]) => ({ event_type, count })).sort((a, b) => b.count - a.count)
+  const max = Math.max(...features.map(f => f.count), 1)
+  const total = features.reduce((s, f) => s + f.count, 0)
   return (
     <SectionCard title="Feature Usage">
-      {data.features.map(f => {
+      {features.map(f => {
         const level = f.count > max * 0.6 ? 'rgba(34,197,94,0.4)' : f.count > max * 0.25 ? 'rgba(234,179,8,0.4)' : 'rgba(239,68,68,0.4)'
         return <Bar key={f.event_type} value={f.count} max={max} color={level} label={formatEventName(f.event_type)} rightLabel={total > 0 ? `${((f.count / total) * 100).toFixed(1)}%` : '0%'} />
       })}
@@ -174,13 +178,30 @@ function DevDraftQuality({ active }: { active: boolean }) {
 }
 
 function DevAICosts({ active }: { active: boolean }) {
-  const { data, loading, error } = useSectionData<{ total_input_tokens: number; total_output_tokens: number; by_category: { category: string; input_tokens: number; output_tokens: number }[] }>('/api/analytics/v2/developer/ai-costs', active)
+  const { data: raw, loading, error } = useSectionData<{ drafts: { input_tokens: string; output_tokens: string; category: string }[]; consult: { input_tokens: string; output_tokens: string; category: string }[]; pricing: { input_per_million: number; output_per_million: number } }>('/api/analytics/v2/developer/ai-costs', active)
   if (loading) return <LoadingState />
   if (error) return <ErrorState />
-  if (!data) return <EmptyState />
+  if (!raw) return <EmptyState />
 
-  const inputCost = (data.total_input_tokens / 1_000_000) * 15
-  const outputCost = (data.total_output_tokens / 1_000_000) * 75
+  // Combine drafts + consult into by_category and totals
+  const allRows = [...(raw.drafts || []), ...(raw.consult || [])]
+  const catAgg: Record<string, { input: number; output: number }> = {}
+  let totalInput = 0, totalOutput = 0
+  for (const r of allRows) {
+    const inp = Number(r.input_tokens || 0)
+    const out = Number(r.output_tokens || 0)
+    totalInput += inp
+    totalOutput += out
+    const cat = r.category || 'other'
+    if (!catAgg[cat]) catAgg[cat] = { input: 0, output: 0 }
+    catAgg[cat].input += inp
+    catAgg[cat].output += out
+  }
+  const by_category = Object.entries(catAgg).map(([category, v]) => ({ category, input_tokens: v.input, output_tokens: v.output }))
+  const pricingIn = raw.pricing?.input_per_million ?? 15
+  const pricingOut = raw.pricing?.output_per_million ?? 75
+  const inputCost = (totalInput / 1_000_000) * pricingIn
+  const outputCost = (totalOutput / 1_000_000) * pricingOut
   const totalCost = inputCost + outputCost
 
   return (
@@ -188,7 +209,7 @@ function DevAICosts({ active }: { active: boolean }) {
       <div className="flex flex-wrap gap-3 mb-4">
         <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)' }}>
           <div className="text-xs" style={{ color: SUB_COLOR }}>Total Tokens</div>
-          <div className="text-lg font-bold" style={{ color: ACCENT }}>{((data.total_input_tokens + data.total_output_tokens) / 1000).toFixed(1)}k</div>
+          <div className="text-lg font-bold" style={{ color: ACCENT }}>{((totalInput + totalOutput) / 1000).toFixed(1)}k</div>
         </div>
         <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.15)' }}>
           <div className="text-xs" style={{ color: SUB_COLOR }}>Est. Cost</div>
@@ -196,14 +217,14 @@ function DevAICosts({ active }: { active: boolean }) {
         </div>
       </div>
       <div className="text-xs mb-2" style={{ color: MUTED_COLOR }}>
-        Input: {(data.total_input_tokens / 1000).toFixed(1)}k (${inputCost.toFixed(2)}) &middot; Output: {(data.total_output_tokens / 1000).toFixed(1)}k (${outputCost.toFixed(2)})
+        Input: {(totalInput / 1000).toFixed(1)}k (${inputCost.toFixed(2)}) &middot; Output: {(totalOutput / 1000).toFixed(1)}k (${outputCost.toFixed(2)})
       </div>
-      {data.by_category?.length > 0 && (
+      {by_category.length > 0 && (
         <div className="space-y-1 mt-3">
           <div className="text-xs mb-1" style={{ color: MUTED_COLOR }}>By category</div>
-          {data.by_category.map(c => {
+          {by_category.map(c => {
             const catTotal = c.input_tokens + c.output_tokens
-            const allTotal = data.total_input_tokens + data.total_output_tokens
+            const allTotal = totalInput + totalOutput
             const pct = allTotal > 0 ? (catTotal / allTotal) * 100 : 0
             return (
               <div key={c.category} className="flex items-center gap-3">
@@ -287,14 +308,26 @@ function DevUnderusedFeatures({ active }: { active: boolean }) {
 // ══════════════════════════════════════════════════════════
 
 function TeamResponseTimes({ active }: { active: boolean }) {
-  const { data, loading, error } = useSectionData<{ members: { name: string; median_response_time_minutes: number }[] }>('/api/analytics/v2/team/response-times', active)
+  const { data: raw, loading, error } = useSectionData<{ data: { reviewed_by: string; median_response_min: number | null }[] }>('/api/analytics/v2/team/response-times', active)
   if (loading) return <LoadingState />
   if (error) return <ErrorState />
-  if (!data?.members?.length) return <EmptyState />
-  const max = Math.max(...data.members.map(m => m.median_response_time_minutes), 1)
+  if (!raw?.data?.length) return <EmptyState />
+  // Aggregate latest median per reviewer, skip system/null entries
+  const byName: Record<string, number[]> = {}
+  for (const r of raw.data) {
+    if (r.median_response_min == null || r.reviewed_by === 'system' || r.reviewed_by === 'system-cleanup') continue
+    if (!byName[r.reviewed_by]) byName[r.reviewed_by] = []
+    byName[r.reviewed_by].push(Number(r.median_response_min))
+  }
+  const members = Object.entries(byName).map(([name, vals]) => ({
+    name,
+    median_response_time_minutes: vals.reduce((a, b) => a + b, 0) / vals.length,
+  })).sort((a, b) => a.median_response_time_minutes - b.median_response_time_minutes)
+  if (!members.length) return <EmptyState />
+  const max = Math.max(...members.map(m => m.median_response_time_minutes), 1)
   return (
     <SectionCard title="Response Times (median, minutes)">
-      {data.members.map(m => (
+      {members.map(m => (
         <Bar key={m.name} value={Math.round(m.median_response_time_minutes)} max={max} color="rgba(99,149,255,0.4)" label={m.name} rightLabel={`${m.median_response_time_minutes.toFixed(0)}m`} />
       ))}
     </SectionCard>
@@ -327,10 +360,19 @@ function TeamTeachingActivity({ active }: { active: boolean }) {
 }
 
 function TeamSentiment({ active }: { active: boolean }) {
-  const { data, loading, error } = useSectionData<{ weeks: { week: string; positive: number; neutral: number; frustrated: number; upset: number }[] }>('/api/analytics/v2/team/sentiment', active)
+  const { data: raw, loading, error } = useSectionData<{ data: { week: string; sentiment: string; count: string }[] }>('/api/analytics/v2/team/sentiment', active)
   if (loading) return <LoadingState />
   if (error) return <ErrorState />
-  if (!data?.weeks?.length) return <EmptyState />
+  if (!raw?.data?.length) return <EmptyState />
+  // Pivot flat rows into per-week objects
+  const weekMap: Record<string, { week: string; positive: number; neutral: number; frustrated: number; upset: number }> = {}
+  for (const r of raw.data) {
+    if (!weekMap[r.week]) weekMap[r.week] = { week: r.week, positive: 0, neutral: 0, frustrated: 0, upset: 0 }
+    const key = r.sentiment as 'positive' | 'neutral' | 'frustrated' | 'upset'
+    if (key in weekMap[r.week]) weekMap[r.week][key] = Number(r.count || 0)
+  }
+  const weeks = Object.values(weekMap).sort((a, b) => a.week.localeCompare(b.week))
+  if (!weeks.length) return <EmptyState />
   const sentimentColors = { positive: '#4ade80', neutral: '#64748b', frustrated: '#fb923c', upset: '#f87171' }
   return (
     <SectionCard title="Sentiment Trends">
@@ -340,7 +382,7 @@ function TeamSentiment({ active }: { active: boolean }) {
         <span><span style={{ color: sentimentColors.frustrated }}>{'\u25CF'}</span> Frustrated</span>
         <span><span style={{ color: sentimentColors.upset }}>{'\u25CF'}</span> Upset</span>
       </div>
-      {data.weeks.map(w => {
+      {weeks.map(w => {
         const total = w.positive + w.neutral + w.frustrated + w.upset
         if (total === 0) return null
         return (
@@ -360,17 +402,18 @@ function TeamSentiment({ active }: { active: boolean }) {
 }
 
 function TeamVolumePatterns({ active }: { active: boolean }) {
-  const { data, loading, error } = useSectionData<{ heatmap: { day: number; hour: number; count: number }[] }>('/api/analytics/v2/team/volume', active)
+  const { data: raw, loading, error } = useSectionData<{ data: { day_of_week: number; hour: number; count: string }[] }>('/api/analytics/v2/team/volume', active)
   if (loading) return <LoadingState />
   if (error) return <ErrorState />
-  if (!data?.heatmap?.length) return <EmptyState />
+  if (!raw?.data?.length) return <EmptyState />
 
+  const heatmap = raw.data.map(h => ({ day: h.day_of_week, hour: h.hour, count: Number(h.count || 0) }))
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-  const max = Math.max(...data.heatmap.map(h => h.count), 1)
+  const max = Math.max(...heatmap.map(h => h.count), 1)
 
   // Build 7x24 grid
   const grid: number[][] = Array.from({ length: 7 }, () => Array(24).fill(0))
-  for (const h of data.heatmap) {
+  for (const h of heatmap) {
     if (h.day >= 0 && h.day < 7 && h.hour >= 0 && h.hour < 24) {
       grid[h.day][h.hour] = h.count
     }
@@ -413,11 +456,22 @@ function TeamVolumePatterns({ active }: { active: boolean }) {
 }
 
 function TeamLeaderboard({ active }: { active: boolean }) {
-  const { data, loading, error } = useSectionData<{ members: { name: string; total_actions: number; sent: number; rejected: number; avg_revisions: number; median_response_time_minutes: number }[] }>('/api/analytics/v2/team/leaderboard', active)
+  const { data: raw, loading, error } = useSectionData<{ data: { reviewed_by: string; total_actions: string; drafts_sent: string; drafts_rejected: string; avg_revisions: string; median_response_min: number | null }[] }>('/api/analytics/v2/team/leaderboard', active)
   if (loading) return <LoadingState />
   if (error) return <ErrorState />
-  if (!data?.members?.length) return <EmptyState />
-  const sorted = [...data.members].sort((a, b) => b.total_actions - a.total_actions)
+  if (!raw?.data?.length) return <EmptyState />
+  const members = raw.data
+    .filter(r => r.reviewed_by !== 'system' && r.reviewed_by !== 'system-cleanup')
+    .map(r => ({
+      name: r.reviewed_by,
+      total_actions: Number(r.total_actions || 0),
+      sent: Number(r.drafts_sent || 0),
+      rejected: Number(r.drafts_rejected || 0),
+      avg_revisions: Number(r.avg_revisions || 0),
+      median_response_time_minutes: Number(r.median_response_min || 0),
+    }))
+  const sorted = [...members].sort((a, b) => b.total_actions - a.total_actions)
+  if (!sorted.length) return <EmptyState />
   return (
     <SectionCard title="Team Leaderboard">
       <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
