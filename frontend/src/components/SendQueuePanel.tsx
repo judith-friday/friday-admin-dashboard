@@ -93,6 +93,7 @@ export default function SendQueuePanel({ show, onClose, onNavigate }: SendQueueP
   }
 
   const handleCancel = async (id: string) => {
+    if (!confirm('Cancel this queued message? It will be marked as failed and won\u2019t retry.')) return
     setActioningId(id)
     try {
       await apiFetch(`/api/drafts/${id}/fail`, {
