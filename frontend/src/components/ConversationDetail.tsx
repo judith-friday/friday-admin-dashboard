@@ -8,6 +8,28 @@ import { toast } from 'react-hot-toast'
 import ComposePanel from './ComposePanel'
 import DraftPanel from './DraftPanel'
 
+function formatSenderWithChannel(senderName: string | null, channel: string | null): string {
+  if (!senderName) return ''
+  if (senderName.toLowerCase() === 'hook') return 'Automated message'
+
+  const personName = senderName.replace(/\s*via\s+(Compose|Judith|compose|judith)$/i, '').trim()
+
+  const channelName = channel
+    ? channel === 'booking' ? 'Booking.com'
+    : channel === 'airbnb' ? 'Airbnb'
+    : channel === 'whatsapp' ? 'WhatsApp'
+    : channel === 'email' ? 'Email'
+    : channel === 'direct' ? 'Direct'
+    : channel.charAt(0).toUpperCase() + channel.slice(1)
+    : null
+
+  if (/via (Compose|Judith)/i.test(senderName)) {
+    return channelName ? `${personName} via ${channelName}` : personName
+  }
+
+  return `${personName} via Guesty`
+}
+
 interface ConversationDetailProps {
   detail: ConversationDetailType
   mobileView: 'list' | 'detail' | 'info'
@@ -365,7 +387,7 @@ export default function ConversationDetail({
                 )}
 
                 <div className="text-xs mt-1" style={{color: '#64748b'}}>
-                  {formatTimestamp(msg.created_at)} {msg.sender_name && `· ${msg.sender_name.toLowerCase() === 'hook' ? 'Automated message' : msg.sender_name}`}
+                  {formatTimestamp(msg.created_at)} {msg.sender_name && ` · ${formatSenderWithChannel(msg.sender_name, detail.conversation.channel)}`}
                   {!isOutbound && isNonEnglish && (
                     <span className="ml-1">{LANG_FLAGS[msg.original_language!] || ''} {LANG_NAMES[msg.original_language!] || msg.original_language}</span>
                   )}
