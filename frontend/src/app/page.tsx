@@ -1058,7 +1058,7 @@ export default function MessageDashboard() {
   if (!token) return <LoginScreen onLogin={handleLogin} />
 
   return (
-    <div className="h-[100dvh] overflow-hidden" style={{background: '#0d1117', color: '#f1f5f9'}}>
+    <div className="h-[100dvh] flex flex-col overflow-hidden" data-pwa-shell style={{background: '#0d1117', color: '#f1f5f9'}}>
       <Toaster position="top-right" containerStyle={{ zIndex: 99999, pointerEvents: 'none' }} toastOptions={{ duration: 4000, style: { background: 'rgba(15,25,50,0.95)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', pointerEvents: 'auto' } }} />
       <HelpPanel isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
@@ -1128,7 +1128,7 @@ export default function MessageDashboard() {
         onMarkAllRead={handleMarkAllRead}
       />
 
-      <div className="flex h-[calc(100dvh-52px)] sm:h-[calc(100dvh-72px)] relative overflow-hidden" data-testid="nav-conversation-list">
+      <div className="flex flex-1 min-h-0 relative overflow-hidden" data-testid="nav-conversation-list">
         {/* Left panel collapse toggle */}
         {!leftCollapsed && (
           <button onClick={() => setLeftCollapsed(true)} className="absolute top-1 left-[280px] z-10 hidden md:flex items-center justify-center w-5 h-5 rounded-full text-xs" style={{background: 'rgba(255,255,255,0.08)', color: '#64748b'}} title="Collapse sidebar">{String.fromCharCode(171)}</button>

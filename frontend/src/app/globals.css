@@ -195,11 +195,11 @@ input:focus, textarea:focus, select:focus {
   white-space: normal !important;
 }
 
-/* Safe area: fixed full-screen panels need explicit top padding (body padding doesn't apply) */
-.fixed.inset-0,
-.mobile-full-overlay {
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
+/* PWA standalone: main app needs bottom safe area (no browser chrome to cover it) */
+@media (display-mode: standalone) {
+  [data-pwa-shell] {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
 
 /* Mobile responsive styles */
