@@ -60,6 +60,8 @@ export default function ConsultChat({
   const [error, setError] = useState<string | null>(null)
   const [draftUpdated, setDraftUpdated] = useState(false)
   const [teachingAction, setTeachingAction] = useState<TeachingActionData | null>(null)
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [compactionNotice, setCompactionNotice] = useState(false)
 
   const startedRef = useRef(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -85,6 +87,9 @@ export default function ConsultChat({
             ...(contextData ? { contextData } : {}),
           }),
         })
+        if (data.sessionId) {
+          setSessionId(data.sessionId)
+        }
         const rawResponse = data.response as string
         const draftUpdateContent = data.draft_update as string | undefined
         if (rawResponse) {
@@ -118,23 +123,20 @@ export default function ConsultChat({
     el.style.height = Math.min(el.scrollHeight, 96) + 'px'
   }
 
-  const sendConsult = async (instruction: string, history: ChatMessage[]): Promise<{response: string | null, draftUpdate?: string, teachingAction?: TeachingActionData}> => {
-    try {
-      const data = await apiFetch('/api/ai/consult', {
-        method: 'POST',
-        body: JSON.stringify({
-          instruction,
-          ...(conversationId ? { conversationId } : {}),
-          context,
-          ...(draftBody ? { draftBody } : {}),
-          ...(contextData ? { contextData } : {}),
-          ...(history.length > 0 ? { history } : {}),
-        }),
-      })
-      return { response: data.response as string, draftUpdate: data.draft_update as string | undefined, teachingAction: data.teaching_action as TeachingActionData | undefined }
-    } catch (err: any) {
-      throw err
-    }
+  const sendConsult = async (instruction: string, history: ChatMessage[]): Promise<{response: string | null, draftUpdate?: string, teachingAction?: TeachingActionData, sessionId?: string, compacted?: boolean}> => {
+    const data = await apiFetch('/api/ai/consult', {
+      method: 'POST',
+      body: JSON.stringify({
+        instruction,
+        ...(conversationId ? { conversationId } : {}),
+        context,
+        ...(draftBody ? { draftBody } : {}),
+        ...(contextData ? { contextData } : {}),
+        ...(history.length > 0 ? { history } : {}),
+        ...(sessionId ? { sessionId } : {}),
+      }),
+    })
+    return { response: data.response as string, draftUpdate: data.draft_update as string | undefined, teachingAction: data.teaching_action as TeachingActionData | undefined, sessionId: data.sessionId, compacted: data.compacted }
   }
 
   const sendAndProcess = async (instruction: string) => {
@@ -145,9 +147,20 @@ export default function ConsultChat({
     setError(null)
     try {
       const result = await sendConsult(instruction, newMessages)
+      if (result.sessionId && !sessionId) {
+        setSessionId(result.sessionId)
+      }
       if (result.response) {
         const response = stripZoneTags(stripTeachTags(result.response))
         setMessages(prev => [...prev, { role: 'assistant', content: response }])
+      }
+      if (result.compacted) {
+        setMessages([{
+          role: 'assistant',
+          content: 'Session condensed for efficiency. I still have context from our conversation. How can I help?'
+        }])
+        setCompactionNotice(true)
+        setTimeout(() => setCompactionNotice(false), 5000)
       }
       if (result.draftUpdate && onDraftUpdate) {
         onDraftUpdate(result.draftUpdate)
@@ -190,7 +203,15 @@ export default function ConsultChat({
       {/* Header with close button */}
       <div className="flex items-center justify-between px-3 pt-2">
         <span className="text-xs font-medium" style={{ color: '#6395ff' }}>Ask Friday</span>
-        <button onClick={onCancel} className="p-0.5 rounded hover:bg-white/10" style={{ color: '#64748b' }}>
+        <button onClick={() => {
+          if (sessionId) {
+            apiFetch('/api/ai/consult/session/end', {
+              method: 'POST',
+              body: JSON.stringify({ sessionId }),
+            }).catch(() => {})
+          }
+          onCancel()
+        }} className="p-0.5 rounded hover:bg-white/10" style={{ color: '#64748b' }}>
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
       </div>
@@ -240,6 +261,12 @@ export default function ConsultChat({
         <div className="mx-3 mb-1 px-2 py-1 rounded text-xs flex items-center gap-1.5" style={{background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.15)'}}>
           <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
           Draft updated
+        </div>
+      )}
+
+      {compactionNotice && (
+        <div className="mx-3 mb-1 px-2 py-1 rounded text-xs text-center" style={{background: 'rgba(99,149,255,0.1)', color: '#93c5fd', border: '1px solid rgba(99,149,255,0.15)'}}>
+          Session condensed for efficiency
         </div>
       )}
 
