@@ -7,6 +7,7 @@ import { ConversationDetail as ConversationDetailType, Draft, apiFetch, LANG_FLA
 import { toast } from 'react-hot-toast'
 import ComposePanel from './ComposePanel'
 import DraftPanel from './DraftPanel'
+import CollapsibleMobilePanel from './CollapsibleMobilePanel'
 
 function formatChannelName(channel: string | null): string | null {
   if (!channel) return null
@@ -464,6 +465,7 @@ export default function ConversationDetail({
       {/* Show DraftPanel when there is a pending AI draft, otherwise show ComposePanel */}
       <div className="flex-shrink-0">
       {revisionPending || detail.drafts.some(d => ['draft_ready', 'under_review'].includes(d.state)) ? (
+        <CollapsibleMobilePanel title="AI Draft" icon="✨" subtitle={revisionPending ? 'Revising...' : 'Draft ready for review'}>
         <DraftPanel
           drafts={detail.drafts} revisionPending={revisionPending}
           editingDraft={editingDraft} setEditingDraft={setEditingDraft}
@@ -489,7 +491,9 @@ export default function ConversationDetail({
             onTeachingCreated={onTeachingCreated}
           />
         </DraftPanel>
+        </CollapsibleMobilePanel>
       ) : (
+        <CollapsibleMobilePanel title="Compose" icon="✉️" subtitle={composeOpen ? 'Composing message...' : 'Compose a message'}>
         <ComposePanel
           composeOpen={composeOpen} setComposeOpen={setComposeOpen}
           composeText={composeText} setComposeText={setComposeText}
@@ -498,6 +502,7 @@ export default function ConversationDetail({
           conversationId={selectedConvId}
           onTeachingCreated={onTeachingCreated}
         />
+        </CollapsibleMobilePanel>
       )}
       </div>
     </div>
