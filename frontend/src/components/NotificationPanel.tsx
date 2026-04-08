@@ -45,7 +45,7 @@ export default function NotificationPanel({ show, onClose, notifications, onNoti
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex" style={{paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)'}}>
+    <div className="fixed inset-0 z-[60] flex" style={{paddingTop: 'env(safe-area-inset-top, 0px)'}}>
       {/* Backdrop (visible on md+ if ever used there) */}
       <div className="flex-1 hidden md:block" style={{background: 'rgba(0,0,0,0.4)'}} onClick={onClose} />
 

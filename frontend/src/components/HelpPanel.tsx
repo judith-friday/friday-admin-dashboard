@@ -865,7 +865,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
   const isSearching = search.trim().length > 0
 
   return (
-    <div className="fixed inset-0 z-[60] flex justify-end" data-testid="modal-help-panel" style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex justify-end" data-testid="modal-help-panel" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }} onClick={onClose}>
       <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(2px)' }} />
       <div className="relative w-full md:w-[340px] h-full overflow-y-auto slide-in-right custom-scrollbar"
            style={{ background: 'rgba(15,25,50,0.97)', borderLeft: '1px solid rgba(255,255,255,0.08)' }}

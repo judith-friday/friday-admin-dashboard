@@ -195,9 +195,9 @@ input:focus, textarea:focus, select:focus {
   white-space: normal !important;
 }
 
-/* PWA standalone: main app needs bottom safe area (no browser chrome to cover it) */
+/* PWA standalone: only fixed-bottom elements need safe area inset */
 @media (display-mode: standalone) {
-  [data-pwa-shell] {
+  [data-testid="container-compose-panel"] {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 }

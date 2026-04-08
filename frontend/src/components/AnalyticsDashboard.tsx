@@ -894,7 +894,7 @@ export default function AnalyticsDashboard({ show, onClose }: AnalyticsDashboard
   return (
     <div
       className="fixed inset-0 z-[70] flex"
-      style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', paddingTop: 'env(safe-area-inset-top, 0px)' }}
       onClick={onClose}
     >
       <div
