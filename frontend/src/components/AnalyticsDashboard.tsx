@@ -303,6 +303,162 @@ function DevUnderusedFeatures({ active }: { active: boolean }) {
   )
 }
 
+// ── NEW DEVELOPER DEPTH SECTIONS ──
+
+function DevTokenTrends({ active }: { active: boolean }) {
+  const [days, setDays] = useState(14)
+  const { data, loading, error } = useSectionData<{ drafts: { day: string; input_tokens: string; output_tokens: string; draft_count: string }[]; consult: { day: string; input_tokens: string; output_tokens: string }[]; days: number }>(`/api/analytics/v2/developer/token-trends?days=${days}`, active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data?.drafts?.length && !data?.consult?.length) return <EmptyState message="No token data yet" />
+
+  // Merge draft + consult into per-day totals
+  const dayMap: Record<string, { input: number; output: number }> = {}
+  for (const r of (data.drafts || [])) {
+    const d = r.day?.slice(0, 10) || ''
+    if (!dayMap[d]) dayMap[d] = { input: 0, output: 0 }
+    dayMap[d].input += Number(r.input_tokens || 0)
+    dayMap[d].output += Number(r.output_tokens || 0)
+  }
+  for (const r of (data.consult || [])) {
+    const d = r.day?.slice(0, 10) || ''
+    if (!dayMap[d]) dayMap[d] = { input: 0, output: 0 }
+    dayMap[d].input += Number(r.input_tokens || 0)
+    dayMap[d].output += Number(r.output_tokens || 0)
+  }
+  const entries = Object.entries(dayMap).sort((a, b) => a[0].localeCompare(b[0]))
+  const maxTokens = Math.max(...entries.map(([, v]) => v.input + v.output), 1)
+
+  return (
+    <SectionCard title="Token Usage Trends">
+      <div className="flex gap-2 mb-3">
+        {[7, 14, 30].map(d => (
+          <button key={d} onClick={() => setDays(d)} className="text-xs px-2 py-1 rounded" style={{ background: days === d ? 'rgba(99,149,255,0.2)' : 'rgba(255,255,255,0.04)', color: days === d ? ACCENT : MUTED_COLOR }}>{d}d</button>
+        ))}
+      </div>
+      {entries.map(([day, v]) => {
+        const total = v.input + v.output
+        const inputPct = total > 0 ? (v.input / total) * 100 : 50
+        return (
+          <div key={day} className="mb-1.5">
+            <div className="flex items-center gap-2">
+              <div className="text-xs w-16" style={{ color: MUTED_COLOR }}>{day.slice(5)}</div>
+              <div className="flex-1 h-5 rounded overflow-hidden flex" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                <div className="h-full" style={{ width: `${(total / maxTokens) * inputPct}%`, background: 'rgba(99,149,255,0.5)' }} title={`Input: ${(v.input / 1000).toFixed(1)}k`} />
+                <div className="h-full" style={{ width: `${(total / maxTokens) * (100 - inputPct)}%`, background: 'rgba(168,85,247,0.5)' }} title={`Output: ${(v.output / 1000).toFixed(1)}k`} />
+              </div>
+              <div className="text-xs w-14 text-right" style={{ color: SUB_COLOR }}>{(total / 1000).toFixed(1)}k</div>
+            </div>
+          </div>
+        )
+      })}
+      <div className="flex gap-4 text-xs mt-2" style={{ color: MUTED_COLOR }}>
+        <span><span style={{ color: ACCENT }}>●</span> Input</span>
+        <span><span style={{ color: '#c084fc' }}>●</span> Output</span>
+      </div>
+    </SectionCard>
+  )
+}
+
+function DevCostPerConversation({ active }: { active: boolean }) {
+  const { data, loading, error } = useSectionData<{ summary: { conversation_count: string; total_input_tokens: string; total_output_tokens: string; avg_input_per_conv: string; avg_output_per_conv: string; avg_drafts_per_conv: string }; top_conversations: { guest_name: string; property_name: string; channel: string; input_tokens: string; output_tokens: string; draft_count: string }[]; pricing: { input_per_million: number; output_per_million: number } }>('/api/analytics/v2/developer/cost-per-conversation', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data?.summary) return <EmptyState />
+
+  const s = data.summary
+  const avgIn = Number(s.avg_input_per_conv || 0)
+  const avgOut = Number(s.avg_output_per_conv || 0)
+  const pIn = data.pricing?.input_per_million ?? 15
+  const pOut = data.pricing?.output_per_million ?? 75
+  const avgCost = (avgIn / 1e6) * pIn + (avgOut / 1e6) * pOut
+
+  return (
+    <SectionCard title="Cost per Conversation">
+      <div className="flex flex-wrap gap-3 mb-4">
+        <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.15)' }}>
+          <div className="text-xs" style={{ color: SUB_COLOR }}>Avg Cost/Conv</div>
+          <div className="text-lg font-bold" style={{ color: '#fbbf24' }}>${avgCost.toFixed(3)}</div>
+        </div>
+        <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)' }}>
+          <div className="text-xs" style={{ color: SUB_COLOR }}>Conversations</div>
+          <div className="text-lg font-bold" style={{ color: ACCENT }}>{Number(s.conversation_count || 0)}</div>
+        </div>
+        <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.15)' }}>
+          <div className="text-xs" style={{ color: SUB_COLOR }}>Avg Drafts/Conv</div>
+          <div className="text-lg font-bold" style={{ color: '#c084fc' }}>{Number(s.avg_drafts_per_conv || 0).toFixed(1)}</div>
+        </div>
+      </div>
+      {data.top_conversations?.length > 0 && (
+        <>
+          <div className="text-xs mb-2" style={{ color: MUTED_COLOR }}>Most expensive conversations (30d)</div>
+          {data.top_conversations.map((c, i) => {
+            const tokens = Number(c.input_tokens || 0) + Number(c.output_tokens || 0)
+            const cost = (Number(c.input_tokens || 0) / 1e6) * pIn + (Number(c.output_tokens || 0) / 1e6) * pOut
+            return (
+              <div key={i} className="flex items-center justify-between py-1.5" style={{ borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : undefined }}>
+                <div>
+                  <div className="text-xs" style={{ color: HEADER_COLOR }}>{c.guest_name || 'Unknown'}</div>
+                  <div className="text-xs" style={{ color: MUTED_COLOR }}>{c.property_name} · {c.channel} · {c.draft_count} drafts</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs font-medium" style={{ color: '#fbbf24' }}>${cost.toFixed(3)}</div>
+                  <div className="text-xs" style={{ color: MUTED_COLOR }}>{(tokens / 1000).toFixed(1)}k tok</div>
+                </div>
+              </div>
+            )
+          })}
+        </>
+      )}
+    </SectionCard>
+  )
+}
+
+function DevErrorTrends({ active }: { active: boolean }) {
+  const { data, loading, error } = useSectionData<{ draft_errors: { day: string; total_drafts: string; error_or_stuck: string; retried: string }[]; consult_errors: { day: string; total_sessions: string; abandoned: string; with_errors: string }[] }>('/api/analytics/v2/developer/error-trends', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data?.draft_errors?.length && !data?.consult_errors?.length) return <EmptyState message="No error data" />
+
+  const totalDraftErrors = (data.draft_errors || []).reduce((s, r) => s + Number(r.error_or_stuck || 0), 0)
+  const totalDrafts = (data.draft_errors || []).reduce((s, r) => s + Number(r.total_drafts || 0), 0)
+  const errorRate = totalDrafts > 0 ? ((totalDraftErrors / totalDrafts) * 100).toFixed(1) : '0'
+  const totalConsultErrors = (data.consult_errors || []).reduce((s, r) => s + Number(r.with_errors || 0) + Number(r.abandoned || 0), 0)
+
+  const max = Math.max(...(data.draft_errors || []).map(r => Number(r.total_drafts || 0)), 1)
+
+  return (
+    <SectionCard title="Error Trends">
+      <div className="flex flex-wrap gap-3 mb-4">
+        <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' }}>
+          <div className="text-xs" style={{ color: SUB_COLOR }}>Draft Error Rate</div>
+          <div className="text-lg font-bold" style={{ color: '#f87171' }}>{errorRate}%</div>
+        </div>
+        <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.15)' }}>
+          <div className="text-xs" style={{ color: SUB_COLOR }}>Consult Errors</div>
+          <div className="text-lg font-bold" style={{ color: '#fbbf24' }}>{totalConsultErrors}</div>
+        </div>
+      </div>
+      {(data.draft_errors || []).slice(-14).map(r => {
+        const total = Number(r.total_drafts || 0)
+        const errors = Number(r.error_or_stuck || 0)
+        const okPct = total > 0 ? ((total - errors) / max) * 100 : 0
+        const errPct = total > 0 ? (errors / max) * 100 : 0
+        return (
+          <div key={r.day} className="flex items-center gap-2 mb-1">
+            <div className="text-xs w-16" style={{ color: MUTED_COLOR }}>{(r.day || '').slice(5, 10)}</div>
+            <div className="flex-1 h-4 rounded overflow-hidden flex" style={{ background: 'rgba(255,255,255,0.04)' }}>
+              <div className="h-full" style={{ width: `${okPct}%`, background: 'rgba(34,197,94,0.4)' }} />
+              {errors > 0 && <div className="h-full" style={{ width: `${errPct}%`, background: 'rgba(239,68,68,0.5)' }} />}
+            </div>
+            <div className="text-xs w-12 text-right" style={{ color: errors > 0 ? '#f87171' : MUTED_COLOR }}>{errors > 0 ? `${errors} err` : ''}</div>
+          </div>
+        )
+      })}
+    </SectionCard>
+  )
+}
+
 // ══════════════════════════════════════════════════════════
 // TEAM TAB SECTIONS
 // ══════════════════════════════════════════════════════════
@@ -533,6 +689,185 @@ function TeamSuggestions({ active }: { active: boolean }) {
   )
 }
 
+// ── NEW TEAM DEPTH SECTIONS ──
+
+function TeamMessagesPerUser({ active }: { active: boolean }) {
+  const { data, loading, error } = useSectionData<{ daily: { user_name: string; day: string; messages_sent: string }[]; totals: { user_name: string; total_sent: string; active_days: string; avg_per_day: string }[] }>('/api/analytics/v2/team/messages-per-user', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data?.totals?.length) return <EmptyState message="No message data" />
+
+  const max = Math.max(...data.totals.map(t => Number(t.total_sent || 0)), 1)
+
+  return (
+    <SectionCard title="Messages Sent per User (14d)">
+      {data.totals.map(t => (
+        <div key={t.user_name} className="mb-2">
+          <Bar value={Number(t.total_sent || 0)} max={max} color="rgba(99,149,255,0.4)" label={t.user_name} rightLabel={`${t.avg_per_day}/day`} />
+        </div>
+      ))}
+    </SectionCard>
+  )
+}
+
+function TeamDraftDecisions({ active }: { active: boolean }) {
+  const { data: raw, loading, error } = useSectionData<{ data: { reviewed_by: string; total: string; approved_first_draft: string; approved_after_revision: string; rejected: string; avg_revisions: string; approval_rate: string }[] }>('/api/analytics/v2/team/draft-decisions', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!raw?.data?.length) return <EmptyState />
+
+  return (
+    <SectionCard title="Draft Decisions by User (30d)">
+      {raw.data.map(r => {
+        const total = Number(r.total || 0)
+        const approved1st = Number(r.approved_first_draft || 0)
+        const approvedRev = Number(r.approved_after_revision || 0)
+        const rejected = Number(r.rejected || 0)
+        if (total === 0) return null
+        return (
+          <div key={r.reviewed_by} className="mb-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs" style={{ color: SUB_COLOR }}>{r.reviewed_by}</span>
+              <span className="text-xs" style={{ color: MUTED_COLOR }}>{total} total · {Number(r.avg_revisions || 0).toFixed(1)} avg rev</span>
+            </div>
+            <div className="flex rounded overflow-hidden" style={{ height: '20px' }}>
+              {approved1st > 0 && <div style={{ width: `${(approved1st / total) * 100}%`, background: 'rgba(34,197,94,0.5)' }} title={`Approved 1st draft: ${approved1st}`} />}
+              {approvedRev > 0 && <div style={{ width: `${(approvedRev / total) * 100}%`, background: 'rgba(234,179,8,0.5)' }} title={`Approved after revision: ${approvedRev}`} />}
+              {rejected > 0 && <div style={{ width: `${(rejected / total) * 100}%`, background: 'rgba(239,68,68,0.5)' }} title={`Rejected: ${rejected}`} />}
+            </div>
+            <div className="flex gap-3 text-xs mt-0.5" style={{ color: MUTED_COLOR }}>
+              <span style={{ color: '#4ade80' }}>{approved1st} 1st</span>
+              <span style={{ color: '#fbbf24' }}>{approvedRev} revised</span>
+              <span style={{ color: '#f87171' }}>{rejected} rej</span>
+            </div>
+          </div>
+        )
+      })}
+    </SectionCard>
+  )
+}
+
+function TeamAskFridayUsage({ active }: { active: boolean }) {
+  const { data, loading, error } = useSectionData<{ by_user: { user_name: string; sessions: string; total_turns: string; avg_turns: string; total_tokens: string }[]; by_context: { context: string; sessions: string; avg_turns: string }[]; daily: { day: string; sessions: string }[]; missing_knowledge_count: number }>('/api/analytics/v2/team/ask-friday-usage', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data?.by_user?.length && !data?.by_context?.length) return <EmptyState message="No Ask Friday usage yet" />
+
+  const maxSessions = Math.max(...(data.by_user || []).map(u => Number(u.sessions || 0)), 1)
+  const totalSessions = (data.by_user || []).reduce((s, u) => s + Number(u.sessions || 0), 0)
+
+  return (
+    <SectionCard title="Ask Friday Usage (30d)">
+      <div className="flex flex-wrap gap-3 mb-4">
+        <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)' }}>
+          <div className="text-xs" style={{ color: SUB_COLOR }}>Total Sessions</div>
+          <div className="text-lg font-bold" style={{ color: ACCENT }}>{totalSessions}</div>
+        </div>
+        {data.missing_knowledge_count > 0 && (
+          <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.15)' }}>
+            <div className="text-xs" style={{ color: SUB_COLOR }}>Missing Knowledge</div>
+            <div className="text-lg font-bold" style={{ color: '#fbbf24' }}>{data.missing_knowledge_count}</div>
+          </div>
+        )}
+      </div>
+
+      {(data.by_user || []).length > 0 && (
+        <div className="mb-3">
+          <div className="text-xs mb-2" style={{ color: MUTED_COLOR }}>By user</div>
+          {data.by_user.map(u => (
+            <Bar key={u.user_name} value={Number(u.sessions || 0)} max={maxSessions} color="rgba(168,85,247,0.4)" label={u.user_name} rightLabel={`${u.avg_turns} avg turns`} />
+          ))}
+        </div>
+      )}
+
+      {(data.by_context || []).length > 0 && (
+        <div>
+          <div className="text-xs mb-2" style={{ color: MUTED_COLOR }}>By context</div>
+          {data.by_context.map(c => {
+            const maxCtx = Math.max(...data.by_context.map(x => Number(x.sessions || 0)), 1)
+            return <Bar key={c.context} value={Number(c.sessions || 0)} max={maxCtx} color="rgba(99,149,255,0.4)" label={formatEventName(c.context)} rightLabel={`${c.sessions}`} />
+          })}
+        </div>
+      )}
+    </SectionCard>
+  )
+}
+
+function TeamRevisionTrends({ active }: { active: boolean }) {
+  const { data: raw, loading, error } = useSectionData<{ data: { week: string; total_drafts: string; total_revisions: string; avg_revision_number: string; first_draft_count: string; second_draft_count: string; third_plus_count: string }[] }>('/api/analytics/v2/team/revision-trends', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!raw?.data?.length) return <EmptyState />
+
+  return (
+    <SectionCard title="Revision Trends (weekly)">
+      {raw.data.map(r => {
+        const total = Number(r.total_drafts || 0)
+        const first = Number(r.first_draft_count || 0)
+        const second = Number(r.second_draft_count || 0)
+        const third = Number(r.third_plus_count || 0)
+        if (total === 0) return null
+        return (
+          <div key={r.week} className="mb-2">
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="text-xs" style={{ color: MUTED_COLOR }}>{(r.week || '').slice(0, 10)}</span>
+              <span className="text-xs" style={{ color: SUB_COLOR }}>avg {Number(r.avg_revision_number || 0).toFixed(1)} rev</span>
+            </div>
+            <div className="flex rounded overflow-hidden" style={{ height: '18px' }}>
+              {first > 0 && <div style={{ width: `${(first / total) * 100}%`, background: 'rgba(34,197,94,0.5)' }} title={`1st draft: ${first}`} />}
+              {second > 0 && <div style={{ width: `${(second / total) * 100}%`, background: 'rgba(234,179,8,0.5)' }} title={`2nd draft: ${second}`} />}
+              {third > 0 && <div style={{ width: `${(third / total) * 100}%`, background: 'rgba(239,68,68,0.5)' }} title={`3+ drafts: ${third}`} />}
+            </div>
+            <div className="flex gap-3 text-xs mt-0.5" style={{ color: MUTED_COLOR }}>
+              <span style={{ color: '#4ade80' }}>{first} 1st</span>
+              <span style={{ color: '#fbbf24' }}>{second} 2nd</span>
+              <span style={{ color: '#f87171' }}>{third} 3+</span>
+            </div>
+          </div>
+        )
+      })}
+    </SectionCard>
+  )
+}
+
+// ── SHARED INSIGHTS SECTION ──
+
+function ActionableInsights({ active }: { active: boolean }) {
+  const { data, loading, error } = useSectionData<{ insights: { type: string; severity: 'green' | 'yellow' | 'red'; title: string; detail: string; metric?: string; trend?: string }[] }>('/api/analytics/v2/insights', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data?.insights?.length) return <EmptyState message="No insights right now — everything looks good" />
+
+  const severityConfig: Record<string, { bg: string; border: string; icon: string; text: string }> = {
+    red: { bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.2)', icon: '●', text: '#f87171' },
+    yellow: { bg: 'rgba(234,179,8,0.08)', border: 'rgba(234,179,8,0.2)', icon: '●', text: '#fbbf24' },
+    green: { bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.2)', icon: '●', text: '#4ade80' },
+  }
+
+  return (
+    <div style={sectionStyle} className="p-4">
+      <h3 className="text-sm font-semibold mb-3" style={{ color: HEADER_COLOR }}>Actionable Insights</h3>
+      <div className="space-y-2">
+        {data.insights.map((insight, i) => {
+          const cfg = severityConfig[insight.severity] || severityConfig.yellow
+          return (
+            <div key={i} className="rounded-lg px-3 py-2.5" style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}>
+              <div className="flex items-center gap-2 mb-1">
+                <span style={{ color: cfg.text, fontSize: '10px' }}>{cfg.icon}</span>
+                <span className="text-sm font-medium" style={{ color: HEADER_COLOR }}>{insight.title}</span>
+                {insight.metric && (
+                  <span className="text-xs px-1.5 py-0.5 rounded ml-auto" style={{ background: 'rgba(255,255,255,0.06)', color: cfg.text }}>{insight.metric} {insight.trend === 'up' ? '↑' : insight.trend === 'down' ? '↓' : ''}</span>
+                )}
+              </div>
+              <div className="text-xs" style={{ color: SUB_COLOR }}>{insight.detail}</div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ══════════════════════════════════════════════════════════
 // MAIN DASHBOARD
 // ══════════════════════════════════════════════════════════
@@ -600,6 +935,9 @@ export default function AnalyticsDashboard({ show, onClose }: AnalyticsDashboard
               <DevLearningRate active={isDev} />
               <DevDraftQuality active={isDev} />
               <DevAICosts active={isDev} />
+              <DevTokenTrends active={isDev} />
+              <DevCostPerConversation active={isDev} />
+              <DevErrorTrends active={isDev} />
               <DevTeachingEffectiveness active={isDev} />
               <DevUnderusedFeatures active={isDev} />
             </>
@@ -607,13 +945,22 @@ export default function AnalyticsDashboard({ show, onClose }: AnalyticsDashboard
           {isTeam && (
             <>
               <TeamResponseTimes active={isTeam} />
+              <TeamMessagesPerUser active={isTeam} />
+              <TeamDraftDecisions active={isTeam} />
               <TeamTeachingActivity active={isTeam} />
+              <TeamAskFridayUsage active={isTeam} />
+              <TeamRevisionTrends active={isTeam} />
               <TeamSentiment active={isTeam} />
               <TeamVolumePatterns active={isTeam} />
               <TeamLeaderboard active={isTeam} />
               <TeamSuggestions active={isTeam} />
             </>
           )}
+
+          {/* Shared Actionable Insights — always visible */}
+          <div className="pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <ActionableInsights active={show} />
+          </div>
         </div>
       </div>
     </div>
