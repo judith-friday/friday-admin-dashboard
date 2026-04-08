@@ -62,6 +62,7 @@ export default function ConsultChat({
   const [teachingAction, setTeachingAction] = useState<TeachingActionData | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [compactionNotice, setCompactionNotice] = useState(false)
+  const [missingKnowledge, setMissingKnowledge] = useState(false)
 
   const startedRef = useRef(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -104,6 +105,9 @@ export default function ConsultChat({
         if (data.teaching_action) {
           setTeachingAction(data.teaching_action as TeachingActionData)
         }
+        if (data.missingKnowledge) {
+          setMissingKnowledge(true)
+        }
       } catch (err: any) {
         setError(err.message || 'Failed to consult')
       } finally {
@@ -123,7 +127,7 @@ export default function ConsultChat({
     el.style.height = Math.min(el.scrollHeight, 96) + 'px'
   }
 
-  const sendConsult = async (instruction: string, history: ChatMessage[]): Promise<{response: string | null, draftUpdate?: string, teachingAction?: TeachingActionData, sessionId?: string, compacted?: boolean}> => {
+  const sendConsult = async (instruction: string, history: ChatMessage[]): Promise<{response: string | null, draftUpdate?: string, teachingAction?: TeachingActionData, sessionId?: string, compacted?: boolean, missingKnowledge?: boolean}> => {
     const data = await apiFetch('/api/ai/consult', {
       method: 'POST',
       body: JSON.stringify({
@@ -136,7 +140,7 @@ export default function ConsultChat({
         ...(sessionId ? { sessionId } : {}),
       }),
     })
-    return { response: data.response as string, draftUpdate: data.draft_update as string | undefined, teachingAction: data.teaching_action as TeachingActionData | undefined, sessionId: data.sessionId, compacted: data.compacted }
+    return { response: data.response as string, draftUpdate: data.draft_update as string | undefined, teachingAction: data.teaching_action as TeachingActionData | undefined, sessionId: data.sessionId, compacted: data.compacted, missingKnowledge: data.missingKnowledge }
   }
 
   const sendAndProcess = async (instruction: string) => {
@@ -169,6 +173,9 @@ export default function ConsultChat({
       }
       if (result.teachingAction) {
         setTeachingAction(result.teachingAction)
+      }
+      if (result.missingKnowledge) {
+        setMissingKnowledge(true)
       }
     } catch (err: any) {
       setError(err.message || 'Failed to consult')
@@ -207,7 +214,7 @@ export default function ConsultChat({
           if (sessionId) {
             apiFetch('/api/ai/consult/session/end', {
               method: 'POST',
-              body: JSON.stringify({ sessionId }),
+              body: JSON.stringify({ sessionId, history: messages }),
             }).catch(() => {})
           }
           onCancel()
@@ -215,6 +222,12 @@ export default function ConsultChat({
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
       </div>
+      {/* Missing knowledge indicator */}
+      {missingKnowledge && (
+        <div className="mx-3 mt-1 px-2 py-1 rounded text-xs" style={{background: 'rgba(245,158,11,0.08)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.15)'}}>
+          No property knowledge file found — responses may be less accurate
+        </div>
+      )}
       {/* Chat messages */}
       <div className="p-3 pt-1 space-y-2 overflow-y-auto custom-scrollbar" style={{ maxHeight: '40vh' }}>
         {messages.map((msg, i) => {
