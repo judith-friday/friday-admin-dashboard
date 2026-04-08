@@ -36,14 +36,25 @@ export function useInstallPrompt() {
     const installedHandler = () => setInstalled(true)
     window.addEventListener('appinstalled', installedHandler)
 
-    // Check if already in standalone mode
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    // Check if already in standalone mode (includes iOS Safari)
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (navigator as unknown as { standalone?: boolean }).standalone === true
+    if (isStandalone) {
       setInstalled(true)
     }
+
+    // Listen for display-mode changes
+    const mql = window.matchMedia('(display-mode: standalone)')
+    const mqlHandler = (e: MediaQueryListEvent) => {
+      if (e.matches) setInstalled(true)
+    }
+    mql.addEventListener('change', mqlHandler)
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler)
       window.removeEventListener('appinstalled', installedHandler)
+      mql.removeEventListener('change', mqlHandler)
     }
   }, [])
 
