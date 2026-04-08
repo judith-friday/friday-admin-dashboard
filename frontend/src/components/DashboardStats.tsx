@@ -37,6 +37,8 @@ interface DashboardStatsProps {
   setShowNotificationPanel: (v: boolean) => void
   showAnalytics: boolean
   setShowAnalytics: (v: boolean) => void
+  showSendQueue: boolean
+  setShowSendQueue: (v: boolean) => void
 }
 
 function rtColor(mins?: number) {
@@ -61,6 +63,7 @@ export default function DashboardStats({
   notifications, onNotificationClick, onMarkAllRead,
   showNotificationPanel, setShowNotificationPanel,
   showAnalytics, setShowAnalytics,
+  showSendQueue, setShowSendQueue,
 }: DashboardStatsProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showInstallHelp, setShowInstallHelp] = useState(false)
@@ -102,10 +105,10 @@ export default function DashboardStats({
                 </div>
               </div>
               {pollerStatus && pollerStatus.api_down && (
-                <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}} title="Guesty API is down \u2014 messages queued for browser fallback">{'\u26A0'} API Down</span>
+                <button onClick={() => setShowSendQueue(true)} className="text-xs px-2 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}} title="Guesty API is down \u2014 click to view send queue">{'\u26A0'} API Down</button>
               )}
               {pollerStatus && pollerStatus.send_queue_length > 0 && (
-                <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(251,191,36,0.15)', color: '#fbbf24'}} title={`${pollerStatus.send_queue_length} message(s) queued for sending`}>{'\uD83D\uDCE4'} {pollerStatus.send_queue_length} queued</span>
+                <button onClick={() => setShowSendQueue(true)} className="text-xs px-2 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity" style={{background: 'rgba(251,191,36,0.15)', color: '#fbbf24'}} title={`${pollerStatus.send_queue_length} message(s) queued \u2014 click to manage`}>{'\uD83D\uDCE4'} {pollerStatus.send_queue_length} queued</button>
               )}
               <button onClick={() => { clearToken(); setTokenState(null) }}
                 className="text-xs ml-4" style={{color: '#64748b'}}>{displayName} {'\u00B7'} Logout</button>

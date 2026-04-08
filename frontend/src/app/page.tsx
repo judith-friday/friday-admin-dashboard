@@ -18,6 +18,7 @@ import PendingActionsTab from '../components/PendingActions'
 import LoginScreen from '../components/LoginScreen'
 import BugReport from '../components/BugReport'
 import BugReportsPanel from '../components/BugReportsPanel'
+import SendQueuePanel from '../components/SendQueuePanel'
 import LearningQueuePanel from '../components/LearningQueuePanel'
 import PropertyCard from '../components/PropertyCard'
 import SendConfirmModal, { LearnMode, LearnScope } from '../components/SendConfirmModal'
@@ -55,6 +56,7 @@ export default function MessageDashboard() {
   const [showBugReportsPanel, setShowBugReportsPanel] = useState(false)
   const [showLearningQueue, setShowLearningQueue] = useState(false)
   const [showAnalytics, setShowAnalytics] = useState(false)
+  const [showSendQueue, setShowSendQueue] = useState(false)
   const [showNotificationPanel, setShowNotificationPanel] = useState(false)
   const [teachings, setTeachings] = useState<any[]>([])
   const [revokeId, setRevokeId] = useState<string | null>(null)
@@ -1116,6 +1118,7 @@ export default function MessageDashboard() {
 
       <BugReport selectedConvId={selectedConvId} displayName={displayName} />
       <BugReportsPanel show={showBugReportsPanel} onClose={() => setShowBugReportsPanel(false)} />
+      <SendQueuePanel show={showSendQueue} onClose={() => setShowSendQueue(false)} onNavigate={(convId) => { setSelectedConvId(convId); setMobileView('detail') }} />
       <LearningQueuePanel show={showLearningQueue} onClose={() => setShowLearningQueue(false)} displayName={displayName} />
       <AnalyticsPanel show={showAnalytics} onClose={() => setShowAnalytics(false)} />
 
@@ -1152,6 +1155,8 @@ export default function MessageDashboard() {
         setShowNotificationPanel={setShowNotificationPanel}
         showAnalytics={showAnalytics}
         setShowAnalytics={setShowAnalytics}
+        showSendQueue={showSendQueue}
+        setShowSendQueue={setShowSendQueue}
       />
 
       <NotificationPanel
