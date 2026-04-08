@@ -49,7 +49,6 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   auto_approved: { bg: 'rgba(34,197,94,0.15)', text: '#4ade80' },
   approved: { bg: 'rgba(99,149,255,0.15)', text: '#6395ff' },
   rejected: { bg: 'rgba(239,68,68,0.15)', text: '#f87171' },
-  expired: { bg: 'rgba(100,116,139,0.15)', text: '#94a3b8' },
 }
 
 const PATTERN_LABELS: Record<string, { emoji: string; label: string }> = {
@@ -364,9 +363,6 @@ export default function UnifiedTeachingsPanel({ show, onClose, displayName }: Un
       return 0
     })
 
-  const autoApprovedExpiring = candidates
-    .filter(c => c.status === 'auto_approved' && c.expires_at)
-    .sort((a, b) => new Date(a.expires_at!).getTime() - new Date(b.expires_at!).getTime())
   const pendingReview = candidates.filter(c => c.status === 'pending_review')
   const corrections = candidates.filter(c => c.property_card_update)
   const activeTeachings = teachings.filter((t: any) => t.status === 'active')
@@ -464,7 +460,7 @@ export default function UnifiedTeachingsPanel({ show, onClose, displayName }: Un
 
                       {t.recommendation && !isEditing && (
                         <div className="text-xs mt-2 p-2 rounded" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)', color: '#94a3b8' }}>
-                          <span style={{ color: '#6395ff', fontWeight: 500 }}>{'\u{1F4AC}'} Judith&apos;s take:</span>{' '}{t.recommendation}
+                          <span style={{ color: '#6395ff', fontWeight: 500 }}>{'\u{1F4AC}'} Friday&apos;s take:</span>{' '}{t.recommendation}
                           {t.recommendation_updated_at && <span className="ml-2" style={{ color: '#475569', fontSize: '10px' }}>{formatDistanceToNow(new Date(t.recommendation_updated_at), { addSuffix: true })}</span>}
                         </div>
                       )}
@@ -487,7 +483,7 @@ export default function UnifiedTeachingsPanel({ show, onClose, displayName }: Un
                           {t.status === 'paused' && <button onClick={() => handleResumeTeaching(t.id)} className="text-xs px-2 py-1 rounded-lg transition-all" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>Resume</button>}
                           <button onClick={() => setRevokeId(t.id)} className="text-xs px-2 py-1 rounded-lg transition-all" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)' }}>Revoke</button>
                           <button onClick={() => { const opening = consultTeachingId !== t.id; setConsultTeachingId(opening ? t.id : null); if (opening) trackEvent('ask_judith_opened', { context: 'teaching', teachingId: t.id }) }} className="text-xs px-2 py-1 rounded-lg transition-all flex items-center gap-1" style={{ background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)' }}>
-                            <ChatBubbleLeftRightIcon className="h-3 w-3" /> Ask Judith
+                            <ChatBubbleLeftRightIcon className="h-3 w-3" /> Ask Friday
                           </button>
                         </div>
                       )}
@@ -534,24 +530,17 @@ export default function UnifiedTeachingsPanel({ show, onClose, displayName }: Un
         {tab === 'candidates' && (
           <>
             <div className="px-5 py-2 flex gap-1.5 flex-wrap" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-              {['', 'pending_review', 'auto_approved', 'approved', 'rejected', 'expired'].map(s => (
+              {['', 'pending_review', 'auto_approved', 'approved', 'rejected'].map(s => (
                 <button key={s} onClick={() => setStatusFilter(s)} className="text-xs px-2.5 py-1 rounded-full transition-all" style={{ background: statusFilter === s ? 'rgba(99,149,255,0.2)' : 'rgba(255,255,255,0.04)', color: statusFilter === s ? '#6395ff' : '#64748b', border: `1px solid ${statusFilter === s ? 'rgba(99,149,255,0.3)' : 'rgba(255,255,255,0.06)'}` }}>
                   {s ? s.replace('_', ' ') : 'All'}
                 </button>
               ))}
             </div>
 
-            {!statusFilter && autoApprovedExpiring.length > 0 && (
-              <div className="px-5 py-2">
-                <div className="text-xs font-medium mb-2" style={{ color: '#fbbf24' }}>{'\u23F0'} Auto-approved (expiring)</div>
-                {autoApprovedExpiring.map(c => renderCandidate(c, true))}
-              </div>
-            )}
-
             {!statusFilter && pendingReview.length > 0 && (
               <div className="px-5 py-2">
                 <div className="text-xs font-medium mb-2" style={{ color: '#6395ff' }}>{'\u{1F4CB}'} Pending Review</div>
-                {pendingReview.map(c => renderCandidate(c, false))}
+                {pendingReview.map(c => renderCandidate(c))}
               </div>
             )}
 
@@ -559,15 +548,15 @@ export default function UnifiedTeachingsPanel({ show, onClose, displayName }: Un
               <div className="px-5 py-3 space-y-2">
                 {loading ? <div className="text-center py-8" style={{ color: '#64748b' }}>Loading...</div>
                 : candidates.length === 0 ? <div className="text-center py-8" style={{ color: '#64748b' }}>No candidates with status &quot;{statusFilter.replace('_', ' ')}&quot;</div>
-                : candidates.map(c => renderCandidate(c, false))}
+                : candidates.map(c => renderCandidate(c))}
               </div>
             )}
 
-            {!statusFilter && autoApprovedExpiring.length === 0 && pendingReview.length === 0 && (
+            {!statusFilter && pendingReview.length === 0 && (
               <div className="px-5 py-3 space-y-2">
                 {loading ? <div className="text-center py-8" style={{ color: '#64748b' }}>Loading...</div>
                 : candidates.length === 0 ? <div className="text-center py-8" style={{ color: '#64748b' }}>No teaching candidates yet. Run analysis to generate candidates from rejection history.</div>
-                : candidates.map(c => renderCandidate(c, false))}
+                : candidates.map(c => renderCandidate(c))}
               </div>
             )}
           </>
@@ -638,7 +627,7 @@ export default function UnifiedTeachingsPanel({ show, onClose, displayName }: Un
     </div>
   )
 
-  function renderCandidate(c: TeachingCandidate, showExpiry: boolean) {
+  function renderCandidate(c: TeachingCandidate) {
     const sc = STATUS_COLORS[c.status] || STATUS_COLORS.pending_review
     const pattern = PATTERN_LABELS[c.pattern_type || ''] || { emoji: '\u{2753}', label: c.pattern_type || 'unknown' }
     const expanded = expandedId === c.id
@@ -654,13 +643,12 @@ export default function UnifiedTeachingsPanel({ show, onClose, displayName }: Un
               <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: sc.bg, color: sc.text }}>{c.status.replace('_', ' ')}</span>
               {confidenceBadge(c.confidence)}
               <span className="text-xs" style={{ color: '#64748b' }}>{c.evidence_count} evidence</span>
-              {showExpiry && c.expires_at && <span className="text-xs" style={{ color: daysUntil(c.expires_at) <= 7 ? '#f87171' : '#fbbf24' }}>{'\u23F0'} {daysUntil(c.expires_at)}d left</span>}
             </div>
             <div className="text-sm mt-1.5" style={{ color: '#e2e8f0' }}>{c.instruction}</div>
             {c.cluster_description && <div className="text-xs mt-1" style={{ color: '#64748b' }}>{pattern.label}: {c.cluster_description}</div>}
             {c.recommendation && (
               <div className="text-xs mt-2 p-2 rounded" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)', color: '#94a3b8' }}>
-                <span style={{ color: '#6395ff', fontWeight: 500 }}>{'\u{1F4AC}'} Judith&apos;s take:</span>{' '}{c.recommendation}
+                <span style={{ color: '#6395ff', fontWeight: 500 }}>{'\u{1F4AC}'} Friday&apos;s take:</span>{' '}{c.recommendation}
               </div>
             )}
           </div>
@@ -720,7 +708,7 @@ export default function UnifiedTeachingsPanel({ show, onClose, displayName }: Un
                 <button disabled={isActioning} onClick={() => { setEditingId(c.id); setEditText(c.instruction) }} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)', opacity: isActioning ? 0.5 : 1 }}>Edit</button>
                 <button disabled={isActioning} onClick={() => handleAction(c.id, 'reject')} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', opacity: isActioning ? 0.5 : 1 }}>Reject</button>
                 <button onClick={() => { const opening = consultCandidateId !== c.id; setConsultCandidateId(opening ? c.id : null); if (opening) trackEvent('ask_judith_opened', { context: 'learning_candidate', candidateId: c.id }) }} className="text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1" style={{ background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)' }}>
-                  <ChatBubbleLeftRightIcon className="h-3 w-3" /> Ask Judith
+                  <ChatBubbleLeftRightIcon className="h-3 w-3" /> Ask Friday
                 </button>
               </div>
             )}

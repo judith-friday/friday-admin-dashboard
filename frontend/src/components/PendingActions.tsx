@@ -370,7 +370,7 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
                   <button onClick={() => startEdit(action)} className="px-2 py-1 text-xs rounded flex items-center" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>
                     <PencilIcon className="h-3 w-3 mr-1" />Edit</button>
                   <button onClick={() => { const opening = consultActionId !== action.id; setConsultActionId(opening ? action.id : null); if (opening) trackEvent('ask_judith_opened', { context: 'pending_action', actionId: action.id }) }} className="px-2 py-1 text-xs rounded flex items-center" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
-                    <ChatBubbleLeftRightIcon className="h-3 w-3 mr-1" />Ask Judith</button>
+                    <ChatBubbleLeftRightIcon className="h-3 w-3 mr-1" />Ask Friday</button>
                 </div>
                 {consultActionId === action.id && (
                   <ConsultChat

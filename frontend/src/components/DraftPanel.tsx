@@ -61,7 +61,7 @@ export default function DraftPanel({
       <div className="rounded-lg p-3 mx-3 mb-1 flex-shrink-0" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)'}}>
         <div className="flex items-center space-x-2">
           <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" style={{color: '#6395ff'}} />
-          <span className="text-xs" style={{color: '#94a3b8'}}>Judith is revising...</span>
+          <span className="text-xs" style={{color: '#94a3b8'}}>Friday is revising...</span>
         </div>
       </div>
     )
@@ -129,7 +129,7 @@ export default function DraftPanel({
                 {conversationId && (
                   <button data-testid={`btn-ask-judith-review-${draft.id}`} onClick={() => { const opening = consultDraftId !== draft.id; setConsultDraftId(opening ? draft.id : null); if (opening) trackEvent('button_click', { button: 'ask_judith', context: 'draft_review', draft_id: draft.id }) }}
                     className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(99,149,255,0.08)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.15)'}}>
-                    <ChatBubbleLeftRightIcon className="h-4 w-4 mr-1" /> Ask Judith
+                    <ChatBubbleLeftRightIcon className="h-4 w-4 mr-1" /> Ask Friday
                   </button>
                 )}
                 <button data-testid={`btn-edit-${draft.id}`} onClick={() => { trackEvent('button_click', { button: 'edit_draft', draft_id: draft.id }); setEditingDraft(draft.id); isEditingRef.current = true; setEditBody(draft.draft_body) }}
@@ -142,7 +142,7 @@ export default function DraftPanel({
                 </button>
               </div>
 
-              {/* Ask Judith consultation on draft review (Surface B) */}
+              {/* Ask Friday consultation on draft review (Surface B) */}
               {conversationId && (
                 <ConsultChat
                   active={consultDraftId === draft.id}
@@ -204,13 +204,13 @@ export default function DraftPanel({
                 <div className="mt-2 space-y-2">
                   <div className="flex space-x-2">
                     <input data-testid="input-reject-reason" type="text" value={rejectReason} onChange={e => setRejectReason(e.target.value)}
-                      placeholder="Why? (optional — helps Judith learn)"
+                      placeholder="Why? (optional — helps Friday learn)"
                       className="flex-1 text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}}
                       onKeyDown={e => { if (e.key === 'Enter') handleRejectWithReason(draft.id) }} />
                     <button onClick={() => handleRejectWithReason(draft.id)}
                       className="px-3 py-1 text-xs rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>{rejectReason.trim() ? 'Reject with feedback' : 'Dismiss'}</button>
                   </div>
-                  <p className="text-xs" style={{color: '#64748b'}}>{rejectReason.trim() ? 'Judith will learn from your feedback' : 'Dismissing without feedback — no learning'}</p>
+                  <p className="text-xs" style={{color: '#64748b'}}>{rejectReason.trim() ? 'Friday will learn from your feedback' : 'Dismissing without feedback — no learning'}</p>
                 </div>
               )}
 

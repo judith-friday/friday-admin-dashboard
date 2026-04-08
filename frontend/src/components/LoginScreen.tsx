@@ -5,7 +5,7 @@ import { API_BASE } from './types'
 
 const TAGLINES = [
   'Your AI-powered guest experience engine',
-  'Judith is ready. Let\u2019s delight some guests.',
+  'Friday is ready. Let\u2019s delight some guests.',
   'Smarter replies. Happier guests. Less effort.',
   'Where hospitality meets intelligence',
   'The future of guest communication starts here',

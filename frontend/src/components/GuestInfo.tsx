@@ -277,7 +277,7 @@ export default function GuestInfo({
                 <div className="space-y-1.5 mb-2">
                   {aiNotes.map((note, i) => (
                     <div key={i} className="rounded px-2 py-1.5 text-xs" style={{background: 'rgba(251,191,36,0.08)', borderLeft: '2px solid #fbbf24', color: '#e2e8f0'}}>
-                      <span className="block text-xs mb-0.5" style={{color: '#fbbf24', fontSize: '10px', fontWeight: 600}}>🤖 Judith's observation</span>
+                      <span className="block text-xs mb-0.5" style={{color: '#fbbf24', fontSize: '10px', fontWeight: 600}}>🤖 Friday's observation</span>
                       {note}
                     </div>
                   ))}
@@ -332,7 +332,7 @@ export default function GuestInfo({
             setEditingNotes(true)
             setEditNotesValue(updated)
           }}
-            placeholder="Add notes for Judith..."
+            placeholder="Add notes for Friday..."
             className="w-full text-base rounded px-2 py-1.5 outline-none"
             style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', resize: 'vertical', minHeight: '48px'}}
             rows={2} />
@@ -426,7 +426,7 @@ export default function GuestInfo({
                 ))}
               </div>
             )}
-            <p className="text-xs mt-1" style={{color: '#475569', fontStyle: 'italic'}}>Judith's suggestions based on conversation context</p>
+            <p className="text-xs mt-1" style={{color: '#475569', fontStyle: 'italic'}}>Friday's suggestions based on conversation context</p>
           </div>
         </CollapsibleSection>
       )}

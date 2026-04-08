@@ -51,7 +51,7 @@ export default function TeachingCard({
       <div className="mx-3 my-1.5 px-3 py-2 rounded-lg text-xs flex items-center gap-2"
         style={{background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', color: '#4ade80'}}>
         <AcademicCapIcon className="h-4 w-4 flex-shrink-0" />
-        <span>Teaching saved! Judith will apply this going forward.</span>
+        <span>Teaching saved! Friday will apply this going forward.</span>
       </div>
     )
   }

@@ -179,7 +179,7 @@ export default function ConsultChat({
       <div className="mt-2 p-3 rounded-lg" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', ...(active ? {} : { display: 'none' as const }) }}>
         <div className="flex items-center space-x-2">
           <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" style={{ color: '#6395ff' }} />
-          <span className="text-xs" style={{ color: '#94a3b8' }}>Asking Judith...</span>
+          <span className="text-xs" style={{ color: '#94a3b8' }}>Asking Friday...</span>
         </div>
       </div>
     )
@@ -189,7 +189,7 @@ export default function ConsultChat({
     <div className="mt-2 rounded-lg" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', ...(active ? {} : { display: 'none' as const }) }}>
       {/* Header with close button */}
       <div className="flex items-center justify-between px-3 pt-2">
-        <span className="text-xs font-medium" style={{ color: '#6395ff' }}>Ask Judith</span>
+        <span className="text-xs font-medium" style={{ color: '#6395ff' }}>Ask Friday</span>
         <button onClick={onCancel} className="p-0.5 rounded hover:bg-white/10" style={{ color: '#64748b' }}>
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
         </button>
@@ -263,7 +263,7 @@ export default function ConsultChat({
             if (teachingAction.existingTeachingId) {
               await apiFetch(`/api/teachings/${teachingAction.existingTeachingId}/revoke`, {
                 method: 'PATCH',
-                body: JSON.stringify({ revoke_reason: 'Updated via Ask Judith' }),
+                body: JSON.stringify({ revoke_reason: 'Updated via Ask Friday' }),
               })
             }
             setTeachingAction(null)
@@ -280,7 +280,7 @@ export default function ConsultChat({
             if (teachingAction.conflictingTeachingId) {
               await apiFetch(`/api/teachings/${teachingAction.conflictingTeachingId}/revoke`, {
                 method: 'PATCH',
-                body: JSON.stringify({ revoke_reason: 'Updated via Ask Judith conflict resolution' }),
+                body: JSON.stringify({ revoke_reason: 'Updated via Ask Friday conflict resolution' }),
               })
             }
             const result = await apiFetch('/api/teachings', {
@@ -322,7 +322,7 @@ export default function ConsultChat({
         <div className="px-3 pb-2">
           <div className="flex gap-2">
             <textarea ref={textareaRef} value={replyText} onChange={e => { setReplyText(e.target.value); setTimeout(adjustTextareaHeight, 0) }}
-              placeholder="Reply to Judith..."
+              placeholder="Reply to Friday..."
               className="flex-1 text-base rounded px-2 py-1.5 outline-none resize-none"
               style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', minHeight: '36px', maxHeight: '96px' }}
               rows={1}

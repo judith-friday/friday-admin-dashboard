@@ -208,14 +208,14 @@ export default function BugReportsPanel({ show, onClose }: BugReportsPanelProps)
                       )}
                     </div>
 
-                    {/* Judith's AI Analysis */}
+                    {/* Friday's AI Analysis */}
                     {bug.ai_assessment ? (
                       <div className="rounded-lg px-3 py-2.5 text-xs" style={{
                         background: 'rgba(251,191,36,0.08)',
                         borderLeft: '2px solid #fbbf24',
                       }}>
                         <span className="block text-xs mb-1.5" style={{ color: '#fbbf24', fontSize: '10px', fontWeight: 600 }}>
-                          {'\u{1F916}'} Judith's Analysis
+                          {'\u{1F916}'} Friday's Analysis
                         </span>
                         <div className="flex gap-2 flex-wrap mb-1.5">
                           {bug.ai_category && (

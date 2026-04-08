@@ -21,7 +21,7 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Getting Started',
     group: 'Getting Started',
     keywords: ['workflow', 'daily', 'inbox', 'draft', 'approve', 'send', 'action items', 'notes', 'translations'],
-    content: 'Welcome to Friday Admin. Check the inbox unread messages have a blue dot. Click a conversation to read the guest message and Judith draft. Review the draft check the confidence score. Adjust if needed type instructions. Approve and Send confirmation with 5-second undo. Check Action Items things promised to guests. Everything you do is tracked. Staff notes shared with Judith. Don\'t approve bad drafts. When in doubt reject and say why. Translations happen automatically.',
+    content: 'Welcome to Friday Admin. Check the inbox unread messages have a blue dot. Click a conversation to read the guest message and Friday draft. Review the draft check the confidence score. Adjust if needed type instructions. Approve and Send confirmation with 5-second undo. Check Action Items things promised to guests. Everything you do is tracked. Staff notes shared with Friday. Don\'t approve bad drafts. When in doubt reject and say why. Translations happen automatically.',
     render: (hl) => (
       <div className="space-y-3">
         <p>{hl('Welcome to Friday Admin! This is where you review and send guest messages.')}</p>
@@ -29,7 +29,7 @@ const HELP_DATA: HelpEntry[] = [
           <p className="font-semibold" style={{color: '#e2e8f0'}}>Your daily workflow:</p>
           <div className="space-y-1.5">
             {['Check the inbox — unread messages have a blue dot',
-              'Click a conversation to read the guest\'s message and Judith\'s draft',
+              'Click a conversation to read the guest\'s message and Friday\'s draft',
               'Review the draft — check the confidence score for how much attention it needs',
               'Adjust if needed — type instructions like "add the WiFi password" or "be warmer"',
               'Approve & Send — a confirmation pops up with a 5-second undo window',
@@ -46,10 +46,10 @@ const HELP_DATA: HelpEntry[] = [
           <p className="font-semibold" style={{color: '#e2e8f0'}}>Key things to know:</p>
           <div className="space-y-1 text-xs" style={{color: '#94a3b8'}}>
             <div>• {hl('Everything you do is tracked (who approved, who rejected, who wrote notes)')}</div>
-            <div>• {hl('Staff notes are shared with Judith — she reads them when drafting future replies')}</div>
-            <div>• {hl("Don't approve bad drafts to save time — Judith learns from your approvals")}</div>
-            <div>• {hl('When in doubt, reject and say why — this helps Judith improve')}</div>
-            <div>• {hl("Translations happen automatically — you review in English, Judith sends in the guest's language")}</div>
+            <div>• {hl('Staff notes are shared with Friday — she reads them when drafting future replies')}</div>
+            <div>• {hl("Don't approve bad drafts to save time — Friday learns from your approvals")}</div>
+            <div>• {hl('When in doubt, reject and say why — this helps Friday improve')}</div>
+            <div>• {hl("Translations happen automatically — you review in English, Friday sends in the guest's language")}</div>
           </div>
         </div>
       </div>
@@ -62,10 +62,10 @@ const HELP_DATA: HelpEntry[] = [
     title: 'How It Works',
     group: 'How It Works',
     keywords: ['language', 'translate', 'summarize', 'draft', 'confidence', 'queue', 'review'],
-    content: 'When a guest sends a message Judith automatically detects the language and translates. Summarizes the conversation. Drafts a reply with a confidence score. Queues it for your review.',
+    content: 'When a guest sends a message Friday automatically detects the language and translates. Summarizes the conversation. Drafts a reply with a confidence score. Queues it for your review.',
     render: (hl) => (
       <div>
-        <p className="text-xs leading-relaxed mb-2" style={{color: '#94a3b8'}}>{hl('When a guest sends a message, Judith automatically:')}</p>
+        <p className="text-xs leading-relaxed mb-2" style={{color: '#94a3b8'}}>{hl('When a guest sends a message, Friday automatically:')}</p>
         <div className="space-y-1.5">
           {['Detects the language and translates if needed', 'Summarizes the conversation', 'Drafts a reply with a confidence score', 'Queues it for your review'].map((step, i) => (
             <div key={i} className="flex items-start gap-2 text-xs" style={{color: '#94a3b8'}}>
@@ -106,17 +106,17 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Draft Panel Actions',
     group: 'How It Works',
     keywords: ['draft', 'approve', 'revise', 'ask judith', 'edit', 'reject', 'send', 'panel', 'actions'],
-    content: 'Draft panel actions in order of priority. Approve and Send sends the draft. Revise give Judith revision instructions. Ask Judith get advisory help inline. Edit manually edit the draft text. Reject discard with a reason. Edit and Reject are secondary actions.',
+    content: 'Draft panel actions in order of priority. Approve and Send sends the draft. Revise give Friday revision instructions. Ask Friday get advisory help inline. Edit manually edit the draft text. Reject discard with a reason. Edit and Reject are secondary actions.',
     render: (hl) => (
       <div className="space-y-2">
         <p className="text-xs" style={{color: '#94a3b8'}}>{hl('Actions in the draft panel, in order of priority:')}</p>
         <div className="space-y-1.5 text-xs" style={{color: '#94a3b8'}}>
           {[
             ['Approve & Send', " — sends the draft via the guest's booking platform", '#4ade80'],
-            ['Revise', ' — give Judith revision instructions to adjust the draft', '#fbbf24'],
-            ['Ask Judith', ' — get advisory help inline below the draft', '#6395ff'],
+            ['Revise', ' — give Friday revision instructions to adjust the draft', '#fbbf24'],
+            ['Ask Friday', ' — get advisory help inline below the draft', '#6395ff'],
             ['Edit', ' — manually edit the draft text (secondary)', '#94a3b8'],
-            ['Reject', ' — discard with a reason, helps Judith learn (secondary)', '#f87171'],
+            ['Reject', ' — discard with a reason, helps Friday learn (secondary)', '#f87171'],
           ].map(([bold, rest, color], i) => (
             <div key={i}><span style={{color: color as string, fontWeight: 500}}>{hl(bold as string)}</span>{hl(rest as string)}</div>
           ))}
@@ -177,13 +177,13 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Keyboard Shortcuts',
     group: 'How It Works',
     keywords: ['shortcut', 'keyboard', 'navigate', 'enter', 'escape', 'hotkey'],
-    content: 'Navigate conversations up down. Open conversation enter. Focus Ask Judith slash. Approve and send command enter. Deselect escape.',
+    content: 'Navigate conversations up down. Open conversation enter. Focus Ask Friday slash. Approve and send command enter. Deselect escape.',
     render: () => (
       <div className="space-y-1.5">
         {[
           ['Navigate conversations', ['↑', '↓']],
           ['Open conversation', ['Enter']],
-          ['Focus "Ask Judith"', ['/']],
+          ['Focus "Ask Friday"', ['/']],
           ['Approve & send', ['⌘', '↵']],
           ['Deselect', ['Esc']],
         ].map(([label, keys]) => (
@@ -204,14 +204,14 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Staff Notes',
     group: 'How It Works',
     keywords: ['notes', 'context', 'vip', 'repeat', 'elderly', 'ai', 'observations', 'amber', 'manual'],
-    content: 'Staff notes section in the info panel. AI observations shown read-only with amber indicator Judith auto-generates these. Click Edit button to modify existing notes. Separate Add notes input for new manual entries. Notes are shared with Judith and become context for future drafts. VIP guest husband proposed. Guest is elderly needs ground floor. Repeat guest prefers early check-in.',
+    content: 'Staff notes section in the info panel. AI observations shown read-only with amber indicator Friday auto-generates these. Click Edit button to modify existing notes. Separate Add notes input for new manual entries. Notes are shared with Friday and become context for future drafts. VIP guest husband proposed. Guest is elderly needs ground floor. Repeat guest prefers early check-in.',
     render: (hl) => (
       <div>
         <p className="text-xs leading-relaxed" style={{color: '#94a3b8'}}>
-          {hl('Staff notes in the info panel are shared with Judith and become context for future drafts.')}
+          {hl('Staff notes in the info panel are shared with Friday and become context for future drafts.')}
         </p>
         <div className="space-y-1.5 mt-2 text-xs" style={{color: '#94a3b8'}}>
-          <div>• <span style={{fontWeight: 500, color: '#fbbf24'}}>AI observations</span> {hl('— shown read-only with an amber indicator. Judith auto-generates these from conversation context.')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#fbbf24'}}>AI observations</span> {hl('— shown read-only with an amber indicator. Friday auto-generates these from conversation context.')}</div>
           <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Edit button</span> {hl('— click to modify existing notes')}</div>
           <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Add notes</span> {hl('— separate input field for new manual entries')}</div>
         </div>
@@ -248,14 +248,14 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Auto-send',
     group: 'How It Works',
     keywords: ['auto', 'automatic', 'toggle', '85%'],
-    content: 'Toggle per conversation in the right panel. When enabled replies with 85%+ confidence for routine messages or simple questions send automatically. Complaints requests and complex messages always require your review. Start with this OFF until you trust Judith drafts.',
+    content: 'Toggle per conversation in the right panel. When enabled replies with 85%+ confidence for routine messages or simple questions send automatically. Complaints requests and complex messages always require your review. Start with this OFF until you trust Friday drafts.',
     render: (hl) => (
       <div>
         <p className="text-xs leading-relaxed" style={{color: '#94a3b8'}}>
           {hl('Toggle per conversation in the right panel. When enabled, replies with 85%+ confidence for routine messages or simple questions send automatically. Complaints, requests, and complex messages always require your review.')}
         </p>
         <div className="mt-2 rounded-md px-2.5 py-1.5 text-xs" style={{background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)', color: '#fbbf24'}}>
-          Start with this OFF until you trust Judith&apos;s drafts
+          Start with this OFF until you trust Friday&apos;s drafts
         </div>
       </div>
     ),
@@ -265,10 +265,10 @@ const HELP_DATA: HelpEntry[] = [
     title: 'How Confidence Scores Work',
     group: 'How It Works',
     keywords: ['confidence', 'formula', 'base', 'routine', 'complaint', 'reservation', 'property', 'language', 'complexity'],
-    content: 'Judith calculates confidence using a weighted formula. Base score 70%. Message type +10% routine +5% simple questions -20% complaints. Reservation context +10% good dates guests property -10% no property info. Property knowledge +10% relevant -10% unknown property. Staff notes +5%. Conversation depth +5% active thread. Language -5% non-English. Long messages -15% over 200 words. Sensitive keywords extra penalty. Example routine WiFi 90%. Example complex complaint 30%.',
+    content: 'Friday calculates confidence using a weighted formula. Base score 70%. Message type +10% routine +5% simple questions -20% complaints. Reservation context +10% good dates guests property -10% no property info. Property knowledge +10% relevant -10% unknown property. Staff notes +5%. Conversation depth +5% active thread. Language -5% non-English. Long messages -15% over 200 words. Sensitive keywords extra penalty. Example routine WiFi 90%. Example complex complaint 30%.',
     render: (hl) => (
       <div className="space-y-2">
-        <p>{hl('Judith calculates confidence using a weighted formula:')}</p>
+        <p>{hl('Friday calculates confidence using a weighted formula:')}</p>
         <div className="pl-2 space-y-1" style={{color: '#64748b'}}>
           <div>• {hl('Base score: 70%')}</div>
           <div>• {hl('Message type: +10% routine, +5% simple questions, -20% complaints')}</div>
@@ -295,10 +295,10 @@ const HELP_DATA: HelpEntry[] = [
   },
   {
     id: 'teaching-judith',
-    title: 'Teaching Judith',
+    title: 'Teaching Friday',
     group: 'How It Works',
     keywords: ['teach', 'learn', 'revise', 'rule', 'permanent', 'one-time', 'property', 'teachings', 'revoke'],
-    content: 'When you submit a revision you\'ll see three options. Revise adjusts draft doesn\'t learn permanently 3+ similar instructions triggers auto-learn. Revise and teach adjusts AND saves as a permanent rule choose this property or all properties. Revise one-time adjusts but does NOT learn for guest-specific things. View what Judith has learned click Teachings. You can revoke any teaching if it was a mistake. Never mention pool is shared. Always include parking for GBH. Don\'t teach guest-specific things. Don\'t approve bad drafts. Contradictory instructions. Editing draft text directly without revision input.',
+    content: 'When you submit a revision you\'ll see three options. Revise adjusts draft doesn\'t learn permanently 3+ similar instructions triggers auto-learn. Revise and teach adjusts AND saves as a permanent rule choose this property or all properties. Revise one-time adjusts but does NOT learn for guest-specific things. View what Friday has learned click Teachings. You can revoke any teaching if it was a mistake. Never mention pool is shared. Always include parking for GBH. Don\'t teach guest-specific things. Don\'t approve bad drafts. Contradictory instructions. Editing draft text directly without revision input.',
     render: (hl) => (
       <div className="space-y-3">
         <p>{hl("When you submit a revision, you'll see three options:")}</p>
@@ -307,7 +307,7 @@ const HELP_DATA: HelpEntry[] = [
           <div><span style={{color: '#fbbf24', fontWeight: 500}}>Revise &amp; teach 🧠</span> — {hl('adjusts AND saves as a permanent rule. Choose: this property or all properties.')}</div>
           <div><span style={{color: '#6395ff', fontWeight: 500}}>Revise (one-time)</span> — {hl('adjusts but does NOT learn. For guest-specific things.')}</div>
         </div>
-        <p className="mt-2">{hl("View what Judith has learned: click 🧠 Teachings. You can revoke any teaching if it was a mistake.")}</p>
+        <p className="mt-2">{hl("View what Friday has learned: click 🧠 Teachings. You can revoke any teaching if it was a mistake.")}</p>
         <div className="rounded-md p-2.5 mt-2" style={{background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)'}}>
           <div className="text-xs font-semibold mb-1" style={{color: '#4ade80'}}>Good teaching examples</div>
           <div className="space-y-1 text-xs" style={{color: '#94a3b8'}}>
@@ -321,7 +321,7 @@ const HELP_DATA: HelpEntry[] = [
             <div>❌ {hl('Guest-specific things like "mention their anniversary" — use one-time instead')}</div>
             <div>❌ {hl("Approving bad drafts (she thinks it's good)")}</div>
             <div>❌ {hl('Contradictory instructions')}</div>
-            <div>❌ {hl('Editing draft text directly without revision input (no feedback for Judith)')}</div>
+            <div>❌ {hl('Editing draft text directly without revision input (no feedback for Friday)')}</div>
           </div>
         </div>
       </div>
@@ -329,14 +329,14 @@ const HELP_DATA: HelpEntry[] = [
   },
   {
     id: 'judith-capabilities',
-    title: "What Judith Can and Can't Do",
+    title: "What Friday Can and Can't Do",
     group: 'How It Works',
     keywords: ['capabilities', 'translate', 'complaint', 'amenities', 'action items', 'maintenance', 'payments', 'refunds'],
-    content: "What Judith CAN do: Draft personalized replies in guest's language. Detect complaint tone and urgency. Use property-specific knowledge WiFi amenities directions. Translate 50+ languages. Track promises and create action items. Suggest empathetic responses. What Judith CAN'T do: Send messages without approval unless auto-send enabled. Access Breezeway for maintenance. Modify reservations. Handle payments refunds billing. Make decisions about property policies.",
+    content: "What Friday CAN do: Draft personalized replies in guest's language. Detect complaint tone and urgency. Use property-specific knowledge WiFi amenities directions. Translate 50+ languages. Track promises and create action items. Suggest empathetic responses. What Friday CAN'T do: Send messages without approval unless auto-send enabled. Access Breezeway for maintenance. Modify reservations. Handle payments refunds billing. Make decisions about property policies.",
     render: (hl) => (
       <div className="space-y-3">
         <div>
-          <div className="text-xs font-semibold mb-1.5" style={{color: '#4ade80'}}>{'✅'} What Judith CAN do</div>
+          <div className="text-xs font-semibold mb-1.5" style={{color: '#4ade80'}}>{'✅'} What Friday CAN do</div>
           <div className="space-y-1 text-xs pl-2" style={{color: '#94a3b8'}}>
             <div>• {hl("Draft personalized replies in guest's language")}</div>
             <div>• {hl('Detect complaint tone and urgency levels')}</div>
@@ -347,7 +347,7 @@ const HELP_DATA: HelpEntry[] = [
           </div>
         </div>
         <div>
-          <div className="text-xs font-semibold mb-1.5" style={{color: '#f87171'}}>{'❌'} What Judith CAN&apos;T do (yet)</div>
+          <div className="text-xs font-semibold mb-1.5" style={{color: '#f87171'}}>{'❌'} What Friday CAN&apos;T do (yet)</div>
           <div className="space-y-1 text-xs pl-2" style={{color: '#94a3b8'}}>
             <div>• {hl('Send messages without approval (unless auto-send is enabled for that conversation)')}</div>
             <div>• {hl('Access Breezeway for maintenance requests')}</div>
@@ -425,13 +425,13 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Property Cards',
     group: 'How It Works',
     keywords: ['property', 'wifi', 'check-in', 'parking', 'amenities', 'faq', 'edit', 'knowledge card', 'form'],
-    content: 'Click any property name in the sidebar to view or edit its details. Property cards use form fields not raw JSON for easy editing. WiFi check-in instructions parking amenities FAQs. If info is wrong click the field and fix it. Judith uses updated info immediately. More info better drafts.',
+    content: 'Click any property name in the sidebar to view or edit its details. Property cards use form fields not raw JSON for easy editing. WiFi check-in instructions parking amenities FAQs. If info is wrong click the field and fix it. Friday uses updated info immediately. More info better drafts.',
     render: (hl) => (
       <div className="space-y-2">
         <p>{hl('Click any property name in the sidebar to view or edit its details.')}</p>
         <div className="space-y-1.5 text-xs" style={{color: '#94a3b8'}}>
           <div>• {hl('Property cards use form fields (not raw JSON) — easy to edit WiFi, check-in instructions, parking, amenities, FAQs')}</div>
-          <div>• {hl('If info is wrong: click the field, fix it, save. Judith uses updated info immediately.')}</div>
+          <div>• {hl('If info is wrong: click the field, fix it, save. Friday uses updated info immediately.')}</div>
           <div>• {hl('More info = better drafts for that property.')}</div>
         </div>
       </div>
@@ -459,13 +459,13 @@ const HELP_DATA: HelpEntry[] = [
   // ── AI Features ──────────────────────────────────────────────────────────
   {
     id: 'ask-judith',
-    title: '💬 Ask Judith',
+    title: '💬 Ask Friday',
     group: 'AI Features',
     keywords: ['ask', 'judith', 'compose', 'draft review', 'revision', 'advisory', 'inline', 'chat', 'multiline'],
-    content: 'Ask Judith is advisory only she helps you think not writes for you. Two contexts. In Draft Review helps suggest revision instructions for the current draft. In Compose helps draft messages from scratch suggests phrasing tone and structure. Appears inline below the draft not a separate panel. Click X to close chat persists when you close and reopen. Multiline input supported.',
+    content: 'Ask Friday is advisory only she helps you think not writes for you. Two contexts. In Draft Review helps suggest revision instructions for the current draft. In Compose helps draft messages from scratch suggests phrasing tone and structure. Appears inline below the draft not a separate panel. Click X to close chat persists when you close and reopen. Multiline input supported.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p>{hl('Ask Judith is advisory only — she helps you think, not writes for you.')}</p>
+        <p>{hl('Ask Friday is advisory only — she helps you think, not writes for you.')}</p>
         <div className="space-y-1.5">
           <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>In Draft Review:</span> {hl('helps suggest revision instructions for the current draft')}</div>
           <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>In Compose:</span> {hl('helps draft messages from scratch — suggests phrasing, tone, and structure')}</div>
@@ -483,14 +483,14 @@ const HELP_DATA: HelpEntry[] = [
     title: '✏️ Compose Flow',
     group: 'AI Features',
     keywords: ['compose', 'write', 'message', 'send', 'learn', 'popup', 'channel'],
-    content: 'Compose flow: Write your message. Ask Judith can help you draft it suggests phrasing tone and structure. Click Send. Learn popup appears with three options: Learn choose scope global or property-specific creates a teaching. Don\'t Learn sends but blocks auto-learning. Just Send sends normally.',
+    content: 'Compose flow: Write your message. Ask Friday can help you draft it suggests phrasing tone and structure. Click Send. Learn popup appears with three options: Learn choose scope global or property-specific creates a teaching. Don\'t Learn sends but blocks auto-learning. Just Send sends normally.',
     render: (hl) => (
       <div className="space-y-2">
         <p className="text-xs" style={{color: '#94a3b8'}}>{hl('How to compose and send a new message:')}</p>
         <div className="space-y-1.5">
           {[
             'Write your message in the compose area',
-            'Ask Judith can help you draft — suggests phrasing, tone, and structure',
+            'Ask Friday can help you draft — suggests phrasing, tone, and structure',
             'Click Send',
             'Learn popup appears with options (see Send Flow below)',
           ].map((step, i) => (
@@ -508,12 +508,12 @@ const HELP_DATA: HelpEntry[] = [
     title: '📤 Send Flow',
     group: 'AI Features',
     keywords: ['send', 'learn', 'don\'t learn', 'just send', 'scope', 'global', 'property', 'teaching'],
-    content: 'After clicking Send a popup appears with three options. Learn choose scope Global or Property-specific creates a teaching so Judith learns from this message. Don\'t Learn sends the message but blocks auto-learning from it. Just Send sends normally with no special learning behavior. Channel selector available in the popup.',
+    content: 'After clicking Send a popup appears with three options. Learn choose scope Global or Property-specific creates a teaching so Friday learns from this message. Don\'t Learn sends the message but blocks auto-learning from it. Just Send sends normally with no special learning behavior. Channel selector available in the popup.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
         <p>{hl('After clicking Send, a popup appears with three options:')}</p>
         <div className="space-y-1.5">
-          <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Learn</span> {hl('— choose scope (Global or Property-specific), creates a teaching so Judith learns from this message')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Learn</span> {hl('— choose scope (Global or Property-specific), creates a teaching so Friday learns from this message')}</div>
           <div>• <span style={{fontWeight: 500, color: '#fbbf24'}}>Don\'t Learn</span> {hl('— sends the message but blocks auto-learning from it')}</div>
           <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Just Send</span> {hl('— sends normally with no special learning behavior')}</div>
         </div>
@@ -526,13 +526,13 @@ const HELP_DATA: HelpEntry[] = [
     title: '🧠 Learning Queue & Recommendations',
     group: 'AI Features',
     keywords: ['learning', 'queue', 'recommendation', 'approve', 'reject', 'modify', 'teach', 'scope', 'rule', 'candidate'],
-    content: "When Judith encounters something new she could learn it appears in the Learning Queue. Each candidate shows Judith's Take her recommendation on whether to approve reject or modify. Approve teaches Judith this rule for future drafts. Reject tells Judith this isn't a good rule. Modify edit the instruction before teaching it. Teaching can be scoped to one property or all properties.",
+    content: "When Friday encounters something new she could learn it appears in the Learning Queue. Each candidate shows Friday's Take her recommendation on whether to approve reject or modify. Approve teaches Friday this rule for future drafts. Reject tells Friday this isn't a good rule. Modify edit the instruction before teaching it. Teaching can be scoped to one property or all properties.",
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div>• {hl("When Judith encounters something new she could learn, it appears in the Learning Queue")}</div>
-        <div>• {hl("Each candidate shows \"Judith's Take\" — her recommendation on whether to approve, reject, or modify")}</div>
-        <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Approve:</span> {hl('teaches Judith this rule for future drafts')}</div>
-        <div>• <span style={{fontWeight: 500, color: '#f87171'}}>Reject:</span> {hl("tells Judith this isn't a good rule")}</div>
+        <div>• {hl("When Friday encounters something new she could learn, it appears in the Learning Queue")}</div>
+        <div>• {hl("Each candidate shows \"Friday's Take\" — her recommendation on whether to approve, reject, or modify")}</div>
+        <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Approve:</span> {hl('teaches Friday this rule for future drafts')}</div>
+        <div>• <span style={{fontWeight: 500, color: '#f87171'}}>Reject:</span> {hl("tells Friday this isn't a good rule")}</div>
         <div>• <span style={{fontWeight: 500, color: '#fbbf24'}}>Modify:</span> {hl('edit the instruction before teaching it')}</div>
         <div>• {hl('Teaching can be scoped to one property or all properties')}</div>
       </div>
@@ -545,12 +545,12 @@ const HELP_DATA: HelpEntry[] = [
     title: '🔄 Message Send & Retry',
     group: 'Messaging',
     keywords: ['send', 'retry', 'api', 'guesty', 'fallback', 'browser', 'slack', 'queue', 'copy-paste'],
-    content: 'When you approve a message it sends through Guesty automatically. If Guesty is down it automatically retries once at 1 minute again at 5 minutes. If retries fail Judith tries sending via the Guesty web interface browser fallback. If everything fails the full message is posted to #fr-guest-messages on Slack so you can copy-paste it manually. You can also click Retry Now on any queued message to try immediately.',
+    content: 'When you approve a message it sends through Guesty automatically. If Guesty is down it automatically retries once at 1 minute again at 5 minutes. If retries fail Friday tries sending via the Guesty web interface browser fallback. If everything fails the full message is posted to #fr-guest-messages on Slack so you can copy-paste it manually. You can also click Retry Now on any queued message to try immediately.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
         <div>• {hl('When you approve a message, it sends through Guesty automatically')}</div>
         <div>• {hl('If Guesty is down, it automatically retries: once at 1 minute, again at 5 minutes')}</div>
-        <div>• {hl('If retries fail, Judith tries sending via the Guesty web interface (browser fallback)')}</div>
+        <div>• {hl('If retries fail, Friday tries sending via the Guesty web interface (browser fallback)')}</div>
         <div>• {hl('If everything fails, the full message is posted to #fr-guest-messages on Slack so you can copy-paste it manually')}</div>
         <div>• {hl('You can also click "Retry Now" on any queued message to try immediately')}</div>
       </div>
@@ -677,12 +677,12 @@ const HELP_DATA: HelpEntry[] = [
     title: '🐛 Bug Reports',
     group: 'Operations',
     keywords: ['bug', 'report', 'FAB', 'screenshot', 'analyze', 'category', 'component', 'assessment', 'floating', 'button'],
-    content: 'Report bugs using the floating action button (FAB) in the bottom-right corner. Captures a screenshot automatically. Judith auto-analyzes the bug report with category, component, and assessment. Bug reports are reviewed and tracked in the bug reports panel.',
+    content: 'Report bugs using the floating action button (FAB) in the bottom-right corner. Captures a screenshot automatically. Friday auto-analyzes the bug report with category, component, and assessment. Bug reports are reviewed and tracked in the bug reports panel.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
         <div>• {hl('Report bugs using the floating action button (FAB) in the bottom-right corner')}</div>
         <div>• {hl('Captures a screenshot automatically')}</div>
-        <div>• {hl('Judith auto-analyzes the report — assigns category, component, and assessment')}</div>
+        <div>• {hl('Friday auto-analyzes the report — assigns category, component, and assessment')}</div>
         <div>• {hl('Bug reports are reviewed and tracked in the bug reports panel')}</div>
       </div>
     ),
@@ -702,16 +702,16 @@ const HELP_DATA: HelpEntry[] = [
     ),
   },
 
-  // ── Working with Judith ───────────────────────────────────────────────
+  // ── Working with Friday ───────────────────────────────────────────────
   {
     id: 'how-judith-learns',
-    title: '🧠 How Judith Learns',
-    group: 'Working with Judith',
+    title: '🧠 How Friday Learns',
+    group: 'Working with Friday',
     keywords: ['learn', 'teaching', 'training', 'correction', 'revision', 'approve', 'reject', 'modify', 'queue', 'permanent'],
-    content: 'When you revise a draft Judith remembers your correction. The Learning Queue shows things she is unsure about your decisions help train her judgment. Teachings are permanent they influence every future draft. She cross-references property details discount policies team escalation paths STR best practices and platform rules.',
+    content: 'When you revise a draft Friday remembers your correction. The Learning Queue shows things she is unsure about your decisions help train her judgment. Teachings are permanent they influence every future draft. She cross-references property details discount policies team escalation paths STR best practices and platform rules.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div>• {hl("When you revise a draft, Judith remembers your correction. Next time she sees a similar situation, she'll apply what you taught her.")}</div>
+        <div>• {hl("When you revise a draft, Friday remembers your correction. Next time she sees a similar situation, she'll apply what you taught her.")}</div>
         <div>• {hl("The Learning Queue shows things she's unsure about — your approve/reject/modify decisions help train her judgment.")}</div>
         <div>• {hl('Teachings are permanent. They influence every future draft for that property (or globally if you chose "All properties").')}</div>
         <div>• {hl('Behind the scenes, she cross-references property details, discount policies, team escalation paths, STR best practices, and platform rules. Every teaching you add builds on this foundation.')}</div>
@@ -721,14 +721,14 @@ const HELP_DATA: HelpEntry[] = [
   {
     id: 'common-teaching-mistakes',
     title: '⚠️ Common Teaching Mistakes',
-    group: 'Working with Judith',
+    group: 'Working with Friday',
     keywords: ['mistake', 'vague', 'correction', 'revise', 'edit', 'conflict', 'teaching', 'why', 'specific'],
-    content: 'Vague corrections teach nothing. Be specific and actionable. Editing without Revising means Judith does not learn. Always use the Revise button. Include the WHY for better reasoning. Contradicting old teachings creates conflicts clean up via Teachings page.',
+    content: 'Vague corrections teach nothing. Be specific and actionable. Editing without Revising means Friday does not learn. Always use the Revise button. Include the WHY for better reasoning. Contradicting old teachings creates conflicts clean up via Teachings page.',
     render: (hl) => (
       <div className="space-y-2.5 text-xs" style={{color: '#94a3b8'}}>
         {[
           {label: 'Vague corrections', desc: '"Make it better" teaches nothing. "Always mention checkout is 11am and include the door code" is perfect — specific and actionable.'},
-          {label: 'Editing without Revising', desc: "If you manually edit a draft and send it, Judith doesn't learn from the change. Always use the Revise button so she can record what you corrected and why."},
+          {label: 'Editing without Revising', desc: "If you manually edit a draft and send it, Friday doesn't learn from the change. Always use the Revise button so she can record what you corrected and why."},
           {label: 'Missing the WHY', desc: '"Don\'t offer pool heating after 8pm" is good. "Don\'t offer pool heating after 8pm because it disturbs neighbors and we\'ve had complaints" is better — gives her reasoning she can apply to similar situations.'},
           {label: 'Contradicting old teachings', desc: 'If you teach her one thing now and the opposite later, both teachings exist. Use the Teachings page to clean up conflicts when you spot them.'},
         ].map(item => (
@@ -743,14 +743,14 @@ const HELP_DATA: HelpEntry[] = [
   {
     id: 'tips-for-better-results',
     title: '✨ Tips for Better Results',
-    group: 'Working with Judith',
+    group: 'Working with Friday',
     keywords: ['tips', 'confidence', 'revision', 'teaching', 'improve', 'feedback', 'patience', 'score'],
-    content: 'Review drafts before sending corrections make her smarter. Use Ask Judith before committing to a revision. Use Revise instead of manual edit. More context in revision notes means better next drafts. Check the confidence score. Be patient consistent feedback matters more than volume.',
+    content: 'Review drafts before sending corrections make her smarter. Use Ask Friday before committing to a revision. Use Revise instead of manual edit. More context in revision notes means better next drafts. Check the confidence score. Be patient consistent feedback matters more than volume.',
     render: (hl) => (
       <div className="space-y-1.5 text-xs" style={{color: '#94a3b8'}}>
         {[
           "Review drafts before sending — the team's corrections make her smarter over time",
-          "Use \"Ask Judith\" before committing to a revision — she'll flag conflicts with what she knows",
+          "Use \"Ask Friday\" before committing to a revision — she'll flag conflicts with what she knows",
           'If a draft is wrong, use Revise instead of manual edit — revisions become teachings',
           'The more context in your revision notes, the better the next draft will be',
           'Check the confidence score — high confidence means she\'s seen similar situations before',
@@ -771,14 +771,14 @@ const GROUP_ORDER = [
   'Getting Started',
   'How It Works',
   'AI Features',
-  'Working with Judith',
+  'Working with Friday',
   'Messaging',
   'Dashboard',
   'Operations',
 ]
 
 // Groups that get a divider header (not the first two — they're "legacy")
-const DIVIDER_GROUPS = new Set(['AI Features', 'Working with Judith', 'Messaging', 'Dashboard', 'Operations'])
+const DIVIDER_GROUPS = new Set(['AI Features', 'Working with Friday', 'Messaging', 'Dashboard', 'Operations'])
 
 // ---------------------------------------------------------------------------
 // Highlight helper: wraps substring matches in <mark>
@@ -932,7 +932,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
             <>
               <div className="rounded-lg p-4 text-center" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)' }}>
                 <div className="text-xs" style={{ color: '#94a3b8' }}>Need help? Tag <span style={{ color: '#6395ff', fontWeight: 500 }}>@Ishant</span> in Slack</div>
-                <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>or message Judith directly</div>
+                <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>or message Friday directly</div>
               </div>
 
               <a href="https://slack.com/app_redirect?channel=fr-gms-feedback" target="_blank" rel="noopener noreferrer"

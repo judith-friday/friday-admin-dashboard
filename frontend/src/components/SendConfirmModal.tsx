@@ -109,7 +109,7 @@ export default function SendConfirmModal({
                 {sessionTeachings.length > 0 && <TeachingSummary teachings={sessionTeachings} />}
 
                 {/* Learn decision */}
-                <p className="text-xs mb-2" style={{color: '#64748b'}}>Should Judith learn from this?</p>
+                <p className="text-xs mb-2" style={{color: '#64748b'}}>Should Friday learn from this?</p>
                 <div className="flex flex-col gap-2 mb-3">
                   <button
                     data-testid="btn-learn"
@@ -144,7 +144,7 @@ export default function SendConfirmModal({
             ) : (
               <>
                 <p className="text-sm mb-4" style={{color: '#94a3b8'}}>
-                  How should Judith learn this?
+                  How should Friday learn this?
                 </p>
                 <div className="flex flex-col gap-2 mb-3">
                   <button

@@ -66,7 +66,7 @@ export default function ComposePanel({
               {composeFix ? 'Fixing...' : 'Fix'}
             </button>
 
-            {/* Ask Judith button */}
+            {/* Ask Friday button */}
             <button onClick={() => setShowConsult(!showConsult)} disabled={!canAskJudith}
               className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-40"
               style={{
@@ -74,9 +74,9 @@ export default function ComposePanel({
                 color: '#6395ff',
                 border: `1px solid rgba(99,149,255,${showConsult ? '0.35' : '0.25'})`,
               }}
-              title={showConsult ? 'Close Judith' : 'Ask Judith for help'}>
+              title={showConsult ? 'Close Friday' : 'Ask Friday for help'}>
               <ChatBubbleLeftRightIcon className="h-3.5 w-3.5" />
-              {showConsult ? 'Close Judith' : 'Ask Judith'}
+              {showConsult ? 'Close Friday' : 'Ask Friday'}
             </button>
 
             {/* Send button */}
