@@ -41,6 +41,7 @@ export default function MessageDashboard() {
   const [detail, setDetail] = useState<ConversationDetail | null>(null)
   const [stats, setStats] = useState<InboxStats | null>(null)
   const [pollerStatus, setPollerStatus] = useState<{api_down: boolean, send_queue_length: number} | null>(null)
+  const [queueCount, setQueueCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'review' | 'open' | 'done' | 'actions'>('all')
   const [editingDraft, setEditingDraft] = useState<string | null>(null)
@@ -309,6 +310,7 @@ export default function MessageDashboard() {
       setStats(data)
       // Fetch poller/system status
       try { const ps = await apiFetch('/api/import/poller-status'); setPollerStatus(ps) } catch {}
+      try { const qd = await apiFetch('/api/drafts/queued/list'); setQueueCount(Array.isArray(qd) ? qd.length : 0) } catch {}
     } catch { }
   }, [])
 
@@ -1136,6 +1138,7 @@ export default function MessageDashboard() {
       <DashboardStats
         stats={stats}
         pollerStatus={pollerStatus}
+        queueCount={queueCount}
         displayName={displayName}
         setTokenState={setTokenState}
         toggleMute={toggleMute}

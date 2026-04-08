@@ -18,6 +18,7 @@ import { trackEvent } from '../lib/analytics'
 interface DashboardStatsProps {
   stats: InboxStats | null
   pollerStatus: {api_down: boolean; send_queue_length: number} | null
+  queueCount: number
   displayName: string
   setTokenState: (v: null) => void
   toggleMute: () => void
@@ -56,7 +57,7 @@ function formatResponseTime(mins: number): string {
 }
 
 export default function DashboardStats({
-  stats, pollerStatus, displayName, setTokenState,
+  stats, pollerStatus, queueCount, displayName, setTokenState,
   toggleMute, isMuted, showTeachingsPanel, setShowTeachingsPanel,
   fetchTeachings, setShowHelp, showBugReportsPanel, setShowBugReportsPanel,
   showLearningQueue, setShowLearningQueue,
@@ -107,9 +108,9 @@ export default function DashboardStats({
               {pollerStatus && pollerStatus.api_down && (
                 <button onClick={() => setShowSendQueue(true)} className="text-xs px-2 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}} title="Guesty API is down \u2014 click to view send queue">{'\u26A0'} API Down</button>
               )}
-              {pollerStatus && pollerStatus.send_queue_length > 0 && (
-                <button onClick={() => setShowSendQueue(true)} className="text-xs px-2 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity" style={{background: 'rgba(251,191,36,0.15)', color: '#fbbf24'}} title={`${pollerStatus.send_queue_length} message(s) queued \u2014 click to manage`}>{'\uD83D\uDCE4'} {pollerStatus.send_queue_length} queued</button>
-              )}
+              <button onClick={() => setShowSendQueue(true)} className="text-xs px-2 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity"
+                style={{background: queueCount > 0 ? 'rgba(251,191,36,0.15)' : 'rgba(255,255,255,0.05)', color: queueCount > 0 ? '#fbbf24' : '#64748b'}}
+                title="Message queue">{'\uD83D\uDCE4'} {queueCount > 0 ? `${queueCount} queued` : 'Queue'}</button>
               <button onClick={() => { clearToken(); setTokenState(null) }}
                 className="text-xs ml-4" style={{color: '#64748b'}}>{displayName} {'\u00B7'} Logout</button>
               <NotificationBell notifications={notifications} onNotificationClick={onNotificationClick} onMarkAllRead={onMarkAllRead} />
@@ -156,6 +157,9 @@ export default function DashboardStats({
                 <div style={{borderTop: '1px solid rgba(255,255,255,0.06)', margin: '0.25rem 0'}} />
                   <button onClick={() => { trackEvent('panel_opened', { panel: 'analytics' }); setShowAnalytics(true); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#6395ff'}}>
                   <span>{'\u{1F4CA}'}</span> Analytics
+                </button>
+              <button onClick={() => { setShowSendQueue(true); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: queueCount > 0 ? '#fbbf24' : '#64748b'}}>
+                  <span>{'\uD83D\uDCE4'}</span> {queueCount > 0 ? `Queue (${queueCount})` : 'Queue'}
                 </button>
               <button onClick={() => { setShowBugReportsPanel(!showBugReportsPanel); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#f87171'}}>
                   <span>{'\u{1F41B}'}</span> Bug Reports
