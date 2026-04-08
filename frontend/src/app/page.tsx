@@ -413,7 +413,6 @@ export default function MessageDashboard() {
     fetchConversations()
     fetchStats()
     fetchFilterOptions()
-    fetchTeachings()
   }, [token, fetchConversations, fetchStats, fetchFilterOptions])
 
   // SSE connection
@@ -821,28 +820,6 @@ export default function MessageDashboard() {
     }
   }
 
-  const handleRevokeTeaching = async (id: string) => {
-    try {
-      await apiFetch(`/api/teachings/${id}/revoke`, { method: 'PATCH', body: JSON.stringify({ revoked_by: displayName, revoke_reason: revokeReason }) })
-      trackEvent('teaching_revoked', { teaching_id: id })
-      toast.success('Teaching revoked')
-      setRevokeId(null)
-      setRevokeReason('')
-      fetchTeachings()
-    } catch (err: any) { toast.error(err.message) }
-  }
-
-  const handleAddTeaching = async () => {
-    if (!newTeachingText.trim()) return
-    try {
-      await apiFetch('/api/teachings', { method: 'POST', body: JSON.stringify({ instruction: newTeachingText.trim(), scope: 'global', taught_by: displayName }) })
-      trackEvent('teaching_created', { source: 'manual' })
-      toast.success('Teaching added 🧠')
-      setNewTeachingText('')
-      fetchTeachings()
-    } catch (err: any) { toast.error(err.message) }
-  }
-
   const handleRejectWithReason = async (draftId: string) => {
     trackEvent('draft_rejected', { draft_id: draftId })
     try {
@@ -1085,21 +1062,8 @@ export default function MessageDashboard() {
       <Toaster position="top-right" containerStyle={{ zIndex: 99999, pointerEvents: 'none' }} toastOptions={{ duration: 4000, style: { background: 'rgba(15,25,50,0.95)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', pointerEvents: 'auto' } }} />
       <HelpPanel isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
-      <TeachingsPanel
-        showTeachingsPanel={showTeachingsPanel}
-        setShowTeachingsPanel={setShowTeachingsPanel}
-        teachings={teachings}
-        newTeachingText={newTeachingText}
-        setNewTeachingText={setNewTeachingText}
-        handleAddTeaching={handleAddTeaching}
-        revokeId={revokeId}
-        setRevokeId={setRevokeId}
-        revokeReason={revokeReason}
-        setRevokeReason={setRevokeReason}
-        handleRevokeTeaching={handleRevokeTeaching}
-        apiFetch={apiFetch}
-        fetchTeachings={fetchTeachings}
-      />{propertyCard && (
+      <UnifiedTeachingsPanel show={showTeachingsPanel} onClose={() => setShowTeachingsPanel(false)} displayName={displayName} />
+      {propertyCard && (
         <PropertyCard
           propertyCard={propertyCard}
           setPropertyCard={setPropertyCard}
@@ -1118,7 +1082,6 @@ export default function MessageDashboard() {
       <BugReport selectedConvId={selectedConvId} displayName={displayName} />
       <BugReportsPanel show={showBugReportsPanel} onClose={() => setShowBugReportsPanel(false)} />
       <SendQueuePanel show={showSendQueue} onClose={() => setShowSendQueue(false)} onNavigate={(convId) => { setSelectedConvId(convId); setMobileView('detail') }} />
-      <LearningQueuePanel show={showLearningQueue} onClose={() => setShowLearningQueue(false)} displayName={displayName} />
       <AnalyticsPanel show={showAnalytics} onClose={() => setShowAnalytics(false)} />
 
       <SendConfirmModal
@@ -1143,12 +1106,9 @@ export default function MessageDashboard() {
         isMuted={isMuted}
         showTeachingsPanel={showTeachingsPanel}
         setShowTeachingsPanel={setShowTeachingsPanel}
-        fetchTeachings={fetchTeachings}
         setShowHelp={setShowHelp}
         showBugReportsPanel={showBugReportsPanel}
         setShowBugReportsPanel={setShowBugReportsPanel}
-        showLearningQueue={showLearningQueue}
-        setShowLearningQueue={setShowLearningQueue}
         notifications={notifications}
         onNotificationClick={handleNotificationClick}
         onMarkAllRead={handleMarkAllRead}
