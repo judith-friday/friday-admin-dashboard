@@ -178,7 +178,7 @@ export default function SendConfirmModal({
 
       {/* Undo send countdown bar */}
       {undoDraftId && undoCountdown > 0 && (
-        <div className="fixed left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-xl flex items-center space-x-4" style={{bottom: 'max(1rem, env(safe-area-inset-bottom, 1rem))', background: 'rgba(15,25,50,0.95)', border: '1px solid rgba(245,158,11,0.3)', backdropFilter: 'blur(12px)'}}>
+        <div className="fixed left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-xl flex items-center space-x-4" style={{bottom: '1rem', background: 'rgba(15,25,50,0.95)', border: '1px solid rgba(245,158,11,0.3)', backdropFilter: 'blur(12px)'}}>
           <div className="flex items-center">
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mr-3" style={{background: 'rgba(245,158,11,0.2)', color: '#fbbf24'}}>{undoCountdown}</div>
             <span className="text-sm" style={{color: '#f1f5f9'}}>Sending in {undoCountdown}s...</span>

@@ -95,7 +95,7 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
       {!bugReportOpen && <button
         onClick={captureAndOpen}
         className={`fixed right-4 z-[9999] min-w-[44px] min-h-[44px] w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 ${selectedConvId ? 'bottom-20' : ''}`}
-        style={{background: 'rgba(99,149,255,0.15)', border: '1px solid rgba(99,149,255,0.3)', color: '#6395ff', fontSize: '18px', ...(selectedConvId ? {} : { bottom: 'max(1rem, env(safe-area-inset-bottom, 1rem))' })}}
+        style={{background: 'rgba(99,149,255,0.15)', border: '1px solid rgba(99,149,255,0.3)', color: '#6395ff', fontSize: '18px', ...(selectedConvId ? {} : { bottom: '1rem' })}}
         title="Report a bug"
         data-testid="btn-bug-report"
       >🐛</button>}

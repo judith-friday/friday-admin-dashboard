@@ -195,13 +195,6 @@ input:focus, textarea:focus, select:focus {
   white-space: normal !important;
 }
 
-/* PWA standalone: only fixed-bottom elements need safe area inset */
-@media (display-mode: standalone) {
-  [data-testid="container-compose-panel"] {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-}
-
 /* Mobile responsive styles */
 @media (max-width: 767px) {
   .desktop-only { display: none !important; }
