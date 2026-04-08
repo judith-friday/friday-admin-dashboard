@@ -27,6 +27,8 @@ import ConversationList from '../components/ConversationList'
 import ConversationDetailView from '../components/ConversationDetail'
 import GuestInfo from '../components/GuestInfo'
 import InstallPrompt from '../components/InstallPrompt'
+import NotificationPrompt from '../components/NotificationPrompt'
+import useNotificationSound from '../components/useNotificationSound'
 import AnalyticsDashboard from '../components/AnalyticsDashboard'
 import { Notification } from '../components/NotificationBell'
 import NotificationPanel from '../components/NotificationPanel'
@@ -84,7 +86,6 @@ export default function MessageDashboard() {
   const sseRef = useRef<EventSource | null>(null)
   const [showHelp, setShowHelp] = useState(false)
   const [mobileView, setMobileView] = useState<'list' | 'detail' | 'info'>('list')
-  const [isMuted, setIsMuted] = useState(false)
   const [showDraftHistory, setShowDraftHistory] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Conversation[] | null>(null)
@@ -96,9 +97,7 @@ export default function MessageDashboard() {
   const [filterOptions, setFilterOptions] = useState<{properties: string[], channels: string[], statuses: string[]}>({properties: [], channels: [], statuses: []})
   const searchTimerRef = useRef<NodeJS.Timeout | null>(null)
   const revisionInputRef = useRef<HTMLInputElement>(null)
-  const audioCtxRef = useRef<AudioContext | null>(null)
   const convOpenTimeRef = useRef<{ convId: string; openedAt: number } | null>(null)
-  const isMutedRef = useRef(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
   const [leftCollapsed, setLeftCollapsed] = useState(false)
   const [rightCollapsed, setRightCollapsed] = useState(false)
@@ -109,6 +108,8 @@ export default function MessageDashboard() {
       return stored ? JSON.parse(stored) : []
     } catch { return [] }
   })
+
+  const { playChime, toggleMute, isMuted, isMutedRef } = useNotificationSound()
 
   // Clear session teachings when switching conversations
   useEffect(() => { setSessionTeachings([]) }, [selectedConvId])
@@ -127,79 +128,6 @@ export default function MessageDashboard() {
     const dn = localStorage.getItem('gms_display_name')
     if (dn) setDisplayName(dn)
     else setLoading(false)
-    // Init mute state from localStorage
-    const muted = localStorage.getItem('gms_muted')
-    if (muted === 'true') {
-      setIsMuted(true)
-      isMutedRef.current = true
-    }
-  }, [])
-
-  // Initialize AudioContext on first user interaction (iOS PWA requires user gesture)
-  useEffect(() => {
-    const initAudio = () => {
-      try {
-        if (!audioCtxRef.current) {
-          audioCtxRef.current = new AudioContext()
-        }
-        if (audioCtxRef.current.state === 'suspended') {
-          audioCtxRef.current.resume()
-        }
-      } catch {}
-      document.removeEventListener('click', initAudio)
-      document.removeEventListener('touchstart', initAudio)
-    }
-    document.addEventListener('click', initAudio)
-    document.addEventListener('touchstart', initAudio)
-    return () => {
-      document.removeEventListener('click', initAudio)
-      document.removeEventListener('touchstart', initAudio)
-    }
-  }, [])
-
-  // Toggle mute handler — also unlocks AudioContext on user gesture (required for iOS PWA)
-  const toggleMute = useCallback(() => {
-    setIsMuted(prev => {
-      const next = !prev
-      localStorage.setItem('gms_muted', String(next))
-      isMutedRef.current = next
-      if (!next) {
-        // Unmuting — create/resume AudioContext during this user gesture to unlock iOS audio
-        try {
-          if (!audioCtxRef.current) {
-            audioCtxRef.current = new AudioContext()
-          }
-          if (audioCtxRef.current.state === 'suspended') {
-            audioCtxRef.current.resume()
-          }
-        } catch {}
-      }
-      return next
-    })
-  }, [])
-
-  // Play notification chime using AudioContext (reused ref)
-  const playChime = useCallback(() => {
-    try {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new AudioContext()
-      }
-      const ctx = audioCtxRef.current
-      if (ctx.state === 'suspended') {
-        ctx.resume()
-      }
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-      osc.connect(gain)
-      gain.connect(ctx.destination)
-      osc.type = 'sine'
-      osc.frequency.setValueAtTime(880, ctx.currentTime)
-      osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.1)
-      gain.gain.setValueAtTime(0.3, ctx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3)
-      osc.start(ctx.currentTime)
-      osc.stop(ctx.currentTime + 0.3)
-    } catch {}
   }, [])
 
   // Persist notifications to localStorage
@@ -277,18 +205,6 @@ export default function MessageDashboard() {
       headers: { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
     }).catch(() => {})
-  }, [])
-
-  // Initialize AudioContext on first user interaction
-  useEffect(() => {
-    const initAudio = () => {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new AudioContext()
-      }
-      document.removeEventListener('click', initAudio)
-    }
-    document.addEventListener('click', initAudio)
-    return () => document.removeEventListener('click', initAudio)
   }, [])
 
   const handleLogin = (t: string) => {
@@ -1264,6 +1180,7 @@ export default function MessageDashboard() {
         </div>
       </div>
       <InstallPrompt />
+      <NotificationPrompt />
     </div>
   )
 }
