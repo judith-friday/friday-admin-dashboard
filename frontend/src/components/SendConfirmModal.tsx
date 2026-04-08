@@ -91,11 +91,9 @@ export default function SendConfirmModal({
                     <option value="booking" style={{background: '#1a1a2e'}}>Booking.com</option>
                     <option value="whatsapp" style={{background: '#1a1a2e'}}>WhatsApp</option>
                     <option value="email" style={{background: '#1a1a2e'}}>Email</option>
-                    <option value="direct" style={{background: '#1a1a2e'}}>Direct</option>
                   </select>
-                  {sendChannel === 'booking' && <p className="text-xs mt-1" style={{color: '#64748b'}}>Booking.com messages delivered via Guesty email integration</p>}
+                  {sendChannel === 'booking' && <p className="text-xs mt-1" style={{color: '#64748b'}}>Message sent via Booking.com through Guesty</p>}
                   {sendChannel === 'whatsapp' && <p className="text-xs mt-1" style={{color: '#64748b'}}>Message sent via WhatsApp through Guesty</p>}
-                  {sendChannel === 'direct' && <p className="text-xs mt-1" style={{color: '#64748b'}}>Direct booking guests receive message via email</p>}
                   {sendChannel === 'email' && <p className="text-xs mt-1" style={{color: '#64748b'}}>Sent as email to the guest</p>}
                 </div>
 
