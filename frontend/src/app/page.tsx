@@ -27,7 +27,7 @@ import ConversationList from '../components/ConversationList'
 import ConversationDetailView from '../components/ConversationDetail'
 import GuestInfo from '../components/GuestInfo'
 import InstallPrompt from '../components/InstallPrompt'
-import AnalyticsPanel from '../components/AnalyticsPanel'
+import AnalyticsDashboard from '../components/AnalyticsDashboard'
 import { Notification } from '../components/NotificationBell'
 import NotificationPanel from '../components/NotificationPanel'
 import { trackEvent } from '../lib/analytics'
@@ -1082,7 +1082,7 @@ export default function MessageDashboard() {
       <BugReport selectedConvId={selectedConvId} displayName={displayName} />
       <BugReportsPanel show={showBugReportsPanel} onClose={() => setShowBugReportsPanel(false)} />
       <SendQueuePanel show={showSendQueue} onClose={() => setShowSendQueue(false)} onNavigate={(convId) => { setSelectedConvId(convId); setMobileView('detail') }} />
-      <AnalyticsPanel show={showAnalytics} onClose={() => setShowAnalytics(false)} />
+      <AnalyticsDashboard show={showAnalytics} onClose={() => setShowAnalytics(false)} />
 
       <SendConfirmModal
         sendConfirm={sendConfirm}
