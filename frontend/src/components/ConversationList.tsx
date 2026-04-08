@@ -81,7 +81,7 @@ export default function ConversationList({
             placeholder="Search guests, properties, messages..."
             value={searchQuery}
             onChange={e => onSearchChange(e.target.value)}
-            className="w-full pl-8 pr-16 py-1.5 text-base rounded-md outline-none transition-colors"
+            className="w-full pl-8 pr-24 py-1.5 text-base rounded-md outline-none transition-colors"
             style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}
           />
           <div className="absolute right-1 flex items-center space-x-0.5">
@@ -89,16 +89,16 @@ export default function ConversationList({
               <div className="w-3.5 h-3.5 border-2 rounded-full animate-spin" style={{borderColor: 'rgba(99,149,255,0.3)', borderTopColor: '#6395ff'}} />
             )}
             {(searchQuery || isSearchActive) && (
-              <button onClick={clearSearch} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-white/10" title="Clear search">
+              <button onClick={clearSearch} className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10" title="Clear search">
                 <XMarkIcon className="h-3.5 w-3.5" style={{color: '#94a3b8'}} />
               </button>
             )}
             {onRefresh && (
-              <button onClick={onRefresh} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-white/10" title="Refresh">
+              <button onClick={onRefresh} className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10" title="Refresh">
                 <ArrowPathIcon className="h-3.5 w-3.5" style={{color: '#64748b'}} />
               </button>
             )}
-            <button onClick={() => setShowFilters(!showFilters)} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded hover:bg-white/10 relative" title="Filters">
+            <button onClick={() => setShowFilters(!showFilters)} className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 relative" title="Filters">
               <FunnelIcon className="h-3.5 w-3.5" style={{color: showFilters || activeFilterCount > 0 ? '#6395ff' : '#64748b'}} />
               {activeFilterCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full text-[8px] flex items-center justify-center" style={{background: '#6395ff', color: 'white'}}>{activeFilterCount}</span>
