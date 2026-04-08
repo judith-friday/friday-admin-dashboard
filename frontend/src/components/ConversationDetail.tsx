@@ -145,7 +145,7 @@ export default function ConversationDetail({
   }
 
   return (
-    <div data-testid="container-conversation-detail" className={`flex-1 flex flex-col min-w-0 h-full overflow-hidden ${mobileView === 'list' ? 'hidden md:flex' : ''}`}>
+    <div data-testid="container-conversation-detail" className={`flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden ${mobileView === 'list' ? 'hidden md:flex' : ''}`}>
       {/* Mobile back button */}
       <div data-testid="nav-back-button" className="mobile-only mobile-nav-back" onClick={() => setMobileView('list')} style={{justifyContent: 'space-between', position: 'relative', zIndex: 1, width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
         <span>{'\u2190'} Back to inbox</span>

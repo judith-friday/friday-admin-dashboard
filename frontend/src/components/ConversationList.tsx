@@ -71,7 +71,7 @@ export default function ConversationList({
   const activeFilterCount = [filterProperty, filterChannel, filterDateFrom, filterDateTo].filter(Boolean).length
 
   return (
-    <div data-testid="container-inbox" className={`md:w-[22vw] md:min-w-[240px] md:max-w-[380px] flex flex-col ${mobileView !== 'list' ? 'hidden md:flex' : 'w-full md:w-[22vw] md:min-w-[240px] md:max-w-[380px]'}`} style={{background: 'rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
+    <div data-testid="container-inbox" className={`md:w-[22vw] md:min-w-[240px] md:max-w-[380px] flex flex-col min-h-0 ${mobileView !== 'list' ? 'hidden md:flex' : 'w-full md:w-[22vw] md:min-w-[240px] md:max-w-[380px]'}`} style={{background: 'rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
       {/* Search bar */}
       <div className="px-2 pt-2 pb-1" style={{borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
         <div className="relative flex items-center">

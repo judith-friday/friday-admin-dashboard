@@ -648,23 +648,26 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
           <>
             {/* Instruction text — click to edit inline */}
             {isEditing ? (
-              <textarea
-                autoFocus
-                value={editingTeachingText}
-                onChange={e => setEditingTeachingText(e.target.value)}
-                onBlur={() => handleSaveInlineEdit(t.id)}
-                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSaveInlineEdit(t.id) } if (e.key === 'Escape') setEditingTeachingId(null) }}
-                className="w-full text-sm rounded-lg p-2 resize-none outline-none"
-                style={{ background: 'rgba(0,0,0,0.4)', color: '#e2e8f0', border: '1px solid rgba(168,85,247,0.4)', minHeight: '40px' }}
-                rows={2}
-                onClick={e => e.stopPropagation()}
-              />
+              <>
+                <textarea
+                  autoFocus
+                  value={editingTeachingText}
+                  onChange={e => setEditingTeachingText(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSaveInlineEdit(t.id) } if (e.key === 'Escape') setEditingTeachingId(null) }}
+                  className="w-full text-sm rounded-lg p-2 resize-none outline-none"
+                  style={{ background: 'rgba(0,0,0,0.4)', color: '#e2e8f0', border: '1px solid rgba(168,85,247,0.4)', minHeight: '40px' }}
+                  rows={2}
+                  onClick={e => e.stopPropagation()}
+                />
+                <div className="flex gap-2 mt-2">
+                  <button onClick={() => handleSaveInlineEdit(t.id)} className="text-xs px-3 py-1.5 rounded-lg" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>Save</button>
+                  <button onClick={() => setEditingTeachingId(null)} className="text-xs px-3 py-1.5 rounded-lg" style={{ color: '#64748b' }}>Cancel</button>
+                </div>
+              </>
             ) : (
               <p
-                className="text-sm cursor-pointer hover:opacity-80"
+                className="text-sm"
                 style={{ color: t.status === 'revoked' ? '#64748b' : '#e2e8f0', textDecoration: t.status === 'revoked' ? 'line-through' : undefined }}
-                onClick={e => { e.stopPropagation(); if (t.status !== 'revoked') { setEditingTeachingId(t.id); setEditingTeachingText(t.instruction) } }}
-                title={t.status !== 'revoked' ? 'Click to edit' : undefined}
               >
                 {t.instruction}
               </p>
@@ -694,6 +697,7 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
             {/* Action buttons */}
             {!isEditing && !isRevoking && t.status !== 'revoked' && (
               <div className="flex items-center gap-2 mt-2 flex-wrap" onClick={e => e.stopPropagation()}>
+                <button onClick={(e) => { e.stopPropagation(); setEditingTeachingId(t.id); setEditingTeachingText(t.instruction) }} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)' }}>Edit</button>
                 {t.status === 'active' && <button onClick={() => handlePauseTeaching(t.id)} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(234,179,8,0.15)', color: '#fbbf24', border: '1px solid rgba(234,179,8,0.3)' }}>Pause</button>}
                 {t.status === 'paused' && <button onClick={() => handleResumeTeaching(t.id)} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>Resume</button>}
                 <button onClick={() => setRevokeId(t.id)} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)' }}>Revoke</button>
