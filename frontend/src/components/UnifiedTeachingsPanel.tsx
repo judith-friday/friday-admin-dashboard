@@ -1,32 +1,16 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { format, formatDistanceToNow } from 'date-fns'
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 import ConsultChat from './ConsultChat'
 import { trackEvent } from '../lib/analytics'
+import { apiFetch } from './types'
 
-interface TeachingsPanelProps {
-  showTeachingsPanel: boolean
-  setShowTeachingsPanel: (v: boolean) => void
-  teachings: any[]
-  newTeachingText: string
-  setNewTeachingText: (v: string) => void
-  handleAddTeaching: () => void
-  revokeId: string | null
-  setRevokeId: (v: string | null) => void
-  revokeReason: string
-  setRevokeReason: (v: string) => void
-  handleRevokeTeaching: (id: string) => void
-  apiFetch: (url: string, opts?: any) => Promise<any>
-  fetchTeachings: () => void
-}
-
-function scopeBadge(item: any) {
-  if (item.scope === 'global' || !item.property_code) {
-    return <span className="text-xs px-1.5 py-0.5 rounded" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>🌐 Global</span>
-  }
-  return <span className="text-xs px-1.5 py-0.5 rounded" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>📍 {item.property_code}</span>
+interface UnifiedTeachingsPanelProps {
+  show: boolean
+  onClose: () => void
+  displayName: string
 }
 
 function expiryBadge(expiresAt: string) {
@@ -40,24 +24,21 @@ function expiryBadge(expiresAt: string) {
   return <span className="text-xs px-1.5 py-0.5 rounded" style={{background: bg, color}}>⏳ Expires in {diffDays}d</span>
 }
 
-export default function TeachingsPanel({
-  showTeachingsPanel,
-  setShowTeachingsPanel,
-  teachings,
-  newTeachingText,
-  setNewTeachingText,
-  handleAddTeaching,
-  revokeId,
-  setRevokeId,
-  revokeReason,
-  setRevokeReason,
-  handleRevokeTeaching,
-  apiFetch,
-  fetchTeachings,
-}: TeachingsPanelProps) {
+export default function UnifiedTeachingsPanel({ show, onClose, displayName }: UnifiedTeachingsPanelProps) {
+  const [teachings, setTeachings] = useState<any[]>([])
+  const [newTeachingText, setNewTeachingText] = useState('')
+  const [revokeId, setRevokeId] = useState<string | null>(null)
+  const [revokeReason, setRevokeReason] = useState('')
   const [analyzingAll, setAnalyzingAll] = useState(false)
   const [pendingRewrites, setPendingRewrites] = useState<Record<string, { rewrite_id: string, original: string, proposed: string }>>({})
   const [consultTeachingId, setConsultTeachingId] = useState<string | null>(null)
+
+  const fetchTeachings = useCallback(async () => {
+    try {
+      const data = await apiFetch('/api/teachings')
+      setTeachings(data.teachings || [])
+    } catch {}
+  }, [])
 
   const fetchPendingRewrites = async () => {
     try {
@@ -69,6 +50,41 @@ export default function TeachingsPanel({
       setPendingRewrites(map)
     } catch (err: any) {
       console.error('Fetch pending rewrites failed:', err.message)
+    }
+  }
+
+  useEffect(() => {
+    if (show) {
+      fetchTeachings()
+      fetchPendingRewrites()
+    }
+  }, [show, fetchTeachings])
+
+  const handleAddTeaching = async () => {
+    if (!newTeachingText.trim()) return
+    try {
+      await apiFetch('/api/teachings', {
+        method: 'POST',
+        body: JSON.stringify({ instruction: newTeachingText, scope: 'global', taught_by: displayName }),
+      })
+      setNewTeachingText('')
+      fetchTeachings()
+    } catch (err: any) {
+      console.error('Add teaching failed:', err.message)
+    }
+  }
+
+  const handleRevokeTeaching = async (id: string) => {
+    try {
+      await apiFetch(`/api/teachings/${id}/revoke`, {
+        method: 'POST',
+        body: JSON.stringify({ reason: revokeReason, revoked_by: displayName }),
+      })
+      setRevokeId(null)
+      setRevokeReason('')
+      fetchTeachings()
+    } catch (err: any) {
+      console.error('Revoke teaching failed:', err.message)
     }
   }
 
@@ -91,11 +107,6 @@ export default function TeachingsPanel({
     }
   }
 
-  // Fetch pending rewrites when panel opens
-  React.useEffect(() => {
-    if (showTeachingsPanel) fetchPendingRewrites()
-  }, [showTeachingsPanel])
-
   const handleAnalyzeAll = async () => {
     setAnalyzingAll(true)
     trackEvent('teaching_analyzed_bulk', { count: teachings.filter(t => t.status === 'active').length })
@@ -109,14 +120,14 @@ export default function TeachingsPanel({
     }
   }
 
-  if (!showTeachingsPanel) return null
+  if (!show) return null
 
   const activeTeachings = teachings.filter(t => t.status === 'active')
   const revokedTeachings = teachings.filter(t => t.status === 'revoked')
 
   return (
     <div className="fixed inset-0 z-[60] flex" data-testid="modal-teachings-panel" style={{paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)'}}>
-      <div className="flex-1 hidden md:block" style={{background: 'rgba(0,0,0,0.4)'}} onClick={() => setShowTeachingsPanel(false)} />
+      <div className="flex-1 hidden md:block" style={{background: 'rgba(0,0,0,0.4)'}} onClick={onClose} />
       <div className="w-full md:w-[480px] h-full overflow-y-auto custom-scrollbar" style={{background: '#0d1117', borderLeft: '1px solid rgba(255,255,255,0.08)'}}>
         <div className="sticky top-0 z-10 p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#0d1117'}}>
           <div className="flex items-center justify-between">
@@ -128,7 +139,7 @@ export default function TeachingsPanel({
                 {analyzingAll ? '⏳ Analyzing...' : '🔄 Analyze All'}
               </button>
             </div>
-            <button onClick={() => setShowTeachingsPanel(false)} className="text-sm" data-testid="btn-close-teachings" style={{color: '#64748b'}}>✕</button>
+            <button onClick={onClose} className="text-sm" data-testid="btn-close-teachings" style={{color: '#64748b'}}>✕</button>
           </div>
           <p className="text-xs mt-1" style={{color: '#64748b'}}>Instructions Judith has learned from revisions</p>
         </div>
