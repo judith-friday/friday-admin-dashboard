@@ -743,6 +743,34 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
           </div>
         </div>
 
+        {/* Action buttons — always visible for actionable candidates */}
+        {isCandidateEditing && (
+          <div className="mt-2 space-y-2" onClick={e => e.stopPropagation()}>
+            <textarea value={editText} onChange={e => setEditText(e.target.value)} className="w-full text-base rounded-lg p-2 resize-none" style={{ background: 'rgba(0,0,0,0.4)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', minHeight: '60px' }} rows={3} />
+            <div className="flex gap-2">
+              <button onClick={() => handleCandidateEdit(c.id)} disabled={isActioning} className="text-xs px-3 py-1.5 rounded-lg" style={{ background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)' }}>Save</button>
+              <button onClick={() => handleAction(c.id, 'approve', editText)} disabled={isActioning} className="text-xs px-3 py-1.5 rounded-lg" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>Save & Approve</button>
+              <button onClick={() => setEditingId(null)} className="text-xs px-3 py-1.5 rounded-lg" style={{ color: '#64748b' }}>Cancel</button>
+            </div>
+          </div>
+        )}
+
+        {!isCandidateEditing && ['pending_review', 'auto_approved'].includes(c.status) && (
+          <div className="flex gap-2 flex-wrap mt-2" onClick={e => e.stopPropagation()}>
+            <button disabled={isActioning} onClick={() => handleAction(c.id, 'approve')} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)', opacity: isActioning ? 0.5 : 1 }}>{c.status === 'auto_approved' ? 'Approve Permanently' : 'Approve'}</button>
+            <button disabled={isActioning} onClick={() => { setEditingId(c.id); setEditText(c.instruction) }} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)', opacity: isActioning ? 0.5 : 1 }}>Edit</button>
+            <button disabled={isActioning} onClick={() => handleAction(c.id, 'reject')} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', opacity: isActioning ? 0.5 : 1 }}>Reject</button>
+            <button onClick={() => { const opening = consultCandidateId !== c.id; setConsultCandidateId(opening ? c.id : null); if (opening) trackEvent('ask_judith_opened', { context: 'learning_candidate', candidateId: c.id }) }} className="text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1" style={{ background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)' }}>
+              <ChatBubbleLeftRightIcon className="h-3 w-3" /> Ask Friday
+            </button>
+          </div>
+        )}
+        {consultCandidateId === c.id && (
+          <div className="mt-2" onClick={e => e.stopPropagation()}>
+            <ConsultChat context="learning_candidate" initialInstruction={`Help me understand this learning candidate: "${c.instruction}"`} contextData={{ instruction: c.instruction, confidence: c.confidence, evidenceCount: c.evidence_count, patternType: c.pattern_type, recommendation: c.recommendation }} onConfirm={() => setConsultCandidateId(null)} onCancel={() => setConsultCandidateId(null)} confirmLabel="Got it" />
+          </div>
+        )}
+
         {expanded && (
           <div className="mt-3 space-y-2" onClick={e => e.stopPropagation()}>
             {loadingEvidence ? <div className="text-xs py-2" style={{ color: '#64748b' }}>Loading evidence...</div> : evidence.length > 0 ? (
@@ -779,31 +807,6 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
                 </div>
               )}
             </div>
-
-            {isCandidateEditing && (
-              <div className="space-y-2">
-                <textarea value={editText} onChange={e => setEditText(e.target.value)} className="w-full text-base rounded-lg p-2 resize-none" style={{ background: 'rgba(0,0,0,0.4)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', minHeight: '60px' }} rows={3} />
-                <div className="flex gap-2">
-                  <button onClick={() => handleCandidateEdit(c.id)} disabled={isActioning} className="text-xs px-3 py-1.5 rounded-lg" style={{ background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)' }}>Save</button>
-                  <button onClick={() => handleAction(c.id, 'approve', editText)} disabled={isActioning} className="text-xs px-3 py-1.5 rounded-lg" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>Save & Approve</button>
-                  <button onClick={() => setEditingId(null)} className="text-xs px-3 py-1.5 rounded-lg" style={{ color: '#64748b' }}>Cancel</button>
-                </div>
-              </div>
-            )}
-
-            {!isCandidateEditing && ['pending_review', 'auto_approved'].includes(c.status) && (
-              <div className="flex gap-2 flex-wrap">
-                <button disabled={isActioning} onClick={() => handleAction(c.id, 'approve')} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)', opacity: isActioning ? 0.5 : 1 }}>{c.status === 'auto_approved' ? 'Approve Permanently' : 'Approve'}</button>
-                <button disabled={isActioning} onClick={() => { setEditingId(c.id); setEditText(c.instruction) }} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)', opacity: isActioning ? 0.5 : 1 }}>Edit</button>
-                <button disabled={isActioning} onClick={() => handleAction(c.id, 'reject')} className="text-xs px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', opacity: isActioning ? 0.5 : 1 }}>Reject</button>
-                <button onClick={() => { const opening = consultCandidateId !== c.id; setConsultCandidateId(opening ? c.id : null); if (opening) trackEvent('ask_judith_opened', { context: 'learning_candidate', candidateId: c.id }) }} className="text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1" style={{ background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.3)' }}>
-                  <ChatBubbleLeftRightIcon className="h-3 w-3" /> Ask Friday
-                </button>
-              </div>
-            )}
-            {consultCandidateId === c.id && (
-              <ConsultChat context="learning_candidate" initialInstruction={`Help me understand this learning candidate: "${c.instruction}"`} contextData={{ instruction: c.instruction, confidence: c.confidence, evidenceCount: c.evidence_count, patternType: c.pattern_type, recommendation: c.recommendation }} onConfirm={() => setConsultCandidateId(null)} onCancel={() => setConsultCandidateId(null)} confirmLabel="Got it" />
-            )}
           </div>
         )}
       </div>
