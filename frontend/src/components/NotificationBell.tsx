@@ -149,7 +149,7 @@ export default function NotificationBell({ notifications, onNotificationClick, o
                 <button
                   key={n.id}
                   onClick={() => handleClick(n)}
-                  className="w-full text-left px-4 py-3 flex items-start gap-3 transition-colors"
+                  className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors ${n.conversationId ? 'cursor-pointer' : 'cursor-default'}`}
                   style={{
                     background: n.read ? 'transparent' : 'rgba(99,149,255,0.05)',
                     borderBottom: '1px solid rgba(255,255,255,0.04)',

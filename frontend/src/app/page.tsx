@@ -181,8 +181,8 @@ export default function MessageDashboard() {
     setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x))
     if (n.conversationId) {
       setSelectedConvId(n.conversationId)
+      setActiveTab('all')
       setMobileView('detail')
-      // Load conversation detail inline (fetchDetail defined later in hook order)
       apiFetch(`/api/conversations/${n.conversationId}`).then((data: any) => {
         setDetail(data)
         apiFetch(`/api/conversations/${n.conversationId}/read`, { method: 'POST' }).catch(() => {})

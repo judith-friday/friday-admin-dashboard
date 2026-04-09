@@ -86,11 +86,13 @@ export default function NotificationPanel({ show, onClose, notifications, onNoti
               <button
                 key={n.id}
                 onClick={() => handleClick(n)}
-                className="w-full text-left px-4 py-4 flex items-start gap-3 transition-colors"
+                className={`w-full text-left px-4 py-4 flex items-start gap-3 transition-colors ${n.conversationId ? 'cursor-pointer' : 'cursor-default'}`}
                 style={{
                   background: n.read ? 'transparent' : 'rgba(99,149,255,0.05)',
                   borderBottom: '1px solid rgba(255,255,255,0.04)',
                 }}
+                onMouseEnter={e => { if (n.conversationId) e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = n.read ? 'transparent' : 'rgba(99,149,255,0.05)' }}
               >
                 <span className="text-xl flex-shrink-0 mt-0.5">{ICON_MAP[n.type] || '\u{1F514}'}</span>
                 <div className="flex-1 min-w-0">
