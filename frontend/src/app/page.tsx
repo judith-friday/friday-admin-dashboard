@@ -1116,6 +1116,12 @@ export default function MessageDashboard() {
           filterOptions={filterOptions}
           onFilterChange={handleFilterChange}
           onRefresh={fetchConversations}
+          onNavigateToConversation={(convId) => {
+            setSelectedConvId(convId)
+            setActiveTab('all')
+            setMobileView('detail')
+            fetchDetail(convId)
+          }}
         />
         )}
 

@@ -285,8 +285,8 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
       ) : (
         sortedActions.map(action => (
           <div key={action.id} className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.03)', opacity: action.status !== 'pending' ? 0.5 : 1}}>
-            <div className="flex justify-between items-start mb-1">
-              <span className="text-sm font-medium" style={{color: '#f1f5f9'}}>{action.guest_name}</span>
+            <div className="flex justify-between items-start mb-1 cursor-pointer group" onClick={() => onNavigateToConversation?.(action.conversation_id)}>
+              <span className="text-sm font-medium group-hover:underline" style={{color: '#f1f5f9'}}>{action.guest_name}</span>
               {action.status === 'pending' && ageBadge(action)}
             </div>
             {action.property_code && <div className="text-xs mb-1" style={{color: '#64748b'}}>{action.property_code}</div>}

@@ -42,6 +42,7 @@ interface ConversationListProps {
   filterOptions: { properties: string[]; channels: string[]; statuses: string[] }
   onFilterChange: (prop: string, ch: string, df: string, dt: string) => void
   onRefresh?: () => void
+  onNavigateToConversation?: (convId: string) => void
 }
 
 export default function ConversationList({
@@ -52,6 +53,7 @@ export default function ConversationList({
   searchQuery, onSearchChange, searchLoading, isSearchActive, clearSearch,
   filterProperty, filterChannel, filterDateFrom, filterDateTo, filterOptions, onFilterChange,
   onRefresh,
+  onNavigateToConversation,
 }: ConversationListProps) {
   const [showFilters, setShowFilters] = useState(false)
   const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'urgency'>('recent')
@@ -303,7 +305,7 @@ export default function ConversationList({
       )}
 
       {activeTab === 'actions' && !isSearchActive ? (
-        <PendingActionsTab token={token} />
+        <PendingActionsTab token={token} onNavigateToConversation={onNavigateToConversation} />
       ) : (<>
         <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar relative"
           onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
