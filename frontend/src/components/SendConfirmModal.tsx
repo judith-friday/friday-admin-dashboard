@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React from 'react'
 import { trackEvent } from '../lib/analytics'
 import TeachingSummary from './TeachingSummary'
 
@@ -37,48 +37,23 @@ export default function SendConfirmModal({
   cancelSend,
   sessionTeachings = [],
 }: SendConfirmModalProps) {
-  const [step, setStep] = useState<'decide' | 'scope'>('decide')
-
   const handleClose = () => {
     setSendConfirm(null)
-    setStep('decide')
   }
 
-  const handleLearn = () => {
-    trackEvent('send_flow_choice', { choice: 'learn' })
-    setStep('scope')
-  }
-
-  const handleScopeSelect = (scope: LearnScope) => {
+  const handleSend = () => {
     if (!sendConfirm) return
-    trackEvent('send_flow_scope', { scope })
-    executeSend(sendConfirm.draftId, 'learn', scope)
-    setStep('decide')
-  }
-
-  const handleNoLearn = () => {
-    if (!sendConfirm) return
-    trackEvent('send_flow_choice', { choice: 'no_learn' })
-    executeSend(sendConfirm.draftId, 'no_learn')
-    setStep('decide')
-  }
-
-  const handleJustSend = () => {
-    if (!sendConfirm) return
-    trackEvent('send_flow_choice', { choice: 'just_send' })
+    trackEvent('send_flow_choice', { choice: 'send' })
     executeSend(sendConfirm.draftId, 'normal')
-    setStep('decide')
   }
 
   return (
     <>
-      {/* Learn Decision Modal */}
+      {/* Send Confirm Modal */}
       {sendConfirm && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)'}}>
           <div className="rounded-xl p-6 max-w-md mx-4 w-full" data-testid="modal-learn-decision" style={{background: 'rgba(15,25,50,0.97)', border: '1px solid rgba(255,255,255,0.08)'}}>
 
-            {step === 'decide' ? (
-              <>
                 <p className="text-sm mb-3" style={{color: '#94a3b8'}}>
                   Send this reply to <strong style={{color: '#f1f5f9'}}>{sendConfirm.guestName}</strong> at <strong style={{color: '#f1f5f9'}}>{sendConfirm.property}</strong>?
                 </p>
@@ -108,69 +83,23 @@ export default function SendConfirmModal({
                 {/* Teaching summary — only show teachings created during this session */}
                 {sessionTeachings.length > 0 && <TeachingSummary teachings={sessionTeachings} />}
 
-                {/* Learn decision */}
-                <p className="text-xs mb-2" style={{color: '#64748b'}}>Should Friday learn from this?</p>
-                <div className="flex flex-col gap-2 mb-3">
+                {/* Send + Cancel buttons */}
+                <div className="flex flex-col gap-2">
                   <button
-                    data-testid="btn-learn"
-                    onClick={handleLearn}
-                    className="w-full px-4 py-3 text-sm rounded-lg text-left font-medium"
-                    style={{background: 'rgba(168,85,247,0.12)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
-                    📚 Learn from this
+                    data-testid="btn-send"
+                    onClick={handleSend}
+                    className="w-full px-4 py-3 text-sm rounded-lg font-medium"
+                    style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
+                    ✉️ Send
                   </button>
                   <button
-                    data-testid="btn-no-learn"
-                    onClick={handleNoLearn}
-                    className="w-full px-4 py-3 text-sm rounded-lg text-left font-medium"
-                    style={{background: 'rgba(239,68,68,0.08)', color: '#f87171', border: '1px solid rgba(239,68,68,0.15)'}}>
-                    🚫 Don't learn
-                  </button>
-                  <button
-                    data-testid="btn-just-send"
-                    onClick={handleJustSend}
-                    className="w-full px-4 py-3 text-sm rounded-lg text-left font-medium"
-                    style={{background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.2)'}}>
-                    ✉️ Just send
+                    data-testid="btn-cancel-learn"
+                    onClick={handleClose}
+                    className="w-full px-3 py-2 text-sm rounded-lg"
+                    style={{background: 'rgba(255,255,255,0.06)', color: '#64748b', border: '1px solid rgba(255,255,255,0.08)'}}>
+                    Cancel
                   </button>
                 </div>
-                <button
-                  data-testid="btn-cancel-learn"
-                  onClick={handleClose}
-                  className="w-full px-3 py-2 text-sm rounded-lg"
-                  style={{background: 'rgba(255,255,255,0.06)', color: '#64748b', border: '1px solid rgba(255,255,255,0.08)'}}>
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="text-sm mb-4" style={{color: '#94a3b8'}}>
-                  How should Friday learn this?
-                </p>
-                <div className="flex flex-col gap-2 mb-3">
-                  <button
-                    data-testid="btn-scope-global"
-                    onClick={() => handleScopeSelect('global')}
-                    className="w-full px-4 py-3 text-sm rounded-lg text-left font-medium"
-                    style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}>
-                    🌍 Apply to all properties
-                  </button>
-                  <button
-                    data-testid="btn-scope-property"
-                    onClick={() => handleScopeSelect('property')}
-                    className="w-full px-4 py-3 text-sm rounded-lg text-left font-medium"
-                    style={{background: 'rgba(255,255,255,0.06)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.08)'}}>
-                    🏠 Apply to {sendConfirm.property || 'this property'} only
-                  </button>
-                </div>
-                <button
-                  data-testid="btn-back-scope"
-                  onClick={() => setStep('decide')}
-                  className="w-full px-3 py-2 text-sm rounded-lg"
-                  style={{background: 'rgba(255,255,255,0.06)', color: '#64748b', border: '1px solid rgba(255,255,255,0.08)'}}>
-                  ← Back
-                </button>
-              </>
-            )}
 
           </div>
         </div>
