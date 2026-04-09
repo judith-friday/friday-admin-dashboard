@@ -1083,7 +1083,7 @@ export default function MessageDashboard() {
           <button onClick={() => setLeftCollapsed(true)} className="absolute top-12 left-[280px] z-10 hidden md:flex items-center justify-center w-5 h-5 rounded-full text-xs" style={{background: 'rgba(255,255,255,0.08)', color: '#64748b'}} title="Collapse sidebar">{String.fromCharCode(171)}</button>
         )}
         {!rightCollapsed && selectedConvId && detail && (
-          <button onClick={() => setRightCollapsed(true)} className="absolute top-1 right-[280px] z-10 hidden md:flex items-center justify-center w-5 h-5 rounded-full text-xs" style={{background: 'rgba(255,255,255,0.08)', color: '#64748b'}} title="Collapse info panel">{String.fromCharCode(187)}</button>
+          <button onClick={() => setRightCollapsed(true)} className="absolute top-12 right-[280px] z-10 hidden md:flex items-center justify-center w-5 h-5 rounded-full text-xs" style={{background: 'rgba(255,255,255,0.08)', color: '#64748b'}} title="Collapse info panel">{String.fromCharCode(187)}</button>
         )}
         {leftCollapsed ? (
           <div className="flex-shrink-0 flex flex-col items-center py-3 cursor-pointer hidden md:flex" style={{width: '32px', background: 'rgba(255,255,255,0.03)', borderRight: '1px solid rgba(255,255,255,0.06)'}} onClick={() => setLeftCollapsed(false)} title="Expand sidebar">
