@@ -5,7 +5,8 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 export default function useNotificationSound() {
   const [isMuted, setIsMuted] = useState(false)
   const isMutedRef = useRef(false)
-  const audioCtxRef = useRef<AudioContext | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const unlockedRef = useRef(false)
 
   // Init mute state from localStorage
   useEffect(() => {
@@ -16,25 +17,35 @@ export default function useNotificationSound() {
     }
   }, [])
 
-  // Initialize AudioContext on first user interaction (iOS PWA requires user gesture)
+  // Create Audio element and unlock on first user interaction (iOS PWA requires user gesture)
   useEffect(() => {
-    const initAudio = () => {
-      try {
-        if (!audioCtxRef.current) {
-          audioCtxRef.current = new AudioContext()
-        }
-        if (audioCtxRef.current.state === 'suspended') {
-          audioCtxRef.current.resume()
-        }
-      } catch {}
-      document.removeEventListener('click', initAudio)
-      document.removeEventListener('touchstart', initAudio)
+    const audio = new Audio('/sounds/notification.wav')
+    audio.preload = 'auto'
+    audio.volume = 0.5
+    audioRef.current = audio
+
+    const unlock = () => {
+      if (!unlockedRef.current && audioRef.current) {
+        // Play silent audio to unlock playback on iOS
+        const a = audioRef.current
+        const prevVol = a.volume
+        a.volume = 0
+        a.play().then(() => {
+          a.pause()
+          a.currentTime = 0
+          a.volume = prevVol
+          unlockedRef.current = true
+        }).catch(() => {})
+      }
+      document.removeEventListener('click', unlock)
+      document.removeEventListener('touchstart', unlock)
     }
-    document.addEventListener('click', initAudio)
-    document.addEventListener('touchstart', initAudio)
+
+    document.addEventListener('click', unlock)
+    document.addEventListener('touchstart', unlock)
     return () => {
-      document.removeEventListener('click', initAudio)
-      document.removeEventListener('touchstart', initAudio)
+      document.removeEventListener('click', unlock)
+      document.removeEventListener('touchstart', unlock)
     }
   }, [])
 
@@ -44,43 +55,28 @@ export default function useNotificationSound() {
       const next = !prev
       localStorage.setItem('gms_muted', String(next))
       isMutedRef.current = next
-      if (!next) {
-        // Unmuting — create/resume AudioContext during this user gesture
-        try {
-          if (!audioCtxRef.current) {
-            audioCtxRef.current = new AudioContext()
-          }
-          if (audioCtxRef.current.state === 'suspended') {
-            audioCtxRef.current.resume()
-          }
-        } catch {}
+      if (!next && audioRef.current && !unlockedRef.current) {
+        // Unmuting during a user gesture — unlock audio
+        const a = audioRef.current
+        const prevVol = a.volume
+        a.volume = 0
+        a.play().then(() => {
+          a.pause()
+          a.currentTime = 0
+          a.volume = prevVol
+          unlockedRef.current = true
+        }).catch(() => {})
       }
       return next
     })
   }, [])
 
-  // Play notification chime using AudioContext (880Hz → 1100Hz sine wave, 0.3s)
+  // Play notification chime using Audio element
   const playChime = useCallback(() => {
-    try {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new AudioContext()
-      }
-      const ctx = audioCtxRef.current
-      if (ctx.state === 'suspended') {
-        ctx.resume()
-      }
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-      osc.connect(gain)
-      gain.connect(ctx.destination)
-      osc.type = 'sine'
-      osc.frequency.setValueAtTime(880, ctx.currentTime)
-      osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.1)
-      gain.gain.setValueAtTime(0.3, ctx.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3)
-      osc.start(ctx.currentTime)
-      osc.stop(ctx.currentTime + 0.3)
-    } catch {}
+    if (audioRef.current && unlockedRef.current) {
+      audioRef.current.currentTime = 0
+      audioRef.current.play().catch(() => {})
+    }
   }, [])
 
   return { playChime, toggleMute, isMuted, isMutedRef }
