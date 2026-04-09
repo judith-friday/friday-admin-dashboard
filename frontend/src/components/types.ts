@@ -88,6 +88,7 @@ export interface ConversationDetail {
   messages: MessageItem[]
   drafts: Draft[]
   reservation?: any
+  applied_teachings?: Array<{ instruction: string; scope: string }>
 }
 
 export interface MessageItem {

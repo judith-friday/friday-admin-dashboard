@@ -24,6 +24,7 @@ interface SendConfirmModalProps {
   undoCountdown: number
   cancelSend: () => void
   sessionTeachings?: Array<{ id: string; instruction: string; scope: string }>
+  appliedTeachings?: Array<{ instruction: string; scope: string }>
 }
 
 export default function SendConfirmModal({
@@ -36,6 +37,7 @@ export default function SendConfirmModal({
   undoCountdown,
   cancelSend,
   sessionTeachings = [],
+  appliedTeachings = [],
 }: SendConfirmModalProps) {
   const handleClose = () => {
     setSendConfirm(null)
@@ -82,6 +84,30 @@ export default function SendConfirmModal({
 
                 {/* Teaching summary — only show teachings created during this session */}
                 {sessionTeachings.length > 0 && <TeachingSummary teachings={sessionTeachings} />}
+
+                {/* Applied teachings — rules Friday considered for this draft */}
+                {appliedTeachings.length > 0 && (
+                  <details className="mb-3 rounded-lg" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.12)' }}>
+                    <summary className="flex items-center px-3 py-2 text-xs font-medium cursor-pointer list-none" style={{ color: '#60a5fa' }}>
+                      <span>Friday considered {appliedTeachings.length} rule{appliedTeachings.length !== 1 ? 's' : ''}</span>
+                    </summary>
+                    <div className="px-3 pb-2 space-y-1.5">
+                      {appliedTeachings.map((t, i) => (
+                        <div key={i} className="flex items-start gap-1.5 text-xs" style={{ color: '#cbd5e1' }}>
+                          <span className="mt-0.5 shrink-0 px-1 py-0.5 rounded text-xs font-medium" style={{
+                            background: t.scope === 'All properties' ? 'rgba(99,149,255,0.1)' : 'rgba(245,158,11,0.1)',
+                            color: t.scope === 'All properties' ? '#6395ff' : '#fbbf24',
+                            fontSize: '10px',
+                            lineHeight: '1',
+                          }}>
+                            {t.scope}
+                          </span>
+                          <span>{t.instruction}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                )}
 
                 {/* Send + Cancel buttons */}
                 <div className="flex flex-col gap-2">

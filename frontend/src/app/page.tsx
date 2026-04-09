@@ -1010,6 +1010,7 @@ export default function MessageDashboard() {
         undoCountdown={undoCountdown}
         cancelSend={cancelSend}
         sessionTeachings={sessionTeachings}
+        appliedTeachings={detail?.applied_teachings}
       />
 
       <DashboardStats
