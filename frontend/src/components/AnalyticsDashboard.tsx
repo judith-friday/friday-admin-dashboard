@@ -879,6 +879,14 @@ interface AnalyticsDashboardProps {
 
 export default function AnalyticsDashboard({ show, onClose }: AnalyticsDashboardProps) {
   const [activeTab, setActiveTab] = useState<'developer' | 'team'>('developer')
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [refreshing, setRefreshing] = useState(false)
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true)
+    setRefreshKey(k => k + 1)
+    setTimeout(() => setRefreshing(false), 1500)
+  }, [])
 
   useEffect(() => {
     if (show) {
@@ -906,7 +914,12 @@ export default function AnalyticsDashboard({ show, onClose }: AnalyticsDashboard
         <div className="sticky top-0 z-10 px-4 sm:px-6 py-4" style={{ background: 'rgba(10,15,30,0.95)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-bold" style={{ color: '#f1f5f9' }}>Analytics Dashboard</h2>
-            <button onClick={onClose} className="text-sm px-3 py-1 rounded" style={{ background: 'rgba(255,255,255,0.06)', color: SUB_COLOR }}>Close</button>
+            <div className="flex items-center gap-2">
+              <button onClick={handleRefresh} disabled={refreshing} className="text-sm p-1.5 rounded" style={{ background: 'rgba(255,255,255,0.06)', color: refreshing ? '#475569' : SUB_COLOR }} title="Refresh analytics">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={refreshing ? 'animate-spin' : ''}><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+              </button>
+              <button onClick={onClose} className="text-sm px-3 py-1 rounded" style={{ background: 'rgba(255,255,255,0.06)', color: SUB_COLOR }}>Close</button>
+            </div>
           </div>
 
           {/* Tabs */}
@@ -928,7 +941,7 @@ export default function AnalyticsDashboard({ show, onClose }: AnalyticsDashboard
         </div>
 
         {/* Content */}
-        <div className="px-4 sm:px-6 py-4 space-y-4">
+        <div className="px-4 sm:px-6 py-4 space-y-4" key={refreshKey}>
           {/* Actionable Insights — always visible, shown first */}
           <ActionableInsights active={show} />
 
