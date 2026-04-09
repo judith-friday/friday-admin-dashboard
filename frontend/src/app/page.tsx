@@ -72,7 +72,7 @@ export default function MessageDashboard() {
   const [composeFix, setComposeFix] = useState(false)
   const [rejectingDraft, setRejectingDraft] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState('')
-  const [sendConfirm, setSendConfirm] = useState<{draftId: string; guestName: string; property: string; channel: string; preview: string} | null>(null)
+  const [sendConfirm, setSendConfirm] = useState<{draftId: string; guestName: string; property: string; channel: string; preview: string; suggestedTeaching?: string | null; appliedTeaching?: string | null} | null>(null)
   const [sendChannel, setSendChannel] = useState<string>('')
   const [undoCountdown, setUndoCountdown] = useState<number>(0)
   const [undoDraftId, setUndoDraftId] = useState<string | null>(null)
@@ -540,6 +540,8 @@ export default function MessageDashboard() {
       property: detail.conversation.property_name || 'Unknown',
       channel: detail.conversation.channel || 'Unknown',
       preview: previewBody.substring(0, 100) + (previewBody.length > 100 ? '...' : ''),
+      suggestedTeaching: draft.suggested_teaching || null,
+      appliedTeaching: draft.applied_teaching || null,
     })
   }
 
@@ -1028,7 +1030,6 @@ export default function MessageDashboard() {
         undoCountdown={undoCountdown}
         cancelSend={cancelSend}
         sessionTeachings={sessionTeachings}
-        appliedTeachings={detail?.applied_teachings}
       />
 
       <DashboardStats

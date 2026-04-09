@@ -88,7 +88,6 @@ export interface ConversationDetail {
   messages: MessageItem[]
   drafts: Draft[]
   reservation?: any
-  applied_teachings?: Array<{ instruction: string; scope: string }>
   whatsapp_window_open?: boolean | null
   whatsapp_window_expires_at?: string | null
 }
@@ -122,6 +121,8 @@ export interface Draft {
   revision_number?: number
   sent_at?: string
   sent_via?: string | null
+  suggested_teaching?: string | null
+  applied_teaching?: string | null
   created_at: string
   updated_at: string
 }

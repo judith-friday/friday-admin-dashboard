@@ -1,6 +1,7 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { trackEvent } from '../lib/analytics'
+import { apiFetch } from './types'
 import TeachingSummary from './TeachingSummary'
 
 export type LearnMode = 'learn' | 'no_learn' | 'normal'
@@ -12,6 +13,8 @@ interface LearnDecisionData {
   property: string
   channel: string
   preview: string
+  suggestedTeaching?: string | null
+  appliedTeaching?: string | null
 }
 
 interface SendConfirmModalProps {
@@ -24,7 +27,6 @@ interface SendConfirmModalProps {
   undoCountdown: number
   cancelSend: () => void
   sessionTeachings?: Array<{ id: string; instruction: string; scope: string }>
-  appliedTeachings?: Array<{ instruction: string; scope: string }>
 }
 
 export default function SendConfirmModal({
@@ -37,8 +39,9 @@ export default function SendConfirmModal({
   undoCountdown,
   cancelSend,
   sessionTeachings = [],
-  appliedTeachings = [],
 }: SendConfirmModalProps) {
+  const [acceptedSuggestion, setAcceptedSuggestion] = useState(false)
+  const [dismissedSuggestion, setDismissedSuggestion] = useState(false)
   const handleClose = () => {
     setSendConfirm(null)
   }
@@ -85,28 +88,42 @@ export default function SendConfirmModal({
                 {/* Teaching summary — only show teachings created during this session */}
                 {sessionTeachings.length > 0 && <TeachingSummary teachings={sessionTeachings} />}
 
-                {/* Applied teachings — rules Friday considered for this draft */}
-                {appliedTeachings.length > 0 && (
-                  <details className="mb-3 rounded-lg" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.12)' }}>
-                    <summary className="flex items-center px-3 py-2 text-xs font-medium cursor-pointer list-none" style={{ color: '#60a5fa' }}>
-                      <span>Friday considered {appliedTeachings.length} rule{appliedTeachings.length !== 1 ? 's' : ''}</span>
-                    </summary>
-                    <div className="px-3 pb-2 space-y-1.5">
-                      {appliedTeachings.map((t, i) => (
-                        <div key={i} className="flex items-start gap-1.5 text-xs" style={{ color: '#cbd5e1' }}>
-                          <span className="mt-0.5 shrink-0 px-1 py-0.5 rounded text-xs font-medium" style={{
-                            background: t.scope === 'All properties' ? 'rgba(99,149,255,0.1)' : 'rgba(245,158,11,0.1)',
-                            color: t.scope === 'All properties' ? '#6395ff' : '#fbbf24',
-                            fontSize: '10px',
-                            lineHeight: '1',
-                          }}>
-                            {t.scope}
-                          </span>
-                          <span>{t.instruction}</span>
-                        </div>
-                      ))}
+                {/* Learning review — applied or suggested teachings for this draft */}
+                {sendConfirm.appliedTeaching && (
+                  <div className="mb-3 px-3 py-2 rounded-lg text-xs flex items-start gap-2" style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.12)', color: '#4ade80' }}>
+                    <span className="shrink-0">✅</span>
+                    <span>Friday learned: {sendConfirm.appliedTeaching}</span>
+                  </div>
+                )}
+                {sendConfirm.suggestedTeaching && !acceptedSuggestion && !dismissedSuggestion && (
+                  <div className="mb-3 px-3 py-2 rounded-lg text-xs" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.12)' }}>
+                    <div className="flex items-start gap-2 mb-1.5" style={{ color: '#fbbf24' }}>
+                      <span className="shrink-0">💡</span>
+                      <span>Friday could learn: {sendConfirm.suggestedTeaching}</span>
                     </div>
-                  </details>
+                    <div className="flex gap-2 ml-5">
+                      <button onClick={async () => {
+                        try {
+                          await apiFetch('/api/teachings', {
+                            method: 'POST',
+                            body: JSON.stringify({ instruction: sendConfirm.suggestedTeaching, scope: 'global', source: 'compose_learning', taught_by: 'team' }),
+                          })
+                          setAcceptedSuggestion(true)
+                        } catch {}
+                      }} className="px-2 py-0.5 rounded text-xs" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.25)' }}>
+                        Accept
+                      </button>
+                      <button onClick={() => setDismissedSuggestion(true)} className="px-2 py-0.5 rounded text-xs" style={{ background: 'rgba(255,255,255,0.06)', color: '#64748b', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        Dismiss
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {acceptedSuggestion && (
+                  <div className="mb-3 px-3 py-2 rounded-lg text-xs flex items-start gap-2" style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.12)', color: '#4ade80' }}>
+                    <span className="shrink-0">✅</span>
+                    <span>Friday learned: {sendConfirm.suggestedTeaching}</span>
+                  </div>
                 )}
 
                 {/* Send + Cancel buttons */}
