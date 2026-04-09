@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { ArrowPathIcon } from '@heroicons/react/24/outline'
 import { apiFetch } from './types'
 import { trackEvent } from '../lib/analytics'
@@ -307,12 +308,12 @@ export default function ConsultChat({
 
           return (
             <div key={i} className="flex justify-start">
-              <div className="max-w-[85%] px-3 py-2 rounded-lg text-sm whitespace-pre-wrap" style={{
+              <div className="max-w-[85%] px-3 py-2 rounded-lg text-sm friday-markdown" style={{
                 background: 'rgba(30,41,59,0.5)',
                 color: '#e2e8f0',
                 border: '1px solid rgba(99,149,255,0.1)',
               }}>
-                {msg.content}
+                <ReactMarkdown>{msg.content}</ReactMarkdown>
               </div>
             </div>
           )
