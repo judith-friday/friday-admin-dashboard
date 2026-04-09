@@ -394,9 +394,9 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
 
   const TAB_CONFIG = [
     { key: 'rules' as const, label: `Active Rules (${teachings.filter((t: any) => t.status === 'active' || t.status === 'paused').length})` },
-    { key: 'review' as const, label: `Review Queue (${pendingReview.length})` },
+    { key: 'review' as const, label: `Auto Learnings (${pendingReview.length})` },
     { key: 'metrics' as const, label: 'Metrics' },
-    { key: 'corrections' as const, label: `Corrections (${corrections.length})` },
+    ...(corrections.length > 0 ? [{ key: 'corrections' as const, label: `Corrections (${corrections.length})` }] : []),
   ]
 
   return (
@@ -414,13 +414,15 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
           <button onClick={onClose} className="text-sm px-2 py-1 rounded" style={{ color: '#64748b' }}>{'\u2715'}</button>
         </div>
 
-        {/* Tab bar */}
-        <div className="px-5 py-2 flex gap-1.5 overflow-x-auto" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-          {TAB_CONFIG.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)} className="text-xs px-3 py-1.5 rounded-full transition-all whitespace-nowrap" style={{ background: tab === t.key ? 'rgba(168,85,247,0.2)' : 'rgba(255,255,255,0.04)', color: tab === t.key ? '#c084fc' : '#64748b', border: `1px solid ${tab === t.key ? 'rgba(168,85,247,0.3)' : 'rgba(255,255,255,0.06)'}` }}>
-              {t.label}
-            </button>
-          ))}
+        {/* Tab bar — segmented control */}
+        <div className="px-5 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+          <div className="flex rounded-lg overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            {TAB_CONFIG.map((t, i) => (
+              <button key={t.key} onClick={() => setTab(t.key)} className="flex-1 text-xs px-3 py-2 transition-all whitespace-nowrap" style={{ background: tab === t.key ? 'rgba(168,85,247,0.2)' : 'transparent', color: tab === t.key ? '#c084fc' : '#64748b', borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* ===== ACTIVE RULES TAB ===== */}
