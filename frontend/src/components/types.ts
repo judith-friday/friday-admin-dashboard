@@ -30,6 +30,23 @@ export const LANG_FLAGS: Record<string, string> = {
 
 export const RTL_LANGS = new Set(['ar', 'he', 'fa', 'ur'])
 
+/** Strip protocol tags like [DRAFT_UPDATE]...[/DRAFT_UPDATE], [TEACH]...[/TEACH], and standalone [ALL_CAPS] tags */
+export function stripProtocolTags(text: string): string {
+  if (!text) return text
+  return text
+    .replace(/\[DRAFT_UPDATE\][\s\S]*?\[\/DRAFT_UPDATE\]/g, '')
+    .replace(/\[TEACH\][\s\S]*?\[\/TEACH\]/g, '')
+    .replace(/\[REASONING\][\s\S]*?\[\/REASONING\]/g, '')
+    .replace(/\[DRAFT\][\s\S]*?\[\/DRAFT\]/g, '')
+    .replace(/\[REVISION_REQUEST\]/g, '')
+    .replace(/\[COMPOSE_LEARNING\]/g, '')
+    .replace(/\[LEARNING_DETECTED\]/g, '')
+    .replace(/\[CONTEXT_REFRESH\]/g, '')
+    .replace(/\[STR_KB\]/g, '')
+    .replace(/\[\/[A-Z_]+\]/g, '')
+    .trim()
+}
+
 export function decodeHtmlEntities(text: string): string {
   if (!text) return text
   return text

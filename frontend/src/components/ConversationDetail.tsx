@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { LanguageIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
-import { ConversationDetail as ConversationDetailType, Draft, apiFetch, LANG_FLAGS, LANG_NAMES, decodeHtmlEntities } from './types'
+import { ConversationDetail as ConversationDetailType, Draft, apiFetch, LANG_FLAGS, LANG_NAMES, decodeHtmlEntities, stripProtocolTags } from './types'
 import { toast } from 'react-hot-toast'
 import ComposePanel from './ComposePanel'
 import DraftPanel from './DraftPanel'
@@ -364,7 +364,7 @@ export default function ConversationDetail({
                   )}
                 </div>
                 <p className="text-sm whitespace-pre-wrap" style={{color: '#e2e8f0', overflowWrap: 'break-word', wordBreak: 'break-word'}} dir="auto">
-                  {decodeHtmlEntities(isShowingTranslated ? draft.translated_content : draft.draft_body)}
+                  {stripProtocolTags(decodeHtmlEntities(isShowingTranslated ? draft.translated_content : draft.draft_body))}
                 </p>
                 <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>
                   {draft.reviewed_by === 'auto-send' ? 'Auto-sent by Friday' : `${draft.reviewed_by || 'Team'} via Friday${draft.sent_via ? ` on ${formatChannelName(draft.sent_via)}` : ''}`}{draft.revision_number && draft.revision_number > 1 ? ` (v${draft.revision_number})` : ''} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}
@@ -517,7 +517,7 @@ export default function ConversationDetail({
                 </button>
               </div>
             </div>
-            <p className="text-sm whitespace-pre-wrap" style={{color: "#e2e8f0", overflowWrap: 'break-word', wordBreak: 'break-word'}}>{decodeHtmlEntities(draft.draft_body)}</p>
+            <p className="text-sm whitespace-pre-wrap" style={{color: "#e2e8f0", overflowWrap: 'break-word', wordBreak: 'break-word'}}>{stripProtocolTags(decodeHtmlEntities(draft.draft_body))}</p>
           </div>
           </div>
         ))}

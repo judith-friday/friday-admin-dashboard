@@ -12,7 +12,7 @@ import {
   ChevronUpIcon,
   ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline'
-import { Draft, decodeHtmlEntities } from './types'
+import { Draft, decodeHtmlEntities, stripProtocolTags } from './types'
 import ConsultChat from './ConsultChat'
 import { trackEvent } from '../lib/analytics'
 
@@ -116,12 +116,12 @@ export default function DraftPanel({
               ) : (
                 <>
                   <div className="max-h-[20vh] overflow-y-auto custom-scrollbar">
-                  <div className="p-3 rounded text-sm mb-2 whitespace-pre-wrap" dir="auto" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#e2e8f0', overflowWrap: 'break-word', maxWidth: '100%'}}>{decodeHtmlEntities(draft.draft_body)}</div>
+                  <div className="p-3 rounded text-sm mb-2 whitespace-pre-wrap" dir="auto" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#e2e8f0', overflowWrap: 'break-word', maxWidth: '100%'}}>{stripProtocolTags(decodeHtmlEntities(draft.draft_body))}</div>
                   {draft.draft_translated && draft.draft_translated !== draft.draft_body && (
                     <div className="p-3 rounded text-sm mb-2" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)'}}>
                       <LanguageIcon className="h-3 w-3 inline mr-1" style={{color: '#6395ff'}} />
                       <span className="text-xs font-medium" style={{color: '#6395ff'}}>Translated:</span>
-                      <p className="mt-1 whitespace-pre-wrap" dir="auto">{decodeHtmlEntities(draft.draft_translated)}</p>
+                      <p className="mt-1 whitespace-pre-wrap" dir="auto">{stripProtocolTags(decodeHtmlEntities(draft.draft_translated))}</p>
                     </div>
                   )}
                   </div>
@@ -140,7 +140,7 @@ export default function DraftPanel({
                         <ChatBubbleLeftRightIcon className="h-4 w-4 mr-1" /> Ask Friday
                       </button>
                     )}
-                    <button data-testid={`btn-edit-${draft.id}`} onClick={() => { trackEvent('button_click', { button: 'edit_draft', draft_id: draft.id }); setEditingDraft(draft.id); isEditingRef.current = true; setEditBody(draft.draft_body) }}
+                    <button data-testid={`btn-edit-${draft.id}`} onClick={() => { trackEvent('button_click', { button: 'edit_draft', draft_id: draft.id }); setEditingDraft(draft.id); isEditingRef.current = true; setEditBody(stripProtocolTags(draft.draft_body)) }}
                       className="flex items-center px-2.5 py-1 text-xs rounded" style={{background: 'transparent', color: '#64748b', border: '1px solid rgba(255,255,255,0.08)', opacity: consultDraftId === draft.id ? 0.4 : 1}}>
                       <PencilSquareIcon className="h-3.5 w-3.5 mr-1" /> Edit
                     </button>
