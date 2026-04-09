@@ -92,6 +92,23 @@ export default function SendQueuePanel({ show, onClose, onNavigate }: SendQueueP
     }
   }
 
+  const handleDismiss = async (id: string) => {
+    if (!confirm('Delete this failed message from the queue?')) return
+    setActioningId(id)
+    try {
+      await apiFetch(`/api/drafts/${id}/dismiss`, {
+        method: 'POST',
+        body: JSON.stringify({}),
+      })
+      toast.success('Removed from queue')
+      fetchQueue()
+    } catch (err: any) {
+      toast.error('Delete failed: ' + err.message)
+    } finally {
+      setActioningId(null)
+    }
+  }
+
   const handleCancel = async (id: string) => {
     if (!confirm('Cancel this queued message? It will be marked as failed and won\u2019t retry.')) return
     setActioningId(id)
@@ -260,6 +277,21 @@ export default function SendQueuePanel({ show, onClose, onNavigate }: SendQueueP
                       }}
                     >
                       {'\u274C'} Cancel
+                    </button>
+                  )}
+                  {draft.state === 'send_failed' && (
+                    <button
+                      disabled={isActioning}
+                      onClick={() => handleDismiss(draft.id)}
+                      className="text-xs px-3 py-1.5 rounded-lg transition-all"
+                      style={{
+                        background: 'rgba(239,68,68,0.15)',
+                        color: '#f87171',
+                        border: '1px solid rgba(239,68,68,0.3)',
+                        opacity: isActioning ? 0.5 : 1,
+                      }}
+                    >
+                      {'\u{1F5D1}'} Delete
                     </button>
                   )}
                   {onNavigate && (
