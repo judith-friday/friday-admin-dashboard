@@ -166,7 +166,7 @@ export default function ConversationList({
               </button>
             )}
             {onRefresh && (
-              <button onClick={onRefresh} className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10" title="Refresh">
+              <button onClick={onRefresh} className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10" title="Refresh conversations">
                 <ArrowPathIcon className="h-3.5 w-3.5" style={{color: '#64748b'}} />
               </button>
             )}
