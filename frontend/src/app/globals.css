@@ -430,12 +430,7 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
-/* PWA standalone mode: push compose content above iOS home indicator */
-@media (display-mode: standalone) {
-  [data-testid="container-compose-panel"] {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-}
+/* Safe-area bottom padding is handled inline on the app shell div (page.tsx) */
 
 /* Ask Friday markdown in chat bubbles */
 .friday-markdown p {
