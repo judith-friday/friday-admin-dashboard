@@ -92,6 +92,7 @@ export default function ComposePanel({
 
           {conversationId && (
             <ConsultChat
+              key={conversationId}
               active={showConsult}
               conversationId={conversationId}
               context="compose"

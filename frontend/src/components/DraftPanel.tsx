@@ -196,6 +196,7 @@ export default function DraftPanel({
               {/* Ask Friday consultation on draft review (Surface B) — rendered outside edit/view toggle so it persists across mode changes */}
               {conversationId && (
                 <ConsultChat
+                  key={`${conversationId}-${draft.id}`}
                   active={consultDraftId === draft.id}
                   conversationId={conversationId}
                   context="draft_review"

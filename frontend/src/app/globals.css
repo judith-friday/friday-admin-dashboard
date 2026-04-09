@@ -317,9 +317,10 @@ input:focus, textarea:focus, select:focus {
     overflow-y: auto;
   }
 
-  /* Limit Ask Friday chat height on mobile so compose textarea stays visible */
+  /* Ask Friday chat messages: remove inner scroll on mobile so compose+AskFriday flow as one scrollable column */
   .consult-chat-messages {
-    max-height: 25vh !important;
+    max-height: none !important;
+    overflow-y: visible !important;
   }
 
   /* Keep compose textarea and action buttons visible when Ask Friday is open */
@@ -394,11 +395,12 @@ input:focus, textarea:focus, select:focus {
     padding: 0.5rem !important;
   }
 
-  /* Draft panel: tighter margins + cap height on mobile */
+  /* Draft panel: tighter margins on mobile, match compose panel height for Ask Friday scrollability */
   [data-testid="container-draft-panel"] {
     margin-left: 0.5rem !important;
     margin-right: 0.5rem !important;
-    max-height: 50vh !important;
+    max-height: 70vh !important;
+    overflow-y: auto !important;
   }
 
   /* Reduce general padding on mobile for more content space */
