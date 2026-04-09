@@ -11,6 +11,19 @@ html, body {
   height: 100dvh;
   max-width: 100vw;
   touch-action: manipulation;
+  /* PWA: zero bottom gap — content extends to absolute bottom edge */
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* PWA standalone: ensure full-screen content to bottom edge */
+@media all and (display-mode: standalone) {
+  html, body, [data-pwa-shell] {
+    height: 100dvh !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+    min-height: 100dvh !important;
+  }
 }
 
 /* Custom scrollbar for dark theme - thin and rounded */
