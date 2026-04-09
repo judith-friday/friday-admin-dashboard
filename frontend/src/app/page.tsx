@@ -358,13 +358,29 @@ export default function MessageDashboard() {
           if (data.type === 'new_message') {
             toast.success('New message received')
             if (!isMutedRef.current) playChime()
+            const guestName = data.data?.guestName || 'Guest'
+            const msgPreview = (data.data?.body || '').substring(0, 80)
             addNotification({
               type: 'new_message',
-              title: `New message from ${data.data?.guestName || 'Guest'}`,
+              title: `New message from ${guestName}`,
               subtitle: '',
-              preview: (data.data?.body || '').substring(0, 80),
+              preview: msgPreview,
               conversationId: data.data?.conversationId || data.data?.conversation_id || '',
             })
+            // Show browser notification when tab is hidden or app is in background
+            if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+              try {
+                navigator.serviceWorker?.ready.then(reg => {
+                  reg.showNotification(`New message from ${guestName}`, {
+                    body: msgPreview,
+                    icon: '/icon-192.png',
+                    badge: '/icon-192.png',
+                    tag: `new-msg-${data.data?.conversationId || Date.now()}`,
+                    data: { url: '/' },
+                  })
+                })
+              } catch {}
+            }
           }
           if (data.type === 'draft_ready') {
             addNotification({

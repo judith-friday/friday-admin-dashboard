@@ -8,9 +8,9 @@ export default function NotificationPrompt() {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
-    // Don't show if: no Notification API, already granted, or user dismissed
+    // Don't show if: no Notification API, already granted/denied, or user dismissed
     if (typeof window === 'undefined' || !('Notification' in window)) return
-    if (Notification.permission === 'granted') return
+    if (Notification.permission !== 'default') return
     if (localStorage.getItem(DISMISSED_KEY) === 'true') return
     // Show prompt after a short delay so it doesn't flash on load
     const timer = setTimeout(() => setShow(true), 2000)
