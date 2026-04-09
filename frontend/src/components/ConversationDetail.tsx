@@ -147,14 +147,36 @@ export default function ConversationDetail({
 
   return (
     <div data-testid="container-conversation-detail" className={`flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden ${mobileView === 'list' ? 'hidden md:flex' : ''}`}>
-      {/* Mobile back button */}
-      <div data-testid="nav-back-button" className="mobile-only mobile-nav-back" onClick={() => setMobileView('list')} style={{justifyContent: 'space-between', position: 'relative', zIndex: 1, width: '100%', maxWidth: '100%', overflow: 'hidden'}}>
-        <span>{'\u2190'} Back to inbox</span>
-        <button onClick={(e) => { e.stopPropagation(); setMobileView('info'); }} className="ml-auto px-2 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>{'\u2139\uFE0F'} Info</button>
+      {/* Mobile compact header — single row with back, guest info, and info button */}
+      <div data-testid="nav-back-button" className="mobile-only flex items-center gap-1.5 px-2 py-1.5" style={{borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#0d1117'}}>
+        <button onClick={() => setMobileView('list')} className="shrink-0 p-1" style={{color: '#94a3b8'}}>
+          {'\u2190'}
+        </button>
+        <div className="flex-1 min-w-0 flex items-center gap-1.5">
+          <span className="text-sm font-medium truncate" style={{color: '#f1f5f9'}}>{detail.conversation.guest_name}</span>
+          {sentimentDot(detail.conversation.sentiment)}
+          {detail.conversation.property_name && (
+            <span className="text-[11px] shrink-0" onClick={() => fetchPropertyCard(detail.conversation.property_name)} style={{cursor: 'pointer', color: '#64748b'}}>· {detail.conversation.property_name}</span>
+          )}
+          {detail.conversation.channel && channelBadge(detail.conversation.channel)}
+          {detail.conversation.avg_response_minutes != null && (
+            <span className="text-[10px] shrink-0 font-medium" style={{color: rtColor(detail.conversation.avg_response_minutes)}}>
+              {Math.round(detail.conversation.avg_response_minutes)}m
+            </span>
+          )}
+          {detail.conversation.avg_response_minutes == null && detail.conversation.first_response_minutes != null && (
+            <span className="text-[10px] shrink-0 font-medium" style={{color: rtColor(detail.conversation.first_response_minutes)}}>
+              {detail.conversation.first_response_minutes}m
+            </span>
+          )}
+        </div>
+        <button onClick={() => setMobileView('info')} className="shrink-0 p-1" style={{color: '#94a3b8'}}>
+          {'\u2139\uFE0F'}
+        </button>
       </div>
 
-      {/* Compact conversation header with inline guest info */}
-      <div className="flex-shrink-0 px-3 py-2" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+      {/* Desktop conversation header */}
+      <div className="flex-shrink-0 px-3 py-2 hidden md:block" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2 min-w-0">
             <h2 className="text-base font-semibold truncate" style={{color: '#f1f5f9'}}>{detail.conversation.guest_name}</h2>
