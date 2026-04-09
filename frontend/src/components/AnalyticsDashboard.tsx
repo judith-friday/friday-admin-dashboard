@@ -29,8 +29,8 @@ function ErrorState({ message }: { message?: string }) {
   return <div className="text-center py-8 text-sm" style={{ color: '#f87171' }}>{message || 'Failed to load data'}</div>
 }
 
-function EmptyState({ message }: { message?: string }) {
-  return <div className="text-center py-8 text-sm" style={{ color: MUTED_COLOR }}>{message || 'No data yet'}</div>
+function EmptyState({ message: _message }: { message?: string }) {
+  return null // Hide empty sections entirely
 }
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
@@ -929,6 +929,9 @@ export default function AnalyticsDashboard({ show, onClose }: AnalyticsDashboard
 
         {/* Content */}
         <div className="px-4 sm:px-6 py-4 space-y-4">
+          {/* Actionable Insights — always visible, shown first */}
+          <ActionableInsights active={show} />
+
           {isDev && (
             <>
               <DevFeatureUsage active={isDev} />
@@ -956,11 +959,6 @@ export default function AnalyticsDashboard({ show, onClose }: AnalyticsDashboard
               <TeamSuggestions active={isTeam} />
             </>
           )}
-
-          {/* Shared Actionable Insights — always visible */}
-          <div className="pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-            <ActionableInsights active={show} />
-          </div>
         </div>
       </div>
     </div>
