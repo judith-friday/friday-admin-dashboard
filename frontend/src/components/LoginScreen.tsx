@@ -87,7 +87,7 @@ export default function LoginScreen({ onLogin }: { onLogin: (token: string) => v
   // Welcome flash screen
   if (welcomeName) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{background: 'linear-gradient(135deg, #0d1117 0%, #0f1d35 50%, #0d1117 100%)'}}>
+      <div className="flex items-center justify-center" style={{background: 'linear-gradient(135deg, #0d1117 0%, #0f1d35 50%, #0d1117 100%)', minHeight: '100dvh'}}>
         <div className="text-center animate-fade-in">
           <div className="text-3xl font-bold mb-2" style={{color: '#f1f5f9'}}>Welcome back, {welcomeName} &#x1F44B;</div>
           <div className="text-sm" style={{color: '#64748b'}}>Loading your inbox...</div>
@@ -99,7 +99,7 @@ export default function LoginScreen({ onLogin }: { onLogin: (token: string) => v
   // Force password change modal
   if (mustChangePassword) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{background: 'linear-gradient(135deg, #0d1117 0%, #0f1d35 50%, #0d1117 100%)'}}>
+      <div className="flex items-center justify-center" style={{background: 'linear-gradient(135deg, #0d1117 0%, #0f1d35 50%, #0d1117 100%)', minHeight: '100dvh'}}>
         <form onSubmit={handlePasswordChange} className="p-6 sm:p-8 rounded-xl w-full max-w-sm mx-4 sm:mx-auto" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)'}}>
           <h1 className="text-xl font-bold mb-1" style={{color: '#f1f5f9'}}>Change Your Password</h1>
           <p className="text-xs mb-5" style={{color: '#64748b'}}>For security, please set a new password before continuing.</p>
@@ -118,7 +118,7 @@ export default function LoginScreen({ onLogin }: { onLogin: (token: string) => v
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center" data-testid="container-login-screen" style={{background: 'linear-gradient(135deg, #0d1117 0%, #0f1d35 50%, #0d1117 100%)', animation: 'gradientShift 20s ease infinite', backgroundSize: '200% 200%'}}>
+    <div className="flex items-center justify-center" data-testid="container-login-screen" style={{background: 'linear-gradient(135deg, #0d1117 0%, #0f1d35 50%, #0d1117 100%)', animation: 'gradientShift 20s ease infinite', backgroundSize: '200% 200%', minHeight: '100dvh'}}>
       <form onSubmit={handleSubmit} className="p-6 sm:p-8 rounded-xl w-full max-w-sm mx-4 sm:mx-auto" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)'}}>
         <h1 className="text-2xl font-bold mb-1" style={{color: '#f1f5f9'}}>Friday Admin</h1>
         <p className="text-sm mb-6 h-5" style={{color: '#6395ff', opacity: 0.8}}>{tagline}</p>

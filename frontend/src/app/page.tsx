@@ -994,7 +994,7 @@ export default function MessageDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{background: '#0d1117'}}>
+      <div className="flex items-center justify-center" style={{background: '#0d1117', minHeight: '100dvh'}}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 mx-auto" style={{borderBottom: '2px solid #6395ff'}}></div>
           <p className="mt-4" style={{color: '#64748b'}}>Loading Friday Admin...</p>
