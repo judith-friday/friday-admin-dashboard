@@ -378,9 +378,24 @@ export default function ConversationDetail({
           const msg = item.data as typeof detail.messages[0]
           const isOutbound = msg.direction === 'outbound'
           const isSystem = msg.direction === 'system'
+          const isReactionPlaceholder = (msg.body || '').includes('Guest may have reacted to a message')
           const hasTranslation = msg.translated_body && msg.translated_body !== msg.body
           const isNonEnglish = msg.original_language && msg.original_language !== 'en'
           const showingOriginal = showMsgOriginal[msg.id]
+
+          // Reaction placeholders: render as system-style notification
+          if (isReactionPlaceholder) {
+            return (
+              <React.Fragment key={msg.id}>
+              {dateSeparator}
+              <div className="flex justify-center">
+                <span className="text-xs italic px-3 py-1" style={{color: '#64748b'}}>
+                  {decodeHtmlEntities(msg.body)}
+                </span>
+              </div>
+              </React.Fragment>
+            )
+          }
 
           // System notifications: muted centered style
           if (isSystem) {
