@@ -18,6 +18,7 @@ import { ConversationDetail, NextStep, apiFetch } from './types'
 import PendingActionsTab from './PendingActions'
 import ConsultChat from './ConsultChat'
 import { trackEvent } from '../lib/analytics'
+import ActionTrail from './ActionTrail'
 
 interface GuestInfoProps {
   detail: ConversationDetail
@@ -437,19 +438,8 @@ export default function GuestInfo({
       </CollapsibleSection>
 
 
-      {/* Draft history - collapsible, collapsed by default */}
-      {detail.drafts.length > 0 && (
-        <CollapsibleSection title="Draft History" defaultOpen={false} count={detail.drafts.length}>
-          <div className="px-3 pb-3 space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar">
-            {detail.drafts.map(d => (
-              <div key={d.id} className="flex items-center justify-between text-xs">
-                <span style={{color: '#64748b'}}>{format(new Date(d.created_at), 'MMM d HH:mm')}</span>
-                {draftStateBadge(d.state)}
-              </div>
-            ))}
-          </div>
-        </CollapsibleSection>
-      )}
+      {/* Action Trail - replaces Draft History */}
+      <ActionTrail conversationId={selectedConvId} />
 
       {/* Auto-send toggle — rarely changed, keep at bottom */}
       <div className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>

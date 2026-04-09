@@ -480,27 +480,7 @@ export default function ConversationDetail({
           </div>
         ))}
 
-        {/* Draft history toggle (revision drafts only — rejected drafts now shown in timeline) */}
-        {(() => {
-          const revisionDrafts = detail.drafts.filter(d => d.state === 'revision_requested')
-          const hiddenCount = revisionDrafts.length
-
-          if (hiddenCount === 0) return null
-          return (<>
-            <button onClick={() => { setShowDraftHistory(!showDraftHistory); if (!showDraftHistory) { setTimeout(() => { const el = document.getElementById('draft-history-section'); el?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }, 100) } }} className="text-xs px-2 py-1 rounded mx-4 mt-1" style={{color: '#64748b'}}>
-              {showDraftHistory ? 'Hide' : 'Show'} draft history ({hiddenCount} older)
-            </button>
-            {showDraftHistory && revisionDrafts.map((draft, idx) => (
-              <div key={`revision-${draft.id}`} id={idx === 0 ? 'draft-history-section' : undefined} className="rounded-lg p-3 mt-2" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)'}}>
-                <div className="text-xs font-medium mb-1" style={{color: '#6395ff'}}>Revision #{draft.revision_number || '?'}:</div>
-                <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0', overflowWrap: 'break-word', wordBreak: 'break-word'}}>{draft.draft_body}</p>
-                <div className="text-xs pt-2" style={{borderTop: '1px solid rgba(99,149,255,0.1)', color: '#64748b'}}>
-                  {draft.reviewed_by ? `Revised by ${draft.reviewed_by}` : 'System revision'}{draft.revision_instruction ? ` — "${draft.revision_instruction}"` : ''} · {format(new Date(draft.updated_at), 'MMM d HH:mm')}
-                </div>
-              </div>
-            ))}
-          </>)
-        })()}
+        {/* Draft history removed — now in Action Trail (Info panel) */}
         <div ref={messagesEndRef} />
       </div>
 
