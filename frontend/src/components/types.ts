@@ -175,6 +175,9 @@ export interface PendingAction {
   source: string
   age_minutes?: number
   channel?: string
+  urgency?: 'low' | 'medium' | 'high' | 'critical'
+  escalation_level?: number
+  action_type?: string
 }
 
 export interface NextStep {

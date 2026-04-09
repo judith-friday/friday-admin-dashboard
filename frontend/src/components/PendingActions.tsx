@@ -43,6 +43,9 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
   const [showResolved, setShowResolved] = useState(false)
   const [resolvedFilter, setResolvedFilter] = useState<'all' | 'completed' | 'dismissed'>('all')
   const [resolvedLoading, setResolvedLoading] = useState(false)
+  const [dismissReasonId, setDismissReasonId] = useState<string | null>(null)
+  const [dismissReasonText, setDismissReasonText] = useState('')
+  const [dismissReasonStatus, setDismissReasonStatus] = useState<'completed' | 'dismissed'>('completed')
 
   const fetchActions = useCallback(async () => {
     try {
@@ -66,13 +69,21 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
     }
   }, [showAddForm, conversations.length])
 
-  const handleAction = async (id: string, status: 'completed' | 'dismissed') => {
+  const promptDismissReason = (id: string, status: 'completed' | 'dismissed') => {
+    setDismissReasonId(id)
+    setDismissReasonStatus(status)
+    setDismissReasonText('')
+  }
+
+  const handleAction = async (id: string, status: 'completed' | 'dismissed', reason?: string) => {
     try {
       await apiFetch(`/api/pending-actions/${id}`, {
         method: 'PATCH',
-        body: JSON.stringify({ status, completion_note: completionNotes[id] || undefined }),
+        body: JSON.stringify({ status, completion_note: reason || completionNotes[id] || undefined }),
       })
       toast.success(`Action ${status}`)
+      setDismissReasonId(null)
+      setDismissReasonText('')
       fetchActions()
     } catch (err: any) {
       toast.error(err.message)
@@ -206,6 +217,18 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
     setEditDueBy(action.due_by ? new Date(action.due_by).toISOString().slice(0, 16) : '')
   }
 
+  const urgencyBadge = (action: PendingAction) => {
+    const u = action.urgency || 'medium'
+    const cfg: Record<string, { bg: string; color: string; label: string }> = {
+      low:      { bg: 'rgba(100,116,139,0.15)', color: '#94a3b8', label: 'LOW' },
+      medium:   { bg: 'rgba(245,158,11,0.15)',  color: '#fbbf24', label: 'MED' },
+      high:     { bg: 'rgba(249,115,22,0.15)',   color: '#fb923c', label: 'HIGH' },
+      critical: { bg: 'rgba(239,68,68,0.2)',     color: '#f87171', label: 'CRIT' },
+    }
+    const c = cfg[u] || cfg.medium
+    return <span className="px-1.5 py-0.5 rounded text-xs font-medium" style={{background: c.bg, color: c.color, fontSize: '0.65rem'}}>{c.label}</span>
+  }
+
   const ageBadge = (action: PendingAction) => {
     const mins = action.age_minutes ?? (Date.now() - new Date(action.detected_at).getTime()) / 60000
     const hours = mins / 60
@@ -220,11 +243,15 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
     return <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>{mins < 60 ? `${Math.round(mins)}m` : `${Math.round(hours)}h`}</span>
   }
 
+  const urgencyRank: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 }
   const sortedActions = [...actions].sort((a, b) => {
     if (sortBy === 'urgency') {
       const aOverdue = a.due_by && new Date(a.due_by) < new Date() && a.status === 'pending' ? 1 : 0
       const bOverdue = b.due_by && new Date(b.due_by) < new Date() && b.status === 'pending' ? 1 : 0
       if (aOverdue !== bOverdue) return bOverdue - aOverdue
+      const aUrg = urgencyRank[a.urgency || 'medium'] ?? 2
+      const bUrg = urgencyRank[b.urgency || 'medium'] ?? 2
+      if (aUrg !== bUrg) return aUrg - bUrg
       const aDue = a.due_by ? new Date(a.due_by).getTime() : Infinity
       const bDue = b.due_by ? new Date(b.due_by).getTime() : Infinity
       return aDue - bDue
@@ -287,7 +314,10 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
           <div key={action.id} className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.03)', opacity: action.status !== 'pending' ? 0.5 : 1}}>
             <div className="flex justify-between items-start mb-1 cursor-pointer group" onClick={() => onNavigateToConversation?.(action.conversation_id)}>
               <span className="text-sm font-medium group-hover:underline" style={{color: '#f1f5f9'}}>{action.guest_name}</span>
-              {action.status === 'pending' && ageBadge(action)}
+              <div className="flex items-center gap-1.5">
+                {action.status === 'pending' && urgencyBadge(action)}
+                {action.status === 'pending' && ageBadge(action)}
+              </div>
             </div>
             {action.property_code && <div className="text-xs mb-1" style={{color: '#64748b'}}>{action.property_code}</div>}
             {editingId === action.id ? (
@@ -362,10 +392,29 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
             )}
             {action.status === 'pending' && editingId !== action.id ? (
               <div className="space-y-1">
+                {dismissReasonId === action.id && (
+                  <div className="mb-2 p-2 rounded" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)'}}>
+                    <div className="text-xs mb-1" style={{color: '#94a3b8'}}>Reason (optional):</div>
+                    <div className="flex gap-1.5">
+                      <input type="text" placeholder="e.g. Guest confirmed, no longer needed..."
+                        value={dismissReasonText} onChange={e => setDismissReasonText(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && handleAction(action.id, dismissReasonStatus, dismissReasonText)}
+                        className="flex-1 text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} autoFocus />
+                      <button onClick={() => handleAction(action.id, dismissReasonStatus, dismissReasonText)}
+                        className="px-2 py-1 text-xs rounded shrink-0" style={{background: dismissReasonStatus === 'completed' ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.06)', color: dismissReasonStatus === 'completed' ? '#4ade80' : '#94a3b8', border: `1px solid ${dismissReasonStatus === 'completed' ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.08)'}`}}>
+                        {dismissReasonStatus === 'completed' ? 'Confirm Done' : 'Confirm Dismiss'}
+                      </button>
+                      <button onClick={() => setDismissReasonId(null)}
+                        className="px-2 py-1 text-xs rounded shrink-0" style={{background: 'rgba(255,255,255,0.06)', color: '#64748b'}}>
+                        <XMarkIcon className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="flex space-x-2 flex-wrap gap-y-1">
-                  <button data-testid={`btn-action-done-${action.id}`} onClick={() => handleAction(action.id, 'completed')}
+                  <button data-testid={`btn-action-done-${action.id}`} onClick={() => promptDismissReason(action.id, 'completed')}
                     className="px-2 py-1 text-xs rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Done</button>
-                  <button data-testid={`btn-action-dismiss-${action.id}`} onClick={() => handleAction(action.id, 'dismissed')}
+                  <button data-testid={`btn-action-dismiss-${action.id}`} onClick={() => promptDismissReason(action.id, 'dismissed')}
                     className="px-2 py-1 text-xs rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Dismiss</button>
                   <button onClick={() => startEdit(action)} className="px-2 py-1 text-xs rounded flex items-center" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>
                     <PencilIcon className="h-3 w-3 mr-1" />Edit</button>
