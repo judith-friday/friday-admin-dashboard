@@ -51,6 +51,7 @@ interface TeachingActionData {
 interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
+  sender?: string
 }
 
 export default function ConsultChat({
@@ -108,7 +109,8 @@ export default function ConsultChat({
         } catch (_) { /* no active session, proceed to start new */ }
       }
       // No existing session — start new consultation
-      const userMsg: ChatMessage = { role: 'user', content: initialInstruction }
+      const senderName = localStorage.getItem('gms_display_name') || 'Team member'
+      const userMsg: ChatMessage = { role: 'user', content: initialInstruction, sender: senderName }
       setMessages([userMsg])
       const data = await apiFetch('/api/ai/consult', {
         method: 'POST',
@@ -198,7 +200,8 @@ export default function ConsultChat({
   }
 
   const sendAndProcess = async (instruction: string) => {
-    const userMsg: ChatMessage = { role: 'user', content: instruction }
+    const senderName = localStorage.getItem('gms_display_name') || 'Team member'
+    const userMsg: ChatMessage = { role: 'user', content: instruction, sender: senderName }
     const newMessages = [...messages, userMsg]
     setMessages(newMessages)
     setLoading(true)
@@ -295,12 +298,19 @@ export default function ConsultChat({
           if (msg.role === 'user') {
             return (
               <div key={i} className="flex justify-end">
-                <div className="max-w-[85%] px-3 py-2 rounded-lg text-sm whitespace-pre-wrap" style={{
-                  background: 'rgba(168,85,247,0.1)',
-                  color: '#c084fc',
-                  border: '1px solid rgba(168,85,247,0.2)',
-                }}>
-                  {msg.content}
+                <div className="flex flex-col items-end">
+                  {msg.sender && (
+                    <span className="text-[10px] mb-0.5 mr-1" style={{ color: '#64748b' }}>
+                      {msg.sender}
+                    </span>
+                  )}
+                  <div className="max-w-full px-3 py-2 rounded-lg text-sm whitespace-pre-wrap" style={{
+                    background: 'rgba(168,85,247,0.1)',
+                    color: '#c084fc',
+                    border: '1px solid rgba(168,85,247,0.2)',
+                  }}>
+                    {msg.content}
+                  </div>
                 </div>
               </div>
             )
