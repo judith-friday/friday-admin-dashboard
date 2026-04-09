@@ -41,8 +41,9 @@ function formatSenderWithChannel(senderName: string | null, channel?: string | n
   return channelName ? `${personName} via Guesty on ${channelName}` : `${personName} via Guesty`
 }
 
-function WhatsAppWindowBadge({ channel, windowOpen, expiresAt }: {
+function WhatsAppWindowBadge({ channel, communicationChannel, windowOpen, expiresAt }: {
   channel?: string
+  communicationChannel?: string
   windowOpen?: boolean | null
   expiresAt?: string | null
 }) {
@@ -62,7 +63,8 @@ function WhatsAppWindowBadge({ channel, windowOpen, expiresAt }: {
     return () => clearInterval(interval)
   }, [expiresAt, windowOpen])
 
-  if (!channel || !channel.toLowerCase().includes('whatsapp')) return null
+  const isWhatsApp = (communicationChannel || channel || '').toLowerCase() === 'whatsapp'
+  if (!isWhatsApp) return null
   if (windowOpen == null) return null
 
   if (windowOpen) {
@@ -508,6 +510,7 @@ export default function ConversationDetail({
       {/* WhatsApp 24h window indicator */}
       <WhatsAppWindowBadge
         channel={detail.conversation.channel}
+        communicationChannel={detail.conversation.communication_channel}
         windowOpen={detail.whatsapp_window_open}
         expiresAt={detail.whatsapp_window_expires_at}
       />
