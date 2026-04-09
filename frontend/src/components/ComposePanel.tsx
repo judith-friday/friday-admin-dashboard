@@ -103,11 +103,16 @@ export default function ComposePanel({
               onDraftUpdate={(content) => {
                 setComposeText(content)
               }}
-              chips={[
-                { label: '✍️ Write it for me', instruction: 'Write a complete message to the guest based on the conversation context. Use appropriate tone for the channel.' },
-                { label: '✨ Polish', instruction: 'Improve the tone, grammar, and professionalism of this message. Apply brand voice and teachings.' },
-                { label: '✂️ Shorter', instruction: 'Make this message shorter and more concise.' },
-                { label: '📋 Check rules', instruction: 'Check this message against active teachings and platform rules. Flag any issues.' },
+              chips={composeText.trim() ? [
+                { label: 'Polish', instruction: 'Improve the tone, grammar, and professionalism of this message. Apply brand voice and teachings.' },
+                { label: 'Shorter', instruction: 'Make this message shorter and more concise.' },
+                { label: 'More formal', instruction: 'Make this message more formal and professional in tone.' },
+                { label: 'More casual', instruction: 'Make this message more casual and friendly in tone.' },
+                { label: 'STR KB', instruction: '[STR_KB] Review this message against the full STR best practices and suggest improvements.' },
+              ] : [
+                { label: 'Write it for me', instruction: 'Write a complete message to the guest based on the conversation context. Use appropriate tone for the channel.' },
+                { label: 'Check rules', instruction: 'Check this conversation against active teachings and platform rules. Flag any issues or recommended actions.' },
+                { label: 'STR KB', instruction: '[STR_KB] What STR best practices apply to this conversation? Give me actionable advice.' },
               ]}
               onTeachingCreated={onTeachingCreated}
             />

@@ -1,0 +1,201 @@
+- generic [ref=e1]:
+  - alert [ref=e9]
+  - generic [ref=e10]:
+    - button "🐛" [ref=e11]
+    - banner [ref=e12]:
+      - generic [ref=e14]:
+        - heading "Friday GMS" [level=1] [ref=e17]
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - generic [ref=e20]: "2"
+            - generic [ref=e21]: to review
+          - generic [ref=e22]:
+            - generic "Median of per-conversation average response times over the last 30 days" [ref=e23]: 21m
+            - generic [ref=e24]: Team RT (30d)
+          - generic [ref=e25]:
+            - generic [ref=e26]: "5"
+            - generic [ref=e27]: new today
+          - generic [ref=e28]:
+            - generic [ref=e29]: "16"
+            - generic [ref=e30]:
+              - text: actions
+              - generic [ref=e31]: (11 overdue)
+          - button "📤" [ref=e33] [cursor=pointer]
+          - button "Ishant · Logout" [ref=e34]
+          - button "49" [ref=e36]:
+            - img [ref=e37]
+            - generic [ref=e39]: "49"
+          - button "Mute" [ref=e40]:
+            - img [ref=e41]
+          - button "🧠" [ref=e43]
+          - button "🐛" [ref=e44]
+          - button "📊" [ref=e45]
+          - button "Refresh app" [ref=e46]:
+            - img [ref=e47]
+          - button "?" [ref=e49]
+          - button "📲" [ref=e50]
+    - generic [ref=e51]:
+      - button "«" [ref=e52]
+      - button "»" [ref=e1228]
+      - generic [ref=e53]:
+        - generic [ref=e55]:
+          - img
+          - textbox "Search guests, properties, messages..." [ref=e56]
+          - generic [ref=e57]:
+            - button "Refresh" [ref=e58]:
+              - img [ref=e59]
+            - button "Filters" [ref=e61]:
+              - img [ref=e62]
+        - generic [ref=e64]:
+          - button "All" [ref=e65]
+          - button "Unread1" [active] [ref=e2593]
+          - button "Review" [ref=e67]
+          - button "Open" [ref=e68]
+          - button "Done" [ref=e69]
+          - button "Actions16" [ref=e70]
+        - combobox [ref=e72]:
+          - option "Most recent" [selected]
+          - option "Oldest first"
+          - option "Guest name"
+          - option "Property"
+        - generic [ref=e1437] [cursor=pointer]:
+          - generic [ref=e1438]:
+            - generic [ref=e1439]:
+              - generic [ref=e1441]: Raphael Jean-Louis
+              - generic [ref=e1442]: Direct
+            - generic [ref=e1443]: 13 minutes ago
+          - generic [ref=e1444]:
+            - generic [ref=e1445]: SV-140
+            - generic [ref=e1446]: Sent
+            - generic [ref=e1447]: 80%
+          - paragraph [ref=e1448]: Hello
+      - generic [ref=e1221]:
+        - generic [ref=e1229]:
+          - generic [ref=e1230]:
+            - generic [ref=e1231]:
+              - generic [ref=e1232]:
+                - heading "Patience Matemba" [level=2] [ref=e2682]
+                - generic "positive" [ref=e2683]
+                - generic [ref=e1234] [cursor=pointer]: LB-C
+                - generic [ref=e1235]: Airbnb
+              - generic [ref=e1236]:
+                - generic [ref=e1237]: Sep 3 - Sep 9
+                - generic "Average response time across all message exchanges in this conversation" [ref=e2684]: "Avg RT: 93m"
+                - generic [ref=e2685]: ✓
+            - 'button "Conversation Summary: Guest Patience Matemba has a confirmed reservation for 18 guests arriving September 3rd at 9:25 AM and departing September 9th at 4:15 PM. Friday has confirmed late checkout at 12 noon on departure day and will confirm early check-in a few days before arrival (subject to availability), with luggage storage available until 2 PM if needed. The property has BBQ facilities available for the guest''s catered meals, and Friday is checking availability for additional pool loungers and will follow up." [ref=e2686]':
+              - img [ref=e2687]
+              - generic [ref=e2689]: "Conversation Summary: Guest Patience Matemba has a confirmed reservation for 18 guests arriving September 3rd at 9:25 AM and departing September 9th at 4:15 PM. Friday has confirmed late checkout at 12 noon on departure day and will confirm early check-in a few days before arrival (subject to availability), with luggage storage available until 2 PM if needed. The property has BBQ facilities available for the guest's catered meals, and Friday is checking availability for additional pool loungers and will follow up."
+          - generic [ref=e1238]:
+            - generic [ref=e2692]: April 1
+            - generic [ref=e2695]:
+              - generic [ref=e2696]:
+                - img [ref=e2697]
+                - text: System
+              - paragraph [ref=e2700]: New guest reservation HMSKFBJZJ2 confirmed
+              - generic [ref=e2701]: Apr 1, 4:40 PM
+            - generic [ref=e2703]:
+              - paragraph [ref=e2704]: "Hi Patience, Thank you for choosing to stay with us! We’re excited to host you. Check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. To help us get everything ready for your arrival, could you please confirm your estimated check-in and check-out times, and kindly confirm the number of guests coming? We’ll send your check-in instructions at 10 AM local time on the day of your arrival. Please complete your check-in form here: https://guest-app.guesty.com/r/69cd123549cdb80fcf4e1321/e3tndWVzdF9hcHA6Om15X2d1ZXN0X2FwcH19. It only takes a minute and will give you access to a personalized guide with our top recommendations, the property’s pinned location, Wi-Fi details, and other useful info to help you settle in and enjoy your stay from the moment you arrive. For your travel declaration or arrival forms, you may use the following details: Company name: Friday Retreats Ltd Email: info@friday.mu Phone: +230 408 4119 As our guest, you can enjoy up to 10% off all airport transfers, car rentals, activities & tours at www.mauritiusattractions.com by using the coupon code \"FRIDAYMU\". As a small thank you, we’ve also added a 10% discount for your next Friday Retreats stay. Simply book directly on www.fridayretreats.mu and use the code FRIDAY10. Looking forward to hosting you and making your stay a memorable one! Best wishes, Friday Retreats"
+              - generic [ref=e2705]: Apr 1, 4:51 PM · Automated message
+            - generic [ref=e2707]:
+              - paragraph [ref=e2708]: "Thank you Mu Our flight arrives in Mauritius at:09:25 on 3rd of September Our flight departs Mauritius at 16:15hrs on the 9th of September Number of guests: 18 Confirmed Since we will be arriving early on the 3rd and departing in the afternoon on the 9th. Please can you let me know if we can change Check-in and checkout times at the villas to suit our times. Kind regards Patience Matemba"
+              - generic [ref=e2709]: Apr 1, 6:57 PM
+            - generic [ref=e2711]:
+              - paragraph [ref=e2712]: Hello Patience, Thank you for your message! Our team will get back to you as soon as possible. If your matter is urgent, please call us at +230 4084119 Thank you for your patience!
+              - generic [ref=e2713]: Apr 1, 7:08 PM · Friday Retreats Ltd via Guesty on Airbnb
+            - generic [ref=e2714]:
+              - generic [ref=e2715]:
+                - generic [ref=e2716]: Rejected
+                - generic [ref=e2717]: Apr 1 19:31
+              - paragraph [ref=e2718]: Hi Patience, Thank you for letting us know your flight details. Early check-in is subject to availability, so please reach out to us a few days before your arrival for us to confirm - we'll do our best to accommodate. However, if it's not possible, you would be able to store your luggage at the villa until 2 PM for check-in. We're happy to exceptionally grant you a late check-out at 12 noon on your departure day. We apologize for any potential confusion as we had mentioned up to 12 guests before, but the property can actually accommodate up to 18 people as it has 9 rooms across the three villas, with 2 king size beds, 6 double beds, and 2 single beds - so you're all set! For your airport transfer, while we don't arrange them directly, you can book through our partner Mauritius Attractions using your FRIDAYMU discount code, or Uber is also available throughout Mauritius. We'll send your detailed check-in instructions at 10 AM on September 3rd. Warm regards, Friday Retreats
+              - generic [ref=e2719]: Rejected by Mary — "there was no mention of any confusion about 12 guests. why include that?"
+            - generic [ref=e2720]:
+              - generic [ref=e2722]: Sent
+              - paragraph [ref=e2723]: Hi Patience, Thank you for letting us know your flight details. Early check-in is subject to availability, so please reach out to us a few days before your arrival for us to confirm - we'll do our best to accommodate. However, if it's not possible, you would be able to store your luggage at the villa until 2 PM for check-in. We're happy to exceptionally grant you a late check-out at 12 noon on your departure day. We look forward to welcoming you. Warm regards, Friday Retreats
+              - generic [ref=e2724]: Mary via Friday on Airbnb (v2) · Apr 1 19:33
+            - generic [ref=e2726]:
+              - paragraph [ref=e2727]: Hi Mu Thank you for the information and for accommodating us. We will be having a chef prepare our meals offsite and to be delivered to the villas. Please can you confirm if there are BBQ facilities at the villas. Are we able to get more loungers since many of us will want to lounge by the pool side? Kind regards Patience Matemba
+              - generic [ref=e2728]: Apr 1, 7:43 PM
+            - generic [ref=e2729]:
+              - generic [ref=e2731]: Sent
+              - paragraph [ref=e2732]: Hi Patience, Yes, we do have a barbecue grill available at the villas for your use. Regarding the sun loungers, we don't currently have additional ones available, but we'll check if it may be possible to arrange more and will let you know. Having your meals delivered sounds like a wonderful arrangement for your group! Warm regards, Friday Retreats
+              - generic [ref=e2733]: Mary via Friday on Airbnb (v2) · Apr 1 19:55
+            - generic [ref=e2735]:
+              - paragraph [ref=e2736]: Thanks Mu, Thats enough questions from me for now. Thank you for being so prompt in answering me. I appreciate. Kind regards Patience Matemba
+              - generic [ref=e2737]: Apr 1, 7:58 PM
+            - generic [ref=e2739]:
+              - paragraph [ref=e2740]: It's our pleasure.
+              - generic [ref=e2741]: Apr 1, 7:59 PM · Mary Oladimeji via Guesty on Airbnb
+            - generic [ref=e2744]: Yesterday
+            - generic [ref=e2747]:
+              - paragraph [ref=e2748]: Hi Patience, Hope you are well. Just following up on your request for sun loungers, we’re happy to confirm that we’ll be adding 4 sun loungers at the villa for your stay. 😊 Please don't hesitate to reach out if you have any questions. Warm regards, Friday Retreats
+              - generic [ref=e2749]: yesterday · 10:12 PM · Mary via Friday on Airbnb
+            - button "Show draft history (3 older)" [ref=e2750]
+          - button "Compose" [ref=e2590]:
+            - img [ref=e2591]
+            - text: Compose
+        - generic [ref=e1329]:
+          - heading "Guest Info" [level=3] [ref=e1332]
+          - generic [ref=e1333]:
+            - generic [ref=e1335]: "Channel: airbnb"
+            - generic [ref=e1336]: "Check-in: Sep 3, 2026 (12:00 PM)"
+            - generic [ref=e1337]: "Check-out: Sep 9, 2026 (12:00 PM)"
+            - generic [ref=e1338]: 3 inbound messages
+            - generic [ref=e2753]: Positive sentiment
+          - generic [ref=e2754]:
+            - heading "Financial" [level=3] [ref=e2755]
+            - generic [ref=e2756]: €2361.29/night × 6 nights
+            - generic [ref=e2757]: "Cleaning: €185"
+            - generic [ref=e2758]: "Host payout: €2251.38"
+          - button "Mark as Done" [ref=e1340]:
+            - img [ref=e1341]
+            - text: Mark as Done
+          - generic [ref=e1343]:
+            - heading "Staff Notes" [level=3] [ref=e1345]
+            - textbox "Add notes for Friday..." [ref=e1346]
+          - generic [ref=e1347]:
+            - button "Pending Actions" [ref=e1348]:
+              - generic [ref=e1349]:
+                - img [ref=e1350]
+                - text: Pending Actions
+            - generic [ref=e1352]:
+              - generic [ref=e2759]:
+                - generic [ref=e2761]: Patience Matemba
+                - generic [ref=e2762]: LB-C
+                - paragraph [ref=e2763]: Check availability of additional sun loungers and confirm to guest (Patience)
+                - generic [ref=e2764]: "Due: 4/2/2026, 7:55:46 PM"
+                - button "History" [ref=e2766]:
+                  - img [ref=e2767]
+                  - text: History
+                - generic [ref=e2769]: completed by Mary
+              - generic [ref=e2770]:
+                - generic [ref=e2771]:
+                  - generic [ref=e2772]: Patience Matemba
+                  - generic [ref=e2773]: 180h
+                - generic [ref=e2774]: LB-C
+                - paragraph [ref=e2775]: Confirm early check-in availability for Patience's arrival date a few days before their arrival
+                - generic [ref=e2776]: "Due: 9/1/2026, 1:00:00 PM"
+                - button "Notes" [ref=e2778]:
+                  - img [ref=e2779]
+                  - text: Notes
+                - button "History" [ref=e2782]:
+                  - img [ref=e2783]
+                  - text: History
+                - generic [ref=e2786]:
+                  - button "Done" [ref=e2787]
+                  - button "Dismiss" [ref=e2788]
+                  - button "Edit" [ref=e2789]:
+                    - img [ref=e2790]
+                    - text: Edit
+                  - button "Ask Friday" [ref=e2792]:
+                    - img [ref=e2793]
+                    - text: Ask Friday
+          - button "Draft History 7" [ref=e2796]:
+            - generic [ref=e2797]:
+              - img [ref=e2798]
+              - text: Draft History
+              - generic [ref=e2800]: "7"
+          - generic [ref=e1357]:
+            - generic [ref=e1358]:
+              - generic [ref=e1359]: Auto-send
+              - button [ref=e1360]
+            - paragraph [ref=e1362]: Off — all drafts require review

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'friday-admin-v2';
+const CACHE_NAME = 'friday-admin-v4';
 const STATIC_ASSETS = [
   '/',
   '/offline.html',
@@ -50,8 +50,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets: network-first for _next chunks (code-split JS), cache-first for images/fonts
-  if (url.pathname.startsWith('/_next/static/chunks/')) {
+  // Static assets: network-first for all _next static (JS + CSS), cache-first for images/fonts
+  if (url.pathname.startsWith('/_next/static/')) {
     event.respondWith(
       fetch(request).then((response) => {
         const clone = response.clone();

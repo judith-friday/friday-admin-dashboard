@@ -1,0 +1,144 @@
+- generic [ref=e1]:
+  - alert [ref=e9]
+  - generic [ref=e10]:
+    - button "🐛" [ref=e11]
+    - banner [ref=e12]:
+      - generic [ref=e14]:
+        - heading "Friday GMS" [level=1] [ref=e17]
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - generic [ref=e20]: "2"
+            - generic [ref=e21]: to review
+          - generic [ref=e22]:
+            - generic "Median of per-conversation average response times over the last 30 days" [ref=e23]: 21m
+            - generic [ref=e24]: Team RT (30d)
+          - generic [ref=e25]:
+            - generic [ref=e26]: "5"
+            - generic [ref=e27]: new today
+          - generic [ref=e28]:
+            - generic [ref=e29]: "16"
+            - generic [ref=e30]:
+              - text: actions
+              - generic [ref=e31]: (11 overdue)
+          - button "📤" [ref=e33] [cursor=pointer]
+          - button "Ishant · Logout" [ref=e34]
+          - button "49" [ref=e36]:
+            - img [ref=e37]
+            - generic [ref=e39]: "49"
+          - button "Mute" [ref=e40]:
+            - img [ref=e41]
+          - button "🧠" [ref=e43]
+          - button "🐛" [ref=e44]
+          - button "📊" [ref=e45]
+          - button "Refresh app" [ref=e46]:
+            - img [ref=e47]
+          - button "?" [ref=e49]
+          - button "📲" [ref=e50]
+    - generic [ref=e51]:
+      - button "«" [ref=e52]
+      - button "»" [ref=e1228]
+      - generic [ref=e53]:
+        - generic [ref=e55]:
+          - img
+          - textbox "Search guests, properties, messages..." [ref=e56]
+          - generic [ref=e57]:
+            - button "Refresh" [ref=e58]:
+              - img [ref=e59]
+            - button "Filters" [ref=e61]:
+              - img [ref=e62]
+        - generic [ref=e64]:
+          - button "All" [ref=e65]
+          - button "Unread2" [ref=e66]
+          - button "Review" [active] [ref=e67]
+          - button "Open" [ref=e68]
+          - button "Done" [ref=e69]
+          - button "Actions16" [ref=e70]
+        - combobox [ref=e72]:
+          - option "Most recent" [selected]
+          - option "Oldest first"
+          - option "Guest name"
+          - option "Property"
+        - generic [ref=e1422]:
+          - img [ref=e1423]
+          - paragraph [ref=e1425]: No conversations
+      - generic [ref=e1221]:
+        - generic [ref=e1229]:
+          - generic [ref=e1230]:
+            - generic [ref=e1231]:
+              - generic [ref=e1232]:
+                - heading "Mariam Marlie" [level=2] [ref=e1370]
+                - generic [ref=e1234] [cursor=pointer]: SD-10
+                - generic [ref=e1235]: Booking
+              - generic [ref=e1236]:
+                - generic [ref=e1237]: May 3 - May 6
+                - generic [ref=e1371]: ✓
+            - button "Guest Mariam's reservation (BC-klQxVN7X5) has been canceled. No issues or complaints were discussed—Friday had only sent a standard welcome message with check-in details and discount offers before the cancellation occurred." [ref=e1372]:
+              - img [ref=e1373]
+              - generic [ref=e1375]: Guest Mariam's reservation (BC-klQxVN7X5) has been canceled. No issues or complaints were discussed—Friday had only sent a standard welcome message with check-in details and discount offers before the cancellation occurred.
+          - generic [ref=e1238]:
+            - generic [ref=e1378]: March 27
+            - generic [ref=e1381]:
+              - generic [ref=e1382]:
+                - img [ref=e1383]
+                - text: System
+              - paragraph [ref=e1386]: New guest reservation BC-klQxVN7X5 confirmed
+              - generic [ref=e1387]: Mar 27, 2:11 PM
+            - generic [ref=e1388]:
+              - generic [ref=e1389]:
+                - generic [ref=e1390]: Rejected
+                - generic [ref=e1391]: Mar 27 14:12
+              - paragraph [ref=e1392]: Hi there, Thank you for your reservation! We're delighted to welcome you to SD-10 from May 3-6, 2026. We'll be sending you detailed check-in instructions and our local area guide closer to your arrival date. If you need our contact details for any pre-arrival forms, our phone number is +230 4084119, email is info@friday.mu, and our company name is Friday Retreats Ltd. Looking forward to hosting you in beautiful Mauritius! Warm regards, Friday Retreats
+              - generic [ref=e1393]: "Rejected by unknown — \"auto-expired: conversation already handled\""
+            - generic [ref=e1395]:
+              - paragraph [ref=e1396]: "Hi Mariam, Thank you for choosing to stay with us! We’re excited to host you. Check-in is from 2 PM, and check-out is by 10 AM, unless otherwise agreed. To help us get everything ready for your arrival, could you please confirm your estimated check-in and check-out times, and kindly confirm the number of guests coming? We’ll send your check-in instructions at 10 AM local time on the day of your arrival. Please complete your check-in form here: https://guest-app.guesty.com/r/69c657c0992bf70010fc72f7/e3tndWVzdF9hcHA6Om15X2d1ZXN0X2FwcH19. It only takes a minute and will give you access to a personalized guide with our top recommendations, the property’s pinned location, Wi-Fi details, and other useful info to help you settle in and enjoy your stay from the moment you arrive. As our guest, you can enjoy up to 10% off all airport transfers, car rentals, activities & tours at www.mauritiusattractions.com by using the coupon code \"FRIDAYMU\". As a small thank you, we’ve also added a 10% discount for your next Friday Retreats stay. Simply book directly on www.fridayretreats.mu and use the code FRIDAY10. Looking forward to hosting you and making your stay a memorable one! Best wishes, Friday Retreats"
+              - generic [ref=e1397]: Mar 27, 2:13 PM · Automated message
+            - generic [ref=e1399]:
+              - generic [ref=e1400]:
+                - img [ref=e1401]
+                - text: System
+              - paragraph [ref=e1404]: Reservation BC-klQxVN7X5 status changed to canceled
+              - generic [ref=e1405]: Mar 27, 10:37 PM
+            - generic [ref=e1406]:
+              - generic [ref=e1407]:
+                - generic [ref=e1408]: Rejected
+                - generic [ref=e1409]: Mar 27 22:38
+              - paragraph [ref=e1410]: Hi Mariam, We're sorry to see that your reservation has been canceled. We completely understand that travel plans can change unexpectedly. If you'd like to reschedule for another time, we'd be happy to help you find alternative dates that work better for you. Simply reach out to us at info@friday.mu or +230 4084119, and our team will assist you with rebooking. Your 10% discount code FRIDAY10 will remain valid for future bookings on www.fridayretreats.mu whenever you're ready to plan your next getaway. Warm regards, Friday Retreats
+              - generic [ref=e1411]: "Rejected by unknown — \"auto-expired: conversation already handled\""
+            - generic [ref=e1413]:
+              - paragraph [ref=e1414]: Hi Mariam, We noticed that your reservation was recently cancelled and just wanted to check in. If there's anything that changed or anything we can help with, please let us know. If you’re still planning a visit, we’d be happy to help you find an alternative or answer any questions.
+              - generic [ref=e1415]: Mar 27, 10:41 PM · Automated message
+          - button "Compose" [ref=e1326]:
+            - img [ref=e1327]
+            - text: Compose
+        - generic [ref=e1329]:
+          - heading "Guest Info" [level=3] [ref=e1332]
+          - generic [ref=e1333]:
+            - generic [ref=e1334]: "Email: mmarli.448243@guest.booking.com"
+            - generic [ref=e1335]: "Channel: booking"
+            - generic [ref=e1336]: "Check-in: May 3, 2026"
+            - generic [ref=e1337]: "Check-out: May 6, 2026"
+            - generic [ref=e1338]: 0 inbound messages
+          - button "Mark as Done" [ref=e1340]:
+            - img [ref=e1341]
+            - text: Mark as Done
+          - generic [ref=e1343]:
+            - heading "Staff Notes" [level=3] [ref=e1345]
+            - textbox "Add notes for Friday..." [ref=e1346]
+          - generic [ref=e1347]:
+            - button "Pending Actions" [ref=e1348]:
+              - generic [ref=e1349]:
+                - img [ref=e1350]
+                - text: Pending Actions
+            - generic [ref=e1353]:
+              - img [ref=e1354]
+              - paragraph [ref=e1356]: No pending actions
+          - button "Draft History 2" [ref=e1417]:
+            - generic [ref=e1418]:
+              - img [ref=e1419]
+              - text: Draft History
+              - generic [ref=e1421]: "2"
+          - generic [ref=e1357]:
+            - generic [ref=e1358]:
+              - generic [ref=e1359]: Auto-send
+              - button [ref=e1360]
+            - paragraph [ref=e1362]: Off — all drafts require review

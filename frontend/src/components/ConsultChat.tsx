@@ -20,7 +20,7 @@ interface ConsultChatProps {
   propertyCode?: string
   active?: boolean
   onDraftUpdate?: (content: string) => void
-  chips?: Array<{label: string, instruction: string}>
+  chips?: Array<{label: string, instruction?: string, onClick?: () => void}>
   onTeachingCreated?: (teaching: { id: string; instruction: string; scope: string }) => void
 }
 
@@ -416,12 +416,12 @@ export default function ConsultChat({
 
       {/* Quick action chips */}
       {chips && chips.length > 0 && !loading && (
-        <div className="px-3 pb-1 flex flex-wrap gap-1.5">
+        <div className="px-3 pb-1 flex flex-wrap gap-1">
           {chips.map((chip, i) => (
             <button key={i}
-              onClick={() => sendAndProcess(chip.instruction)}
-              className="px-2 py-1 text-xs rounded-full"
-              style={{background: 'rgba(99,149,255,0.08)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.15)'}}>
+              onClick={() => chip.onClick ? chip.onClick() : chip.instruction ? sendAndProcess(chip.instruction) : null}
+              className="px-2 py-0.5 text-xs rounded-full"
+              style={{background: 'rgba(99,149,255,0.08)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.15)', fontSize: '11px', lineHeight: '1.4'}}>
               {chip.label}
             </button>
           ))}

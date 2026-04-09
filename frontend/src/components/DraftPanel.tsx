@@ -210,10 +210,12 @@ export default function DraftPanel({
                     setEditBody(content)
                   }}
                   chips={[
-                    { label: '🔍 Review draft', instruction: 'Review this draft for issues — tone, accuracy, teaching violations, missing details.' },
-                    { label: '✂️ Shorter', instruction: 'Make this draft shorter and more concise. Keep the key information.' },
-                    { label: '🎯 Fix issues', instruction: 'Fix any issues you found and give me the updated draft.' },
-                    { label: '📋 Check teachings', instruction: 'Does this draft follow all active teachings? Flag any violations.' },
+                    { label: 'Reply to guest', onClick: () => requestApproval(draft.id) },
+                    { label: 'Polish', instruction: 'Improve the tone, grammar, and professionalism of this draft. Apply brand voice and teachings.' },
+                    { label: 'Shorter', instruction: 'Make this draft shorter and more concise. Keep the key information.' },
+                    { label: 'More formal', instruction: 'Make this draft more formal and professional in tone.' },
+                    { label: 'More casual', instruction: 'Make this draft more casual and friendly in tone.' },
+                    { label: 'STR KB', instruction: '[STR_KB] Review this draft against the full STR best practices. Flag any issues and suggest improvements.' },
                   ]}
                   onTeachingCreated={onTeachingCreated}
                 />
