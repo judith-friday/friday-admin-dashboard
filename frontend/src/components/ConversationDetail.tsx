@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { LanguageIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
 import { ConversationDetail as ConversationDetailType, Draft, apiFetch, LANG_FLAGS, LANG_NAMES } from './types'
@@ -39,6 +39,53 @@ function formatSenderWithChannel(senderName: string | null, channel?: string | n
   }
 
   return channelName ? `${personName} via Guesty on ${channelName}` : `${personName} via Guesty`
+}
+
+function WhatsAppWindowBadge({ channel, windowOpen, expiresAt }: {
+  channel?: string
+  windowOpen?: boolean | null
+  expiresAt?: string | null
+}) {
+  const [timeLeft, setTimeLeft] = useState('')
+
+  useEffect(() => {
+    if (!expiresAt || !windowOpen) return
+    const update = () => {
+      const diff = new Date(expiresAt).getTime() - Date.now()
+      if (diff <= 0) { setTimeLeft(''); return }
+      const h = Math.floor(diff / 3600000)
+      const m = Math.floor((diff % 3600000) / 60000)
+      setTimeLeft(`${h}h ${m}m left`)
+    }
+    update()
+    const interval = setInterval(update, 60000)
+    return () => clearInterval(interval)
+  }, [expiresAt, windowOpen])
+
+  if (!channel || !channel.toLowerCase().includes('whatsapp')) return null
+  if (windowOpen == null) return null
+
+  if (windowOpen) {
+    return (
+      <div className="flex-shrink-0 px-3 py-1.5">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+          style={{ background: 'rgba(34,197,94,0.12)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.25)' }}>
+          <span>💬</span>
+          <span>24h window open{timeLeft ? ` · ${timeLeft}` : ''}</span>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex-shrink-0 px-3 py-1.5">
+      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+        style={{ background: 'rgba(239,68,68,0.12)', color: '#f87171', border: '1px solid rgba(239,68,68,0.25)' }}>
+        <span>💬</span>
+        <span>Window closed — guest must message first</span>
+      </div>
+    </div>
+  )
 }
 
 interface ConversationDetailProps {
@@ -483,6 +530,13 @@ export default function ConversationDetail({
         {/* Draft history removed — now in Action Trail (Info panel) */}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* WhatsApp 24h window indicator */}
+      <WhatsAppWindowBadge
+        channel={detail.conversation.channel}
+        windowOpen={detail.whatsapp_window_open}
+        expiresAt={detail.whatsapp_window_expires_at}
+      />
 
       {/* Show DraftPanel when there is a pending AI draft, otherwise show ComposePanel */}
       <div className="flex-shrink-0">
