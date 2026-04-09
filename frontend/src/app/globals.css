@@ -514,3 +514,10 @@ input:focus, textarea:focus, select:focus {
   margin: 0.3em 0;
   opacity: 0.9;
 }
+
+/* O26: Draft edit textarea — larger on mobile */
+@media (max-width: 767px) {
+  .draft-edit-textarea {
+    min-height: 40vh !important;
+  }
+}
