@@ -451,20 +451,22 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
                 </button>
               ))}
 
-              {/* Property filter */}
-              {allProperties.length > 0 && (
-                <select value={propertyFilter} onChange={e => setPropertyFilter(e.target.value)} className="rounded px-2 py-1 text-xs outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: propertyFilter ? '#fbbf24' : '#64748b' }}>
-                  <option value="">All properties</option>
-                  {allProperties.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
-              )}
-
-              {/* Creator filter */}
-              {allCreators.length > 0 && (
-                <select value={creatorFilter} onChange={e => setCreatorFilter(e.target.value)} className="rounded px-2 py-1 text-xs outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: creatorFilter ? '#c084fc' : '#64748b' }}>
-                  <option value="">All creators</option>
-                  {allCreators.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
+              {/* Property + Creator filters — same row */}
+              {(allProperties.length > 0 || allCreators.length > 0) && (
+                <div className="flex gap-2 flex-1">
+                  {allProperties.length > 0 && (
+                    <select value={propertyFilter} onChange={e => setPropertyFilter(e.target.value)} className="rounded px-2 py-1 text-xs outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: propertyFilter ? '#fbbf24' : '#64748b', fontSize: '16px' }}>
+                      <option value="">All properties</option>
+                      {allProperties.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  )}
+                  {allCreators.length > 0 && (
+                    <select value={creatorFilter} onChange={e => setCreatorFilter(e.target.value)} className="rounded px-2 py-1 text-xs outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: creatorFilter ? '#c084fc' : '#64748b', fontSize: '16px' }}>
+                      <option value="">All creators</option>
+                      {allCreators.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  )}
+                </div>
               )}
             </div>
 
@@ -654,9 +656,9 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
                   value={editingTeachingText}
                   onChange={e => setEditingTeachingText(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSaveInlineEdit(t.id) } if (e.key === 'Escape') setEditingTeachingId(null) }}
-                  className="w-full text-sm rounded-lg p-2 resize-none outline-none"
-                  style={{ background: 'rgba(0,0,0,0.4)', color: '#e2e8f0', border: '1px solid rgba(168,85,247,0.4)', minHeight: '40px' }}
-                  rows={2}
+                  className="w-full text-base rounded-lg p-2 resize-y outline-none"
+                  style={{ background: 'rgba(0,0,0,0.4)', color: '#e2e8f0', border: '1px solid rgba(168,85,247,0.4)', minHeight: '80px', fontSize: '16px' }}
+                  rows={6}
                   onClick={e => e.stopPropagation()}
                 />
                 <div className="flex gap-2 mt-2">
@@ -779,7 +781,7 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
         {/* Action buttons — always visible for actionable candidates */}
         {isCandidateEditing && (
           <div className="mt-2 space-y-2" onClick={e => e.stopPropagation()}>
-            <textarea value={editText} onChange={e => setEditText(e.target.value)} className="w-full text-base rounded-lg p-2 resize-none" style={{ background: 'rgba(0,0,0,0.4)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', minHeight: '60px' }} rows={3} />
+            <textarea value={editText} onChange={e => setEditText(e.target.value)} className="w-full text-base rounded-lg p-2 resize-y" style={{ background: 'rgba(0,0,0,0.4)', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', minHeight: '80px', fontSize: '16px' }} rows={6} />
             <div className="flex gap-2">
               <button onClick={() => handleCandidateEdit(c.id)} disabled={isActioning} className="text-xs px-3 py-1.5 rounded-lg" style={{ background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)' }}>Save</button>
               <button onClick={() => handleAction(c.id, 'approve', editText)} disabled={isActioning} className="text-xs px-3 py-1.5 rounded-lg" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>Save & Approve</button>
