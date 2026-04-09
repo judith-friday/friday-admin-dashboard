@@ -1,4 +1,4 @@
-const CACHE_NAME = 'friday-admin-v2';
+const CACHE_NAME = 'friday-admin-v3';
 const STATIC_ASSETS = [
   '/',
   '/offline.html',
