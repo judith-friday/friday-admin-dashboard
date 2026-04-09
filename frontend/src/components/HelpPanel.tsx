@@ -35,17 +35,19 @@ const HELP_DATA: HelpEntry[] = [
     title: 'How the inbox works',
     group: '🏠 Getting Started',
     keywords: ['inbox', 'conversation', 'list', 'filter', 'status', 'open', 'sent', 'done', 'sidebar'],
-    content: 'The left sidebar shows all guest conversations. Each one has a status. Use the filter bar at the top to view conversations by status. Click a conversation to open it and see the full message thread plus any AI draft.',
+    content: 'The left sidebar shows all guest conversations. Tabs: All, Unread, Review, Open, Done, Actions. Sort by recent, oldest, or urgency. Filter by property, channel, or date range.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('The left sidebar shows all guest conversations. Each one has a status:')}</p>
+        <p className="leading-relaxed">{hl('The left sidebar shows all guest conversations. Use the tabs at the top to filter:')}</p>
         <div className="space-y-1.5">
-          <div>• <span style={{fontWeight: 500, color: '#6395ff'}}>Open</span> — {hl('needs your attention, a new message came in')}</div>
-          <div>• <span style={{fontWeight: 500, color: '#fbbf24'}}>Sent</span> — {hl('you replied, waiting for guest response')}</div>
-          <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Done</span> — {hl('conversation is resolved')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>All</span> — {hl('every conversation')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#6395ff'}}>Unread</span> — {hl('new messages you haven\'t seen')}</div>
           <div>• <span style={{fontWeight: 500, color: '#f87171'}}>Review</span> — {hl('AI draft needs your review before sending')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#fbbf24'}}>Open</span> — {hl('active conversations needing attention')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Done</span> — {hl('conversation is resolved')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#c084fc'}}>Actions</span> — {hl('conversations with pending actions')}</div>
         </div>
-        <p className="leading-relaxed mt-2">{hl('Use the filter bar at the top to view conversations by status. Click a conversation to open it and see the full message thread plus any AI draft.')}</p>
+        <p className="leading-relaxed mt-2">{hl('Use the Sort button (recent, oldest, urgency) and Filters (property, channel, date range) to narrow the list. Click a conversation to open it.')}</p>
       </div>
     ),
   },
@@ -101,6 +103,55 @@ const HELP_DATA: HelpEntry[] = [
     ),
   },
 
+  // ── 1b. Conversation View ───────────────────────────────────────────────
+  {
+    id: 'conversation-summary',
+    title: 'Conversation summary',
+    group: '🏠 Getting Started',
+    keywords: ['summary', 'context', 'ai', 'overview', 'collapsible'],
+    content: 'Each conversation has a collapsible AI-generated summary at the top. Click the arrow to expand it and see a synopsis of the full thread, key issues, and timeline.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Each conversation has a collapsible AI-generated summary at the top of the thread.')}</p>
+        <p className="leading-relaxed">{hl('Click the arrow to expand — it shows a synopsis of the conversation, key issues, and timeline.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'staff-notes',
+    title: 'Staff notes & next steps',
+    group: '🏠 Getting Started',
+    keywords: ['staff', 'notes', 'next', 'steps', 'right', 'panel', 'info'],
+    content: 'The right panel shows Staff Notes where you can add context for the team. Below that, Next Steps shows AI-suggested actions based on the conversation. Use the Mark as Done button to close a conversation.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <div className="space-y-1">
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Staff Notes:</span> {hl('Add notes for Friday and your team. Friday reads these when drafting.')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Next Steps:</span> {hl('AI-suggested actions based on the conversation context')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Mark as Done:</span> {hl('Close the conversation when resolved')}</div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'notifications',
+    title: 'Notifications',
+    group: '🏠 Getting Started',
+    keywords: ['notification', 'bell', 'alert', 'new', 'message', 'draft', 'ready'],
+    content: 'The bell icon in the header shows notifications — new messages, draft ready alerts, and issue check-in reminders. Click a notification to jump to that conversation. Use "Mark all read" to clear the badge.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('The 🔔 bell icon in the header shows notifications:')}</p>
+        <div className="space-y-1">
+          <div>• {hl('New messages from guests')}</div>
+          <div>• {hl('Draft ready alerts')}</div>
+          <div>• {hl('Issue check-in reminders')}</div>
+        </div>
+        <p className="leading-relaxed mt-2">{hl('Click any notification to jump to that conversation. "Mark all read" clears the badge.')}</p>
+      </div>
+    ),
+  },
+
   // ── 2. AI & Drafts ─────────────────────────────────────────────────────
   {
     id: 'what-are-drafts',
@@ -138,6 +189,23 @@ const HELP_DATA: HelpEntry[] = [
           <div>• {hl('Access STR knowledge base for industry best practices')}</div>
         </div>
         <p className="leading-relaxed mt-2" style={{color: '#e2e8f0'}}>{hl('Friday is draft-aware — it knows when a draft exists and adjusts suggestions accordingly.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'compose-panel',
+    title: 'Compose panel & Fix button',
+    group: '✨ AI & Drafts',
+    keywords: ['compose', 'fix', 'write', 'message', 'scratch', 'panel', 'polish'],
+    content: 'Click the Compose button below the conversation to write a message from scratch. Use the Fix button (sparkle icon) to let Friday polish your text. Ask Friday button opens the AI assistant for help.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Click the Compose button below the conversation to write from scratch:')}</p>
+        <div className="space-y-1">
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Fix (✨)</span> — {hl('Friday polishes your text (grammar, tone, clarity)')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#6395ff'}}>Ask Friday</span> — {hl('opens the AI assistant for help composing')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Send</span> — {hl('sends the message (or ⌘ Enter)')}</div>
+        </div>
       </div>
     ),
   },
@@ -348,32 +416,13 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Analytics dashboard',
     group: '📊 Analytics',
     keywords: ['analytics', 'dashboard', 'stats', 'metrics', 'chart', 'graph', 'overview'],
-    content: 'The analytics dashboard shows team and individual performance metrics. Includes response times, draft approval rates, teaching usage, and conversation volumes. The layout has been refreshed for clarity with improved charts and filters.',
+    content: 'The analytics dashboard has two tabs: Developer (system metrics, AI costs, token usage, error trends) and Team (response times per user, messages sent, draft decisions, Ask Friday usage, sentiment trends). Open via the 📊 button in the header.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('The analytics dashboard shows team and individual performance metrics:')}</p>
-        <div className="space-y-1">
-          <div>• {hl('Response times and draft approval rates')}</div>
-          <div>• {hl('Teaching usage and effectiveness')}</div>
-          <div>• {hl('Conversation volumes by channel and status')}</div>
-          <div>• {hl('Improved charts and filters for clarity')}</div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'conversion-tracking',
-    title: 'Conversion tracking',
-    group: '📊 Analytics',
-    keywords: ['conversion', 'tracking', 'inquiry', 'booking', 'rate', 'funnel'],
-    content: 'Track inquiry-to-booking conversion rates. See which conversations turned into confirmed bookings, and analyze patterns in successful conversions across properties and channels.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Track inquiry-to-booking conversion rates:')}</p>
-        <div className="space-y-1">
-          <div>• {hl('See which conversations turned into confirmed bookings')}</div>
-          <div>• {hl('Analyze patterns across properties and channels')}</div>
-          <div>• {hl('Identify top-performing response strategies')}</div>
+        <p className="leading-relaxed">{hl('Open via the 📊 button in the header. Two tabs:')}</p>
+        <div className="space-y-1.5">
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Developer:</span> {hl('AI costs, token usage trends, draft quality, error rates, feature usage')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Team:</span> {hl('Response times per user, messages sent, draft decisions, Ask Friday usage, sentiment trends')}</div>
         </div>
       </div>
     ),
@@ -432,6 +481,38 @@ const HELP_DATA: HelpEntry[] = [
     ),
   },
   {
+    id: 'auto-send',
+    title: 'Auto-send toggle',
+    group: '⚙️ Operations',
+    keywords: ['auto', 'send', 'toggle', 'automatic', 'review'],
+    content: 'The auto-send toggle in the right panel controls whether high-confidence drafts are sent automatically or require manual review. When off (default), all drafts require your approval.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('The auto-send toggle in the right panel controls automatic sending:')}</p>
+        <div className="space-y-1">
+          <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>On:</span> {hl('High-confidence drafts are sent automatically')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#f87171'}}>Off (default):</span> {hl('All drafts require your review and approval')}</div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'send-queue',
+    title: 'Send Queue',
+    group: '⚙️ Operations',
+    keywords: ['queue', 'send', 'failed', 'retry', 'outbound', 'pending'],
+    content: 'The Send Queue (mailbox icon in header) shows outbound messages that are queued or failed. Tabs: All, Queued, Failed. Retry failed messages or check why they failed.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('The Send Queue (📬 in the header) tracks outbound messages:')}</p>
+        <div className="space-y-1">
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Queued:</span> {hl('Messages waiting to be sent')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#f87171'}}>Failed:</span> {hl('Messages that failed — retry or investigate')}</div>
+        </div>
+      </div>
+    ),
+  },
+  {
     id: 'pending-actions',
     title: 'Pending actions & click-to-navigate',
     group: '⚙️ Operations',
@@ -449,31 +530,19 @@ const HELP_DATA: HelpEntry[] = [
     ),
   },
   {
-    id: 'guesty-fallback',
-    title: 'Guesty browser fallback',
-    group: '⚙️ Operations',
-    keywords: ['guesty', 'playwright', 'browser', 'fallback', 'api', 'scrape'],
-    content: 'When the Guesty API is unavailable, Friday falls back to a browser-based approach to fetch property and reservation data. This happens automatically — you will not notice any difference in functionality.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('When the Guesty API is unavailable, Friday automatically falls back to browser-based data fetching.')}</p>
-        <p className="leading-relaxed">{hl('This happens transparently — you won\'t notice any difference in functionality.')}</p>
-      </div>
-    ),
-  },
-  {
     id: 'bug-reports',
     title: 'Bug reports',
     group: '⚙️ Operations',
     keywords: ['bug', 'report', 'issue', 'feedback', 'status', 'edit', 'simplified'],
-    content: 'Report issues using the bug button. Bug reports have simplified statuses: Open, In Progress, Resolved. You can edit your bug reports after submitting. Include what you were doing, what happened, and screenshots if possible.',
+    content: 'Report issues using the bug button. Bug reports have statuses: New, In Progress, Fixed, Closed. A screenshot is auto-captured. Include what happened and what you expected.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Report issues using the 🐛 bug button:')}</p>
+        <p className="leading-relaxed">{hl('Report issues using the 🐛 bug button (floating on the left side):')}</p>
         <div className="space-y-1">
-          <div>• {hl('Simplified statuses: Open → In Progress → Resolved')}</div>
-          <div>• {hl('You can edit reports after submitting')}</div>
-          <div>• {hl('Include what happened and screenshots if possible')}</div>
+          <div>• {hl('A screenshot is auto-captured when you open the form')}</div>
+          <div>• {hl('Statuses: New → In Progress → Fixed → Closed')}</div>
+          <div>• {hl('Set severity: low, medium, high, or critical')}</div>
+          <div>• {hl('View all reports via the 🐛 button in the header')}</div>
         </div>
       </div>
     ),
@@ -512,16 +581,15 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Knowledge & Rules panel',
     group: '🧠 Knowledge & Rules',
     keywords: ['panel', 'brain', 'button', 'tabs', 'active', 'review', 'metrics', 'corrections'],
-    content: 'Open with the brain button in the header. Active Rules to view, edit, pause, or revoke rules. Review Queue for AI-detected teaching candidates. Metrics for bulk analysis. Corrections for team edit history.',
+    content: 'Open with the brain button in the header. Active Rules to view, edit, pause, or revoke rules. Auto Learnings for AI-detected rules. Metrics for bulk analysis.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
         <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Open:</span> {hl('Click the 🧠 button in the header')}</div>
         <div className="space-y-1.5 mt-2">
           {[
-            ['Active Rules', 'View, edit, pause, or revoke existing rules'],
-            ['Review Queue', 'Approve or reject AI-detected teaching candidates'],
-            ['Metrics', 'Bulk AI review via "Analyze All"'],
-            ['Corrections', 'History of team corrections and revisions'],
+            ['Active Rules', 'View, edit, pause, or revoke existing rules. Search, filter by scope/property/creator'],
+            ['Auto Learnings', 'AI-detected teaching candidates for review'],
+            ['Metrics', 'Teaching performance metrics and analysis'],
           ].map(([tab, desc]) => (
             <div key={tab} className="flex items-start gap-2">
               <span className="px-2 py-0.5 rounded text-xs flex-shrink-0" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{tab}</span>
@@ -726,7 +794,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
           <div className="flex items-center justify-between mb-3">
             <div>
               <div className="text-base font-bold" style={{ color: '#f1f5f9' }}>Friday GMS Guide</div>
-              <div className="text-xs" style={{ color: '#64748b' }}>v5.8 — Sprint 5 complete</div>
+              <div className="text-xs" style={{ color: '#64748b' }}>v5.9 — Sprint 5.1 audited</div>
             </div>
             <button onClick={onClose} className="w-7 h-7 rounded-md flex items-center justify-center" data-testid="btn-close-help" style={{ background: 'rgba(255,255,255,0.06)', color: '#64748b' }}>✕</button>
           </div>
