@@ -121,7 +121,12 @@ export default function AnalyticsPanel({ show, onClose }: AnalyticsPanelProps) {
         {/* Header */}
         <div className="sticky top-0 z-10 px-4 sm:px-6 py-4 flex items-center justify-between" style={{ background: 'rgba(10,15,30,0.95)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <h2 className="text-lg font-bold" style={{ color: '#f1f5f9' }}>Analytics Dashboard</h2>
-          <button onClick={onClose} className="text-sm px-3 py-1 rounded" style={{ background: 'rgba(255,255,255,0.06)', color: subColor }}>Close</button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => fetchData(startDate, endDate)} disabled={loading} className="text-sm p-1.5 rounded" style={{ background: 'rgba(255,255,255,0.06)', color: loading ? '#475569' : subColor }} title="Refresh analytics">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={loading ? 'animate-spin' : ''}><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+            </button>
+            <button onClick={onClose} className="text-sm px-3 py-1 rounded" style={{ background: 'rgba(255,255,255,0.06)', color: subColor }}>Close</button>
+          </div>
         </div>
 
         <div className="px-4 sm:px-6 py-4 space-y-6">
