@@ -221,7 +221,7 @@ export default function ConversationDetail({
           dedupedMessages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
 
           // Build unified timeline: interleave messages and sent drafts chronologically
-          type TimelineItem = { type: 'message'; data: typeof dedupedMessages[0]; time: number } | { type: 'sent_draft'; data: Draft; time: number }
+          type TimelineItem = { type: 'message'; data: typeof dedupedMessages[0]; time: number } | { type: 'sent_draft'; data: Draft; time: number } | { type: 'rejected_draft'; data: Draft; time: number }
           const timeline: TimelineItem[] = []
 
           // Add messages to timeline
@@ -233,6 +233,12 @@ export default function ConversationDetail({
           for (const draft of detail.drafts.filter(d => d.state === 'sent')) {
             const time = draft.sent_at ? new Date(draft.sent_at).getTime() : new Date(draft.updated_at).getTime()
             timeline.push({ type: 'sent_draft', data: draft, time })
+          }
+
+          // Add rejected drafts to timeline so they're visible in chronological order
+          for (const draft of detail.drafts.filter(d => d.state === 'rejected')) {
+            const time = new Date(draft.updated_at).getTime()
+            timeline.push({ type: 'rejected_draft', data: draft, time })
           }
 
           // Sort chronologically — oldest first (guard against NaN timestamps)
@@ -294,6 +300,28 @@ export default function ConversationDetail({
                 </p>
                 <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>
                   {draft.reviewed_by === 'auto-send' ? 'Auto-sent by Judith' : `${draft.reviewed_by || 'Team'} via Friday${draft.sent_via ? ` on ${formatChannelName(draft.sent_via)}` : ''}`}{draft.revision_number && draft.revision_number > 1 ? ` (v${draft.revision_number})` : ''} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}
+                </div>
+              </div>
+              </React.Fragment>
+            )
+          }
+
+          if (item.type === 'rejected_draft') {
+            const draft = item.data as Draft
+            return (
+              <React.Fragment key={`rejected-${draft.id}`}>
+              {dateSeparator}
+              <div className="rounded-lg p-3" style={{
+                background: 'rgba(239,68,68,0.08)',
+                border: '1px solid rgba(239,68,68,0.25)',
+              }}>
+                <div className="flex items-center gap-2 text-xs font-medium mb-1">
+                  <span className="px-1.5 py-0.5 rounded" style={{background: 'rgba(239,68,68,0.2)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>Rejected</span>
+                  <span style={{color: '#64748b'}}>{format(new Date(draft.updated_at), 'MMM d HH:mm')}</span>
+                </div>
+                <p className="text-sm whitespace-pre-wrap" style={{color: '#cbd5e1', opacity: 0.85, overflowWrap: 'break-word', wordBreak: 'break-word'}} dir="auto">{draft.draft_body}</p>
+                <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(239,68,68,0.15)', color: '#f87171'}}>
+                  Rejected by {draft.reviewed_by || 'unknown'}{draft.rejection_reason ? ` — "${draft.rejection_reason}"` : ''}
                 </div>
               </div>
               </React.Fragment>
@@ -430,11 +458,10 @@ export default function ConversationDetail({
           </div>
         ))}
 
-        {/* Draft history toggle (rejected + revision drafts) */}
+        {/* Draft history toggle (revision drafts only — rejected drafts now shown in timeline) */}
         {(() => {
-          const rejectedDrafts = detail.drafts.filter(d => d.state === 'rejected')
           const revisionDrafts = detail.drafts.filter(d => d.state === 'revision_requested')
-          const hiddenCount = rejectedDrafts.length + revisionDrafts.length
+          const hiddenCount = revisionDrafts.length
 
           if (hiddenCount === 0) return null
           return (<>
@@ -448,13 +475,6 @@ export default function ConversationDetail({
                 <div className="text-xs pt-2" style={{borderTop: '1px solid rgba(99,149,255,0.1)', color: '#64748b'}}>
                   {draft.reviewed_by ? `Revised by ${draft.reviewed_by}` : 'System revision'}{draft.revision_instruction ? ` — "${draft.revision_instruction}"` : ''} · {format(new Date(draft.updated_at), 'MMM d HH:mm')}
                 </div>
-              </div>
-            ))}
-            {showDraftHistory && rejectedDrafts.map((draft, idx) => (
-              <div key={`rejected-${draft.id}`} id={idx === 0 && revisionDrafts.length === 0 ? 'draft-history-section' : undefined} className="rounded-lg p-3 mt-2" style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.1)'}}>
-                <div className="text-xs font-medium mb-1" style={{color: '#f87171'}}>Rejected:</div>
-                <p className="text-sm mb-2 whitespace-pre-wrap" style={{color: '#e2e8f0', overflowWrap: 'break-word', wordBreak: 'break-word'}}>{draft.draft_body}</p>
-                <div className="text-xs pt-2" style={{borderTop: '1px solid rgba(239,68,68,0.1)', color: '#f87171'}}>Rejected by {draft.reviewed_by || 'unknown'} · {draft.rejection_reason}</div>
               </div>
             ))}
           </>)
