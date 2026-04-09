@@ -465,8 +465,8 @@ export default function GuestInfo({
               setDetail(prev => prev ? { ...prev, conversation: { ...prev.conversation, auto_send_enabled: newVal } } : null)
               toast.success(`Auto-send ${newVal ? 'enabled' : 'disabled'}`)
             } catch (err: any) { toast.error(err.message) }
-          }} className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors" style={{background: detail.conversation.auto_send_enabled ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.1)'}}>
-            <span className="inline-block h-3.5 w-3.5 transform rounded-full transition-transform" style={{background: detail.conversation.auto_send_enabled ? '#4ade80' : '#64748b', transform: detail.conversation.auto_send_enabled ? 'translateX(18px)' : 'translateX(2px)'}} />
+          }} className="relative inline-flex items-center rounded-full cursor-pointer" style={{width: '40px', height: '22px', background: detail.conversation.auto_send_enabled ? '#22c55e' : '#374151', transition: 'background 0.2s ease'}}>
+            <span className="inline-block rounded-full" style={{width: '18px', height: '18px', background: '#ffffff', position: 'absolute', top: '2px', left: '2px', transition: 'transform 0.2s ease', transform: detail.conversation.auto_send_enabled ? 'translateX(18px)' : 'translateX(0px)'}} />
           </button>
         </div>
         <p className="text-xs mt-1" style={{color: '#64748b'}}>{detail.conversation.auto_send_enabled ? 'On \u2014 routine replies \u226585% send automatically' : 'Off \u2014 all drafts require review'}</p>
