@@ -27,6 +27,7 @@ interface SendConfirmModalProps {
   undoCountdown: number
   cancelSend: () => void
   sessionTeachings?: Array<{ id: string; instruction: string; scope: string }>
+  availableChannels?: string[] | null
 }
 
 export default function SendConfirmModal({
@@ -39,6 +40,7 @@ export default function SendConfirmModal({
   undoCountdown,
   cancelSend,
   sessionTeachings = [],
+  availableChannels,
 }: SendConfirmModalProps) {
   const [acceptedSuggestion, setAcceptedSuggestion] = useState(false)
   const [dismissedSuggestion, setDismissedSuggestion] = useState(false)
@@ -70,10 +72,11 @@ export default function SendConfirmModal({
                     data-testid="select-send-channel"
                     className="w-full text-base rounded px-2 py-1.5 outline-none"
                     style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', fontSize: '16px'}}>
-                    <option value="airbnb" style={{background: '#1a1a2e'}}>Airbnb</option>
-                    <option value="booking" style={{background: '#1a1a2e'}}>Booking.com</option>
-                    <option value="whatsapp" style={{background: '#1a1a2e'}}>WhatsApp</option>
-                    <option value="email" style={{background: '#1a1a2e'}}>Email</option>
+                    {(!availableChannels || availableChannels.length === 0 ? ['airbnb', 'booking', 'whatsapp', 'email'] : availableChannels).map(ch => (
+                      <option key={ch} value={ch} style={{background: '#1a1a2e'}}>
+                        {ch === 'airbnb' ? 'Airbnb' : ch === 'booking' ? 'Booking.com' : ch === 'whatsapp' ? 'WhatsApp' : ch === 'email' ? 'Email' : ch}
+                      </option>
+                    ))}
                   </select>
                   {sendChannel === 'booking' && <p className="text-xs mt-1" style={{color: '#64748b'}}>Message sent via Booking.com through Guesty</p>}
                   {sendChannel === 'whatsapp' && <p className="text-xs mt-1" style={{color: '#64748b'}}>Message sent via WhatsApp through Guesty</p>}

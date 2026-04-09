@@ -103,6 +103,7 @@ export interface ConversationDetail {
   reservation?: any
   whatsapp_window_open?: boolean | null
   whatsapp_window_expires_at?: string | null
+  available_channels?: string[] | null
 }
 
 export interface MessageItem {
