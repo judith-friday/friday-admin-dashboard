@@ -526,8 +526,14 @@ export default function MessageDashboard() {
     if (!detail) return
     const draft = detail.drafts.find(d => d.id === draftId)
     if (!draft) return
+    const commChannel = detail?.conversation.communication_channel
     const convChannel = detail?.conversation.channel || ''
-    if (convChannel === 'direct' || convChannel === 'manual' || convChannel === 'unknown') {
+    if (commChannel) {
+      const channelMap: Record<string, string> = {
+        'whatsapp': 'whatsapp', 'airbnb2': 'airbnb', 'bookingCom': 'booking', 'email': 'email'
+      }
+      setSendChannel(channelMap[commChannel] || commChannel)
+    } else if (convChannel === 'direct' || convChannel === 'manual' || convChannel === 'unknown') {
       setSendChannel('whatsapp')
     } else {
       setSendChannel(convChannel || 'airbnb')
@@ -725,8 +731,14 @@ export default function MessageDashboard() {
 
   const handleComposeSend = () => {
     if (!selectedConvId || !detail || !composeText.trim()) return
+    const commChannel = detail?.conversation.communication_channel
     const convChannel = detail.conversation.channel || ''
-    if (convChannel === 'direct' || convChannel === 'manual' || convChannel === 'unknown') {
+    if (commChannel) {
+      const channelMap: Record<string, string> = {
+        'whatsapp': 'whatsapp', 'airbnb2': 'airbnb', 'bookingCom': 'booking', 'email': 'email'
+      }
+      setSendChannel(channelMap[commChannel] || commChannel)
+    } else if (convChannel === 'direct' || convChannel === 'manual' || convChannel === 'unknown') {
       setSendChannel('whatsapp')
     } else {
       setSendChannel(convChannel || 'airbnb')

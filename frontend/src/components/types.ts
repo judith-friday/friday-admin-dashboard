@@ -58,6 +58,7 @@ export interface Conversation {
   guest_email?: string
   property_name?: string
   channel?: string
+  communication_channel?: string
   status: string
   check_in_date?: string
   check_out_date?: string
@@ -102,6 +103,7 @@ export interface MessageItem {
   sender_name?: string
   sent_by?: string | null
   sent_via_system?: 'friday' | 'guesty' | null
+  module_type?: string | null
   created_at: string
 }
 
