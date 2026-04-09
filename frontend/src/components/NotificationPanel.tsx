@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import { Notification } from './NotificationBell'
+import type { Notification } from './NotificationBell'
 
 interface NotificationPanelProps {
   show: boolean

@@ -30,7 +30,7 @@ import InstallPrompt from '../components/InstallPrompt'
 import NotificationPrompt from '../components/NotificationPrompt'
 import useNotificationSound from '../components/useNotificationSound'
 import AnalyticsDashboard from '../components/AnalyticsDashboard'
-import { Notification } from '../components/NotificationBell'
+import type { Notification } from '../components/NotificationBell'
 import NotificationPanel from '../components/NotificationPanel'
 import { trackEvent } from '../lib/analytics'
 
