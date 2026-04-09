@@ -54,7 +54,7 @@ export default function ComposePanel({
             onKeyDown={e => { e.stopPropagation(); if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && canSend) handleComposeSend() }}
             placeholder="Type your message to the guest..."
             className="w-full text-base rounded-lg px-3 py-1.5 outline-none" rows={3}
-            style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9', resize: 'vertical', minHeight: '72px', maxHeight: '160px'}} />
+            style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9', resize: 'none', minHeight: '72px', maxHeight: '160px', overflowY: 'auto'}} />
 
           <div className="flex gap-2">
             {/* Fix button */}

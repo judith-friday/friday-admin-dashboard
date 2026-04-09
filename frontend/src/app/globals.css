@@ -327,6 +327,8 @@ input:focus, textarea:focus, select:focus {
   [data-testid="input-compose-message"] {
     max-height: 80px !important;
     min-height: 56px !important;
+    overflow-y: auto !important;
+    resize: none !important;
   }
 
   /* Ensure conversation detail doesn't overflow — compose stays visible */

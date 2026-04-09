@@ -174,7 +174,10 @@ export default function ConsultChat({
     const el = textareaRef.current
     if (!el) return
     el.style.height = 'auto'
-    el.style.height = Math.min(el.scrollHeight, 96) + 'px'
+    const maxH = window.innerWidth < 768 ? 72 : 96
+    const newH = Math.min(el.scrollHeight, maxH)
+    el.style.height = newH + 'px'
+    el.style.overflowY = el.scrollHeight > maxH ? 'auto' : 'hidden'
   }
 
   const sendConsult = async (instruction: string, history: ChatMessage[]): Promise<{response: string | null, draftUpdate?: string, teachingAction?: TeachingActionData, sessionId?: string, compacted?: boolean, missingKnowledge?: boolean}> => {
@@ -421,7 +424,7 @@ export default function ConsultChat({
             <textarea ref={textareaRef} value={replyText} onChange={e => { setReplyText(e.target.value); setTimeout(adjustTextareaHeight, 0) }}
               placeholder="Reply to Friday..."
               className="flex-1 text-base rounded px-2 py-1.5 outline-none resize-none"
-              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', minHeight: '36px', maxHeight: '96px' }}
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', minHeight: '36px', maxHeight: '96px', overflowY: 'auto', transition: 'height 0.1s ease' }}
               rows={1}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleReply() } }} />
             <button onClick={handleReply} disabled={!replyText.trim()}
