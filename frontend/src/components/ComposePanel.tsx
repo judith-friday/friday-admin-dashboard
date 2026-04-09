@@ -88,7 +88,7 @@ export default function ComposePanel({
               {composeSending ? 'Sending...' : 'Send'}
             </button>
           </div>
-          <span className="text-xs block" style={{color: '#475569'}}>Cmd+Enter to send</span>
+          <span className="text-xs hidden md:block" style={{color: '#475569'}}>Cmd+Enter to send</span>
 
           {conversationId && (
             <ConsultChat
