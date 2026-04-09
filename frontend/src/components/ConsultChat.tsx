@@ -71,10 +71,30 @@ export default function ConsultChat({
   const [missingKnowledge, setMissingKnowledge] = useState(false)
   const [draftRefreshNotice, setDraftRefreshNotice] = useState(false)
 
+  const [autoChips, setAutoChips] = useState<Array<{label: string, text: string}>>([])
+
   const startedRef = useRef(false)
   const prevConversationIdRef = useRef(conversationId)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Detect questions in the last assistant message and generate quick-reply chips
+  const detectQuestionChips = (text: string): Array<{label: string, text: string}> => {
+    if (!text) return []
+    const lower = text.toLowerCase()
+    const hasQuestion = text.includes('?') || /\b(would you like|should i|want me to|do you want|shall i|can i|may i)\b/i.test(text)
+    if (!hasQuestion) return []
+    // Draft-related questions
+    if (/\b(send|draft|message|reply)\b/i.test(lower) && /\b(want|like|should|ready|approve)\b/i.test(lower)) {
+      return [{ label: 'Send it', text: 'Send it' }, { label: 'Polish more', text: 'Polish more' }, { label: 'Start over', text: 'Start over' }]
+    }
+    // Action/improvement suggestions
+    if (/\b(incorporate|apply|implement|update|change|improve|add)\b/i.test(lower)) {
+      return [{ label: 'Yes, do it', text: 'Yes, do it' }, { label: 'No thanks', text: 'No thanks' }, { label: 'Learn this', text: 'Learn this as a teaching' }]
+    }
+    // Generic yes/no
+    return [{ label: 'Yes', text: 'Yes' }, { label: 'No', text: 'No' }]
+  }
 
   const resetState = () => {
     startedRef.current = false
@@ -179,6 +199,17 @@ export default function ConsultChat({
     if (active) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [messages, loading, active])
 
+  // Auto-detect question chips when messages change
+  useEffect(() => {
+    if (messages.length < 2) { setAutoChips([]); return }
+    const lastMsg = messages[messages.length - 1]
+    if (lastMsg.role === 'assistant') {
+      setAutoChips(detectQuestionChips(lastMsg.content))
+    } else {
+      setAutoChips([])
+    }
+  }, [messages]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const adjustTextareaHeight = () => {
     const el = textareaRef.current
     if (!el) return
@@ -263,6 +294,7 @@ export default function ConsultChat({
 
   const handleReply = async () => {
     if (!replyText.trim()) return
+    setAutoChips([])
     trackEvent('ask_judith_message_sent', { context, messageLength: replyText.trim().length })
     await sendAndProcess(replyText.trim())
     setReplyText('')
@@ -438,6 +470,20 @@ export default function ConsultChat({
           onException={() => setTeachingAction(null)}
           onDismiss={() => setTeachingAction(null)}
         />
+      )}
+
+      {/* Auto-detected question chips */}
+      {autoChips.length > 0 && !loading && (
+        <div className="px-3 pb-1 flex flex-wrap gap-1">
+          {autoChips.map((chip, i) => (
+            <button key={i}
+              onClick={() => { setAutoChips([]); sendAndProcess(chip.text) }}
+              className="px-2.5 py-1 text-xs rounded-full transition-colors hover:opacity-80"
+              style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.2)', fontSize: '11px', lineHeight: '1.4'}}>
+              {chip.label}
+            </button>
+          ))}
+        </div>
       )}
 
       {/* Quick action chips */}
