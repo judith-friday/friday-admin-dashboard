@@ -126,7 +126,7 @@ export default function ConversationList({
   return (
     <div data-testid="container-inbox" className={`md:w-[22vw] md:min-w-[240px] md:max-w-[380px] flex flex-col min-h-0 ${mobileView !== 'list' ? 'hidden md:flex' : 'w-full md:w-[22vw] md:min-w-[240px] md:max-w-[380px]'}`} style={{background: 'rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)'}}>
       {/* Search bar */}
-      <div className="px-2 pt-2 pb-1" style={{borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
+      <div className="px-1.5 pt-1.5 pb-0.5" style={{borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
         <div className="relative flex items-center">
           <MagnifyingGlassIcon className="absolute left-2.5 h-4 w-4 pointer-events-none" style={{color: '#64748b'}} />
           <input
@@ -235,7 +235,7 @@ export default function ConversationList({
 
       {/* Search results indicator */}
       {isSearchActive && (
-        <div className="flex items-center justify-between px-3 py-1.5 text-xs" style={{background: 'rgba(99,149,255,0.08)', color: '#93b4ff', borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
+        <div className="flex items-center justify-between px-2 py-1 text-xs" style={{background: 'rgba(99,149,255,0.08)', color: '#93b4ff', borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
           <span>{filteredConversations.length} result{filteredConversations.length !== 1 ? 's' : ''}</span>
           <button onClick={clearSearch} className="underline hover:text-white">Clear</button>
         </div>
@@ -272,7 +272,7 @@ export default function ConversationList({
         <PendingActionsTab token={token} />
       ) : (<>
         {/* Sort control */}
-        <div className="px-3 py-1 flex items-center justify-end" style={{borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
+        <div className="px-2 py-0.5 flex items-center justify-end" style={{borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
           <select value={sortBy} onChange={e => setSortBy(e.target.value as typeof sortBy)}
             className="text-base py-0.5 px-1.5 rounded outline-none" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
             <option value="recent">Most recent</option>
@@ -330,7 +330,7 @@ export default function ConversationList({
                 }}
                 onTouchMove={() => { if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null } }}
                 onTouchEnd={() => { if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null } }}
-                className="group relative p-3 cursor-pointer transition-all duration-200 ease-in-out" style={{borderBottom: '1px solid rgba(255,255,255,0.03)', background: selectedConvId === conv.id ? 'linear-gradient(90deg, rgba(30,58,95,0.4), transparent)' : 'transparent', borderLeft: selectedConvId === conv.id ? '2px solid #6395ff' : '2px solid transparent', fontWeight: conv.is_unread ? 600 : 400}}>
+                className="group relative px-2.5 py-1.5 cursor-pointer transition-all duration-200 ease-in-out" style={{borderBottom: '1px solid rgba(255,255,255,0.03)', background: selectedConvId === conv.id ? 'linear-gradient(90deg, rgba(30,58,95,0.4), transparent)' : 'transparent', borderLeft: selectedConvId === conv.id ? '2px solid #6395ff' : '2px solid transparent', fontWeight: conv.is_unread ? 600 : 400}}>
                 {/* Hover action: mark as unread */}
                 {!conv.is_unread && (
                   <button onClick={(e) => handleMarkUnread(conv.id, e)}
@@ -339,7 +339,7 @@ export default function ConversationList({
                     <EyeSlashIcon className="h-3.5 w-3.5" style={{color: '#64748b'}} />
                   </button>
                 )}
-                <div className="flex justify-between items-start mb-1">
+                <div className="flex justify-between items-start mb-0.5">
                   <div className="flex items-center space-x-1.5 min-w-0">
                     {conv.is_unread && <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>}
                     <span className="text-sm truncate" style={{color: '#f1f5f9'}}>{conv.guest_name}</span>
@@ -354,7 +354,7 @@ export default function ConversationList({
                     </span>
                   )}
                 </div>
-                <div className="flex items-center space-x-1.5 mb-1">
+                <div className="flex items-center space-x-1.5 mb-0.5">
                   {conv.property_name && (
                     <span className="text-xs" style={{color: '#94a3b8', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '2px'}} onClick={(e) => { e.stopPropagation(); fetchPropertyCard(conv.property_name); }}>{conv.property_name}</span>
                   )}
@@ -367,7 +367,7 @@ export default function ConversationList({
                   })()}
                 </div>
                 {conv.last_message_body && (
-                  <p className="text-xs line-clamp-1 md:line-clamp-2" style={{color: '#64748b'}}>
+                  <p className="text-xs line-clamp-2" style={{color: '#64748b'}}>
                     {conv.last_message_direction === 'outbound' ? '> ' : conv.last_message_direction === 'system' ? '[sys] ' : ''}{conv.last_message_body}
                   </p>
                 )}

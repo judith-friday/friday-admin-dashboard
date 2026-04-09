@@ -347,10 +347,27 @@ input:focus, textarea:focus, select:focus {
     overflow: hidden;
   }
 
-  /* Filter tabs: 44px touch targets */
+  /* Filter tabs: compact on mobile */
   .tabs-scroll button {
-    min-width: 44px;
-    min-height: 44px;
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0.125rem 0.375rem !important;
+  }
+
+  /* Conversation list items: tighter on mobile */
+  [data-testid="container-inbox"] .group {
+    padding: 0.375rem 0.5rem !important;
+  }
+
+  /* Stats bar: tighter on mobile */
+  [data-testid="container-stats-bar"] > div {
+    padding-top: 0.125rem !important;
+    padding-bottom: 0.125rem !important;
+  }
+
+  /* Search bar area: tighter on mobile */
+  [data-testid="container-inbox"] > div:first-child {
+    padding: 0.25rem 0.375rem !important;
   }
 
   /* Action buttons: 44px min-height (Done, Dismiss, Approve, Edit, Reject, etc.) */
