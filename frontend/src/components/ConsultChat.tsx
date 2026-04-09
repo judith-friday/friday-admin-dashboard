@@ -69,6 +69,7 @@ export default function ConsultChat({
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [compactionNotice, setCompactionNotice] = useState(false)
   const [missingKnowledge, setMissingKnowledge] = useState(false)
+  const [draftRefreshNotice, setDraftRefreshNotice] = useState(false)
 
   const startedRef = useRef(false)
   const prevConversationIdRef = useRef(conversationId)
@@ -87,6 +88,7 @@ export default function ConsultChat({
     setTeachingAction(null)
     setCompactionNotice(false)
     setMissingKnowledge(false)
+    setDraftRefreshNotice(false)
   }
 
   const initSession = async () => {
@@ -100,7 +102,11 @@ export default function ConsultChat({
       if (conversationId) {
         try {
           const existing = await apiFetch(`/api/ai/consult/session/active?conversationId=${encodeURIComponent(conversationId)}`)
-          if (existing.session && existing.session.history?.length > 0) {
+          if (existing.draftChanged) {
+            // New draft arrived — show refresh notice, start fresh session
+            setDraftRefreshNotice(true)
+            setTimeout(() => setDraftRefreshNotice(false), 5000)
+          } else if (existing.session && existing.session.history?.length > 0) {
             setSessionId(existing.session.sessionId)
             setMessages(existing.session.history)
             setLoading(false)
@@ -300,6 +306,12 @@ export default function ConsultChat({
           </button>
         </div>
       </div>
+      {/* Draft refresh notice */}
+      {draftRefreshNotice && (
+        <div className="mx-3 mt-1 px-2 py-1 rounded text-xs" style={{background: 'rgba(99,149,255,0.08)', color: '#93c5fd', border: '1px solid rgba(99,149,255,0.15)'}}>
+          New draft available — context refreshed
+        </div>
+      )}
       {/* Missing knowledge indicator */}
       {missingKnowledge && (
         <div className="mx-3 mt-1 px-2 py-1 rounded text-xs" style={{background: 'rgba(245,158,11,0.08)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.15)'}}>
