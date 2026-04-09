@@ -21,7 +21,7 @@ const HELP_DATA: HelpEntry[] = [
     title: 'What is Friday GMS?',
     group: '🏠 Getting Started',
     keywords: ['gms', 'friday', 'guest', 'messaging', 'system', 'what', 'overview', 'intro'],
-    content: 'Friday GMS (Guest Messaging System) is where you manage all guest conversations across Airbnb, Booking.com, WhatsApp, and Email. Friday — your AI assistant — reads incoming messages, drafts replies, and learns from your corrections to get better over time. Think of it as your team inbox with a very capable assistant built in.',
+    content: 'Friday GMS (Guest Messaging System) is where you manage all guest conversations across Airbnb, Booking.com, WhatsApp, and Email. Friday — your AI assistant — reads incoming messages, drafts replies, and learns from your corrections to get better over time.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
         <p className="leading-relaxed">{hl('Friday GMS (Guest Messaging System) is where you manage all guest conversations across Airbnb, Booking.com, WhatsApp, and Email.')}</p>
@@ -54,7 +54,7 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Confidence scores & badges',
     group: '🏠 Getting Started',
     keywords: ['confidence', 'score', 'percentage', 'badge', '85', '50', 'high', 'low', 'quality'],
-    content: 'Each conversation may show a percentage score like 85% or 50%. This is the AI confidence score — how sure Friday is about the draft. 80%+ means Friday is confident the draft is accurate. 50-79% means the draft likely needs some editing. Below 50% means Friday is uncertain — review carefully.',
+    content: 'Each conversation may show a percentage score. This is the AI confidence score — how sure Friday is about the draft. 80%+ confident, 50-79% needs editing, below 50% review carefully.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
         <p className="leading-relaxed">{hl('Each conversation may show a percentage score. This is the AI confidence score — how sure Friday is about the draft:')}</p>
@@ -77,13 +77,12 @@ const HELP_DATA: HelpEntry[] = [
   },
   {
     id: 'navigation',
-    title: 'Navigating between conversations',
+    title: 'Keyboard shortcuts',
     group: '🏠 Getting Started',
     keywords: ['navigate', 'keyboard', 'up', 'down', 'enter', 'escape', 'shortcut', 'arrow'],
-    content: 'Click any conversation in the sidebar to open it. Use arrow keys up and down to move between conversations. Press Enter to open. Press Escape to deselect. Press slash to jump to Ask Friday.',
+    content: 'Use arrow keys to move between conversations. Enter to open, Escape to deselect, slash to jump to Ask Friday, Cmd+Enter to approve and send.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Click any conversation in the sidebar to open it. Or use keyboard shortcuts:')}</p>
         <div className="space-y-1.5">
           {[
             ['↑ ↓', 'Move between conversations'],
@@ -102,282 +101,422 @@ const HELP_DATA: HelpEntry[] = [
     ),
   },
 
-  // ── 2. AI Drafts ────────────────────────────────────────────────────────
+  // ── 2. AI & Drafts ─────────────────────────────────────────────────────
   {
     id: 'what-are-drafts',
-    title: 'What are AI drafts?',
-    group: '✨ AI Drafts',
+    title: 'AI drafts',
+    group: '✨ AI & Drafts',
     keywords: ['draft', 'ai', 'generated', 'automatic', 'reply', 'response', 'how'],
-    content: 'When a guest sends a message, Friday automatically reads it and writes a draft reply. The draft appears in the compose area below the conversation. Drafts are suggestions — they are never sent automatically. You always review and approve before anything goes to the guest.',
+    content: 'When a guest sends a message, Friday automatically drafts a reply. Drafts are never sent automatically — you always review and approve first. You can edit, Ask Friday to revise, or compose from scratch.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('When a guest sends a message, Friday automatically reads it and writes a draft reply. The draft appears in the compose area below the conversation.')}</p>
+        <p className="leading-relaxed">{hl('When a guest sends a message, Friday automatically drafts a reply. The draft appears in the compose area below the conversation.')}</p>
         <div className="rounded-md p-2.5 mt-2" style={{background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)'}}>
-          <span style={{color: '#e2e8f0'}}>{hl('Drafts are suggestions — they are never sent automatically. You always review and approve before anything goes to the guest.')}</span>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'review-draft',
-    title: 'How to review a draft',
-    group: '✨ AI Drafts',
-    keywords: ['review', 'approve', 'send', 'edit', 'reject', 'revise', 'draft', 'action'],
-    content: 'When you see a draft you have three options. Approve and Send — if the draft looks good, hit send. Edit — click into the draft text and make changes, then send. Ask Friday — if you want Friday to revise the draft, open Ask Friday and describe what you want changed.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('When you see a draft, you have three options:')}</p>
-        <div className="space-y-1.5">
-          <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Approve & Send</span> — {hl('the draft looks good, hit send (or ⌘ Enter)')}</div>
-          <div>• <span style={{fontWeight: 500, color: '#6395ff'}}>Edit</span> — {hl('click into the draft text, make your changes, then send')}</div>
-          <div>• <span style={{fontWeight: 500, color: '#fbbf24'}}>Ask Friday</span> — {hl('open Ask Friday and describe what you want changed ("make it warmer", "add check-in time")')}</div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'needs-review',
-    title: '"Needs Review" — what it means',
-    group: '✨ AI Drafts',
-    keywords: ['needs', 'review', 'flag', 'low', 'confidence', 'attention', 'careful'],
-    content: 'When a draft is marked Needs Review it means Friday is less confident about it. This happens when the guest question is complex, touches multiple topics, or Friday does not have a clear rule for it. Give these drafts extra attention — they may need more editing.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('"Needs Review" means Friday is less confident about this draft. This happens when:')}</p>
-        <div className="space-y-1">
-          <div>• {hl('The guest question is complex or touches multiple topics')}</div>
-          <div>• {hl('Friday doesn\'t have a clear rule or teaching for this situation')}</div>
-          <div>• {hl('The property info is incomplete')}</div>
-        </div>
-        <p className="leading-relaxed mt-2" style={{color: '#fbbf24'}}>{hl('Give these drafts extra attention — they usually need more editing.')}</p>
-      </div>
-    ),
-  },
-  {
-    id: 'no-draft',
-    title: 'When drafts are NOT generated',
-    group: '✨ AI Drafts',
-    keywords: ['no', 'draft', 'missing', 'ended', 'stale', 'old', 'not', 'generated', 'why'],
-    content: 'Friday does not generate drafts for ended or resolved conversations. Very old or stale conversations also do not get new drafts. If the last message was from your team (not the guest) no new draft is needed. In these cases use Compose to write from scratch or Ask Friday for help.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Friday skips draft generation when:')}</p>
-        <div className="space-y-1">
-          <div>• {hl('The conversation is ended or resolved')}</div>
-          <div>• {hl('The conversation has been stale for too long')}</div>
-          <div>• {hl('The last message was from your team (not the guest)')}</div>
-        </div>
-        <p className="leading-relaxed mt-2">{hl('In these cases, use Compose to write from scratch or Ask Friday for help.')}</p>
-      </div>
-    ),
-  },
-
-  // ── 3. Ask Friday ──────────────────────────────────────────────────────
-  {
-    id: 'ask-friday-what',
-    title: 'What Ask Friday does',
-    group: '💬 Ask Friday',
-    keywords: ['ask', 'friday', 'assistant', 'chat', 'ai', 'help', 'what', 'does'],
-    content: 'Ask Friday is your AI assistant for everything related to guest communication. You can ask it to write a message from scratch, revise a draft, check property rules, or just ask a question about how to handle a situation. Friday has access to all property info, teachings, and the conversation history.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Ask Friday is your AI assistant for everything related to guest communication. You can ask it to:')}</p>
-        <div className="space-y-1">
-          <div>• {hl('Write a message from scratch')}</div>
-          <div>• {hl('Revise or improve a draft')}</div>
-          <div>• {hl('Check property rules and policies')}</div>
-          <div>• {hl('Get advice on how to handle a situation')}</div>
-        </div>
-        <p className="leading-relaxed mt-2">{hl('Friday has access to all property info, teachings, and the full conversation history.')}</p>
-      </div>
-    ),
-  },
-  {
-    id: 'ask-friday-chips',
-    title: 'Quick action chips',
-    group: '💬 Ask Friday',
-    keywords: ['chip', 'button', 'quick', 'action', 'write', 'polish', 'shorter', 'check', 'rules'],
-    content: 'When you open Ask Friday you will see quick action chips. "Write it for me" asks Friday to draft a full response. "Polish" cleans up grammar and tone. "Shorter" makes the draft more concise. "Check rules" asks Friday to verify the draft against property rules and teachings.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Quick action chips appear when you open Ask Friday:')}</p>
-        <div className="flex flex-wrap gap-2 mt-1">
-          {['Write it for me', 'Polish', 'Shorter', 'Check rules'].map(chip => (
-            <span key={chip} className="px-2.5 py-1 rounded-full text-xs" style={{background: 'rgba(99,149,255,0.12)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.2)'}}>{chip}</span>
-          ))}
+          <span style={{color: '#e2e8f0'}}>{hl('Drafts are never sent automatically — you always review and approve before anything goes to the guest.')}</span>
         </div>
         <div className="space-y-1 mt-2">
-          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Write it for me</span> — {hl('Friday drafts a full response based on the conversation')}</div>
-          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Polish</span> — {hl('cleans up grammar, spelling, and tone')}</div>
-          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Shorter</span> — {hl('makes the message more concise')}</div>
-          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Check rules</span> — {hl('verifies the draft against property rules and teachings')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Approve & Send</span> — {hl('draft looks good, hit send (⌘ Enter)')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#6395ff'}}>Edit</span> — {hl('click into the draft and make changes')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#fbbf24'}}>Ask Friday</span> — {hl('describe what to change ("make it warmer", "add check-in time")')}</div>
         </div>
       </div>
     ),
   },
   {
-    id: 'ask-friday-revise',
-    title: 'Revising drafts with Friday',
-    group: '💬 Ask Friday',
-    keywords: ['revise', 'change', 'edit', 'rewrite', 'tone', 'warmer', 'formal', 'draft', 'modify'],
-    content: 'To revise a draft just describe what you want changed in Ask Friday. For example: "Make it warmer" or "Add the check-in time" or "Remove the part about parking". Friday will update the draft directly in the compose editor — you will not see it in the chat window.',
+    id: 'ask-friday',
+    title: 'Ask Friday',
+    group: '✨ AI & Drafts',
+    keywords: ['ask', 'friday', 'assistant', 'chat', 'ai', 'help', 'consult', 'session'],
+    content: 'Ask Friday is your AI assistant. It can write messages, revise drafts, check property rules, and answer questions. It has access to all property info, teachings, the STR knowledge base, and the full conversation history. Friday is draft-aware — it knows when a draft exists and adjusts its suggestions accordingly.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Just describe what you want changed in plain language:')}</p>
-        <div className="space-y-1.5">
-          {['"Make it warmer and more friendly"', '"Add the check-in time"', '"Remove the part about parking"', '"Translate to French"'].map(ex => (
-            <div key={ex} className="rounded px-2.5 py-1" style={{background: 'rgba(255,255,255,0.04)', fontStyle: 'italic'}}>
-              {hl(ex)}
-            </div>
-          ))}
-        </div>
-        <p className="leading-relaxed mt-2">{hl('Friday updates the draft directly in the compose editor — you won\'t see it in the chat window.')}</p>
-      </div>
-    ),
-  },
-  {
-    id: 'ask-friday-learning',
-    title: 'When Friday asks "Should I learn this?"',
-    group: '💬 Ask Friday',
-    keywords: ['learn', 'teaching', 'detect', 'should', 'remember', 'correction', 'improve'],
-    content: 'When you correct a draft or give Friday specific instructions, it may detect a pattern and ask "Should I learn this?". If you say yes, Friday creates a new teaching rule so it handles similar situations the same way next time. This is how Friday gets smarter over time — your corrections directly improve future drafts for the whole team.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('When you correct a draft or give Friday specific instructions, it may detect a pattern and ask "Should I learn this?"')}</p>
+        <p className="leading-relaxed">{hl('Ask Friday is your AI assistant for everything related to guest communication:')}</p>
         <div className="space-y-1">
-          <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Say yes</span> — {hl('Friday creates a new teaching rule for similar situations')}</div>
-          <div>• <span style={{fontWeight: 500, color: '#94a3b8'}}>Say no</span> — {hl('it was a one-off correction, no rule needed')}</div>
+          <div>• {hl('Write a message from scratch or revise a draft')}</div>
+          <div>• {hl('Check property rules and policies')}</div>
+          <div>• {hl('Consult on how to handle tricky situations')}</div>
+          <div>• {hl('Access STR knowledge base for industry best practices')}</div>
         </div>
-        <p className="leading-relaxed mt-2" style={{color: '#e2e8f0'}}>{hl('This is how Friday gets smarter — your corrections directly improve future drafts for the whole team.')}</p>
+        <p className="leading-relaxed mt-2" style={{color: '#e2e8f0'}}>{hl('Friday is draft-aware — it knows when a draft exists and adjusts suggestions accordingly.')}</p>
       </div>
     ),
   },
   {
-    id: 'ask-friday-new-convo',
-    title: 'Starting a new Friday conversation',
-    group: '💬 Ask Friday',
-    keywords: ['new', 'conversation', 'reset', 'clear', 'fresh', 'start', 'button'],
-    content: 'Use the new conversation button (↻) to start fresh with Friday. Do this when you are switching to a different topic or when Friday seems confused by a long chat history. The conversation history is saved — you can scroll back to see earlier exchanges.',
+    id: 'contextual-chips',
+    title: 'Contextual quick-action chips',
+    group: '✨ AI & Drafts',
+    keywords: ['chip', 'button', 'quick', 'action', 'contextual', 'behavioral', 'write', 'polish', 'shorter', 'rules'],
+    content: 'Quick action chips adapt to context. When a draft exists you see Edit, Polish, Shorter, Check Rules. Without a draft you see Write it for me. Behavioral chips appear based on the conversation state — for example, a follow-up chip when the guest has been waiting.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-1 rounded text-sm" style={{background: 'rgba(255,255,255,0.08)'}}>↻</span>
-          <span className="leading-relaxed">{hl('Use the "New conversation" button to start fresh with Friday.')}</span>
+        <p className="leading-relaxed">{hl('Quick action chips adapt to the current context:')}</p>
+        <div className="space-y-1.5">
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>With draft:</span> {hl('Polish, Shorter, Check Rules, Edit')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Without draft:</span> {hl('Write it for me, Compose')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Behavioral:</span> {hl('Context-aware suggestions based on conversation state (e.g., follow-up when guest is waiting)')}</div>
         </div>
-        <p className="leading-relaxed mt-1">{hl('Do this when you are switching topics or when Friday seems confused by a long chat history. Your conversation history is saved — scroll back to see earlier exchanges.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'context-refresh',
+    title: 'Context refresh',
+    group: '✨ AI & Drafts',
+    keywords: ['context', 'refresh', 'reload', 'stale', 'update', 'new', 'messages'],
+    content: 'If new messages arrive while you are chatting with Friday, a refresh banner appears. Click it to update Friday with the latest conversation context so its suggestions stay accurate.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('If new messages arrive while you\'re chatting with Friday, a refresh banner appears.')}</p>
+        <p className="leading-relaxed">{hl('Click it to update Friday with the latest context so its suggestions stay accurate.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'action-trail',
+    title: 'Action Trail',
+    group: '✨ AI & Drafts',
+    keywords: ['action', 'trail', 'history', 'draft', 'timeline', 'paginated', 'expandable'],
+    content: 'The Action Trail (replaces Draft History) shows a timeline of all actions on a conversation — drafts generated, messages sent, edits, teachings applied. Entries are expandable to see full details. Paginated for long conversations — click "Show more" to load earlier entries.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('The Action Trail shows a timeline of all actions on a conversation:')}</p>
+        <div className="space-y-1">
+          <div>• {hl('Drafts generated, messages sent, edits made')}</div>
+          <div>• {hl('Teachings applied, learning events')}</div>
+          <div>• {hl('Follow-ups and check-ins triggered')}</div>
+        </div>
+        <p className="leading-relaxed mt-2">{hl('Click any entry to expand full details. Paginated — click "Show more" to load earlier entries.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'learning-detection',
+    title: 'Learning detection & suggested teachings',
+    group: '✨ AI & Drafts',
+    keywords: ['learn', 'teaching', 'detect', 'suggest', 'correction', 'improve', 'send', 'modal', 'candidate'],
+    content: 'When you correct a draft, Friday may detect a pattern and suggest a new teaching. Suggested teachings also appear in the send confirmation modal — review and approve them before sending to help Friday improve. Teaching candidates are queued in the Knowledge panel for review.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('When you correct a draft, Friday may detect a pattern and suggest a new teaching:')}</p>
+        <div className="space-y-1">
+          <div>• {hl('In-chat: Friday asks "Should I learn this?"')}</div>
+          <div>• {hl('Send modal: suggested teachings appear for review before sending')}</div>
+          <div>• {hl('Knowledge panel: teaching candidates queued for approval')}</div>
+        </div>
+        <p className="leading-relaxed mt-2" style={{color: '#e2e8f0'}}>{hl('Your corrections directly improve future drafts for the whole team.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'emoji-decoding',
+    title: 'Emoji decoding & interpretation',
+    group: '✨ AI & Drafts',
+    keywords: ['emoji', 'decode', 'interpret', 'meaning', 'thumbs', 'smiley'],
+    content: 'Friday decodes emojis in guest messages and interprets their meaning in context. A thumbs-up might mean "yes" or "thanks" depending on the conversation. This helps Friday generate more accurate drafts.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Friday decodes emojis in guest messages and interprets their meaning in context.')}</p>
+        <p className="leading-relaxed">{hl('A 👍 might mean "yes" or "thanks" depending on the conversation — Friday understands this and responds appropriately.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'property-anti-hallucination',
+    title: 'Property name accuracy',
+    group: '✨ AI & Drafts',
+    keywords: ['property', 'name', 'hallucination', 'anti', 'accurate', 'correct'],
+    content: 'Friday uses verified property names from Guesty and never invents or guesses property names. If a property name cannot be confirmed, Friday omits it rather than risk using a wrong name.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Friday uses verified property names from Guesty and never invents or guesses names.')}</p>
+        <p className="leading-relaxed">{hl('If a name can\'t be confirmed, Friday omits it rather than risk using a wrong one.')}</p>
       </div>
     ),
   },
 
-  // ── 4. Compose ──────────────────────────────────────────────────────────
+  // ── 3. Communication ───────────────────────────────────────────────────
   {
-    id: 'compose-from-scratch',
-    title: 'Composing a message from scratch',
-    group: '✍️ Compose',
-    keywords: ['compose', 'write', 'new', 'message', 'scratch', 'editor', 'type'],
-    content: 'To write a message without starting from an AI draft, click into the compose area and start typing. This is useful when you want full control over the message, or when Friday did not generate a draft for this conversation.',
+    id: 'smart-channel',
+    title: 'Smart channel dropdown',
+    group: '📡 Communication',
+    keywords: ['channel', 'smart', 'dropdown', 'airbnb', 'booking', 'whatsapp', 'email', 'select', 'auto'],
+    content: 'The channel dropdown intelligently detects and pre-selects the correct communication channel based on the guest conversation. Supported: Airbnb, Booking.com, WhatsApp, Email. You can override it manually if needed.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Click into the compose area and start typing. This is useful when:')}</p>
-        <div className="space-y-1">
-          <div>• {hl('You want full control over the message')}</div>
-          <div>• {hl('Friday didn\'t generate a draft for this conversation')}</div>
-          <div>• {hl('You\'re following up on a previous message')}</div>
-          <div>• {hl('The situation needs a very personal touch')}</div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'compose-fix',
-    title: 'Using the Fix button',
-    group: '✍️ Compose',
-    keywords: ['fix', 'grammar', 'tone', 'spelling', 'proofread', 'clean', 'button'],
-    content: 'The Fix button cleans up your message — it corrects grammar, spelling, and adjusts tone to be professional and friendly. Use it after writing or editing a message. It is quick and does not change the meaning, just polishes the language.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('The Fix button cleans up your message — corrects grammar, spelling, and adjusts tone to be professional and friendly.')}</p>
-        <p className="leading-relaxed">{hl('Use it after writing or editing a message. It\'s quick and doesn\'t change the meaning, just polishes the language.')}</p>
-      </div>
-    ),
-  },
-  {
-    id: 'compose-channels',
-    title: 'Channel selection',
-    group: '✍️ Compose',
-    keywords: ['channel', 'airbnb', 'booking', 'whatsapp', 'email', 'select', 'platform', 'send'],
-    content: 'Before sending, check the channel. It is auto-detected from the guest conversation but you can change it. Airbnb, Booking.com, WhatsApp, and Email are supported. The channel determines where the guest receives your reply.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Before sending, check the channel — it\'s auto-detected but you can change it:')}</p>
+        <p className="leading-relaxed">{hl('The channel dropdown auto-detects the correct platform for each conversation:')}</p>
         <div className="flex flex-wrap gap-2 mt-1">
           {['Airbnb', 'Booking.com', 'WhatsApp', 'Email'].map(ch => (
             <span key={ch} className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{ch}</span>
           ))}
         </div>
-        <p className="leading-relaxed mt-2">{hl('The channel determines where the guest receives your reply.')}</p>
+        <p className="leading-relaxed mt-2">{hl('You can override the selection manually if needed.')}</p>
       </div>
     ),
   },
   {
-    id: 'compose-vs-draft',
-    title: 'Compose vs editing a draft',
-    group: '✍️ Compose',
-    keywords: ['compose', 'vs', 'draft', 'difference', 'when', 'use', 'choose'],
-    content: 'Edit an AI draft when Friday got it mostly right — just tweak what needs changing. Compose from scratch when the draft is way off, when there is no draft, or when you need to say something specific that Friday would not know. Ask Friday for help in either case.',
+    id: 'whatsapp-24h',
+    title: 'WhatsApp 24-hour window',
+    group: '📡 Communication',
+    keywords: ['whatsapp', '24h', 'window', 'template', 'expired', 'guard', 'send'],
+    content: 'WhatsApp has a 24-hour messaging window — you can only send free-form messages within 24 hours of the guest\'s last message. After that, you must use an approved WhatsApp template. The UI shows a timer and blocks free-form sends when the window has expired.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div className="space-y-2">
-          <div>
-            <span style={{fontWeight: 500, color: '#6395ff'}}>Edit the draft</span>
-            <span> — {hl('when Friday got it mostly right, just tweak what needs changing')}</span>
-          </div>
-          <div>
-            <span style={{fontWeight: 500, color: '#fbbf24'}}>Compose from scratch</span>
-            <span> — {hl('when the draft is way off, there\'s no draft, or you need something very specific')}</span>
-          </div>
+        <p className="leading-relaxed">{hl('WhatsApp allows free-form messages only within 24 hours of the guest\'s last message.')}</p>
+        <div className="rounded-md p-2.5 mt-1" style={{background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)'}}>
+          <span style={{color: '#fbbf24', fontWeight: 500}}>After 24h:</span>
+          <span style={{color: '#94a3b8'}}> {hl('You must use an approved WhatsApp template instead. The UI shows a timer and blocks free-form sends when expired.')}</span>
         </div>
-        <p className="leading-relaxed mt-2">{hl('You can Ask Friday for help in either case.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'whatsapp-templates',
+    title: 'WhatsApp template sending',
+    group: '📡 Communication',
+    keywords: ['whatsapp', 'template', 'approved', 'send', 'message'],
+    content: 'When the WhatsApp 24h window has expired, select from approved templates to re-engage the guest. Templates are pre-approved by WhatsApp and cannot be edited. Choose the template that best fits your situation.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('When the 24h window has expired, use approved templates to re-engage the guest:')}</p>
+        <div className="space-y-1">
+          <div>• {hl('Templates are pre-approved by WhatsApp')}</div>
+          <div>• {hl('Cannot be edited — choose the one that best fits')}</div>
+          <div>• {hl('Once the guest replies, the 24h window reopens')}</div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'auto-translation',
+    title: 'Auto-translation',
+    group: '📡 Communication',
+    keywords: ['translate', 'translation', 'auto', 'language', 'english', 'inbound', 'foreign'],
+    content: 'Non-English inbound messages are automatically translated to English so your team can understand them. Friday also drafts replies in the guest\'s language when appropriate. You can ask Friday to translate or provide an English version alongside.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Non-English inbound messages are automatically translated to English for your team.')}</p>
+        <div className="space-y-1">
+          <div>• {hl('Friday drafts replies in the guest\'s language when appropriate')}</div>
+          <div>• {hl('Ask Friday: "Translate this" or "Give me an English version"')}</div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'rtl-cjk',
+    title: 'RTL & CJK language support',
+    group: '📡 Communication',
+    keywords: ['rtl', 'right-to-left', 'arabic', 'hebrew', 'cjk', 'chinese', 'japanese', 'korean'],
+    content: 'Messages in right-to-left languages (Arabic, Hebrew) and CJK scripts (Chinese, Japanese, Korean) are properly displayed and handled. Friday can draft responses in these languages.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Full support for right-to-left languages (Arabic, Hebrew) and CJK scripts (Chinese, Japanese, Korean).')}</p>
+        <p className="leading-relaxed">{hl('Messages display correctly and Friday can draft responses in these languages.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'media-attachments',
+    title: 'Media attachments',
+    group: '📡 Communication',
+    keywords: ['media', 'attachment', 'photo', 'image', 'file', 'upload', 'send'],
+    content: 'Guest media attachments (photos, files) are displayed inline in the conversation. Friday considers attached images when generating drafts — for example, a photo of a maintenance issue helps Friday understand what happened.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Guest media attachments (photos, files) display inline in the conversation.')}</p>
+        <p className="leading-relaxed">{hl('Friday considers attached images when generating drafts — a photo of an issue helps it understand the situation.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'reaction-detection',
+    title: 'Reaction detection',
+    group: '📡 Communication',
+    keywords: ['reaction', 'detect', 'like', 'heart', 'acknowledge'],
+    content: 'Friday detects message reactions (likes, hearts, etc.) and understands they may serve as acknowledgment. This prevents unnecessary follow-up drafts when a guest reacts instead of typing a reply.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Friday detects message reactions (likes, hearts) and understands they may serve as acknowledgment.')}</p>
+        <p className="leading-relaxed">{hl('This prevents unnecessary follow-up drafts when a guest reacts instead of typing a reply.')}</p>
       </div>
     ),
   },
 
-  // ── 5. Knowledge & Rules ────────────────────────────────────────────────
+  // ── 4. Analytics ───────────────────────────────────────────────────────
+  {
+    id: 'analytics-dashboard',
+    title: 'Analytics dashboard',
+    group: '📊 Analytics',
+    keywords: ['analytics', 'dashboard', 'stats', 'metrics', 'chart', 'graph', 'overview'],
+    content: 'The analytics dashboard shows team and individual performance metrics. Includes response times, draft approval rates, teaching usage, and conversation volumes. The layout has been refreshed for clarity with improved charts and filters.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('The analytics dashboard shows team and individual performance metrics:')}</p>
+        <div className="space-y-1">
+          <div>• {hl('Response times and draft approval rates')}</div>
+          <div>• {hl('Teaching usage and effectiveness')}</div>
+          <div>• {hl('Conversation volumes by channel and status')}</div>
+          <div>• {hl('Improved charts and filters for clarity')}</div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'conversion-tracking',
+    title: 'Conversion tracking',
+    group: '📊 Analytics',
+    keywords: ['conversion', 'tracking', 'inquiry', 'booking', 'rate', 'funnel'],
+    content: 'Track inquiry-to-booking conversion rates. See which conversations turned into confirmed bookings, and analyze patterns in successful conversions across properties and channels.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Track inquiry-to-booking conversion rates:')}</p>
+        <div className="space-y-1">
+          <div>• {hl('See which conversations turned into confirmed bookings')}</div>
+          <div>• {hl('Analyze patterns across properties and channels')}</div>
+          <div>• {hl('Identify top-performing response strategies')}</div>
+        </div>
+      </div>
+    ),
+  },
+
+  // ── 5. Operations ──────────────────────────────────────────────────────
+  {
+    id: 'inquiry-followup',
+    title: 'Inquiry follow-up system',
+    group: '⚙️ Operations',
+    keywords: ['inquiry', 'follow-up', 'followup', 'escalation', '3h', '12h', '24h', '1w', 'automated'],
+    content: 'Unanswered inquiries trigger automated follow-ups on an escalation schedule: 3 hours, 12 hours, 24 hours, and 1 week. Each follow-up is AI-drafted and respects platform-specific rules (e.g., WhatsApp 24h window). Follow-ups appear in your queue for review before sending.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Unanswered inquiries trigger automated follow-ups:')}</p>
+        <div className="space-y-1.5">
+          {[
+            ['3h', 'Gentle first follow-up'],
+            ['12h', 'Second check-in with more detail'],
+            ['24h', 'Stronger follow-up with urgency'],
+            ['1w', 'Final outreach attempt'],
+          ].map(([time, desc]) => (
+            <div key={time} className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-xs flex-shrink-0" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{time}</span>
+              <span>{hl(desc)}</span>
+            </div>
+          ))}
+        </div>
+        <p className="leading-relaxed mt-2">{hl('Follow-ups are AI-drafted, respect platform rules, and appear for your review before sending.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'active-issue-checkin',
+    title: 'Active issue check-ins',
+    group: '⚙️ Operations',
+    keywords: ['active', 'issue', 'check-in', 'checkin', 'escalation', '1h', '2h', '4h', 'maintenance'],
+    content: 'Active issues (maintenance, complaints) get automatic check-in reminders on an escalation schedule: 1 hour, 2 hours, 4 hours. Ensures no guest issue falls through the cracks.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Active issues get automatic check-in reminders:')}</p>
+        <div className="space-y-1.5">
+          {[
+            ['1h', 'Initial check-in — is the issue resolved?'],
+            ['2h', 'Follow-up if no response'],
+            ['4h', 'Escalation reminder'],
+          ].map(([time, desc]) => (
+            <div key={time} className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-xs flex-shrink-0" style={{background: 'rgba(245,158,11,0.1)', color: '#fbbf24'}}>{time}</span>
+              <span>{hl(desc)}</span>
+            </div>
+          ))}
+        </div>
+        <p className="leading-relaxed mt-2">{hl('Ensures no guest issue falls through the cracks.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'pending-actions',
+    title: 'Pending actions & click-to-navigate',
+    group: '⚙️ Operations',
+    keywords: ['pending', 'action', 'click', 'navigate', 'overdue', 'tasks', 'follow'],
+    content: 'Pending actions appear in the dashboard header. Click any pending action to navigate directly to the related conversation. Overdue items are highlighted in red. Review pending actions at the start of each shift.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Pending actions appear in the dashboard header:')}</p>
+        <div className="space-y-1">
+          <div>• {hl('Click any pending action to navigate directly to that conversation')}</div>
+          <div>• <span style={{color: '#f87171'}}>{hl('Overdue items')}</span> {hl('are highlighted in red')}</div>
+          <div>• {hl('Review pending actions at the start of each shift')}</div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'guesty-fallback',
+    title: 'Guesty browser fallback',
+    group: '⚙️ Operations',
+    keywords: ['guesty', 'playwright', 'browser', 'fallback', 'api', 'scrape'],
+    content: 'When the Guesty API is unavailable, Friday falls back to a browser-based approach to fetch property and reservation data. This happens automatically — you will not notice any difference in functionality.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('When the Guesty API is unavailable, Friday automatically falls back to browser-based data fetching.')}</p>
+        <p className="leading-relaxed">{hl('This happens transparently — you won\'t notice any difference in functionality.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'bug-reports',
+    title: 'Bug reports',
+    group: '⚙️ Operations',
+    keywords: ['bug', 'report', 'issue', 'feedback', 'status', 'edit', 'simplified'],
+    content: 'Report issues using the bug button. Bug reports have simplified statuses: Open, In Progress, Resolved. You can edit your bug reports after submitting. Include what you were doing, what happened, and screenshots if possible.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Report issues using the 🐛 bug button:')}</p>
+        <div className="space-y-1">
+          <div>• {hl('Simplified statuses: Open → In Progress → Resolved')}</div>
+          <div>• {hl('You can edit reports after submitting')}</div>
+          <div>• {hl('Include what happened and screenshots if possible')}</div>
+        </div>
+      </div>
+    ),
+  },
+
+  // ── 6. Knowledge & Rules ───────────────────────────────────────────────
   {
     id: 'teachings-what',
     title: 'What are teachings?',
     group: '🧠 Knowledge & Rules',
     keywords: ['teaching', 'rule', 'knowledge', 'what', 'why', 'matter', 'important'],
-    content: 'Teachings are rules that tell Friday how to respond in specific situations. For example: "Always include the WiFi password when guests ask about internet" or "Check-in is at 2pm for Villa Soleil". Friday uses these rules when generating drafts, so good teachings lead to better, more accurate drafts that need less editing.',
+    content: 'Teachings are rules that tell Friday how to respond. Property-specific rules apply to one property, global rules apply to all. Good teachings lead to better drafts that need less editing.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Teachings are rules that tell Friday how to respond in specific situations. For example:')}</p>
+        <p className="leading-relaxed">{hl('Teachings are rules that tell Friday how to respond in specific situations:')}</p>
         <div className="space-y-1.5">
           {[
             '"Always include the WiFi password when guests ask about internet"',
             '"Check-in is at 2pm for Villa Soleil"',
-            '"For maintenance issues, ask for a photo and notify the property manager"',
+            '"For maintenance issues, ask for a photo first"',
           ].map(ex => (
             <div key={ex} className="rounded px-2.5 py-1" style={{background: 'rgba(255,255,255,0.04)', fontStyle: 'italic'}}>
               {hl(ex)}
             </div>
           ))}
         </div>
-        <p className="leading-relaxed mt-2" style={{color: '#e2e8f0'}}>{hl('Good teachings = better drafts = less editing for you.')}</p>
+        <div className="space-y-1 mt-2">
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Property-specific</span> — {hl('applies to one property only')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Global</span> — {hl('applies to all properties')}</div>
+        </div>
       </div>
     ),
   },
   {
     id: 'teachings-panel',
-    title: 'The Knowledge & Rules panel',
+    title: 'Knowledge & Rules panel',
     group: '🧠 Knowledge & Rules',
-    keywords: ['panel', 'brain', 'button', 'header', 'tabs', 'active', 'review', 'metrics', 'corrections', 'open'],
-    content: 'Open the Knowledge and Rules panel by clicking the brain button in the header. It has 4 tabs: Active Rules shows current rules you can edit pause or revoke. Review Queue shows AI-detected teaching candidates waiting for approval. Metrics shows bulk analysis. Corrections shows history of team edits.',
+    keywords: ['panel', 'brain', 'button', 'tabs', 'active', 'review', 'metrics', 'corrections'],
+    content: 'Open with the brain button in the header. Active Rules to view, edit, pause, or revoke rules. Review Queue for AI-detected teaching candidates. Metrics for bulk analysis. Corrections for team edit history.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
         <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Open:</span> {hl('Click the 🧠 button in the header')}</div>
         <div className="space-y-1.5 mt-2">
-          <p className="font-semibold" style={{color: '#e2e8f0'}}>4 tabs:</p>
           {[
             ['Active Rules', 'View, edit, pause, or revoke existing rules'],
             ['Review Queue', 'Approve or reject AI-detected teaching candidates'],
@@ -393,156 +532,21 @@ const HELP_DATA: HelpEntry[] = [
       </div>
     ),
   },
-  {
-    id: 'teachings-created',
-    title: 'How teachings are created',
-    group: '🧠 Knowledge & Rules',
-    keywords: ['create', 'new', 'teaching', 'how', 'add', 'learn', 'detection', 'manual'],
-    content: 'Teachings come from two sources. Automatic: when you correct a draft or give Friday instructions, it may detect a pattern and suggest a new rule. Manual: you can add rules directly from the Active Rules tab in the Teaching Panel. Both types work the same way once active.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Teachings come from two sources:')}</p>
-        <div className="space-y-1.5">
-          <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Automatic</span> — {hl('when you correct a draft or give Friday instructions, it may detect a pattern and suggest a new rule')}</div>
-          <div>• <span style={{fontWeight: 500, color: '#6395ff'}}>Manual</span> — {hl('add rules directly from the Active Rules tab in the Teaching Panel')}</div>
-        </div>
-        <p className="leading-relaxed mt-2">{hl('Both types work the same way once active.')}</p>
-      </div>
-    ),
-  },
-  {
-    id: 'teachings-scope',
-    title: 'Property-specific vs global rules',
-    group: '🧠 Knowledge & Rules',
-    keywords: ['property', 'specific', 'global', 'scope', 'all', 'villa', 'apartment'],
-    content: 'Rules can be property-specific (only apply to one property like Villa Soleil) or global (apply to all properties). Property-specific rules are great for unique details like WiFi passwords, check-in codes, or house rules. Global rules cover general guidelines like tone of voice, response times, or escalation procedures.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div className="space-y-1.5">
-          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Property-specific</span> — {hl('only applies to one property (e.g., WiFi password for Villa Soleil, house rules for a specific apartment)')}</div>
-          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Global</span> — {hl('applies to all properties (e.g., tone of voice, escalation procedures, general policies)')}</div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'teachings-manage',
-    title: 'Editing, pausing, or removing a teaching',
-    group: '🧠 Knowledge & Rules',
-    keywords: ['edit', 'pause', 'resume', 'revoke', 'remove', 'delete', 'manage', 'teaching', 'rule'],
-    content: 'From the Active Rules tab you can edit a rule to update its content, pause a rule to temporarily disable it without deleting, resume a paused rule, or revoke a rule to remove it permanently. If you are unsure about a rule pause it first to see if drafts improve without it.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('From the Active Rules tab:')}</p>
-        <div className="space-y-1">
-          <div>• <span style={{fontWeight: 500, color: '#6395ff'}}>Edit</span> — {hl('update the rule content')}</div>
-          <div>• <span style={{fontWeight: 500, color: '#fbbf24'}}>Pause</span> — {hl('temporarily disable without deleting')}</div>
-          <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Resume</span> — {hl('reactivate a paused rule')}</div>
-          <div>• <span style={{fontWeight: 500, color: '#f87171'}}>Revoke</span> — {hl('remove permanently')}</div>
-        </div>
-        <p className="leading-relaxed mt-2" style={{color: '#94a3b8'}}>{hl('Unsure about a rule? Pause it first to see if drafts improve without it.')}</p>
-      </div>
-    ),
-  },
 
-  // ── 6. Common Scenarios ─────────────────────────────────────────────────
+  // ── 7. Common Scenarios ────────────────────────────────────────────────
   {
     id: 'scenario-checkin',
-    title: 'Guest asks about check-in/check-out',
+    title: 'Check-in / check-out questions',
     group: '📋 Common Scenarios',
-    keywords: ['check-in', 'check-out', 'time', 'early', 'late', 'arrival', 'departure', 'scenario'],
-    content: 'Friday usually handles check-in and check-out time questions well if the property info is complete. Review the draft to make sure the times are correct for that specific property. For early check-in or late check-out requests: check availability first, then respond. If unsure, tell the guest you will check and confirm shortly.',
+    keywords: ['check-in', 'check-out', 'time', 'early', 'late', 'arrival', 'departure'],
+    content: 'Friday handles these well if property info is complete. For early check-in or late check-out: check availability first, then respond.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Friday usually handles these well if the property info is complete. Review the draft to make sure times are correct for the specific property.')}</p>
+        <p className="leading-relaxed">{hl('Friday handles these well if property info is complete. Review to make sure times are correct.')}</p>
         <div className="rounded-md p-2.5 mt-1" style={{background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)'}}>
-          <span style={{color: '#fbbf24', fontWeight: 500}}>Early check-in / late check-out:</span>
-          <span style={{color: '#94a3b8'}}> {hl('Check availability first, then respond. If unsure, tell the guest you\'ll check and confirm shortly.')}</span>
+          <span style={{color: '#fbbf24', fontWeight: 500}}>Early/late requests:</span>
+          <span style={{color: '#94a3b8'}}> {hl('Check availability first, then respond.')}</span>
         </div>
-      </div>
-    ),
-  },
-  {
-    id: 'scenario-maintenance',
-    title: 'Guest reports a maintenance issue',
-    group: '📋 Common Scenarios',
-    keywords: ['maintenance', 'issue', 'broken', 'repair', 'fix', 'problem', 'report', 'photo'],
-    content: 'Ask the guest for a photo if they have not sent one. Acknowledge the issue and let them know you are on it. Escalate to Ishant for urgent issues like no water, no electricity, or safety concerns. For minor issues, note the action and follow up.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div className="space-y-1">
-          <div>1. {hl('Ask the guest for a photo if they haven\'t sent one')}</div>
-          <div>2. {hl('Acknowledge the issue and let them know you\'re on it')}</div>
-          <div>3. {hl('Escalate to Ishant for urgent issues (no water, no electricity, safety)')}</div>
-          <div>4. {hl('For minor issues, note the action and follow up')}</div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'scenario-complaints',
-    title: 'Handling guest complaints',
-    group: '📋 Common Scenarios',
-    keywords: ['complaint', 'upset', 'angry', 'unhappy', 'empathy', 'apologize', 'resolve'],
-    content: 'Lead with empathy. Acknowledge their frustration. Never be defensive. Use "we" language: "We apologize" not "I am sorry". Offer a concrete next step. For serious complaints (refund requests, threats of negative reviews) escalate to Ishant before responding.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div className="space-y-1">
-          <div>• {hl('Lead with empathy — acknowledge their frustration')}</div>
-          <div>• {hl('Never be defensive')}</div>
-          <div>• {hl('Use "we" language: "We apologize" not "I\'m sorry"')}</div>
-          <div>• {hl('Offer a concrete next step')}</div>
-        </div>
-        <div className="rounded-md p-2.5 mt-2" style={{background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)'}}>
-          <span style={{color: '#f87171', fontWeight: 500}}>Escalate to Ishant</span>
-          <span style={{color: '#94a3b8'}}> {hl('for refund requests, threats of negative reviews, or safety concerns.')}</span>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'scenario-booking',
-    title: 'Booking inquiries from new leads',
-    group: '📋 Common Scenarios',
-    keywords: ['booking', 'inquiry', 'new', 'lead', 'availability', 'price', 'rate', 'reserve'],
-    content: 'Be responsive — new leads expect quick replies. Confirm availability and share the rate. Keep it warm and inviting. Mention property highlights. If the rate or availability is unclear, check Guesty first, then respond.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div className="space-y-1">
-          <div>• {hl('Be responsive — new leads expect quick replies')}</div>
-          <div>• {hl('Confirm availability and share the rate')}</div>
-          <div>• {hl('Keep it warm and inviting — mention property highlights')}</div>
-          <div>• {hl('If rate or availability is unclear, check Guesty first')}</div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'scenario-activities',
-    title: 'Guest asks about activities/tours',
-    group: '📋 Common Scenarios',
-    keywords: ['activities', 'tours', 'attractions', 'mauritius', 'things', 'do', 'recommend'],
-    content: 'Direct guests to Mauritius Attractions for tours and activities. We have a partnership with them. Share their contact details or offer to connect them. For restaurant recommendations, check the property guide if available.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div className="space-y-1">
-          <div>• {hl('Direct guests to Mauritius Attractions for tours and activities')}</div>
-          <div>• {hl('We have a partnership with them — share their contact or offer to connect')}</div>
-          <div>• {hl('For restaurant recommendations, check the property guide if available')}</div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'scenario-languages',
-    title: 'Messages in different languages',
-    group: '📋 Common Scenarios',
-    keywords: ['language', 'french', 'german', 'translate', 'translation', 'foreign', 'multilingual'],
-    content: 'Friday can understand and reply in multiple languages. If the guest writes in French or German, Friday will typically draft a response in that language. Review carefully if you do not speak the language — you can ask Friday to translate or to provide an English version alongside.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Friday understands and replies in multiple languages. If a guest writes in French or German, Friday will typically draft in that language.')}</p>
-        <p className="leading-relaxed">{hl('If you don\'t speak the language, ask Friday: "Translate this to English" or "Give me an English version alongside."')}</p>
       </div>
     ),
   },
@@ -550,8 +554,8 @@ const HELP_DATA: HelpEntry[] = [
     id: 'scenario-escalate',
     title: 'When to escalate to Ishant',
     group: '📋 Common Scenarios',
-    keywords: ['escalate', 'ishant', 'help', 'urgent', 'serious', 'manager', 'supervisor'],
-    content: 'Escalate to Ishant when: refund or compensation is requested, guest threatens a negative review, safety or emergency situation, legal or liability concerns, you are genuinely unsure how to proceed after checking teachings. Tag @Ishant in Slack with the conversation link and a brief summary.',
+    keywords: ['escalate', 'ishant', 'help', 'urgent', 'serious', 'manager'],
+    content: 'Escalate when: refund or compensation requested, negative review threatened, safety/emergency, legal concerns, genuinely unsure after checking teachings. Tag @Ishant in Slack.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
         <p className="leading-relaxed">{hl('Escalate to Ishant when:')}</p>
@@ -560,40 +564,28 @@ const HELP_DATA: HelpEntry[] = [
           <div>• {hl('Guest threatens a negative review')}</div>
           <div>• {hl('Safety or emergency situation')}</div>
           <div>• {hl('Legal or liability concerns')}</div>
-          <div>• {hl('You\'re genuinely unsure after checking teachings')}</div>
+          <div>• {hl('Genuinely unsure after checking teachings')}</div>
         </div>
         <p className="leading-relaxed mt-2">{hl('Tag @Ishant in Slack with the conversation link and a brief summary.')}</p>
       </div>
     ),
   },
 
-  // ── 7. Tips & Best Practices ────────────────────────────────────────────
+  // ── 8. Tips & Best Practices ───────────────────────────────────────────
   {
     id: 'tips-review',
     title: 'Always review before sending',
     group: '💡 Tips & Best Practices',
-    keywords: ['review', 'check', 'before', 'sending', 'important', 'always', 'verify'],
-    content: 'AI drafts are suggestions, not final messages. Always read through before hitting send. Check names, dates, times, and property-specific details. A quick review catches most issues and takes just a few seconds.',
+    keywords: ['review', 'check', 'before', 'sending', 'important', 'always'],
+    content: 'AI drafts are suggestions. Always read through before sending. Check names, dates, times, and property-specific details.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
         <p className="leading-relaxed" style={{color: '#e2e8f0'}}>{hl('AI drafts are suggestions, not final messages.')}</p>
         <div className="space-y-1">
           <div>• {hl('Always read through before hitting send')}</div>
           <div>• {hl('Check names, dates, times, and property-specific details')}</div>
-          <div>• {hl('A quick review catches most issues and takes just a few seconds')}</div>
+          <div>• {hl('A quick review catches most issues')}</div>
         </div>
-      </div>
-    ),
-  },
-  {
-    id: 'tips-ask-friday',
-    title: 'Use Ask Friday when unsure',
-    group: '💡 Tips & Best Practices',
-    keywords: ['unsure', 'ask', 'friday', 'help', 'question', 'advice', 'guidance'],
-    content: 'If you are not sure how to handle something, ask Friday. It has access to all property info and teachings. Even if it cannot give a perfect answer, it can point you in the right direction or surface relevant rules.',
-    render: (hl) => (
-      <div className="text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Not sure how to handle something? Ask Friday. It has access to all property info and teachings. Even if it can\'t give a perfect answer, it can point you in the right direction or surface relevant rules.')}</p>
       </div>
     ),
   },
@@ -601,71 +593,15 @@ const HELP_DATA: HelpEntry[] = [
     id: 'tips-concise',
     title: 'Keep responses concise',
     group: '💡 Tips & Best Practices',
-    keywords: ['concise', 'short', 'brief', 'length', 'sentences', 'response'],
-    content: 'One to two sentences for routine questions. Longer only for complex issues. Guests appreciate quick, clear answers. Do not over-explain or include unnecessary pleasantries.',
+    keywords: ['concise', 'short', 'brief', 'length', 'response'],
+    content: '1-2 sentences for routine questions. Longer only for complex issues. Use "we" language: "We would be happy to arrange that."',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
         <div className="space-y-1">
           <div>• {hl('1–2 sentences for routine questions')}</div>
           <div>• {hl('Longer only for complex issues')}</div>
-          <div>• {hl('Guests appreciate quick, clear answers')}</div>
+          <div>• {hl('Use "we" language: "We would be happy to…"')}</div>
           <div>• {hl('Don\'t over-explain or include unnecessary pleasantries')}</div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'tips-we-language',
-    title: 'Use "we" language',
-    group: '💡 Tips & Best Practices',
-    keywords: ['we', 'language', 'tone', 'voice', 'team', 'professional', 'friendly'],
-    content: 'Always say "we" not "I". "We would be happy to arrange that" not "I will arrange that". This keeps communication consistent and professional, regardless of who is responding.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>✓</span>
-            <span style={{fontStyle: 'italic'}}>{hl('"We would be happy to arrange that"')}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>✗</span>
-            <span style={{fontStyle: 'italic'}}>{hl('"I will arrange that"')}</span>
-          </div>
-        </div>
-        <p className="leading-relaxed mt-1">{hl('Keeps communication consistent and professional, regardless of who responds.')}</p>
-      </div>
-    ),
-  },
-  {
-    id: 'tips-pending',
-    title: 'Check pending actions daily',
-    group: '💡 Tips & Best Practices',
-    keywords: ['pending', 'actions', 'daily', 'overdue', 'check', 'tasks', 'follow'],
-    content: 'Review pending actions at the start of each shift. Overdue items appear in red and need immediate attention. Mark items as Done when completed so the team knows. This keeps things from falling through the cracks.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div className="space-y-1">
-          <div>• {hl('Review pending actions at the start of each shift')}</div>
-          <div>• <span style={{color: '#f87171'}}>{hl('Overdue items (in red)')}</span> {hl('need immediate attention')}</div>
-          <div>• {hl('Mark items as Done when completed so the team knows')}</div>
-          <div>• {hl('This keeps things from falling through the cracks')}</div>
-        </div>
-      </div>
-    ),
-  },
-  {
-    id: 'tips-bug',
-    title: 'Reporting issues',
-    group: '💡 Tips & Best Practices',
-    keywords: ['bug', 'report', 'issue', 'problem', 'feedback', 'broken', 'not working'],
-    content: 'If something is not working right, use the bug button or report in the Slack feedback channel. Include what you were doing, what happened, and what you expected. Screenshots are super helpful. The more detail, the faster the fix.',
-    render: (hl) => (
-      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('If something\'s not working right, use the 🐛 bug button or report in the Slack feedback channel.')}</p>
-        <div className="space-y-1">
-          <div>• {hl('What you were doing')}</div>
-          <div>• {hl('What happened vs what you expected')}</div>
-          <div>• {hl('Screenshots are super helpful')}</div>
         </div>
       </div>
     ),
@@ -675,9 +611,10 @@ const HELP_DATA: HelpEntry[] = [
 // Group order for rendering
 const GROUP_ORDER = [
   '🏠 Getting Started',
-  '✨ AI Drafts',
-  '💬 Ask Friday',
-  '✍️ Compose',
+  '✨ AI & Drafts',
+  '📡 Communication',
+  '📊 Analytics',
+  '⚙️ Operations',
   '🧠 Knowledge & Rules',
   '📋 Common Scenarios',
   '💡 Tips & Best Practices',
@@ -685,7 +622,9 @@ const GROUP_ORDER = [
 
 // Groups that get a divider header
 const DIVIDER_GROUPS = new Set([
-  '✍️ Compose',
+  '📡 Communication',
+  '📊 Analytics',
+  '⚙️ Operations',
   '🧠 Knowledge & Rules',
   '📋 Common Scenarios',
   '💡 Tips & Best Practices',
@@ -787,7 +726,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
           <div className="flex items-center justify-between mb-3">
             <div>
               <div className="text-base font-bold" style={{ color: '#f1f5f9' }}>Friday GMS Guide</div>
-              <div className="text-xs" style={{ color: '#64748b' }}>Everything you need to get started</div>
+              <div className="text-xs" style={{ color: '#64748b' }}>v5.8 — Sprint 5 complete</div>
             </div>
             <button onClick={onClose} className="w-7 h-7 rounded-md flex items-center justify-center" data-testid="btn-close-help" style={{ background: 'rgba(255,255,255,0.06)', color: '#64748b' }}>✕</button>
           </div>
