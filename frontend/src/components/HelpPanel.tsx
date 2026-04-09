@@ -138,10 +138,10 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Notifications',
     group: '🏠 Getting Started',
     keywords: ['notification', 'bell', 'alert', 'new', 'message', 'draft', 'ready'],
-    content: 'The bell icon in the header shows notifications — new messages, draft ready alerts, and issue check-in reminders. Click a notification to jump to that conversation. Use "Mark all read" to clear the badge.',
+    content: 'Notifications are accessible via the menu (🔔). They show new messages, draft ready alerts, and issue check-in reminders. Click a notification to jump to that conversation. Use "Mark all read" to clear the badge.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('The 🔔 bell icon in the header shows notifications:')}</p>
+        <p className="leading-relaxed">{hl('Open Notifications via the ☰ menu (or 🔔 on desktop):')}</p>
         <div className="space-y-1">
           <div>• {hl('New messages from guests')}</div>
           <div>• {hl('Draft ready alerts')}</div>
@@ -416,12 +416,12 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Analytics dashboard',
     group: '📊 Analytics',
     keywords: ['analytics', 'dashboard', 'stats', 'metrics', 'chart', 'graph', 'overview'],
-    content: 'The analytics dashboard has two tabs: Developer (system metrics, AI costs, token usage, error trends) and Team (response times per user, messages sent, draft decisions, Ask Friday usage, sentiment trends). Open via the 📊 button in the header.',
+    content: 'The analytics dashboard has two tabs: Developer (system metrics, AI costs, token usage, error trends, feature usage) and Team (response times per user, messages sent, draft decisions, Ask Friday usage, sentiment trends). Includes Actionable Insights with key metrics. Open via the menu.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Open via the 📊 button in the header. Two tabs:')}</p>
+        <p className="leading-relaxed">{hl('Open via the ☰ menu → Analytics. Two tabs:')}</p>
         <div className="space-y-1.5">
-          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Developer:</span> {hl('AI costs, token usage trends, draft quality, error rates, feature usage')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Developer:</span> {hl('Actionable Insights, AI costs, token usage trends, draft quality, error rates, feature usage')}</div>
           <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Team:</span> {hl('Response times per user, messages sent, draft decisions, Ask Friday usage, sentiment trends')}</div>
         </div>
       </div>
@@ -501,10 +501,10 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Send Queue',
     group: '⚙️ Operations',
     keywords: ['queue', 'send', 'failed', 'retry', 'outbound', 'pending'],
-    content: 'The Send Queue (mailbox icon in header) shows outbound messages that are queued or failed. Tabs: All, Queued, Failed. Retry failed messages or check why they failed.',
+    content: 'The Send Queue shows outbound messages that are queued or failed. Tabs: All, Queued, Failed. Retry failed messages or check why they failed. Open via the menu.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('The Send Queue (📬 in the header) tracks outbound messages:')}</p>
+        <p className="leading-relaxed">{hl('The Send Queue (☰ menu → Queue) tracks outbound messages:')}</p>
         <div className="space-y-1">
           <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Queued:</span> {hl('Messages waiting to be sent')}</div>
           <div>• <span style={{fontWeight: 500, color: '#f87171'}}>Failed:</span> {hl('Messages that failed — retry or investigate')}</div>
@@ -517,13 +517,14 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Pending actions & click-to-navigate',
     group: '⚙️ Operations',
     keywords: ['pending', 'action', 'click', 'navigate', 'overdue', 'tasks', 'follow'],
-    content: 'Pending actions appear in the dashboard header. Click any pending action to navigate directly to the related conversation. Overdue items are highlighted in red. Review pending actions at the start of each shift.',
+    content: 'Pending actions appear in the info panel and the Actions tab. Each action has an urgency badge (low, medium, high, critical). Click any pending action to navigate directly to the related conversation. Review pending actions at the start of each shift.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Pending actions appear in the dashboard header:')}</p>
+        <p className="leading-relaxed">{hl('Pending actions appear in the info panel and the Actions tab:')}</p>
         <div className="space-y-1">
           <div>• {hl('Click any pending action to navigate directly to that conversation')}</div>
-          <div>• <span style={{color: '#f87171'}}>{hl('Overdue items')}</span> {hl('are highlighted in red')}</div>
+          <div>• {hl('Urgency badges: ')} <span style={{color: '#4ade80'}}>low</span>, <span style={{color: '#fbbf24'}}>medium</span>, <span style={{color: '#f97316'}}>high</span>, <span style={{color: '#f87171'}}>critical</span></div>
+          <div>• {hl('Overdue actions show an age indicator')}</div>
           <div>• {hl('Review pending actions at the start of each shift')}</div>
         </div>
       </div>
@@ -542,7 +543,7 @@ const HELP_DATA: HelpEntry[] = [
           <div>• {hl('A screenshot is auto-captured when you open the form')}</div>
           <div>• {hl('Statuses: New → In Progress → Fixed → Closed')}</div>
           <div>• {hl('Set severity: low, medium, high, or critical')}</div>
-          <div>• {hl('View all reports via the 🐛 button in the header')}</div>
+          <div>• {hl('View all reports via ☰ menu → Bug Reports')}</div>
         </div>
       </div>
     ),
@@ -581,10 +582,10 @@ const HELP_DATA: HelpEntry[] = [
     title: 'Knowledge & Rules panel',
     group: '🧠 Knowledge & Rules',
     keywords: ['panel', 'brain', 'button', 'tabs', 'active', 'review', 'metrics', 'corrections'],
-    content: 'Open with the brain button in the header. Active Rules to view, edit, pause, or revoke rules. Auto Learnings for AI-detected rules. Metrics for bulk analysis.',
+    content: 'Open via the menu. Active Rules to view, edit, pause, or revoke rules. Auto Learnings for AI-detected rules. Metrics for bulk analysis.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Open:</span> {hl('Click the 🧠 button in the header')}</div>
+        <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Open:</span> {hl('☰ menu → Knowledge & Rules')}</div>
         <div className="space-y-1.5 mt-2">
           {[
             ['Active Rules', 'View, edit, pause, or revoke existing rules. Search, filter by scope/property/creator'],
