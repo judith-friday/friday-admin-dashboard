@@ -27,7 +27,7 @@ export default function ComposePanel({
 
   const canSend = composeText.trim().length > 0 && !composeSending && !composeFix
   const canFix = composeText.trim().length > 0 && !composeSending && !composeFix
-  const canAskJudith = !composeSending && conversationId
+  const canAskFriday = !composeSending && conversationId
 
   return (
     <div data-testid="container-compose-panel" className="flex-shrink-0" style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
@@ -67,7 +67,7 @@ export default function ComposePanel({
             </button>
 
             {/* Ask Friday button */}
-            <button onClick={() => setShowConsult(!showConsult)} disabled={!canAskJudith}
+            <button onClick={() => setShowConsult(!showConsult)} disabled={!canAskFriday}
               className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium disabled:opacity-40"
               style={{
                 background: showConsult ? 'rgba(99,149,255,0.2)' : 'rgba(99,149,255,0.12)',

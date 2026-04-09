@@ -80,7 +80,7 @@ function CollapsibleSection({ title, defaultOpen = false, count, children }: {
 }
 
 // Detect AI-generated observation markers in notes
-const AI_NOTE_PATTERN = /\[Judith'?s? observation\]/i
+const AI_NOTE_PATTERN = /\[(?:Judith|Friday)'?s? observation\]/i
 
 function splitNotes(raw: string): { aiNotes: string[]; manualNotes: string } {
   if (!raw) return { aiNotes: [], manualNotes: '' }

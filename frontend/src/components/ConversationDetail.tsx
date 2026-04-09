@@ -33,8 +33,8 @@ function formatSenderWithChannel(senderName: string | null, channel?: string | n
   }
 
   // Fallback: parse from sender_name for older messages without sent_via_system
-  const personName = senderName.replace(/\s*via\s+(Compose|Judith|compose|judith)$/i, '').trim()
-  if (/via (Compose|Judith)/i.test(senderName)) {
+  const personName = senderName.replace(/\s*via\s+(Compose|Judith|Friday|compose|judith|friday)$/i, '').trim()
+  if (/via (Compose|Judith|Friday)/i.test(senderName)) {
     return channelName ? `${personName} via Friday on ${channelName}` : `${personName} via Friday`
   }
 
@@ -299,7 +299,7 @@ export default function ConversationDetail({
                   {isShowingTranslated ? draft.translated_content : draft.draft_body}
                 </p>
                 <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>
-                  {draft.reviewed_by === 'auto-send' ? 'Auto-sent by Judith' : `${draft.reviewed_by || 'Team'} via Friday${draft.sent_via ? ` on ${formatChannelName(draft.sent_via)}` : ''}`}{draft.revision_number && draft.revision_number > 1 ? ` (v${draft.revision_number})` : ''} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}
+                  {draft.reviewed_by === 'auto-send' ? 'Auto-sent by Friday' : `${draft.reviewed_by || 'Team'} via Friday${draft.sent_via ? ` on ${formatChannelName(draft.sent_via)}` : ''}`}{draft.revision_number && draft.revision_number > 1 ? ` (v${draft.revision_number})` : ''} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}
                 </div>
               </div>
               </React.Fragment>
