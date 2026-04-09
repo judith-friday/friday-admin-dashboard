@@ -76,12 +76,25 @@ export default function ConsultChat({
     if (!active || startedRef.current) return
     startedRef.current = true
     setStarted(true)
-    const userMsg: ChatMessage = { role: 'user', content: initialInstruction }
-    setMessages([userMsg])
     ;(async () => {
       setLoading(true)
       setError(null)
       try {
+        // Try to restore an existing active session
+        if (conversationId) {
+          try {
+            const existing = await apiFetch(`/api/ai/consult/session/active?conversationId=${encodeURIComponent(conversationId)}`)
+            if (existing.session && existing.session.history?.length > 0) {
+              setSessionId(existing.session.sessionId)
+              setMessages(existing.session.history)
+              setLoading(false)
+              return
+            }
+          } catch (_) { /* no active session, proceed to start new */ }
+        }
+        // No existing session — start new consultation
+        const userMsg: ChatMessage = { role: 'user', content: initialInstruction }
+        setMessages([userMsg])
         const data = await apiFetch('/api/ai/consult', {
           method: 'POST',
           body: JSON.stringify({
