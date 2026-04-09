@@ -607,7 +607,9 @@ export default function MessageDashboard() {
           toast.success('Draft approved and sent' + learnMsg)
         }
       } catch (err: any) {
-        if (err.message?.includes('Cannot approve draft in state')) {
+        if (err.message?.includes('whatsapp_window_closed')) {
+          toast.error('WhatsApp 24h window expired. Guest must message first.', { duration: 6000 })
+        } else if (err.message?.includes('Cannot approve draft in state')) {
           toast.error('Draft already processed — refreshing...')
         } else {
           toast.error(err.message)
