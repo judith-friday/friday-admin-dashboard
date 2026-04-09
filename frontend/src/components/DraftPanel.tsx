@@ -102,7 +102,7 @@ export default function DraftPanel({
                     className="w-full px-3 py-2 rounded text-base outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', overflowWrap: 'break-word', maxWidth: '100%', maxHeight: '30vh', overflowY: 'auto', resize: 'none'}} rows={4} />
                   <div className="flex flex-wrap gap-2">
                     <button data-testid={`btn-save-send-${draft.id}`} onClick={() => { handleDraftAction(draft.id, 'approve', editBody) }}
-                      className="px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Save and Send</button>
+                      className="px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Send</button>
                     <button data-testid={`btn-cancel-edit-${draft.id}`} onClick={() => { setEditingDraft(null); isEditingRef.current = false }}
                       className="px-3 py-1.5 text-sm rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Cancel</button>
                   </div>

@@ -68,7 +68,7 @@ export default function DashboardStats({
 
   return (
     <header data-testid="container-stats-bar" style={{background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', zIndex: 50, overflow: 'visible', paddingTop: 'calc(env(safe-area-inset-top, 0px) + 4px)'}}>
-      <div className="px-3 sm:px-6 py-1 sm:py-2">
+      <div className="px-3 sm:px-6 py-1.5 sm:py-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div>
@@ -119,9 +119,11 @@ export default function DashboardStats({
               <button onClick={() => { clearToken(); setTokenState(null) }}
                 className="text-xs ml-4" style={{color: '#64748b'}}>{displayName} {'\u00B7'} Logout</button>
               <NotificationBell notifications={notifications} onNotificationClick={onNotificationClick} onMarkAllRead={onMarkAllRead} />
+              {/* M9: Sound toggle hidden until Sprint 6 (push notifications not reliable yet)
               <button onClick={toggleMute} className="ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded" style={{color: '#64748b'}} title={isMuted ? 'Unmute' : 'Mute'}>
                 {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
               </button>
+              */}
               <button onClick={() => { if (!showTeachingsPanel) trackEvent('panel_opened', { panel: 'teachings' }); setShowTeachingsPanel(!showTeachingsPanel) }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(168,85,247,0.1)', color: '#c084fc'}} title="Knowledge & Rules">{'\uD83E\uDDE0'}</button>
               <button onClick={() => setShowBugReportsPanel(!showBugReportsPanel)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171'}} title="Bug Reports">{'\u{1F41B}'}</button>
               <button onClick={() => { trackEvent('panel_opened', { panel: 'analytics' }); setShowAnalytics(true) }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}} title="Analytics">{'\u{1F4CA}'}</button>
@@ -173,10 +175,12 @@ export default function DashboardStats({
                     <span>{'\u{1F4F2}'}</span> Install App
                   </button>
                 )}
+                {/* M9: Sound toggle hidden until Sprint 6 (push notifications not reliable yet)
                 <button onClick={() => { toggleMute(); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#e2e8f0'}}>
                   {isMuted ? <SpeakerXMarkIcon className="h-4 w-4" /> : <SpeakerWaveIcon className="h-4 w-4" />}
                   {isMuted ? 'Unmute' : 'Mute'}
                 </button>
+                */}
                 <button onClick={() => window.location.reload()} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#94a3b8'}}>
                   <ArrowPathIcon className="h-4 w-4" /> Refresh
                 </button>
