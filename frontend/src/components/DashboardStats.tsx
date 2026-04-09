@@ -72,7 +72,7 @@ export default function DashboardStats({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div>
-              <h1 className="text-base sm:text-xl font-bold" style={{color: '#f1f5f9'}}>Friday GMS</h1>
+              <img src="/assets/friday-logo-white.png" alt="Friday" className="h-5 sm:h-7 w-auto" />
             </div>
           </div>
 
