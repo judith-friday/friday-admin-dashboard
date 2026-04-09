@@ -400,7 +400,7 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
   ]
 
   return (
-    <div className="fixed inset-0 z-[60] flex" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', paddingTop: 'env(safe-area-inset-top, 0px)' }} onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', paddingTop: 'env(safe-area-inset-top, 0px)' }} onClick={() => { if (!editingTeachingId) onClose() }}>
       <div className="ml-auto w-full max-w-2xl h-full overflow-y-auto" style={{ background: '#0d1220', borderLeft: '1px solid rgba(255,255,255,0.08)' }} onClick={e => e.stopPropagation()}>
 
         {/* Header */}
@@ -624,7 +624,7 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
     const statusBg = t.status === 'active' ? 'rgba(34,197,94,0.15)' : t.status === 'paused' ? 'rgba(234,179,8,0.15)' : 'rgba(239,68,68,0.15)'
 
     return (
-      <div key={t.id} className="rounded-lg p-3 cursor-pointer transition-all" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', opacity: t.status === 'revoked' ? 0.5 : t.status === 'paused' ? 0.7 : 1 }} onClick={() => { if (!isEditing) setExpandedTeachingId(isExpanded ? null : t.id) }}>
+      <div key={t.id} className="rounded-lg p-3 cursor-pointer transition-all" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', opacity: t.status === 'revoked' ? 0.5 : t.status === 'paused' ? 0.7 : 1 }} onClick={() => { if (!editingTeachingId) setExpandedTeachingId(isExpanded ? null : t.id) }}>
         {/* Collapsed: instruction (truncated) + scope badge + paused badge */}
         {!isExpanded && !isEditing && (
           <>

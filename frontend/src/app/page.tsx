@@ -993,7 +993,7 @@ export default function MessageDashboard() {
 
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden" data-pwa-shell style={{background: '#0d1117', color: '#f1f5f9', paddingBottom: 0}}>
-      <Toaster position="top-right" containerStyle={{ zIndex: 99999, pointerEvents: 'none' }} toastOptions={{ duration: 4000, style: { background: 'rgba(15,25,50,0.95)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', pointerEvents: 'auto' } }} />
+      <Toaster position="top-right" containerStyle={{ zIndex: 99999, pointerEvents: 'none', top: 'calc(env(safe-area-inset-top, 0px) + 48px)' }} toastOptions={{ duration: 4000, style: { background: 'rgba(15,25,50,0.95)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', pointerEvents: 'auto' } }} />
       <HelpPanel isOpen={showHelp} onClose={() => setShowHelp(false)} />
 
       <TeachingPanel show={showTeachingsPanel} onClose={() => setShowTeachingsPanel(false)} displayName={displayName} />

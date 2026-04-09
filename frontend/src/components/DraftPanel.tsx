@@ -105,6 +105,12 @@ export default function DraftPanel({
                       className="px-3 py-1.5 text-sm rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Send</button>
                     <button data-testid={`btn-cancel-edit-${draft.id}`} onClick={() => { setEditingDraft(null); isEditingRef.current = false }}
                       className="px-3 py-1.5 text-sm rounded" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>Cancel</button>
+                    {conversationId && (
+                      <button data-testid={`btn-ask-judith-edit-${draft.id}`} onClick={() => { const opening = consultDraftId !== draft.id; setConsultDraftId(opening ? draft.id : null); if (opening) trackEvent('button_click', { button: 'ask_judith', context: 'draft_review', draft_id: draft.id }) }}
+                        className="flex items-center px-3 py-1.5 text-sm rounded" style={{background: 'rgba(99,149,255,0.08)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.15)'}}>
+                        <ChatBubbleLeftRightIcon className="h-4 w-4 mr-1" /> Ask Friday
+                      </button>
+                    )}
                   </div>
                 </div>
               ) : (

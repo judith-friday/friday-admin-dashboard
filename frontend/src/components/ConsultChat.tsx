@@ -170,7 +170,7 @@ export default function ConsultChat({
   }, [active]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (active) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (active) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [messages, loading, active])
 
   const adjustTextareaHeight = () => {
@@ -182,6 +182,20 @@ export default function ConsultChat({
     el.style.height = newH + 'px'
     el.style.overflowY = el.scrollHeight > maxH ? 'auto' : 'hidden'
   }
+
+  // Stabilize input on mobile: prevent keyboard from causing scroll jitter
+  useEffect(() => {
+    const el = textareaRef.current
+    if (!el || !active) return
+    const handleFocus = () => {
+      // Use requestAnimationFrame to let keyboard appear first, then scroll
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      })
+    }
+    el.addEventListener('focus', handleFocus)
+    return () => el.removeEventListener('focus', handleFocus)
+  }, [active, started])
 
   const sendConsult = async (instruction: string, history: ChatMessage[]): Promise<{response: string | null, draftUpdate?: string, teachingAction?: TeachingActionData, sessionId?: string, compacted?: boolean, missingKnowledge?: boolean}> => {
     const data = await apiFetch('/api/ai/consult', {
@@ -263,7 +277,7 @@ export default function ConsultChat({
   }
 
   return (
-    <div className="mt-2 rounded-lg" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', ...(active ? {} : { display: 'none' as const }) }}>
+    <div className="mt-2 rounded-lg" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', overflowAnchor: 'none', ...(active ? {} : { display: 'none' as const }) }}>
       {/* Header with close and new conversation buttons */}
       <div className="flex items-center justify-between px-3 pt-2">
         <span className="text-xs font-medium" style={{ color: '#6395ff' }}>Ask Friday</span>
@@ -293,7 +307,7 @@ export default function ConsultChat({
         </div>
       )}
       {/* Chat messages */}
-      <div className="p-3 pt-1 space-y-2 overflow-y-auto custom-scrollbar consult-chat-messages" style={{ maxHeight: '40vh' }}>
+      <div className="p-3 pt-1 space-y-2 overflow-y-auto custom-scrollbar consult-chat-messages" style={{ maxHeight: '40vh', overflowAnchor: 'none' }}>
         {messages.map((msg, i) => {
           if (msg.role === 'user') {
             return (
