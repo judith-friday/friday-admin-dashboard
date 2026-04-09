@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { LanguageIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
-import { ConversationDetail as ConversationDetailType, Draft, apiFetch, LANG_FLAGS, LANG_NAMES } from './types'
+import { ConversationDetail as ConversationDetailType, Draft, apiFetch, LANG_FLAGS, LANG_NAMES, decodeHtmlEntities } from './types'
 import { toast } from 'react-hot-toast'
 import ComposePanel from './ComposePanel'
 import DraftPanel from './DraftPanel'
@@ -338,7 +338,8 @@ export default function ConversationDetail({
             return (
               <React.Fragment key={`sent-${draft.id}`}>
               {dateSeparator}
-              <div className="rounded-lg p-3" style={{
+              <div className="flex justify-end">
+              <div className="max-w-xl rounded-lg p-3" style={{
                 background: 'rgba(34,197,94,0.06)',
                 border: '1px solid rgba(34,197,94,0.1)',
               }}>
@@ -363,11 +364,12 @@ export default function ConversationDetail({
                   )}
                 </div>
                 <p className="text-sm whitespace-pre-wrap" style={{color: '#e2e8f0', overflowWrap: 'break-word', wordBreak: 'break-word'}} dir="auto">
-                  {isShowingTranslated ? draft.translated_content : draft.draft_body}
+                  {decodeHtmlEntities(isShowingTranslated ? draft.translated_content : draft.draft_body)}
                 </p>
                 <div className="text-xs mt-2 pt-2" style={{borderTop: '1px solid rgba(34,197,94,0.1)', color: '#64748b'}}>
                   {draft.reviewed_by === 'auto-send' ? 'Auto-sent by Friday' : `${draft.reviewed_by || 'Team'} via Friday${draft.sent_via ? ` on ${formatChannelName(draft.sent_via)}` : ''}`}{draft.revision_number && draft.revision_number > 1 ? ` (v${draft.revision_number})` : ''} · {draft.sent_at ? format(new Date(draft.sent_at), 'MMM d HH:mm') : format(new Date(draft.updated_at), 'MMM d HH:mm')}
                 </div>
+              </div>
               </div>
               </React.Fragment>
             )
@@ -395,7 +397,7 @@ export default function ConversationDetail({
                     <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
                     System
                   </div>
-                  <p className="text-xs whitespace-pre-wrap" style={{color: '#94a3b8'}}>{msg.body}</p>
+                  <p className="text-xs whitespace-pre-wrap" style={{color: '#94a3b8'}}>{decodeHtmlEntities(msg.body)}</p>
                   <div className="text-xs mt-1" style={{color: '#475569'}}>
                     {formatTimestamp(msg.created_at)}
                   </div>
@@ -429,7 +431,7 @@ export default function ConversationDetail({
                 overflowX: 'hidden',
                 minWidth: 0,
               }}>
-                <p className="text-sm whitespace-pre-wrap" dir="auto">{displayBody}</p>
+                <p className="text-sm whitespace-pre-wrap" dir="auto">{decodeHtmlEntities(displayBody)}</p>
 
                 {/* Outbound with translation: "Sent in [language]" label + swap button */}
                 {isOutbound && hasTranslation && (
@@ -485,7 +487,8 @@ export default function ConversationDetail({
 
         {/* Queued drafts - awaiting retry */}
         {detail.drafts.filter(d => d.state === "send_queued").map(draft => (
-          <div key={draft.id} className="rounded-lg p-3 mt-2" style={{background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)"}}>
+          <div key={draft.id} className="flex justify-end mt-2">
+          <div className="max-w-xl rounded-lg p-3" style={{background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)"}}>
             <div className="flex items-center justify-between text-xs font-medium mb-1" style={{color: "#fbbf24"}}>
               <span><span className="mr-1.5">{'\u23F3'}</span> Queued — Guesty API unavailable. Will retry automatically.</span>
               <div className="flex space-x-1">
@@ -499,7 +502,8 @@ export default function ConversationDetail({
                 </button>
               </div>
             </div>
-            <p className="text-sm whitespace-pre-wrap" style={{color: "#e2e8f0", overflowWrap: 'break-word', wordBreak: 'break-word'}}>{draft.draft_body}</p>
+            <p className="text-sm whitespace-pre-wrap" style={{color: "#e2e8f0", overflowWrap: 'break-word', wordBreak: 'break-word'}}>{decodeHtmlEntities(draft.draft_body)}</p>
+          </div>
           </div>
         ))}
 

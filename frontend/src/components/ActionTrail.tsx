@@ -54,20 +54,43 @@ function DetailRow({ label, value }: { label: string; value: string | number | n
 
 export default function ActionTrail({ conversationId }: { conversationId: string }) {
   const [trail, setTrail] = useState<TrailEvent[]>([])
+  const [total, setTotal] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [collapsed, setCollapsed] = useState(false)
+
+  const PAGE_SIZE = 10
 
   useEffect(() => {
     if (!conversationId) return
     let cancelled = false
     setLoading(true)
-    apiFetch(`/api/conversations/${conversationId}/action-trail`)
-      .then(data => { if (!cancelled) setTrail(data.trail || []) })
-      .catch(() => { if (!cancelled) setTrail([]) })
+    apiFetch(`/api/conversations/${conversationId}/action-trail?limit=${PAGE_SIZE}&offset=0`)
+      .then(data => {
+        if (!cancelled) {
+          setTrail(data.trail || [])
+          setTotal(data.total || 0)
+          setHasMore(data.hasMore || false)
+        }
+      })
+      .catch(() => { if (!cancelled) { setTrail([]); setTotal(0); setHasMore(false) } })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [conversationId])
+
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return
+    setLoadingMore(true)
+    try {
+      const data = await apiFetch(`/api/conversations/${conversationId}/action-trail?limit=${PAGE_SIZE}&offset=${trail.length}`)
+      setTrail(prev => [...prev, ...(data.trail || [])])
+      setTotal(data.total || 0)
+      setHasMore(data.hasMore || false)
+    } catch {}
+    setLoadingMore(false)
+  }
 
   return (
     <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
@@ -83,8 +106,8 @@ export default function ActionTrail({ conversationId }: { conversationId: string
           }
           <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           Action Trail
-          {trail.length > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{ background: 'rgba(99,149,255,0.15)', color: '#6395ff' }}>{trail.length}</span>
+          {total > 0 && (
+            <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{ background: 'rgba(99,149,255,0.15)', color: '#6395ff' }}>{trail.length} of {total}</span>
           )}
         </span>
       </button>
@@ -96,7 +119,8 @@ export default function ActionTrail({ conversationId }: { conversationId: string
           ) : trail.length === 0 ? (
             <div className="text-xs py-2 text-center" style={{ color: '#64748b' }}>No activity yet</div>
           ) : (
-            trail.map(event => {
+            <>
+            {trail.map(event => {
               const isExpanded = expandedId === event.id
               return (
                 <div key={event.id}>
@@ -147,7 +171,18 @@ export default function ActionTrail({ conversationId }: { conversationId: string
                   )}
                 </div>
               )
-            })
+            })}
+            {hasMore && (
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="w-full py-2 text-xs rounded mt-1"
+                style={{ background: 'rgba(99,149,255,0.08)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.15)' }}
+              >
+                {loadingMore ? 'Loading...' : `Show more (${trail.length} of ${total})`}
+              </button>
+            )}
+            </>
           )}
         </div>
       )}
