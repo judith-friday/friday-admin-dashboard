@@ -36,7 +36,7 @@ export default function NotificationPrompt() {
     <div
       style={{
         position: 'fixed',
-        top: '1rem',
+        top: '4rem',
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 9999,

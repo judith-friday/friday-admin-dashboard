@@ -354,9 +354,16 @@ input:focus, textarea:focus, select:focus {
   }
 
   /* Action buttons: 44px min-height (Done, Dismiss, Approve, Edit, Reject, etc.) */
-  [data-testid="container-draft-panel"] button,
   [data-testid="section-pending-actions"] button {
     min-height: 44px;
+  }
+
+  /* Draft panel action buttons: compact on mobile to prevent 3-row wrapping */
+  [data-testid="container-draft-panel"] button {
+    min-height: 36px;
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+    font-size: 0.75rem !important;
   }
 
   /* Message bubbles use more width on mobile */
@@ -369,10 +376,11 @@ input:focus, textarea:focus, select:focus {
     padding: 0.5rem !important;
   }
 
-  /* Draft panel: tighter margins on mobile */
+  /* Draft panel: tighter margins + cap height on mobile */
   [data-testid="container-draft-panel"] {
     margin-left: 0.5rem !important;
     margin-right: 0.5rem !important;
+    max-height: 50vh !important;
   }
 
   /* Reduce general padding on mobile for more content space */
