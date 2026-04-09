@@ -90,8 +90,9 @@ export default function ComposePanel({
           </div>
           <span className="text-xs block" style={{color: '#475569'}}>Cmd+Enter to send</span>
 
-          {showConsult && conversationId && (
+          {conversationId && (
             <ConsultChat
+              active={showConsult}
               conversationId={conversationId}
               context="compose"
               initialInstruction={composeText || 'Help me compose a message to this guest.'}

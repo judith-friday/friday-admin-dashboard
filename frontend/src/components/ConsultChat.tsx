@@ -69,68 +69,101 @@ export default function ConsultChat({
   const [missingKnowledge, setMissingKnowledge] = useState(false)
 
   const startedRef = useRef(false)
+  const prevConversationIdRef = useRef(conversationId)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    if (!active || startedRef.current) return
+  const resetState = () => {
+    startedRef.current = false
+    setMessages([])
+    setSessionId(null)
+    setStarted(false)
+    setLoading(false)
+    setError(null)
+    setReplyText('')
+    setDraftUpdated(false)
+    setTeachingAction(null)
+    setCompactionNotice(false)
+    setMissingKnowledge(false)
+  }
+
+  const initSession = async () => {
+    if (startedRef.current) return
     startedRef.current = true
     setStarted(true)
-    ;(async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        // Try to restore an existing active session
-        if (conversationId) {
-          try {
-            const existing = await apiFetch(`/api/ai/consult/session/active?conversationId=${encodeURIComponent(conversationId)}`)
-            if (existing.session && existing.session.history?.length > 0) {
-              setSessionId(existing.session.sessionId)
-              setMessages(existing.session.history)
-              setLoading(false)
-              return
-            }
-          } catch (_) { /* no active session, proceed to start new */ }
-        }
-        // No existing session — start new consultation
-        const userMsg: ChatMessage = { role: 'user', content: initialInstruction }
-        setMessages([userMsg])
-        const data = await apiFetch('/api/ai/consult', {
-          method: 'POST',
-          body: JSON.stringify({
-            instruction: initialInstruction,
-            ...(conversationId ? { conversationId } : {}),
-            context,
-            ...(draftBody ? { draftBody } : {}),
-            ...(contextData ? { contextData } : {}),
-          }),
-        })
-        if (data.sessionId) {
-          setSessionId(data.sessionId)
-        }
-        const rawResponse = data.response as string
-        const draftUpdateContent = data.draft_update as string | undefined
-        if (rawResponse) {
-          const response = stripZoneTags(stripTeachTags(rawResponse))
-          setMessages([userMsg, { role: 'assistant', content: response }])
-        }
-        if (draftUpdateContent && onDraftUpdate) {
-          onDraftUpdate(draftUpdateContent)
-          setDraftUpdated(true)
-          setTimeout(() => setDraftUpdated(false), 3000)
-        }
-        if (data.teaching_action) {
-          setTeachingAction(data.teaching_action as TeachingActionData)
-        }
-        if (data.missingKnowledge) {
-          setMissingKnowledge(true)
-        }
-      } catch (err: any) {
-        setError(err.message || 'Failed to consult')
-      } finally {
-        setLoading(false)
+    setLoading(true)
+    setError(null)
+    try {
+      // Try to restore an existing active session
+      if (conversationId) {
+        try {
+          const existing = await apiFetch(`/api/ai/consult/session/active?conversationId=${encodeURIComponent(conversationId)}`)
+          if (existing.session && existing.session.history?.length > 0) {
+            setSessionId(existing.session.sessionId)
+            setMessages(existing.session.history)
+            setLoading(false)
+            return
+          }
+        } catch (_) { /* no active session, proceed to start new */ }
       }
-    })()
+      // No existing session — start new consultation
+      const userMsg: ChatMessage = { role: 'user', content: initialInstruction }
+      setMessages([userMsg])
+      const data = await apiFetch('/api/ai/consult', {
+        method: 'POST',
+        body: JSON.stringify({
+          instruction: initialInstruction,
+          ...(conversationId ? { conversationId } : {}),
+          context,
+          ...(draftBody ? { draftBody } : {}),
+          ...(contextData ? { contextData } : {}),
+        }),
+      })
+      if (data.sessionId) {
+        setSessionId(data.sessionId)
+      }
+      const rawResponse = data.response as string
+      const draftUpdateContent = data.draft_update as string | undefined
+      if (rawResponse) {
+        const response = stripZoneTags(stripTeachTags(rawResponse))
+        setMessages([userMsg, { role: 'assistant', content: response }])
+      }
+      if (draftUpdateContent && onDraftUpdate) {
+        onDraftUpdate(draftUpdateContent)
+        setDraftUpdated(true)
+        setTimeout(() => setDraftUpdated(false), 3000)
+      }
+      if (data.teaching_action) {
+        setTeachingAction(data.teaching_action as TeachingActionData)
+      }
+      if (data.missingKnowledge) {
+        setMissingKnowledge(true)
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to consult')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Handle conversationId changes — end old session and reset for new conversation
+  useEffect(() => {
+    if (prevConversationIdRef.current !== conversationId) {
+      const oldSessionId = sessionId
+      if (oldSessionId) {
+        apiFetch('/api/ai/consult/session/end', {
+          method: 'POST',
+          body: JSON.stringify({ sessionId: oldSessionId, history: messages }),
+        }).catch(() => {})
+      }
+      resetState()
+      prevConversationIdRef.current = conversationId
+    }
+  }, [conversationId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!active) return
+    initSession()
   }, [active]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -224,20 +257,27 @@ export default function ConsultChat({
 
   return (
     <div className="mt-2 rounded-lg" style={{ background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)', ...(active ? {} : { display: 'none' as const }) }}>
-      {/* Header with close button */}
+      {/* Header with close and new conversation buttons */}
       <div className="flex items-center justify-between px-3 pt-2">
         <span className="text-xs font-medium" style={{ color: '#6395ff' }}>Ask Friday</span>
-        <button onClick={() => {
-          if (sessionId) {
-            apiFetch('/api/ai/consult/session/end', {
-              method: 'POST',
-              body: JSON.stringify({ sessionId, history: messages }),
-            }).catch(() => {})
-          }
-          onCancel()
-        }} className="p-0.5 rounded hover:bg-white/10" style={{ color: '#64748b' }}>
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-        </button>
+        <div className="flex items-center gap-1">
+          <button onClick={async () => {
+            if (sessionId) {
+              await apiFetch('/api/ai/consult/session/end', {
+                method: 'POST',
+                body: JSON.stringify({ sessionId, history: messages }),
+              }).catch(() => {})
+            }
+            resetState()
+            // Re-initialize fresh session after state clears
+            setTimeout(() => initSession(), 0)
+          }} className="p-0.5 rounded hover:bg-white/10" style={{ color: '#64748b' }} title="New conversation">
+            <ArrowPathIcon className="h-3.5 w-3.5" />
+          </button>
+          <button onClick={() => onCancel()} className="p-0.5 rounded hover:bg-white/10" style={{ color: '#64748b' }} title="Close">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
       </div>
       {/* Missing knowledge indicator */}
       {missingKnowledge && (
