@@ -10,6 +10,7 @@ import {
   XMarkIcon,
   FunnelIcon,
   ArrowPathIcon,
+  ArrowsUpDownIcon,
 } from '@heroicons/react/24/outline'
 import { Conversation, InboxStats } from './types'
 import PendingActionsTab from './PendingActions'
@@ -53,7 +54,9 @@ export default function ConversationList({
   onRefresh,
 }: ConversationListProps) {
   const [showFilters, setShowFilters] = useState(false)
-  const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'guest' | 'property'>('recent')
+  const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'urgency'>('recent')
+  const [showSortMenu, setShowSortMenu] = useState(false)
+  const sortMenuRef = useRef<HTMLDivElement>(null)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; convId: string } | null>(null)
   const longPressTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTriggered = React.useRef(false)
@@ -121,6 +124,20 @@ export default function ConversationList({
     return () => { document.removeEventListener('click', handleClick); document.removeEventListener('keydown', handleKey) }
   }, [contextMenu])
 
+  // Close sort menu on click outside
+  useEffect(() => {
+    if (!showSortMenu) return
+    const handleClick = (e: MouseEvent) => {
+      if (sortMenuRef.current && !sortMenuRef.current.contains(e.target as Node)) setShowSortMenu(false)
+    }
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowSortMenu(false) }
+    document.addEventListener('mousedown', handleClick)
+    document.addEventListener('keydown', handleKey)
+    return () => { document.removeEventListener('mousedown', handleClick); document.removeEventListener('keydown', handleKey) }
+  }, [showSortMenu])
+
+  const sortLabels: Record<typeof sortBy, string> = { recent: 'Most recent', oldest: 'Oldest', urgency: 'Urgency' }
+
   const activeFilterCount = [filterProperty, filterChannel, filterDateFrom, filterDateTo].filter(Boolean).length
 
   return (
@@ -151,6 +168,23 @@ export default function ConversationList({
                 <ArrowPathIcon className="h-3.5 w-3.5" style={{color: '#64748b'}} />
               </button>
             )}
+            <div ref={sortMenuRef} className="relative">
+              <button onClick={() => setShowSortMenu(!showSortMenu)} className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10" title={`Sort: ${sortLabels[sortBy]}`}>
+                <ArrowsUpDownIcon className="h-3.5 w-3.5" style={{color: showSortMenu || sortBy !== 'recent' ? '#6395ff' : '#64748b'}} />
+              </button>
+              {showSortMenu && (
+                <div className="absolute right-0 top-8 rounded-lg shadow-lg py-1 min-w-[140px]" style={{background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', zIndex: 50}}>
+                  {(['recent', 'oldest', 'urgency'] as const).map(opt => (
+                    <button key={opt} onClick={() => { setSortBy(opt); setShowSortMenu(false) }}
+                      className="w-full text-left px-3 py-1.5 text-sm hover:bg-white/10 flex items-center justify-between"
+                      style={{color: sortBy === opt ? '#6395ff' : '#e2e8f0', fontWeight: sortBy === opt ? 500 : 400}}>
+                      {sortLabels[opt]}
+                      {sortBy === opt && <span style={{color: '#6395ff'}}>✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <button onClick={() => setShowFilters(!showFilters)} className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 relative" title="Filters">
               <FunnelIcon className="h-3.5 w-3.5" style={{color: showFilters || activeFilterCount > 0 ? '#6395ff' : '#64748b'}} />
               {activeFilterCount > 0 && (
@@ -271,16 +305,6 @@ export default function ConversationList({
       {activeTab === 'actions' && !isSearchActive ? (
         <PendingActionsTab token={token} />
       ) : (<>
-        {/* Sort control */}
-        <div className="px-2 py-0.5 flex items-center justify-end" style={{borderBottom: '1px solid rgba(255,255,255,0.04)'}}>
-          <select value={sortBy} onChange={e => setSortBy(e.target.value as typeof sortBy)}
-            className="text-base py-0.5 px-1.5 rounded outline-none" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
-            <option value="recent">Most recent</option>
-            <option value="oldest">Oldest first</option>
-            <option value="guest">Guest name</option>
-            <option value="property">Property</option>
-          </select>
-        </div>
         <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar relative"
           onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
           {/* Pull-to-refresh indicator */}
@@ -313,8 +337,12 @@ export default function ConversationList({
             [...filteredConversations].sort((a, b) => {
               if (sortBy === 'recent') return new Date(b.last_message_at || 0).getTime() - new Date(a.last_message_at || 0).getTime()
               if (sortBy === 'oldest') return new Date(a.last_message_at || 0).getTime() - new Date(b.last_message_at || 0).getTime()
-              if (sortBy === 'guest') return (a.guest_name || '').localeCompare(b.guest_name || '')
-              if (sortBy === 'property') return (a.property_name || '').localeCompare(b.property_name || '')
+              if (sortBy === 'urgency') {
+                const rank: Record<string, number> = { upset: 0, frustrated: 1, neutral: 2, positive: 3 }
+                const ra = rank[a.sentiment || 'neutral'] ?? 2
+                const rb = rank[b.sentiment || 'neutral'] ?? 2
+                return ra !== rb ? ra - rb : new Date(b.last_message_at || 0).getTime() - new Date(a.last_message_at || 0).getTime()
+              }
               return 0
             }).map(conv => (
               <div key={conv.id} data-testid={`conversation-${conv.id}`}
