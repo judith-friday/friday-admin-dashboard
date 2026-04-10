@@ -383,12 +383,33 @@ export default function MessageDashboard() {
             }
           }
           if (data.type === 'draft_ready') {
-            addNotification({
-              type: 'draft_ready',
-              title: `Draft ready`,
-              subtitle: `Confidence: ${data.data?.confidence || '?'}%`,
-              preview: '',
-              conversationId: data.data?.conversationId || data.data?.conversation_id || '',
+            const convId = data.data?.conversationId || data.data?.conversation_id || ''
+            // Try to merge with existing unread new_message notification for same conversation
+            setNotifications(prev => {
+              const existingIdx = prev.findIndex(
+                n => n.conversationId === convId && n.type === 'new_message' && !n.read
+              )
+              if (existingIdx !== -1) {
+                const updated = [...prev]
+                updated[existingIdx] = {
+                  ...updated[existingIdx],
+                  type: 'draft_ready' as const,
+                  title: `${updated[existingIdx].title} — Draft ready`,
+                  subtitle: `Confidence: ${data.data?.confidence || '?'}%`,
+                }
+                return updated
+              }
+              // No merge target — add as new notification
+              return [{
+                id: `notif-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                type: 'draft_ready' as const,
+                title: 'Draft ready',
+                subtitle: `Confidence: ${data.data?.confidence || '?'}%`,
+                preview: '',
+                conversationId: convId,
+                timestamp: Date.now(),
+                read: false,
+              }, ...prev]
             })
           }
           if (data.type === 'pending_action_new') {
