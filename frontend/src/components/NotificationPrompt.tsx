@@ -1,27 +1,34 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePushNotifications } from './usePushNotifications'
 
 const DISMISSED_KEY = 'gms_notif_prompt_dismissed'
 
 export default function NotificationPrompt() {
   const [show, setShow] = useState(false)
+  const { permission, subscription, requestPermission } = usePushNotifications()
 
   useEffect(() => {
-    // Don't show if: no Notification API, already granted/denied, or user dismissed
     if (typeof window === 'undefined' || !('Notification' in window)) return
-    if (Notification.permission !== 'default') return
-    if (localStorage.getItem(DISMISSED_KEY) === 'true') return
-    // Show prompt after a short delay so it doesn't flash on load
-    const timer = setTimeout(() => setShow(true), 2000)
-    return () => clearTimeout(timer)
-  }, [])
+    // Show if permission is 'default' (never asked) and not dismissed
+    if (Notification.permission === 'default' && localStorage.getItem(DISMISSED_KEY) !== 'true') {
+      const timer = setTimeout(() => setShow(true), 2000)
+      return () => clearTimeout(timer)
+    }
+    // Show if permission is 'granted' but no active subscription (broken state)
+    if (Notification.permission === 'granted' && !subscription) {
+      localStorage.removeItem(DISMISSED_KEY)
+      const timer = setTimeout(() => setShow(true), 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [subscription])
 
   if (!show) return null
 
   const handleEnable = async () => {
-    const result = await Notification.requestPermission()
-    if (result === 'granted' || result === 'denied') {
+    const granted = await requestPermission()
+    if (granted || Notification.permission === 'denied') {
       setShow(false)
     }
     // If 'default' (user dismissed browser prompt), keep banner visible
