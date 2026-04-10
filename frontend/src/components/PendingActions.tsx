@@ -265,7 +265,7 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
   if (loading) return <div className="p-4 text-center" style={{color: '#64748b'}}>Loading actions...</div>
 
   return (
-    <div data-testid="section-pending-actions" className="flex-1 overflow-y-auto custom-scrollbar">
+    <div data-testid="section-pending-actions" className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
       {!conversationFilter && (
         <div className="p-3 flex justify-between items-center" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
           <span className="text-sm font-medium" style={{color: '#94a3b8'}}>{actions.length} pending action{actions.length !== 1 ? 's' : ''}</span>
@@ -411,7 +411,7 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
                     </div>
                   </div>
                 )}
-                <div className="flex space-x-2 flex-wrap gap-y-1">
+                <div className="flex space-x-2 flex-wrap gap-y-1 max-w-full">
                   <button data-testid={`btn-action-done-${action.id}`} onClick={() => promptDismissReason(action.id, 'completed')}
                     className="px-2 py-1 text-xs rounded" style={{background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>Done</button>
                   <button data-testid={`btn-action-dismiss-${action.id}`} onClick={() => promptDismissReason(action.id, 'dismissed')}

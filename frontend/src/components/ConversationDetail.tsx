@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { format } from 'date-fns'
-import { LanguageIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
+import { LanguageIcon, ChevronDownIcon, ChevronUpIcon, ChevronDoubleDownIcon } from '@heroicons/react/24/outline'
 import { ConversationDetail as ConversationDetailType, Draft, apiFetch, LANG_FLAGS, LANG_NAMES, decodeHtmlEntities, stripProtocolTags } from './types'
 import { toast } from 'react-hot-toast'
 import ComposePanel from './ComposePanel'
@@ -170,6 +170,17 @@ export default function ConversationDetail({
   const [showTranslated, setShowTranslated] = useState<Record<string, boolean>>({})
   // Track which outbound messages show original language (by message id)
   const [showMsgOriginal, setShowMsgOriginal] = useState<Record<string, boolean>>({})
+  // Scroll-to-bottom floating button
+  const [showScrollBtn, setShowScrollBtn] = useState(false)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const handleMessagesScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50
+    setShowScrollBtn(!atBottom)
+  }, [])
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messagesEndRef])
 
   // Format timestamp: relative for recent, absolute for older
   const formatTimestamp = (dateStr: string) => {
@@ -287,7 +298,8 @@ export default function ConversationDetail({
       </div>
 
       {/* Messages - dominant element */}
-      <div data-testid="section-messages" className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-3 custom-scrollbar min-h-0 min-w-0" style={{background: 'rgba(255,255,255,0.01)'}}>
+      <div className="relative flex-1 min-h-0 min-w-0">
+      <div data-testid="section-messages" ref={messagesContainerRef} onScroll={handleMessagesScroll} className="h-full overflow-y-auto overflow-x-hidden p-4 space-y-3 custom-scrollbar" style={{background: 'rgba(255,255,255,0.01)'}}>
         {(() => {
           // Build set of bodies from sent drafts to avoid showing duplicate outbound messages
           // (sent drafts are rendered separately with approval info and translation toggle)
@@ -540,6 +552,17 @@ export default function ConversationDetail({
 
         {/* Draft history removed — now in Action Trail (Info panel) */}
         <div ref={messagesEndRef} />
+      </div>
+      {showScrollBtn && (
+        <button
+          onClick={scrollToBottom}
+          className="absolute bottom-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-opacity duration-200 z-10"
+          style={{background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)'}}
+          title="Scroll to bottom"
+        >
+          <ChevronDoubleDownIcon className="h-4 w-4" style={{color: '#94a3b8'}} />
+        </button>
+      )}
       </div>
 
       {/* WhatsApp 24h window indicator */}
