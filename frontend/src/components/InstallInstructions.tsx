@@ -40,6 +40,7 @@ export default function InstallInstructions({ show, onClose }: { show: boolean; 
 
   return (
     <div
+      data-install-prompt
       onClick={onClose}
       style={{
         position: 'fixed',

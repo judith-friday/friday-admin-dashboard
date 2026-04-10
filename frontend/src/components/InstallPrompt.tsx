@@ -18,6 +18,7 @@ export default function InstallPrompt() {
 
   return (
     <div
+      data-install-prompt
       style={{
         position: 'fixed',
         bottom: '1rem',

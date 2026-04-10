@@ -24,6 +24,11 @@ html, body {
     margin-bottom: 0 !important;
     min-height: 100dvh !important;
   }
+  /* Hide all install-related UI in standalone PWA mode */
+  [data-install-prompt],
+  [data-install-button] {
+    display: none !important;
+  }
 }
 
 /* Custom scrollbar for dark theme - thin and rounded */

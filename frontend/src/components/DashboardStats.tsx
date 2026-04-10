@@ -132,7 +132,7 @@ export default function DashboardStats({
               </button>
               <button data-testid="btn-help" onClick={() => setShowHelp(true)} className="ml-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}} title="Help">?</button>
               {!installed && (
-                <button onClick={async () => { resetDismissal(); if (canInstall) { await triggerInstall() } else { setShowInstallHelp(true) } }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(14,165,233,0.1)', color: '#38bdf8'}} title="Install App">{'\u{1F4F2}'}</button>
+                <span data-install-button><button onClick={async () => { resetDismissal(); if (canInstall) { await triggerInstall() } else { if (!installed) setShowInstallHelp(true) } }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(14,165,233,0.1)', color: '#38bdf8'}} title="Install App">{'\u{1F4F2}'}</button></span>
               )}
             </div>
           )}
@@ -171,9 +171,9 @@ export default function DashboardStats({
                   <span>?</span> Help
                 </button>
                 {!installed && (
-                  <button onClick={async () => { resetDismissal(); if (canInstall) { await triggerInstall() } else { setShowInstallHelp(true) }; setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#38bdf8'}}>
+                  <span data-install-button><button onClick={async () => { resetDismissal(); if (canInstall) { await triggerInstall() } else { if (!installed) setShowInstallHelp(true) }; setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#38bdf8'}}>
                     <span>{'\u{1F4F2}'}</span> Install App
-                  </button>
+                  </button></span>
                 )}
                 {/* M9: Sound toggle hidden until Sprint 6 (push notifications not reliable yet)
                 <button onClick={() => { toggleMute(); setMobileMenuOpen(false) }} className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2" style={{color: '#e2e8f0'}}>
