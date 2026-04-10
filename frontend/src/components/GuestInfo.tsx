@@ -112,6 +112,7 @@ export default function GuestInfo({
   const [editNotesValue, setEditNotesValue] = useState('')
   const [showAllSteps, setShowAllSteps] = useState(false)
   const [expandedStepId, setExpandedStepId] = useState<string | null>(null)
+  const [pendingCount, setPendingCount] = useState(0)
 
   // Fetch next steps from dedicated API
   useEffect(() => {
@@ -340,9 +341,14 @@ export default function GuestInfo({
         )}
       </div>
 
+      {/* Pending actions for this conversation - collapsible */}
+      <CollapsibleSection title="Pending Actions" defaultOpen={false} count={pendingCount}>
+        <PendingActionsTab token={token} conversationFilter={selectedConvId} onCountChange={setPendingCount} />
+      </CollapsibleSection>
+
       {/* Suggested next steps - collapsible */}
       {nextSteps.length > 0 && (
-        <CollapsibleSection title="Next Steps" defaultOpen={true} count={activeSteps.length}>
+        <CollapsibleSection title="Next Steps" defaultOpen={false} count={activeSteps.length}>
           <div className="px-3 pb-3 space-y-1.5">
             {(showAllSteps ? activeSteps : activeSteps.slice(0, 3)).map((s, i) => {
               const isExpanded = expandedStepId === s.id
@@ -431,11 +437,6 @@ export default function GuestInfo({
           </div>
         </CollapsibleSection>
       )}
-
-      {/* Pending actions for this conversation - collapsible */}
-      <CollapsibleSection title="Pending Actions" defaultOpen={true}>
-        <PendingActionsTab token={token} conversationFilter={selectedConvId} />
-      </CollapsibleSection>
 
 
       {/* Action Trail - replaces Draft History */}

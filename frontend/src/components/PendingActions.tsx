@@ -22,7 +22,7 @@ import { trackEvent } from '../lib/analytics'
 
 type SortKey = 'urgency' | 'newest' | 'oldest' | 'guest'
 
-export default function PendingActionsTab({ token, conversationFilter, onNavigateToConversation }: { token: string; conversationFilter?: string; onNavigateToConversation?: (convId: string) => void }) {
+export default function PendingActionsTab({ token, conversationFilter, onNavigateToConversation, onCountChange }: { token: string; conversationFilter?: string; onNavigateToConversation?: (convId: string) => void; onCountChange?: (count: number) => void }) {
   const [actions, setActions] = useState<PendingAction[]>([])
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<SortKey>('urgency')
@@ -46,6 +46,7 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
   const [dismissReasonId, setDismissReasonId] = useState<string | null>(null)
   const [dismissReasonText, setDismissReasonText] = useState('')
   const [dismissReasonStatus, setDismissReasonStatus] = useState<'completed' | 'dismissed'>('completed')
+  const [showAllActions, setShowAllActions] = useState(false)
 
   const fetchActions = useCallback(async () => {
     try {
@@ -54,10 +55,17 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
       let filtered = data.actions || []
       if (conversationFilter) {
         filtered = filtered.filter((a: PendingAction) => a.conversation_id === conversationFilter)
+        // Separate dismissed/completed into resolvedActions for conversation-filtered view
+        const resolved = filtered.filter((a: PendingAction) => a.status === 'completed' || a.status === 'dismissed')
+        resolved.sort((a: PendingAction, b: PendingAction) => new Date(b.completed_at || b.detected_at).getTime() - new Date(a.completed_at || a.detected_at).getTime())
+        setResolvedActions(resolved)
+        // Only show pending items in main list
+        filtered = filtered.filter((a: PendingAction) => a.status === 'pending')
       }
       setActions(filtered)
+      onCountChange?.(filtered.filter((a: PendingAction) => a.status === 'pending').length)
     } catch { } finally { setLoading(false) }
-  }, [conversationFilter])
+  }, [conversationFilter, onCountChange])
 
   useEffect(() => { fetchActions() }, [fetchActions])
 
@@ -310,7 +318,7 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
           <p className="text-sm">No pending actions</p>
         </div>
       ) : (
-        sortedActions.map(action => (
+        (showAllActions ? sortedActions : sortedActions.slice(0, 3)).map(action => (
           <div key={action.id} className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.03)', opacity: action.status !== 'pending' ? 0.5 : 1}}>
             <div className="flex justify-between items-start mb-1 cursor-pointer group" onClick={() => onNavigateToConversation?.(action.conversation_id)}>
               <span className="text-sm font-medium group-hover:underline" style={{color: '#f1f5f9'}}>{action.guest_name}</span>
@@ -448,8 +456,44 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
           </div>
         ))
       )}
+      {sortedActions.length > 3 && !showAllActions && (
+        <button onClick={() => setShowAllActions(true)} className="w-full text-xs py-2" style={{color: '#64748b', background: 'none', border: 'none', cursor: 'pointer', borderTop: '1px solid rgba(255,255,255,0.03)'}}>
+          Show {sortedActions.length - 3} more...
+        </button>
+      )}
 
-      {/* Resolved Actions History */}
+      {/* Resolved/Dismissed Actions */}
+      {conversationFilter && resolvedActions.length > 0 && (
+        <div style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
+          <button
+            onClick={() => { setShowResolved(!showResolved) }}
+            className="w-full p-3 flex items-center justify-between text-sm"
+            style={{color: '#64748b'}}
+          >
+            <span className="flex items-center gap-1.5">
+              {showResolved ? <ChevronDownIcon className="h-4 w-4" /> : <ChevronRightIcon className="h-4 w-4" />}
+              Show dismissed
+              <span className="text-xs" style={{color: '#475569'}}>({resolvedActions.length})</span>
+            </span>
+          </button>
+          {showResolved && resolvedActions.map(action => (
+            <div key={action.id} className="px-3 py-2" style={{borderTop: '1px solid rgba(255,255,255,0.03)', opacity: 0.55}}>
+              <div className="flex justify-between items-start mb-0.5">
+                <span className="text-xs font-medium" style={{color: '#94a3b8'}}>{action.guest_name}</span>
+                <span className="px-1.5 py-0.5 rounded text-xs shrink-0" style={{
+                  background: action.status === 'completed' ? 'rgba(34,197,94,0.1)' : 'rgba(100,116,139,0.1)',
+                  color: action.status === 'completed' ? '#4ade80' : '#94a3b8',
+                  fontSize: '0.65rem',
+                }}>
+                  {action.status === 'completed' ? 'Done' : 'Dismissed'}
+                </span>
+              </div>
+              <p className="text-xs mb-1" style={{color: '#64748b'}}>{action.action_text}</p>
+              {action.completion_note && <div className="text-xs" style={{color: '#475569', fontSize: '0.65rem'}}>{action.completion_note}</div>}
+            </div>
+          ))}
+        </div>
+      )}
       {!conversationFilter && (
         <div style={{borderTop: '1px solid rgba(255,255,255,0.06)'}}>
           <button
@@ -459,7 +503,7 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
           >
             <span className="flex items-center gap-1.5">
               {showResolved ? <ChevronDownIcon className="h-4 w-4" /> : <ChevronRightIcon className="h-4 w-4" />}
-              Resolved Actions
+              Show dismissed
               {resolvedActions.length > 0 && <span className="text-xs" style={{color: '#475569'}}>({resolvedActions.length})</span>}
             </span>
           </button>
