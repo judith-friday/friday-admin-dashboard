@@ -1,8 +1,11 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, createContext, useContext } from 'react'
 import { apiFetch } from './types'
 import { trackEvent } from '../lib/analytics'
+
+// Date range context — section components automatically get date filtering
+const DateRangeContext = createContext({ start: '', end: '' })
 
 // ── Color constants ──
 const BG = '#0a0f1e'
@@ -59,7 +62,15 @@ function Bar({ value, max, color, label, rightLabel }: { value: number; max: num
 
 // ── Hook for fetching section data ──
 
-function useSectionData<T>(path: string, active: boolean) {
+function useSectionData<T>(basePath: string, active: boolean) {
+  const { start, end } = useContext(DateRangeContext)
+  const path = useMemo(() => {
+    if (!start && !end) return basePath
+    const sep = basePath.includes('?') ? '&' : '?'
+    const params = [start && `start=${start}`, end && `end=${end}`].filter(Boolean).join('&')
+    return `${basePath}${sep}${params}`
+  }, [basePath, start, end])
+
   const [data, setData] = useState<T | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -82,7 +93,7 @@ function useSectionData<T>(path: string, active: boolean) {
     if (active) fetch_()
   }, [active, fetch_])
 
-  return { data, loading, error }
+  return { data, loading, error, refetch: fetch_ }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -877,10 +888,36 @@ interface AnalyticsDashboardProps {
   onClose: () => void
 }
 
+function computeDates(preset: string, customStart: string, customEnd: string) {
+  const today = new Date().toISOString().slice(0, 10)
+  const daysAgo = (n: number) => { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10) }
+  switch (preset) {
+    case 'today': return { start: today, end: today }
+    case '7d': return { start: daysAgo(7), end: today }
+    case '30d': return { start: daysAgo(30), end: today }
+    case '90d': return { start: daysAgo(90), end: today }
+    case 'custom': return { start: customStart || daysAgo(30), end: customEnd || today }
+    default: return { start: daysAgo(30), end: today }
+  }
+}
+
+const DATE_PRESETS = [
+  { key: 'today', label: 'Today' },
+  { key: '7d', label: '7 days' },
+  { key: '30d', label: '30 days' },
+  { key: '90d', label: '90 days' },
+  { key: 'custom', label: 'Custom' },
+] as const
+
 export default function AnalyticsDashboard({ show, onClose }: AnalyticsDashboardProps) {
   const [activeTab, setActiveTab] = useState<'developer' | 'team'>('developer')
   const [refreshKey, setRefreshKey] = useState(0)
   const [refreshing, setRefreshing] = useState(false)
+  const [datePreset, setDatePreset] = useState('30d')
+  const [customStart, setCustomStart] = useState('')
+  const [customEnd, setCustomEnd] = useState('')
+
+  const dateRange = useMemo(() => computeDates(datePreset, customStart, customEnd), [datePreset, customStart, customEnd])
 
   const handleRefresh = useCallback(() => {
     setRefreshing(true)
@@ -938,41 +975,87 @@ export default function AnalyticsDashboard({ show, onClose }: AnalyticsDashboard
               </button>
             ))}
           </div>
+
+          {/* Date range pills */}
+          <div className="flex flex-wrap items-center gap-2 mt-3">
+            {DATE_PRESETS.map(p => (
+              <button
+                key={p.key}
+                onClick={() => setDatePreset(p.key)}
+                className="text-xs px-3 py-1.5 rounded-full font-medium transition-colors"
+                style={{
+                  background: datePreset === p.key ? 'rgba(99,149,255,0.2)' : 'rgba(255,255,255,0.04)',
+                  color: datePreset === p.key ? ACCENT : MUTED_COLOR,
+                  border: `1px solid ${datePreset === p.key ? 'rgba(99,149,255,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                }}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Custom date inputs */}
+          {datePreset === 'custom' && (
+            <div className="flex gap-3 mt-2">
+              <div>
+                <label className="text-xs block mb-1" style={{ color: MUTED_COLOR }}>From</label>
+                <input
+                  type="date"
+                  value={customStart || dateRange.start}
+                  onChange={e => setCustomStart(e.target.value)}
+                  className="text-xs rounded px-2 py-1.5 outline-none"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', colorScheme: 'dark' }}
+                />
+              </div>
+              <div>
+                <label className="text-xs block mb-1" style={{ color: MUTED_COLOR }}>To</label>
+                <input
+                  type="date"
+                  value={customEnd || dateRange.end}
+                  onChange={e => setCustomEnd(e.target.value)}
+                  className="text-xs rounded px-2 py-1.5 outline-none"
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', colorScheme: 'dark' }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Content */}
-        <div className="px-4 sm:px-6 py-4 space-y-4" key={refreshKey}>
-          {/* Actionable Insights — always visible, shown first */}
-          <ActionableInsights active={show} />
+        <DateRangeContext.Provider value={dateRange}>
+          <div className="px-4 sm:px-6 py-4 space-y-4" key={refreshKey}>
+            {/* Actionable Insights — always visible, shown first */}
+            <ActionableInsights active={show} />
 
-          {isDev && (
-            <>
-              <DevFeatureUsage active={isDev} />
-              <DevLearningRate active={isDev} />
-              <DevDraftQuality active={isDev} />
-              <DevAICosts active={isDev} />
-              <DevTokenTrends active={isDev} />
-              <DevCostPerConversation active={isDev} />
-              <DevErrorTrends active={isDev} />
-              <DevTeachingEffectiveness active={isDev} />
-              <DevUnderusedFeatures active={isDev} />
-            </>
-          )}
-          {isTeam && (
-            <>
-              <TeamResponseTimes active={isTeam} />
-              <TeamMessagesPerUser active={isTeam} />
-              <TeamDraftDecisions active={isTeam} />
-              <TeamTeachingActivity active={isTeam} />
-              <TeamAskFridayUsage active={isTeam} />
-              <TeamRevisionTrends active={isTeam} />
-              <TeamSentiment active={isTeam} />
-              <TeamVolumePatterns active={isTeam} />
-              <TeamLeaderboard active={isTeam} />
-              <TeamSuggestions active={isTeam} />
-            </>
-          )}
-        </div>
+            {isDev && (
+              <>
+                <DevFeatureUsage active={isDev} />
+                <DevLearningRate active={isDev} />
+                <DevDraftQuality active={isDev} />
+                <DevAICosts active={isDev} />
+                <DevTokenTrends active={isDev} />
+                <DevCostPerConversation active={isDev} />
+                <DevErrorTrends active={isDev} />
+                <DevTeachingEffectiveness active={isDev} />
+                <DevUnderusedFeatures active={isDev} />
+              </>
+            )}
+            {isTeam && (
+              <>
+                <TeamResponseTimes active={isTeam} />
+                <TeamMessagesPerUser active={isTeam} />
+                <TeamDraftDecisions active={isTeam} />
+                <TeamTeachingActivity active={isTeam} />
+                <TeamAskFridayUsage active={isTeam} />
+                <TeamRevisionTrends active={isTeam} />
+                <TeamSentiment active={isTeam} />
+                <TeamVolumePatterns active={isTeam} />
+                <TeamLeaderboard active={isTeam} />
+                <TeamSuggestions active={isTeam} />
+              </>
+            )}
+          </div>
+        </DateRangeContext.Provider>
       </div>
     </div>
   )
