@@ -49,7 +49,7 @@ export function usePushNotifications() {
     setSubscription(sub)
 
     // Send subscription to backend
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('gms_token')
     await fetch(`${API_BASE}/api/push/subscribe`, {
       method: 'POST',
       body: JSON.stringify(sub),
