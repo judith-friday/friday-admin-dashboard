@@ -1391,6 +1391,149 @@ function TeamActionsAndLearning({ active }: { active: boolean }) {
   )
 }
 
+// ── LEARNING INTELLIGENCE SECTION ──
+
+interface SuppressionEntry { action_type: string; category: string; total: number; dismissed: number; dismiss_rate: number; suppressed: boolean }
+interface LearnedDeadline { category: string; avg_hours: number; median_hours: number; sample_size: number }
+interface RoutingSuggestion { category: string | null; property_code: string | null; suggested_team_member: string; actions_handled: number; total_in_group: number; confidence: number }
+interface LearningSummary { events: { type: string; count: number; analyzed: number; pending: number }[]; clusters: { status: string; count: number }[]; total_events: number; total_clusters: number }
+
+function TeamLearningIntelligence({ active }: { active: boolean }) {
+  const { data: suppressions, loading: l1 } = useSectionData<{ data: SuppressionEntry[] }>('/api/analytics/v2/suppressions', active)
+  const { data: deadlines, loading: l2 } = useSectionData<{ data: LearnedDeadline[] }>('/api/analytics/v2/learned-deadlines', active)
+  const { data: patterns, loading: l3 } = useSectionData<{ data: { by_category: RoutingSuggestion[]; by_property: RoutingSuggestion[] } }>('/api/analytics/v2/ops-patterns', active)
+  const { data: summary, loading: l4 } = useSectionData<LearningSummary>('/api/analytics/v2/learning-summary', active)
+
+  if (l1 || l2 || l3 || l4) return <LoadingState />
+
+  const suppCandidates = suppressions?.data?.filter(s => s.suppressed) || []
+  const allSupp = suppressions?.data || []
+  const dls = deadlines?.data || []
+  const catRoutes = patterns?.data?.by_category || []
+  const propRoutes = patterns?.data?.by_property || []
+
+  if (!allSupp.length && !dls.length && !catRoutes.length && !summary?.total_events) return <EmptyState />
+
+  return (
+    <SectionCard title="Learning & Intelligence">
+      <div className="space-y-4">
+        {/* Suppression Candidates */}
+        {allSupp.length > 0 && (
+          <div>
+            <div className="text-xs font-medium mb-2" style={{ color: SUB_COLOR }}>Suppression Candidates</div>
+            <div className="text-xs mb-2" style={{ color: MUTED_COLOR }}>Action types with high dismiss rates — candidates for automatic suppression</div>
+            <div className="space-y-1">
+              {allSupp.slice(0, 10).map((s, i) => (
+                <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: s.suppressed ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.02)', border: `1px solid ${s.suppressed ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.06)'}` }}>
+                  <div className="flex-1">
+                    <span className="text-sm" style={{ color: HEADER_COLOR }}>{formatEventName(s.action_type)}</span>
+                    <span className="text-xs ml-2" style={{ color: MUTED_COLOR }}>{s.category}</span>
+                  </div>
+                  <span className="text-xs px-2 py-0.5 rounded-full" style={{
+                    background: s.dismiss_rate > 70 ? 'rgba(239,68,68,0.15)' : s.dismiss_rate > 40 ? 'rgba(234,179,8,0.15)' : 'rgba(34,197,94,0.15)',
+                    color: s.dismiss_rate > 70 ? '#f87171' : s.dismiss_rate > 40 ? '#fbbf24' : '#4ade80'
+                  }}>{s.dismiss_rate}% dismissed</span>
+                  <span className="text-xs" style={{ color: MUTED_COLOR }}>{s.total} total</span>
+                  {s.suppressed && <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(239,68,68,0.2)', color: '#f87171' }}>suppressed</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Learned Deadlines */}
+        {dls.length > 0 && (
+          <div>
+            <div className="text-xs font-medium mb-2" style={{ color: SUB_COLOR }}>Learned Deadlines</div>
+            <div className="text-xs mb-2" style={{ color: MUTED_COLOR }}>Average resolution time by category — used to set smarter due dates</div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs" style={{ color: SUB_COLOR }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <th className="text-left py-1.5 px-2 font-medium" style={{ color: HEADER_COLOR }}>Category</th>
+                    <th className="text-right py-1.5 px-2 font-medium" style={{ color: HEADER_COLOR }}>Avg Hours</th>
+                    <th className="text-right py-1.5 px-2 font-medium" style={{ color: HEADER_COLOR }}>Median Hours</th>
+                    <th className="text-right py-1.5 px-2 font-medium" style={{ color: HEADER_COLOR }}>Sample Size</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dls.map((d, i) => (
+                    <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                      <td className="py-1.5 px-2">{formatEventName(d.category)}</td>
+                      <td className="text-right py-1.5 px-2">{d.avg_hours}h</td>
+                      <td className="text-right py-1.5 px-2">{d.median_hours}h</td>
+                      <td className="text-right py-1.5 px-2">{d.sample_size}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Team Routing Patterns */}
+        {(catRoutes.length > 0 || propRoutes.length > 0) && (
+          <div>
+            <div className="text-xs font-medium mb-2" style={{ color: SUB_COLOR }}>Team Routing Patterns</div>
+            <div className="text-xs mb-2" style={{ color: MUTED_COLOR }}>Who handles what — based on completed action history</div>
+            {catRoutes.length > 0 && (
+              <div className="mb-3">
+                <div className="text-xs mb-1" style={{ color: MUTED_COLOR }}>By Category</div>
+                <div className="space-y-1">
+                  {catRoutes.map((r, i) => (
+                    <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                      <span className="text-xs w-40" style={{ color: HEADER_COLOR }}>{formatEventName(r.category || '')}</span>
+                      <span className="text-xs flex-1" style={{ color: ACCENT }}>{r.suggested_team_member}</span>
+                      <span className="text-xs" style={{ color: MUTED_COLOR }}>{r.actions_handled}/{r.total_in_group} ({r.confidence}%)</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {propRoutes.length > 0 && (
+              <div>
+                <div className="text-xs mb-1" style={{ color: MUTED_COLOR }}>By Property</div>
+                <div className="space-y-1">
+                  {propRoutes.slice(0, 10).map((r, i) => (
+                    <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded" style={{ background: 'rgba(255,255,255,0.02)' }}>
+                      <span className="text-xs w-40" style={{ color: HEADER_COLOR }}>{r.property_code}</span>
+                      <span className="text-xs flex-1" style={{ color: ACCENT }}>{r.suggested_team_member}</span>
+                      <span className="text-xs" style={{ color: MUTED_COLOR }}>{r.actions_handled}/{r.total_in_group} ({r.confidence}%)</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Learning Events Summary */}
+        {summary && summary.total_events > 0 && (
+          <div>
+            <div className="text-xs font-medium mb-2" style={{ color: SUB_COLOR }}>Learning Events</div>
+            <div className="flex gap-4 flex-wrap">
+              <div className="text-center px-3 py-2 rounded-lg" style={{ background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)' }}>
+                <div className="text-lg font-semibold" style={{ color: ACCENT }}>{summary.total_events}</div>
+                <div className="text-xs" style={{ color: MUTED_COLOR }}>Total Events</div>
+              </div>
+              <div className="text-center px-3 py-2 rounded-lg" style={{ background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)' }}>
+                <div className="text-lg font-semibold" style={{ color: ACCENT }}>{summary.total_clusters}</div>
+                <div className="text-xs" style={{ color: MUTED_COLOR }}>Clusters</div>
+              </div>
+              {summary.events.map((e, i) => (
+                <div key={i} className="text-center px-3 py-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div className="text-lg font-semibold" style={{ color: HEADER_COLOR }}>{e.count}</div>
+                  <div className="text-xs" style={{ color: MUTED_COLOR }}>{formatEventName(e.type)}{e.pending > 0 ? ` (${e.pending} pending)` : ''}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </SectionCard>
+  )
+}
+
 // ── SHARED INSIGHTS SECTION ──
 
 function ActionableInsights({ active }: { active: boolean }) {
@@ -1610,6 +1753,7 @@ export default function AnalyticsDashboard({ show, onClose }: AnalyticsDashboard
                 <TeamVolumePatterns active={isTeam} />
                 <TeamLeaderboard active={isTeam} />
                 <TeamSuggestions active={isTeam} />
+                <TeamLearningIntelligence active={isTeam} />
               </>
             )}
           </div>
