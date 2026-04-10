@@ -43,6 +43,7 @@ export function stripProtocolTags(text: string): string {
     .replace(/\[LEARNING_DETECTED\]/g, '')
     .replace(/\[CONTEXT_REFRESH\]/g, '')
     .replace(/\[STR_KB\]/g, '')
+    .replace(/\[SALES_KB\]/g, '')
     .replace(/\[\/[A-Z_]+\]/g, '')
     .trim()
 }

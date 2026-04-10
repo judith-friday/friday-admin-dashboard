@@ -568,6 +568,7 @@ export default function ConversationDetail({
           draftStateBadge={draftStateBadge}
           propertyName={detail.conversation.property_name}
           conversationId={selectedConvId}
+          conversationIntent={detail.conversation.conversation_intent}
           onTeachingCreated={onTeachingCreated}
         >
           <ComposePanel
@@ -576,6 +577,7 @@ export default function ConversationDetail({
             composeSending={composeSending} handleComposeSend={handleComposeSend}
             handleComposeFix={handleComposeFix} composeFix={composeFix}
             conversationId={selectedConvId}
+            conversationIntent={detail.conversation.conversation_intent}
             onTeachingCreated={onTeachingCreated}
           />
         </DraftPanel>
@@ -588,6 +590,7 @@ export default function ConversationDetail({
           composeSending={composeSending} handleComposeSend={handleComposeSend}
           handleComposeFix={handleComposeFix} composeFix={composeFix}
           conversationId={selectedConvId}
+          conversationIntent={detail.conversation.conversation_intent}
           onTeachingCreated={onTeachingCreated}
         />
         </CollapsibleMobilePanel>

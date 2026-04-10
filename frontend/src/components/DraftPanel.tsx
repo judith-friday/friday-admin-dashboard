@@ -41,6 +41,7 @@ interface DraftPanelProps {
   propertyName?: string
   children?: React.ReactNode
   conversationId?: string
+  conversationIntent?: string
   onTeachingCreated?: (teaching: { id: string; instruction: string; scope: string }) => void
 }
 
@@ -50,7 +51,7 @@ export default function DraftPanel({
   rejectingDraft, setRejectingDraft, rejectReason, setRejectReason,
   showTeachPrompt, setShowTeachPrompt,
   requestApproval, handleDraftAction, handleRevision, handleRejectWithReason,
-  draftStateBadge, propertyName, children, conversationId, onTeachingCreated,
+  draftStateBadge, propertyName, children, conversationId, conversationIntent, onTeachingCreated,
 }: DraftPanelProps) {
   const [collapsed, setCollapsed] = useState(false)
   const [consultDraftId, setConsultDraftId] = useState<string | null>(null)
@@ -222,6 +223,9 @@ export default function DraftPanel({
                     { label: 'More formal', instruction: 'Make this draft more formal and professional in tone.' },
                     { label: 'More casual', instruction: 'Make this draft more casual and friendly in tone.' },
                     { label: 'STR KB', instruction: '[STR_KB] Review this draft against the full STR best practices. Flag any issues and suggest improvements.' },
+                    ...(['new_booking', 'extension', 'followup'].includes(conversationIntent || '') ? [
+                      { label: 'Sales KB', instruction: '[SALES_KB] Review this draft against the full sales knowledge base. Flag any missed sales opportunities and suggest improvements.' },
+                    ] : []),
                   ]}
                   onTeachingCreated={onTeachingCreated}
                 />
