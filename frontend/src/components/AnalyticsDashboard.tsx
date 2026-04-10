@@ -474,6 +474,267 @@ function DevErrorTrends({ active }: { active: boolean }) {
 // TEAM TAB SECTIONS
 // ══════════════════════════════════════════════════════════
 
+// — Inquiry Performance (D1) —
+
+interface InquiryData {
+  period: { start: string; end: string }
+  conversions: {
+    total: number; inquiry: number; booked: number; lost: number; unknown: number; conversion_rate: number
+    by_channel: { channel: string; total: number; booked: number; rate: number }[]
+    by_property: { property_name: string; total: number; booked: number; rate: number }[]
+  }
+  response_time: { avg_first_response_minutes: number | null; booked_avg_first_response: number | null; lost_avg_first_response: number | null }
+  followups: { total: number; by_status: Record<string, number>; by_urgency: Record<string, number>; dismissed_reasons: Record<string, number>; avg_escalation_level: number }
+  intents: Record<string, number>
+  trends: { daily: { date: string; new_conversations: number; booked: number; followups_created: number }[] }
+}
+
+function TeamInquiryFunnel({ active }: { active: boolean }) {
+  const { data, loading, error } = useSectionData<InquiryData>('/api/analytics/inquiries', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data?.conversions) return <EmptyState />
+
+  const c = data.conversions
+  const funnelSteps = [
+    { label: 'Total', value: c.total, color: ACCENT },
+    { label: 'Inquiry', value: c.inquiry, color: '#fbbf24' },
+    { label: 'Booked', value: c.booked, color: '#4ade80' },
+    { label: 'Lost', value: c.lost, color: '#f87171' },
+    { label: 'Unknown', value: c.unknown, color: MUTED_COLOR },
+  ]
+  const max = Math.max(c.total, 1)
+
+  return (
+    <SectionCard title="Conversion Funnel">
+      <div className="flex flex-wrap gap-3 mb-4">
+        <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.15)' }}>
+          <div className="text-xs" style={{ color: SUB_COLOR }}>Conversion Rate</div>
+          <div className="text-lg font-bold" style={{ color: '#4ade80' }}>{c.conversion_rate}%</div>
+        </div>
+        <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)' }}>
+          <div className="text-xs" style={{ color: SUB_COLOR }}>Total Conversations</div>
+          <div className="text-lg font-bold" style={{ color: ACCENT }}>{c.total}</div>
+        </div>
+      </div>
+      {funnelSteps.map(s => (
+        <div key={s.label} className="flex items-center gap-3 mb-1.5">
+          <div className="text-xs w-16 text-right" style={{ color: SUB_COLOR }}>{s.label}</div>
+          <div className="flex-1 h-6 rounded overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
+            <div className="h-full rounded flex items-center px-2" style={{ width: `${Math.max((s.value / max) * 100, 2)}%`, background: s.color, opacity: 0.5, transition: 'width 0.3s ease' }}>
+              <span className="text-xs font-medium" style={{ color: HEADER_COLOR }}>{s.value}</span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </SectionCard>
+  )
+}
+
+function TeamInquiryByChannel({ active }: { active: boolean }) {
+  const { data, loading, error } = useSectionData<InquiryData>('/api/analytics/inquiries', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data?.conversions?.by_channel?.length) return <EmptyState />
+
+  const channels = data.conversions.by_channel
+  const max = Math.max(...channels.map(c => c.total), 1)
+
+  return (
+    <SectionCard title="Conversions by Channel">
+      {channels.map(ch => (
+        <div key={ch.channel} className="mb-2">
+          <div className="flex items-center gap-3 mb-0.5">
+            <div className="text-xs w-20 text-right truncate" style={{ color: SUB_COLOR }}>{ch.channel}</div>
+            <div className="flex-1 h-5 rounded overflow-hidden flex" style={{ background: 'rgba(255,255,255,0.04)' }}>
+              {ch.booked > 0 && <div className="h-full" style={{ width: `${(ch.booked / max) * 100}%`, background: 'rgba(74,222,128,0.5)' }} title={`Booked: ${ch.booked}`} />}
+              {(ch.total - ch.booked) > 0 && <div className="h-full" style={{ width: `${((ch.total - ch.booked) / max) * 100}%`, background: 'rgba(99,149,255,0.3)' }} title={`Other: ${ch.total - ch.booked}`} />}
+            </div>
+            <div className="text-xs w-20 text-right" style={{ color: MUTED_COLOR }}>{ch.booked}/{ch.total} ({ch.rate}%)</div>
+          </div>
+        </div>
+      ))}
+      <div className="flex gap-3 text-xs mt-2" style={{ color: MUTED_COLOR }}>
+        <span><span style={{ color: '#4ade80' }}>{'\u25CF'}</span> Booked</span>
+        <span><span style={{ color: ACCENT }}>{'\u25CF'}</span> Other</span>
+      </div>
+    </SectionCard>
+  )
+}
+
+function TeamInquiryByProperty({ active }: { active: boolean }) {
+  const { data, loading, error } = useSectionData<InquiryData>('/api/analytics/inquiries', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data?.conversions?.by_property?.length) return <EmptyState />
+
+  const properties = data.conversions.by_property.filter(p => p.total > 0)
+  if (!properties.length) return <EmptyState />
+
+  return (
+    <SectionCard title="Conversions by Property">
+      <div className="rounded-lg overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+        <table className="w-full text-sm">
+          <thead>
+            <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
+              <th className="text-left px-3 py-2 text-xs font-medium" style={{ color: MUTED_COLOR }}>Property</th>
+              <th className="text-right px-2 py-2 text-xs font-medium" style={{ color: MUTED_COLOR }}>Total</th>
+              <th className="text-right px-2 py-2 text-xs font-medium" style={{ color: MUTED_COLOR }}>Booked</th>
+              <th className="text-right px-3 py-2 text-xs font-medium" style={{ color: MUTED_COLOR }}>Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            {properties.map((p, i) => (
+              <tr key={p.property_name} style={{ borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : undefined }}>
+                <td className="px-3 py-2 text-xs truncate" style={{ color: HEADER_COLOR, maxWidth: '180px' }}>{p.property_name}</td>
+                <td className="text-right px-2 py-2 text-xs" style={{ color: SUB_COLOR }}>{p.total}</td>
+                <td className="text-right px-2 py-2 text-xs font-medium" style={{ color: '#4ade80' }}>{p.booked}</td>
+                <td className="text-right px-3 py-2 text-xs font-medium" style={{ color: p.rate > 0 ? '#4ade80' : MUTED_COLOR }}>{p.rate}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </SectionCard>
+  )
+}
+
+function TeamInquiryResponseTime({ active }: { active: boolean }) {
+  const { data, loading, error } = useSectionData<InquiryData>('/api/analytics/inquiries', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data?.response_time) return <EmptyState />
+
+  const rt = data.response_time
+  if (rt.avg_first_response_minutes == null && rt.booked_avg_first_response == null && rt.lost_avg_first_response == null) return <EmptyState />
+
+  const items = [
+    { label: 'All Conversations', value: rt.avg_first_response_minutes, color: ACCENT },
+    { label: 'Booked', value: rt.booked_avg_first_response, color: '#4ade80' },
+    { label: 'Lost', value: rt.lost_avg_first_response, color: '#f87171' },
+  ].filter(i => i.value != null) as { label: string; value: number; color: string }[]
+  const max = Math.max(...items.map(i => i.value), 1)
+
+  return (
+    <SectionCard title="Avg First Response Time (minutes)">
+      {items.map(i => (
+        <Bar key={i.label} value={Math.round(i.value)} max={max} color={i.color} label={i.label} rightLabel={`${Math.round(i.value)}m`} />
+      ))}
+      {rt.booked_avg_first_response != null && rt.lost_avg_first_response != null && rt.lost_avg_first_response > rt.booked_avg_first_response && (
+        <div className="text-xs mt-2 px-2 py-1.5 rounded" style={{ background: 'rgba(74,222,128,0.06)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.1)' }}>
+          Booked guests got {Math.round(rt.lost_avg_first_response - rt.booked_avg_first_response)}m faster first response on average
+        </div>
+      )}
+    </SectionCard>
+  )
+}
+
+function TeamInquiryFollowups({ active }: { active: boolean }) {
+  const { data, loading, error } = useSectionData<InquiryData>('/api/analytics/inquiries', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data?.followups || data.followups.total === 0) return <EmptyState />
+
+  const f = data.followups
+  const statusColors: Record<string, string> = { pending: '#fbbf24', auto_dismissed: '#64748b', completed: '#4ade80', dismissed: '#94a3b8' }
+  const statusEntries = Object.entries(f.by_status).filter(([, v]) => v > 0)
+  const urgencyColors: Record<string, string> = { low: '#64748b', medium: '#fbbf24', high: '#fb923c', critical: '#f87171' }
+  const urgencyEntries = Object.entries(f.by_urgency).filter(([, v]) => v > 0)
+
+  return (
+    <SectionCard title={`Follow-up Activity (${f.total} total)`}>
+      {statusEntries.length > 0 && (
+        <div className="mb-3">
+          <div className="text-xs mb-1" style={{ color: MUTED_COLOR }}>By Status</div>
+          <div className="flex rounded overflow-hidden" style={{ height: '20px' }}>
+            {statusEntries.map(([status, count]) => (
+              <div key={status} style={{ width: `${(count / f.total) * 100}%`, background: statusColors[status] || MUTED_COLOR, minWidth: '2px' }} title={`${status}: ${count}`} />
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-3 text-xs mt-1" style={{ color: MUTED_COLOR }}>
+            {statusEntries.map(([s, c]) => <span key={s}><span style={{ color: statusColors[s] }}>{'\u25CF'}</span> {s.replace('_', ' ')} ({c})</span>)}
+          </div>
+        </div>
+      )}
+      {urgencyEntries.length > 0 && (
+        <div>
+          <div className="text-xs mb-1" style={{ color: MUTED_COLOR }}>By Urgency</div>
+          <div className="flex rounded overflow-hidden" style={{ height: '20px' }}>
+            {urgencyEntries.map(([urgency, count]) => (
+              <div key={urgency} style={{ width: `${(count / f.total) * 100}%`, background: urgencyColors[urgency] || MUTED_COLOR, minWidth: '2px' }} title={`${urgency}: ${count}`} />
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-3 text-xs mt-1" style={{ color: MUTED_COLOR }}>
+            {urgencyEntries.map(([u, c]) => <span key={u}><span style={{ color: urgencyColors[u] }}>{'\u25CF'}</span> {u} ({c})</span>)}
+          </div>
+        </div>
+      )}
+    </SectionCard>
+  )
+}
+
+function TeamInquiryIntents({ active }: { active: boolean }) {
+  const { data, loading, error } = useSectionData<InquiryData>('/api/analytics/inquiries', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data?.intents) return <EmptyState />
+
+  const entries = Object.entries(data.intents).filter(([, v]) => v > 0)
+  if (!entries.length) return <EmptyState />
+
+  const total = entries.reduce((s, [, v]) => s + v, 0)
+  const intentColors: Record<string, string> = { new_booking: '#4ade80', extension: '#6395ff', question: '#fbbf24', complaint: '#f87171', followup: '#c084fc', unknown: '#64748b' }
+
+  return (
+    <SectionCard title="Intent Distribution">
+      <div className="flex rounded overflow-hidden mb-2" style={{ height: '24px' }}>
+        {entries.map(([intent, count]) => (
+          <div key={intent} style={{ width: `${(count / total) * 100}%`, background: intentColors[intent] || MUTED_COLOR, minWidth: '2px' }} title={`${intent}: ${count}`} />
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-3 text-xs" style={{ color: MUTED_COLOR }}>
+        {entries.map(([i, c]) => <span key={i}><span style={{ color: intentColors[i] }}>{'\u25CF'}</span> {i.replace('_', ' ')} ({c})</span>)}
+      </div>
+    </SectionCard>
+  )
+}
+
+function TeamInquiryTrends({ active }: { active: boolean }) {
+  const { data, loading, error } = useSectionData<InquiryData>('/api/analytics/inquiries', active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data?.trends?.daily?.length) return <EmptyState />
+
+  const days = data.trends.daily
+  const maxConv = Math.max(...days.map(d => d.new_conversations), 1)
+
+  return (
+    <SectionCard title="Daily Trends">
+      <div className="flex gap-3 text-xs mb-2" style={{ color: MUTED_COLOR }}>
+        <span><span style={{ color: ACCENT }}>{'\u25CF'}</span> Conversations</span>
+        <span><span style={{ color: '#4ade80' }}>{'\u25CF'}</span> Booked</span>
+        <span><span style={{ color: '#c084fc' }}>{'\u25CF'}</span> Follow-ups</span>
+      </div>
+      {days.map(d => {
+        const convPct = Math.max((d.new_conversations / maxConv) * 100, 0)
+        return (
+          <div key={d.date} className="flex items-center gap-2 mb-1">
+            <div className="text-xs w-14" style={{ color: MUTED_COLOR }}>{d.date.slice(5)}</div>
+            <div className="flex-1 h-4 rounded overflow-hidden flex gap-px" style={{ background: 'rgba(255,255,255,0.04)' }}>
+              {d.new_conversations > 0 && <div className="h-full rounded-sm" style={{ width: `${convPct}%`, background: 'rgba(99,149,255,0.4)' }} title={`Conversations: ${d.new_conversations}`} />}
+            </div>
+            <div className="flex gap-2 text-xs w-24 justify-end" style={{ color: MUTED_COLOR }}>
+              <span style={{ color: ACCENT }}>{d.new_conversations}</span>
+              {d.booked > 0 && <span style={{ color: '#4ade80' }}>{d.booked}b</span>}
+              {d.followups_created > 0 && <span style={{ color: '#c084fc' }}>{d.followups_created}f</span>}
+            </div>
+          </div>
+        )
+      })}
+    </SectionCard>
+  )
+}
+
 function TeamResponseTimes({ active }: { active: boolean }) {
   const { data: raw, loading, error } = useSectionData<{ data: { reviewed_by: string; median_response_min: number | null }[] }>('/api/analytics/v2/team/response-times', active)
   if (loading) return <LoadingState />
@@ -1042,6 +1303,13 @@ export default function AnalyticsDashboard({ show, onClose }: AnalyticsDashboard
             )}
             {isTeam && (
               <>
+                <TeamInquiryFunnel active={isTeam} />
+                <TeamInquiryByChannel active={isTeam} />
+                <TeamInquiryByProperty active={isTeam} />
+                <TeamInquiryResponseTime active={isTeam} />
+                <TeamInquiryFollowups active={isTeam} />
+                <TeamInquiryIntents active={isTeam} />
+                <TeamInquiryTrends active={isTeam} />
                 <TeamResponseTimes active={isTeam} />
                 <TeamMessagesPerUser active={isTeam} />
                 <TeamDraftDecisions active={isTeam} />
