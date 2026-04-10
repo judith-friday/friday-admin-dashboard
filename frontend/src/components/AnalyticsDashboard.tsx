@@ -1102,6 +1102,295 @@ function TeamRevisionTrends({ active }: { active: boolean }) {
   )
 }
 
+// ── ACTIONS & LEARNING SECTIONS ──
+
+interface ActionsData {
+  period: { start: string; end: string }
+  pending_actions: {
+    total: number
+    by_type_and_status: { action_type: string; status: string; count: number }[]
+    accept_rate: number; dismiss_rate: number; auto_dismiss_rate: number
+    by_urgency: { low: number; medium: number; high: number; critical: number }
+    avg_resolution_hours: number
+    resolution_by_type: { action_type: string; avg_hours: number; count: number }[]
+    by_team_member: { completed_by: string; count: number; avg_hours: number }[]
+    daily_trend: { date: string; created: number; completed: number; dismissed: number }[]
+  }
+  next_steps: {
+    total: number; by_status: Record<string, number>; dismiss_rate: number
+    daily_trend: { date: string; created: number; dismissed: number }[]
+  }
+  teachings: {
+    total: number; by_status: Record<string, number>; acceptance_rate: number
+    avg_confidence: number; avg_evidence_count: number
+    by_scope: { scope: string; count: number }[]
+    recent: { content: string; status: string; created_at: string; confidence: number | null; evidence_count: number | null }[]
+  }
+}
+
+function useActionsData(active: boolean) {
+  return useSectionData<ActionsData>('/api/analytics/v2/team/actions', active)
+}
+
+function TeamActionsOverview({ data }: { data: ActionsData }) {
+  const pa = data.pending_actions
+  if (!pa.total) return null
+
+  const statusColors: Record<string, string> = {
+    completed: '#4ade80', dismissed: '#fbbf24', auto_dismissed: '#f87171',
+    pending: '#6395ff', auto_converted: '#c084fc',
+  }
+
+  // Aggregate by status for pie-style stacked bar
+  const statusTotals: Record<string, number> = {}
+  pa.by_type_and_status.forEach(r => {
+    statusTotals[r.status] = (statusTotals[r.status] || 0) + r.count
+  })
+  const entries = Object.entries(statusTotals).sort((a, b) => b[1] - a[1])
+
+  return (
+    <SectionCard title="Actions Overview">
+      {/* Summary metrics */}
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="text-center p-2 rounded" style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <div className="text-lg font-bold" style={{ color: '#4ade80' }}>{pa.accept_rate}%</div>
+          <div className="text-xs" style={{ color: MUTED_COLOR }}>Accept rate</div>
+        </div>
+        <div className="text-center p-2 rounded" style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <div className="text-lg font-bold" style={{ color: '#fbbf24' }}>{pa.dismiss_rate}%</div>
+          <div className="text-xs" style={{ color: MUTED_COLOR }}>Dismiss rate</div>
+        </div>
+        <div className="text-center p-2 rounded" style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <div className="text-lg font-bold" style={{ color: '#f87171' }}>{pa.auto_dismiss_rate}%</div>
+          <div className="text-xs" style={{ color: MUTED_COLOR }}>Auto-dismiss</div>
+        </div>
+      </div>
+
+      {/* Status distribution bar */}
+      <div className="text-xs mb-1" style={{ color: MUTED_COLOR }}>{pa.total} total actions</div>
+      <div className="flex rounded overflow-hidden mb-2" style={{ height: '22px' }}>
+        {entries.map(([status, count]) => (
+          <div key={status} style={{ width: `${(count / pa.total) * 100}%`, background: statusColors[status] || '#64748b', minWidth: count > 0 ? '2px' : 0 }} title={`${formatEventName(status)}: ${count}`} />
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-3 text-xs" style={{ color: MUTED_COLOR }}>
+        {entries.map(([status, count]) => (
+          <span key={status}><span style={{ color: statusColors[status] || '#64748b' }}>●</span> {formatEventName(status)} ({count})</span>
+        ))}
+      </div>
+
+      {/* By urgency */}
+      {(pa.by_urgency.high > 0 || pa.by_urgency.critical > 0) && (
+        <div className="mt-3">
+          <div className="text-xs mb-1" style={{ color: MUTED_COLOR }}>By urgency</div>
+          <div className="flex gap-2 text-xs">
+            {pa.by_urgency.critical > 0 && <span className="px-2 py-0.5 rounded" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171' }}>{pa.by_urgency.critical} critical</span>}
+            {pa.by_urgency.high > 0 && <span className="px-2 py-0.5 rounded" style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24' }}>{pa.by_urgency.high} high</span>}
+            {pa.by_urgency.medium > 0 && <span className="px-2 py-0.5 rounded" style={{ background: 'rgba(99,149,255,0.15)', color: ACCENT }}>{pa.by_urgency.medium} medium</span>}
+            {pa.by_urgency.low > 0 && <span className="px-2 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.06)', color: SUB_COLOR }}>{pa.by_urgency.low} low</span>}
+          </div>
+        </div>
+      )}
+    </SectionCard>
+  )
+}
+
+function TeamResolutionTime({ data }: { data: ActionsData }) {
+  const items = data.pending_actions.resolution_by_type
+  if (!items.length) return null
+  const maxH = Math.max(...items.map(r => r.avg_hours), 1)
+
+  return (
+    <SectionCard title="Resolution Time by Action Type">
+      <div className="text-xs mb-2" style={{ color: MUTED_COLOR }}>
+        Overall avg: {data.pending_actions.avg_resolution_hours}h
+      </div>
+      {items.map(r => (
+        <Bar key={r.action_type} value={Number(r.avg_hours.toFixed(1))} max={maxH} color="rgba(99,149,255,0.5)" label={formatEventName(r.action_type)} rightLabel={`${r.avg_hours.toFixed(1)}h (${r.count})`} />
+      ))}
+    </SectionCard>
+  )
+}
+
+function TeamPerformance({ data }: { data: ActionsData }) {
+  const members = data.pending_actions.by_team_member
+  if (!members.length) return null
+
+  return (
+    <SectionCard title="Team Performance">
+      <table className="w-full text-sm">
+        <thead>
+          <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
+            <th className="text-left px-3 py-2 text-xs font-medium" style={{ color: MUTED_COLOR }}>Team Member</th>
+            <th className="text-right px-3 py-2 text-xs font-medium" style={{ color: MUTED_COLOR }}>Actions</th>
+            <th className="text-right px-3 py-2 text-xs font-medium" style={{ color: MUTED_COLOR }}>Avg Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {members.map(m => (
+            <tr key={m.completed_by} style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+              <td className="px-3 py-2 text-xs" style={{ color: HEADER_COLOR }}>{m.completed_by}</td>
+              <td className="text-right px-3 py-2 text-xs" style={{ color: SUB_COLOR }}>{m.count}</td>
+              <td className="text-right px-3 py-2 text-xs" style={{ color: m.avg_hours > 24 ? '#fbbf24' : '#4ade80' }}>{m.avg_hours.toFixed(1)}h</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </SectionCard>
+  )
+}
+
+function TeamNextStepsQuality({ data }: { data: ActionsData }) {
+  const ns = data.next_steps
+  if (!ns.total) return null
+  const isNoisy = ns.dismiss_rate > 60
+
+  return (
+    <SectionCard title="Next Steps Quality">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="text-center p-2 rounded flex-1" style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <div className="text-lg font-bold" style={{ color: HEADER_COLOR }}>{ns.total}</div>
+          <div className="text-xs" style={{ color: MUTED_COLOR }}>Total</div>
+        </div>
+        <div className="text-center p-2 rounded flex-1" style={{ background: isNoisy ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.03)' }}>
+          <div className="text-lg font-bold" style={{ color: isNoisy ? '#f87171' : '#fbbf24' }}>{ns.dismiss_rate}%</div>
+          <div className="text-xs" style={{ color: MUTED_COLOR }}>Dismiss rate</div>
+        </div>
+      </div>
+      {isNoisy && (
+        <div className="text-xs px-3 py-2 rounded" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}>
+          High dismiss rate suggests next-step suggestions may be too noisy — consider suppression tuning.
+        </div>
+      )}
+      {/* Status breakdown */}
+      <div className="flex gap-3 text-xs mt-2" style={{ color: MUTED_COLOR }}>
+        {Object.entries(ns.by_status).map(([status, count]) => (
+          <span key={status}>{formatEventName(status)}: {count}</span>
+        ))}
+      </div>
+    </SectionCard>
+  )
+}
+
+function TeamTeachingStats({ data }: { data: ActionsData }) {
+  const t = data.teachings
+  if (!t.total) return null
+
+  return (
+    <SectionCard title="Teaching Stats">
+      {/* Key metrics */}
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="text-center p-2 rounded" style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <div className="text-lg font-bold" style={{ color: '#4ade80' }}>{t.acceptance_rate}%</div>
+          <div className="text-xs" style={{ color: MUTED_COLOR }}>Active rate</div>
+        </div>
+        <div className="text-center p-2 rounded" style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <div className="text-lg font-bold" style={{ color: ACCENT }}>{t.avg_confidence || '—'}</div>
+          <div className="text-xs" style={{ color: MUTED_COLOR }}>Avg confidence</div>
+        </div>
+        <div className="text-center p-2 rounded" style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <div className="text-lg font-bold" style={{ color: '#c084fc' }}>{t.avg_evidence_count || '—'}</div>
+          <div className="text-xs" style={{ color: MUTED_COLOR }}>Avg evidence</div>
+        </div>
+      </div>
+
+      {/* By scope */}
+      {t.by_scope.length > 0 && (
+        <div className="mb-3">
+          <div className="text-xs mb-1" style={{ color: MUTED_COLOR }}>By scope</div>
+          <div className="flex gap-2 text-xs">
+            {t.by_scope.map(s => (
+              <span key={s.scope} className="px-2 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.06)', color: SUB_COLOR }}>
+                {formatEventName(s.scope)}: {s.count}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Status breakdown bar */}
+      <div className="text-xs mb-1" style={{ color: MUTED_COLOR }}>{t.total} total teachings</div>
+      <div className="flex rounded overflow-hidden mb-2" style={{ height: '18px' }}>
+        {(t.by_status['active'] || 0) > 0 && <div style={{ width: `${((t.by_status['active'] || 0) / t.total) * 100}%`, background: 'rgba(34,197,94,0.5)' }} title={`Active: ${t.by_status['active']}`} />}
+        {(t.by_status['revoked'] || 0) > 0 && <div style={{ width: `${((t.by_status['revoked'] || 0) / t.total) * 100}%`, background: 'rgba(239,68,68,0.5)' }} title={`Revoked: ${t.by_status['revoked']}`} />}
+      </div>
+      <div className="flex gap-3 text-xs" style={{ color: MUTED_COLOR }}>
+        <span style={{ color: '#4ade80' }}>{t.by_status['active'] || 0} active</span>
+        <span style={{ color: '#f87171' }}>{t.by_status['revoked'] || 0} revoked</span>
+      </div>
+
+      {/* Recent teachings */}
+      {t.recent.length > 0 && (
+        <div className="mt-3">
+          <div className="text-xs mb-1" style={{ color: MUTED_COLOR }}>Recent</div>
+          <div className="space-y-1">
+            {t.recent.map((r, i) => (
+              <div key={i} className="text-xs px-2 py-1.5 rounded" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                <div style={{ color: SUB_COLOR }}>{r.content}</div>
+                <div className="flex gap-2 mt-0.5" style={{ color: MUTED_COLOR }}>
+                  <span style={{ color: r.status === 'active' ? '#4ade80' : '#f87171' }}>{r.status}</span>
+                  {r.confidence != null && <span>conf: {r.confidence.toFixed(2)}</span>}
+                  {r.evidence_count != null && <span>evidence: {r.evidence_count}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </SectionCard>
+  )
+}
+
+function TeamActionsTrends({ data }: { data: ActionsData }) {
+  const trend = data.pending_actions.daily_trend
+  if (!trend.length) return null
+  const maxVal = Math.max(...trend.map(d => Math.max(d.created, d.completed + d.dismissed)), 1)
+
+  return (
+    <SectionCard title="Actions Daily Trends">
+      <div className="flex items-end gap-0.5" style={{ minHeight: '100px' }}>
+        {trend.map(d => {
+          const createdH = Math.max((d.created / maxVal) * 80, 1)
+          const completedH = Math.max((d.completed / maxVal) * 80, 1)
+          const dismissedH = Math.max((d.dismissed / maxVal) * 80, 1)
+          return (
+            <div key={d.date} className="flex-1 flex flex-col items-center gap-0.5" title={`${d.date}: ${d.created} created, ${d.completed} completed, ${d.dismissed} dismissed`}>
+              <div className="w-full flex flex-col gap-px">
+                <div style={{ height: `${createdH}px`, background: 'rgba(99,149,255,0.5)', borderRadius: '2px 2px 0 0' }} />
+                <div style={{ height: `${completedH}px`, background: 'rgba(34,197,94,0.5)' }} />
+                <div style={{ height: `${dismissedH}px`, background: 'rgba(251,191,36,0.5)', borderRadius: '0 0 2px 2px' }} />
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      <div className="flex gap-3 text-xs mt-2" style={{ color: MUTED_COLOR }}>
+        <span><span style={{ color: ACCENT }}>●</span> Created</span>
+        <span><span style={{ color: '#4ade80' }}>●</span> Completed</span>
+        <span><span style={{ color: '#fbbf24' }}>●</span> Dismissed</span>
+      </div>
+    </SectionCard>
+  )
+}
+
+function TeamActionsAndLearning({ active }: { active: boolean }) {
+  const { data, loading, error } = useActionsData(active)
+  if (loading) return <LoadingState />
+  if (error) return <ErrorState />
+  if (!data) return <EmptyState />
+
+  return (
+    <>
+      <TeamActionsOverview data={data} />
+      <TeamResolutionTime data={data} />
+      <TeamPerformance data={data} />
+      <TeamNextStepsQuality data={data} />
+      <TeamTeachingStats data={data} />
+      <TeamActionsTrends data={data} />
+    </>
+  )
+}
+
 // ── SHARED INSIGHTS SECTION ──
 
 function ActionableInsights({ active }: { active: boolean }) {
@@ -1316,6 +1605,7 @@ export default function AnalyticsDashboard({ show, onClose }: AnalyticsDashboard
                 <TeamTeachingActivity active={isTeam} />
                 <TeamAskFridayUsage active={isTeam} />
                 <TeamRevisionTrends active={isTeam} />
+                <TeamActionsAndLearning active={isTeam} />
                 <TeamSentiment active={isTeam} />
                 <TeamVolumePatterns active={isTeam} />
                 <TeamLeaderboard active={isTeam} />
