@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { ArrowPathIcon } from '@heroicons/react/24/outline'
-import { apiFetch } from './types'
+import { apiFetch, stripProtocolTags } from './types'
 import { trackEvent } from '../lib/analytics'
 import TeachingCard from './TeachingCard'
 import ConflictBanner from './ConflictBanner'
@@ -24,18 +24,6 @@ interface ConsultChatProps {
   onTeachingCreated?: (teaching: { id: string; instruction: string; scope: string }) => void
 }
 
-function stripTeachTags(text: string): string {
-  // Strip [TEACH] tags from display text — teaching actions are now handled via structured API response
-  return text.replace(/\[TEACH\][\s\S]*?\[\/TEACH\]/g, '').trim()
-}
-
-function stripZoneTags(text: string): string {
-  return text
-    .replace(/\[REASONING\]/g, '').replace(/\[\/REASONING\]/g, '')
-    .replace(/\[DRAFT\]/g, '').replace(/\[\/DRAFT\]/g, '')
-    .replace(/\[DRAFT_UPDATE\][\s\S]*?\[\/DRAFT_UPDATE\]/g, '')
-    .trim()
-}
 
 interface TeachingActionData {
   action: 'create' | 'update' | 'flag_conflict'
@@ -128,7 +116,9 @@ export default function ConsultChat({
             setTimeout(() => setDraftRefreshNotice(false), 5000)
           } else if (existing.session && existing.session.history?.length > 0) {
             setSessionId(existing.session.sessionId)
-            setMessages(existing.session.history)
+            setMessages(existing.session.history.map((msg: ChatMessage) =>
+              msg.role === 'assistant' ? { ...msg, content: stripProtocolTags(msg.content) } : msg
+            ))
             setLoading(false)
             return
           }
@@ -154,7 +144,7 @@ export default function ConsultChat({
       const rawResponse = data.response as string
       const draftUpdateContent = data.draft_update as string | undefined
       if (rawResponse) {
-        const response = stripZoneTags(stripTeachTags(rawResponse))
+        const response = stripProtocolTags(rawResponse)
         setMessages([userMsg, { role: 'assistant', content: response }])
       }
       if (draftUpdateContent && onDraftUpdate) {
@@ -277,7 +267,7 @@ export default function ConsultChat({
         setSessionId(result.sessionId)
       }
       if (result.response) {
-        const response = stripZoneTags(stripTeachTags(result.response))
+        const response = stripProtocolTags(result.response)
         setMessages(prev => [...prev, { role: 'assistant', content: response }])
       }
       if (result.compacted) {
