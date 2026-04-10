@@ -14,6 +14,308 @@ interface HelpEntry {
   render: (hl: (text: string) => React.ReactNode) => React.ReactNode
 }
 
+// ---------------------------------------------------------------------------
+// Tier 1: Featured Essentials
+// ---------------------------------------------------------------------------
+interface EssentialEntry {
+  id: string
+  icon: string
+  title: string
+  brief: string
+  keywords: string[]
+  content: string
+  render: (hl: (text: string) => React.ReactNode) => React.ReactNode
+}
+
+const ESSENTIALS_DATA: EssentialEntry[] = [
+  {
+    id: 'how-to-talk-to-friday',
+    icon: '🗣️',
+    title: 'How to Talk to Friday',
+    brief: 'Get better results by collaborating with Friday instead of commanding',
+    keywords: ['talk', 'collaborate', 'context', 'thinking', 'analyze', 'command', 'instruct', 'better', 'results', 'how to use', 'guide'],
+    content: 'Friday works best when you collaborate with it instead of giving it direct commands. Share context, explain your thinking, and let Friday help you figure things out.',
+    render: (hl) => (
+      <div className="space-y-4 text-xs" style={{color: '#94a3b8'}}>
+        {/* The core insight */}
+        <div className="rounded-lg p-3" style={{background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.12)'}}>
+          <p className="leading-relaxed" style={{color: '#e2e8f0'}}>
+            {hl('Friday is your teammate, not a command line. The more context you give, the better it performs.')}
+          </p>
+        </div>
+
+        {/* Bad vs Good examples */}
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{color: '#f87171'}}>
+            Instead of commanding...
+          </div>
+          <div className="space-y-2">
+            <div className="rounded-md px-3 py-2" style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.1)'}}>
+              <span style={{color: '#f87171'}}>✕</span>{' '}
+              <span style={{color: '#94a3b8'}}>{hl('"Set minimum stay to 3 nights"')}</span>
+            </div>
+            <div className="rounded-md px-3 py-2" style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.1)'}}>
+              <span style={{color: '#f87171'}}>✕</span>{' '}
+              <span style={{color: '#94a3b8'}}>{hl('"Tell the guest we can\'t do 2 nights"')}</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{color: '#4ade80'}}>
+            Try collaborating...
+          </div>
+          <div className="space-y-2">
+            <div className="rounded-md px-3 py-2" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)'}}>
+              <span style={{color: '#4ade80'}}>✓</span>{' '}
+              <span style={{color: '#e2e8f0'}}>{hl('"Rajiv is asking for 2 nights but I think we have a 3-night minimum. Can you check the property knowledge and our policies? He\'s a returning guest so I want to be welcoming but also stick to our rules."')}</span>
+            </div>
+            <div className="rounded-md px-3 py-2" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)'}}>
+              <span style={{color: '#4ade80'}}>✓</span>{' '}
+              <span style={{color: '#e2e8f0'}}>{hl('"Eleanor is reporting low water pressure. I\'m not sure if this is a known issue at this property. Can you check and draft a helpful response? We might need to involve maintenance."')}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* The 4 principles */}
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{color: '#6395ff'}}>
+            4 principles for great results
+          </div>
+          <div className="space-y-2">
+            {[
+              { label: 'Give CONTEXT', desc: 'Tell Friday what the guest wants, what you know, and any relevant history.', example: '"This is a returning guest who stayed with us last summer..."' },
+              { label: 'Share THINKING', desc: 'Explain what you\'re leaning toward and why you\'re unsure.', example: '"I want to say yes but I\'m worried about the noise policy..."' },
+              { label: 'Ask to ANALYZE', desc: 'Let Friday check rules, knowledge bases, and policies for you.', example: '"Can you check if we allow pets at this property?"' },
+              { label: 'Let Friday STRUCTURE', desc: 'Give the facts, let Friday craft the message. It knows tone and format.', example: '"Here\'s the situation — can you write something warm but firm?"' },
+            ].map(p => (
+              <div key={p.label} className="rounded-md p-2.5" style={{background: 'rgba(255,255,255,0.03)'}}>
+                <div className="font-medium mb-0.5" style={{color: '#e2e8f0'}}>{hl(p.label)}</div>
+                <div className="leading-relaxed">{hl(p.desc)}</div>
+                <div className="mt-1 italic" style={{color: '#64748b', fontSize: '11px'}}>{hl(p.example)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Why it matters */}
+        <div className="rounded-lg p-3" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)'}}>
+          <div className="font-medium mb-1" style={{color: '#4ade80', fontSize: '11px'}}>Why this works better</div>
+          <div className="space-y-1 leading-relaxed">
+            <div>{hl('• Friday catches things you might miss (policies, past interactions)')}</div>
+            <div>{hl('• Teachings it creates from your edits are higher quality')}</div>
+            <div>{hl('• Drafts need less editing — saves you time')}</div>
+            <div>{hl('• The whole team benefits from better AI learning')}</div>
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'essential-ai-drafts',
+    icon: '✏️',
+    title: 'Understanding AI Drafts',
+    brief: 'What drafts are, confidence scores, and how to review them',
+    keywords: ['draft', 'ai', 'confidence', 'score', 'review', 'approve', 'edit', 'send', 'green', 'yellow', 'red'],
+    content: 'When a guest sends a message, Friday drafts a reply. Drafts are never sent automatically. Review, edit, or ask Friday to revise before sending.',
+    render: (hl) => (
+      <div className="space-y-3 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('When a guest sends a message, Friday automatically drafts a reply. The draft appears in the compose area below the conversation.')}</p>
+
+        <div className="rounded-md p-2.5" style={{background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.12)'}}>
+          <span style={{color: '#e2e8f0', fontWeight: 500}}>{hl('Drafts are never sent automatically — you always review and approve first.')}</span>
+        </div>
+
+        <div>
+          <div className="font-medium mb-1.5" style={{color: '#e2e8f0'}}>{hl('Confidence scores')}</div>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>80%+</span>
+              <span>{hl('Friday is confident — draft is likely accurate and ready')}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>60–79%</span>
+              <span>{hl('Draft likely needs some editing or extra info')}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>&lt;60%</span>
+              <span>{hl('Friday is uncertain — review carefully before sending')}</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div className="font-medium mb-1.5" style={{color: '#e2e8f0'}}>{hl('How to review')}</div>
+          <div className="space-y-1">
+            <div><span style={{color: '#e2e8f0'}}>1.</span> {hl('Read the draft — does it sound right?')}</div>
+            <div><span style={{color: '#e2e8f0'}}>2.</span> {hl('Check facts — names, dates, times, property details')}</div>
+            <div><span style={{color: '#e2e8f0'}}>3.</span> {hl('Edit tone if needed — make it more warm, formal, or concise')}</div>
+          </div>
+        </div>
+
+        <div>
+          <div className="font-medium mb-1.5" style={{color: '#e2e8f0'}}>{hl('Your options')}</div>
+          <div className="space-y-1">
+            <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Send it</span> — {hl('draft looks good, approve and send')}</div>
+            <div>• <span style={{fontWeight: 500, color: '#6395ff'}}>Polish more</span> — {hl('ask Friday to refine the draft')}</div>
+            <div>• <span style={{fontWeight: 500, color: '#fbbf24'}}>Start over</span> — {hl('regenerate from scratch')}</div>
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'essential-teaching-friday',
+    icon: '🧠',
+    title: 'Teaching Friday',
+    brief: 'How Friday learns from your corrections and gets smarter over time',
+    keywords: ['teach', 'teaching', 'learn', 'learning', 'correct', 'correction', 'improve', 'candidate', 'accept', 'rule', 'blue', 'card'],
+    content: 'When you correct a draft, Friday may detect a pattern and suggest a new teaching. Accept to help Friday learn. Teaching candidates appear as blue cards during conversations.',
+    render: (hl) => (
+      <div className="space-y-3 text-xs" style={{color: '#94a3b8'}}>
+        <div>
+          <div className="font-medium mb-1.5" style={{color: '#e2e8f0'}}>{hl('What are teachable moments?')}</div>
+          <p className="leading-relaxed">{hl('When you correct a draft or give Friday new information, it may detect a pattern and suggest a new rule. These appear as blue cards in the conversation.')}</p>
+        </div>
+
+        <div className="rounded-md p-2.5" style={{background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.12)'}}>
+          <div className="text-xs" style={{color: '#6395ff', fontWeight: 500}}>Example teaching suggestion:</div>
+          <div className="mt-1 italic" style={{color: '#e2e8f0'}}>{hl('"Always mention the WiFi password when guests ask about internet at Villa Soleil"')}</div>
+        </div>
+
+        <div>
+          <div className="font-medium mb-1.5" style={{color: '#e2e8f0'}}>{hl('What to do')}</div>
+          <div className="space-y-1.5">
+            <div>• <span style={{fontWeight: 500, color: '#4ade80'}}>Accept</span> — {hl('Friday learns this rule for future drafts')}</div>
+            <div>• <span style={{fontWeight: 500, color: '#6395ff'}}>Refine</span> — {hl('click Accept, then edit the wording to make it more precise')}</div>
+            <div>• <span style={{fontWeight: 500, color: '#f87171'}}>Dismiss</span> — {hl('not a useful pattern, skip it')}</div>
+          </div>
+        </div>
+
+        <div>
+          <div className="font-medium mb-1.5" style={{color: '#e2e8f0'}}>{hl('Where teachings appear')}</div>
+          <div className="space-y-1">
+            <div>• {hl('In-chat: blue cards after you correct a draft')}</div>
+            <div>• {hl('Send modal: suggested teachings to review before sending')}</div>
+            <div>• {hl('Knowledge panel: teaching candidates queued for approval')}</div>
+          </div>
+        </div>
+
+        <div>
+          <div className="font-medium mb-1.5" style={{color: '#e2e8f0'}}>{hl('Scope')}</div>
+          <div className="space-y-1">
+            <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Property-specific</span> — {hl('applies only to one property (e.g., check-in time)')}</div>
+            <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Global</span> — {hl('applies to all properties (e.g., tone preferences)')}</div>
+          </div>
+        </div>
+
+        <div className="rounded-lg p-2.5" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)'}}>
+          <span style={{color: '#4ade80', fontSize: '11px'}}>Here&apos;s a tip:</span>{' '}
+          <span>{hl('The more teachings you accept and refine, the faster Friday improves for your whole team.')}</span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'essential-quick-actions',
+    icon: '⚡',
+    title: 'Quick Actions Explained',
+    brief: 'What each action chip does and when to use it',
+    keywords: ['chip', 'action', 'send', 'polish', 'start over', 'write', 'check rules', 'str kb', 'sales kb', 'quick'],
+    content: 'Quick action chips give you one-tap access to common tasks. They adapt based on whether a draft exists and the conversation context.',
+    render: (hl) => (
+      <div className="space-y-3 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Action chips appear below the Ask Friday input. They change based on context — what you see depends on whether a draft exists and the conversation state.')}</p>
+
+        <div>
+          <div className="font-medium mb-1.5" style={{color: '#e2e8f0'}}>{hl('Draft actions (when a draft exists)')}</div>
+          <div className="space-y-1.5">
+            <div className="flex items-start gap-2">
+              <span className="px-2 py-0.5 rounded-full text-xs flex-shrink-0" style={{background: 'rgba(34,197,94,0.12)', color: '#4ade80'}}>Send it</span>
+              <span>{hl('Approve the draft and send it to the guest')}</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="px-2 py-0.5 rounded-full text-xs flex-shrink-0" style={{background: 'rgba(99,149,255,0.12)', color: '#6395ff'}}>Polish more</span>
+              <span>{hl('Ask Friday to refine tone, grammar, or clarity')}</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="px-2 py-0.5 rounded-full text-xs flex-shrink-0" style={{background: 'rgba(245,158,11,0.12)', color: '#fbbf24'}}>Start over</span>
+              <span>{hl('Discard the current draft and regenerate from scratch')}</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div className="font-medium mb-1.5" style={{color: '#e2e8f0'}}>{hl('Compose actions (no draft)')}</div>
+          <div className="space-y-1.5">
+            <div className="flex items-start gap-2">
+              <span className="px-2 py-0.5 rounded-full text-xs flex-shrink-0" style={{background: 'rgba(99,149,255,0.12)', color: '#6395ff'}}>Write it for me</span>
+              <span>{hl('Have Friday compose a new message from scratch')}</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div className="font-medium mb-1.5" style={{color: '#e2e8f0'}}>{hl('Knowledge chips (always available)')}</div>
+          <div className="space-y-1.5">
+            <div className="flex items-start gap-2">
+              <span className="px-2 py-0.5 rounded-full text-xs flex-shrink-0" style={{background: 'rgba(139,92,246,0.12)', color: '#a78bfa'}}>Check rules</span>
+              <span>{hl('Verify the draft against property rules and teachings')}</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="px-2 py-0.5 rounded-full text-xs flex-shrink-0" style={{background: 'rgba(99,149,255,0.12)', color: '#6395ff'}}>STR KB</span>
+              <span>{hl('Consult the Short-Term Rental knowledge base — industry best practices')}</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="px-2 py-0.5 rounded-full text-xs flex-shrink-0" style={{background: 'rgba(34,197,94,0.12)', color: '#4ade80'}}>Sales KB</span>
+              <span>{hl('Consult the Sales knowledge base — pricing, negotiation, conversion tips')}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'essential-daily-workflow',
+    icon: '📋',
+    title: 'Your Daily Workflow',
+    brief: 'A simple 5-step routine for handling your shift',
+    keywords: ['workflow', 'daily', 'routine', 'shift', 'step', 'start', 'review', 'unread', 'actions', 'status'],
+    content: 'Follow this 5-step workflow to stay on top of guest conversations: check status, handle reviews, read new messages, manage actions, ask Friday for help.',
+    render: (hl) => (
+      <div className="space-y-3 text-xs" style={{color: '#94a3b8'}}>
+        <div className="space-y-2.5">
+          {[
+            { step: '1', title: 'Check the status bar', desc: 'Open GMS and look at the top bar — it shows your unread count and pending actions at a glance.', color: '#6395ff' },
+            { step: '2', title: 'Review tab first', desc: 'Handle drafts waiting for review. These are AI drafts that need your approval before they go to guests.', color: '#f87171' },
+            { step: '3', title: 'Unread tab next', desc: 'New guest messages that haven\'t been addressed yet. Friday may already have drafts ready for some.', color: '#6395ff' },
+            { step: '4', title: 'Actions tab', desc: 'Pending actions, follow-ups, and next steps. Sort by urgency — CRIT and HIGH items first.', color: '#fbbf24' },
+            { step: '5', title: 'Ask Friday if you need help', desc: 'Stuck on a conversation? Ask Friday to check rules, draft a response, or suggest an approach.', color: '#4ade80' },
+          ].map(s => (
+            <div key={s.step} className="flex gap-3 items-start">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold" style={{background: `${s.color}20`, color: s.color}}>
+                {s.step}
+              </div>
+              <div>
+                <div className="font-medium" style={{color: '#e2e8f0'}}>{hl(s.title)}</div>
+                <div className="leading-relaxed mt-0.5">{hl(s.desc)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-lg p-2.5" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)'}}>
+          <span style={{color: '#4ade80', fontSize: '11px'}}>Here&apos;s a tip:</span>{' '}
+          <span>{hl('Start with the Review tab — those drafts are ready and just need your approval. It\'s the fastest way to clear your queue.')}</span>
+        </div>
+      </div>
+    ),
+  },
+]
+
+// ---------------------------------------------------------------------------
+// Tier 2: Advanced help entries (existing 28 entries)
+// ---------------------------------------------------------------------------
 const HELP_DATA: HelpEntry[] = [
   // ── 1. Getting Started ──────────────────────────────────────────────────
   {
@@ -826,12 +1128,53 @@ function ExpandableSection({ title, forceOpen, children }: { title: string; forc
 }
 
 // ---------------------------------------------------------------------------
+// EssentialCard — featured card for Tier 1
+// ---------------------------------------------------------------------------
+function EssentialCard({ icon, title, brief, forceOpen, children }: {
+  icon: string
+  title: string
+  brief: string
+  forceOpen?: boolean
+  children: React.ReactNode
+}) {
+  const [userOpen, setUserOpen] = useState(false)
+  const isOpen = forceOpen || userOpen
+  return (
+    <div
+      className="rounded-xl overflow-hidden transition-all"
+      style={{
+        background: isOpen ? 'rgba(99,149,255,0.06)' : 'rgba(255,255,255,0.03)',
+        border: `1px solid ${isOpen ? 'rgba(99,149,255,0.15)' : 'rgba(255,255,255,0.06)'}`,
+      }}
+    >
+      <button
+        onClick={() => setUserOpen(o => !o)}
+        className="w-full flex items-start gap-3 p-3 text-left"
+      >
+        <span className="text-lg flex-shrink-0 mt-0.5">{icon}</span>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>{title}</div>
+          <div className="text-xs mt-0.5 leading-relaxed" style={{ color: '#64748b' }}>{brief}</div>
+        </div>
+        <span className="text-xs flex-shrink-0 mt-1" style={{ color: '#64748b' }}>{isOpen ? '▼' : '▶'}</span>
+      </button>
+      {isOpen && (
+        <div className="px-3 pb-3 pt-0" style={{ marginLeft: '2rem' }}>
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [search, setSearch] = useState('')
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
-  const matches = useCallback((entry: HelpEntry, q: string) => {
+  const matches = useCallback((entry: { title: string; content: string; keywords: string[] }, q: string) => {
     const lower = q.toLowerCase()
     return (
       entry.title.toLowerCase().includes(lower) ||
@@ -840,7 +1183,12 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
     )
   }, [])
 
-  const filtered = useMemo(() => {
+  const filteredEssentials = useMemo(() => {
+    if (!search.trim()) return ESSENTIALS_DATA
+    return ESSENTIALS_DATA.filter(e => matches(e, search.trim()))
+  }, [search, matches])
+
+  const filteredAdvanced = useMemo(() => {
     if (!search.trim()) return HELP_DATA
     return HELP_DATA.filter(e => matches(e, search.trim()))
   }, [search, matches])
@@ -852,10 +1200,13 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
 
   if (!isOpen) return null
 
-  // Group entries for rendering
+  const isSearching = search.trim().length > 0
+  const showAdvancedSection = showAdvanced || isSearching
+
+  // Group advanced entries for rendering
   const grouped: { group: string; entries: HelpEntry[] }[] = []
   let lastGroup = ''
-  for (const entry of filtered) {
+  for (const entry of filteredAdvanced) {
     if (entry.group !== lastGroup) {
       grouped.push({ group: entry.group, entries: [entry] })
       lastGroup = entry.group
@@ -863,10 +1214,9 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
       grouped[grouped.length - 1].entries.push(entry)
     }
   }
-  // Reorder groups by GROUP_ORDER
   const orderedGroups = GROUP_ORDER.map(g => grouped.find(gr => gr.group === g)).filter(Boolean) as typeof grouped
 
-  const isSearching = search.trim().length > 0
+  const totalResults = filteredEssentials.length + filteredAdvanced.length
 
   return (
     <div className="fixed inset-0 z-[60] flex justify-end" data-testid="modal-help-panel" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }} onClick={onClose}>
@@ -907,29 +1257,86 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
 
         {/* Content */}
         <div className="px-6 py-5 space-y-6">
-          {filtered.length === 0 && (
+          {/* No results */}
+          {isSearching && totalResults === 0 && (
             <div className="text-center py-8">
               <div className="text-sm" style={{ color: '#64748b' }}>No results for &ldquo;{search}&rdquo;</div>
               <button onClick={() => setSearch('')} className="text-xs mt-2 underline" style={{ color: '#6395ff' }}>Clear search</button>
             </div>
           )}
 
-          {orderedGroups.map(({ group, entries }) => (
-            <React.Fragment key={group}>
-              {DIVIDER_GROUPS.has(group) && (
-                <div className="flex items-center gap-2 pt-2">
+          {/* ── Tier 1: Featured Essentials ─────────────────────────────── */}
+          {filteredEssentials.length > 0 && (
+            <div>
+              {!isSearching && (
+                <div className="text-[10px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#475569' }}>
+                  Essentials
+                </div>
+              )}
+              <div className="space-y-2">
+                {filteredEssentials.map(entry => (
+                  <EssentialCard
+                    key={entry.id}
+                    icon={entry.icon}
+                    title={entry.title}
+                    brief={entry.brief}
+                    forceOpen={isSearching}
+                  >
+                    {entry.render(hl)}
+                  </EssentialCard>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Tier 2: Advanced Topics ─────────────────────────────────── */}
+          {!isSearching && filteredAdvanced.length > 0 && (
+            <div>
+              <button
+                onClick={() => setShowAdvanced(o => !o)}
+                className="w-full flex items-center justify-between py-2 px-3 rounded-lg text-xs"
+                style={{
+                  background: showAdvanced ? 'rgba(99,149,255,0.08)' : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${showAdvanced ? 'rgba(99,149,255,0.15)' : 'rgba(255,255,255,0.06)'}`,
+                  color: '#94a3b8',
+                }}
+              >
+                <span>
+                  <span style={{ color: '#e2e8f0', fontWeight: 500 }}>{showAdvanced ? 'Hide' : 'Show'} Advanced Topics</span>
+                  <span className="ml-2" style={{ color: '#64748b' }}>({HELP_DATA.length} entries)</span>
+                </span>
+                <span style={{ color: '#64748b' }}>{showAdvanced ? '▲' : '▼'}</span>
+              </button>
+            </div>
+          )}
+
+          {showAdvancedSection && filteredAdvanced.length > 0 && (
+            <div className="space-y-6">
+              {isSearching && filteredAdvanced.length > 0 && (
+                <div className="flex items-center gap-2">
                   <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
-                  <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#475569' }}>{group}</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#475569' }}>Advanced</span>
                   <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
                 </div>
               )}
-              {entries.map(entry => (
-                <ExpandableSection key={entry.id} title={entry.title} forceOpen={isSearching}>
-                  {entry.render(hl)}
-                </ExpandableSection>
+              {orderedGroups.map(({ group, entries }) => (
+                <React.Fragment key={group}>
+                  {DIVIDER_GROUPS.has(group) && (
+                    <div className="flex items-center gap-2 pt-2">
+                      <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                      <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#475569' }}>{group}</span>
+                      <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                    </div>
+                  )}
+                  {entries.map(entry => (
+                    <ExpandableSection key={entry.id} title={entry.title} forceOpen={isSearching}>
+                      {entry.render(hl)}
+                    </ExpandableSection>
+                  ))}
+                </React.Fragment>
               ))}
-            </React.Fragment>
-          ))}
+            </div>
+          )}
 
           {/* Footer */}
           {!isSearching && (
