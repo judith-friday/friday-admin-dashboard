@@ -87,7 +87,7 @@ export default function DashboardStats({
                 <div className="text-lg font-bold" title="Median of per-conversation average response times over the last 30 days" style={{color: stats.avg_response_time_minutes != null ? rtColor(stats.avg_response_time_minutes) : '#64748b'}}>
                   {stats.avg_response_time_minutes != null ? formatResponseTime(stats.avg_response_time_minutes) : '\u2014'}
                 </div>
-                <div className="text-xs" style={{color: '#64748b'}}>Team RT <span style={{opacity: 0.6}}>(30d)</span></div>
+                <div className="text-xs" style={{color: '#64748b'}}>Team RT</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-bold" style={{color: '#6395ff'}}>{stats.messages_today}</div>

@@ -402,7 +402,7 @@ function DevCostPerConversation({ active }: { active: boolean }) {
       </div>
       {data.top_conversations?.length > 0 && (
         <>
-          <div className="text-xs mb-2" style={{ color: MUTED_COLOR }}>Most expensive conversations (30d)</div>
+          <div className="text-xs mb-2" style={{ color: MUTED_COLOR }}>Most expensive conversations</div>
           {data.top_conversations.map((c, i) => {
             const tokens = Number(c.input_tokens || 0) + Number(c.output_tokens || 0)
             const cost = (Number(c.input_tokens || 0) / 1e6) * pIn + (Number(c.output_tokens || 0) / 1e6) * pOut
@@ -711,7 +711,7 @@ function TeamMessagesPerUser({ active }: { active: boolean }) {
   const max = Math.max(...data.totals.map(t => Number(t.total_sent || 0)), 1)
 
   return (
-    <SectionCard title="Messages Sent per User (14d)">
+    <SectionCard title="Messages Sent per User">
       {data.totals.map(t => (
         <div key={t.user_name} className="mb-2">
           <Bar value={Number(t.total_sent || 0)} max={max} color="rgba(99,149,255,0.4)" label={t.user_name} rightLabel={`${t.avg_per_day}/day`} />
@@ -728,7 +728,7 @@ function TeamDraftDecisions({ active }: { active: boolean }) {
   if (!raw?.data?.length) return <EmptyState />
 
   return (
-    <SectionCard title="Draft Decisions by User (30d)">
+    <SectionCard title="Draft Decisions by User">
       {raw.data.map(r => {
         const total = Number(r.total || 0)
         const approved1st = Number(r.approved_first_draft || 0)
@@ -768,7 +768,7 @@ function TeamAskFridayUsage({ active }: { active: boolean }) {
   const totalSessions = (data.by_user || []).reduce((s, u) => s + Number(u.sessions || 0), 0)
 
   return (
-    <SectionCard title="Ask Friday Usage (30d)">
+    <SectionCard title="Ask Friday Usage">
       <div className="flex flex-wrap gap-3 mb-4">
         <div className="rounded-lg px-3 py-2" style={{ background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)' }}>
           <div className="text-xs" style={{ color: SUB_COLOR }}>Total Sessions</div>

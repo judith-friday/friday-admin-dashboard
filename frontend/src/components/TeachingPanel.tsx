@@ -550,7 +550,7 @@ export default function TeachingPanel({ show, onClose, displayName }: TeachingPa
                   <MetricCard label="Active Teachings" value={metrics.active_teachings} color="#4ade80" />
                   <MetricCard label="Auto-detected" value={metrics.auto_teachings} color="#c084fc" />
                   <MetricCard label="Manual" value={metrics.active_teachings - metrics.auto_teachings} color="#6395ff" />
-                  <MetricCard label="Events (7d)" value={metrics.recent_events} color="#38bdf8" />
+                  <MetricCard label="Events" value={metrics.recent_events} color="#38bdf8" />
                   <MetricCard label="Pending Review" value={metrics.candidates_by_status.find(c => c.status === 'pending_review')?.count || '0'} color="#fbbf24" className="col-span-2" />
                 </div>
                 {metrics.clusters_by_type.length > 0 && (
