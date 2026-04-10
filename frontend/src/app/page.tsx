@@ -111,6 +111,15 @@ export default function MessageDashboard() {
   })
 
   const { playChime, toggleMute, isMuted, isMutedRef } = useNotificationSound()
+  const { requestPermission: subscribePush } = usePushNotifications()
+
+  // Auto-subscribe to push if permission was already granted
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      subscribePush().catch(() => {})
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Clear session teachings when switching conversations
   useEffect(() => { setSessionTeachings([]) }, [selectedConvId])
