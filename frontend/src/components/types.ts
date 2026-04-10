@@ -109,6 +109,7 @@ export interface Conversation {
   notes?: string
   sentiment?: string
   next_steps?: string
+  conversation_intent?: string
   created_at: string
   updated_at: string
 }

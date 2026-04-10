@@ -90,6 +90,20 @@ function WhatsAppWindowBadge({ channel, communicationChannel, windowOpen, expire
   )
 }
 
+function intentBadge(intent?: string) {
+  if (!intent) return null
+  const intents: Record<string, { label: string; bg: string; color: string }> = {
+    new_booking: { label: 'New Booking', bg: 'rgba(34,197,94,0.15)', color: '#4ade80' },
+    extension: { label: 'Extension', bg: 'rgba(59,130,246,0.15)', color: '#60a5fa' },
+    question: { label: 'Question', bg: 'rgba(148,163,184,0.15)', color: '#94a3b8' },
+    complaint: { label: 'Complaint', bg: 'rgba(239,68,68,0.15)', color: '#f87171' },
+    followup: { label: 'Follow-up', bg: 'rgba(245,158,11,0.15)', color: '#fbbf24' },
+  }
+  const c = intents[intent]
+  if (!c) return null
+  return <span className="px-1.5 py-0.5 rounded-full text-[10px]" style={{background: c.bg, color: c.color, fontWeight: 600}}>{c.label}</span>
+}
+
 interface ConversationDetailProps {
   detail: ConversationDetailType
   mobileView: 'list' | 'detail' | 'info'
@@ -208,6 +222,7 @@ export default function ConversationDetail({
             <span className="text-[11px] shrink-0" onClick={() => fetchPropertyCard(detail.conversation.property_name)} style={{cursor: 'pointer', color: '#64748b'}}>· {detail.conversation.property_name}</span>
           )}
           {detail.conversation.channel && channelBadge(detail.conversation.channel)}
+          {intentBadge(detail.conversation.conversation_intent)}
           {detail.conversation.avg_response_minutes != null && (
             <span className="text-[10px] shrink-0 font-medium" style={{color: rtColor(detail.conversation.avg_response_minutes)}}>
               {Math.round(detail.conversation.avg_response_minutes)}m
@@ -234,6 +249,7 @@ export default function ConversationDetail({
               <span className="text-xs flex-shrink-0" onClick={() => fetchPropertyCard(detail.conversation.property_name)} style={{cursor: 'pointer', color: '#64748b', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '2px'}}>{detail.conversation.property_name}</span>
             )}
             {detail.conversation.channel && channelBadge(detail.conversation.channel)}
+            {intentBadge(detail.conversation.conversation_intent)}
           </div>
           <div className="flex items-center gap-2 flex-shrink-0 text-xs" style={{color: '#64748b'}}>
             {detail.conversation.check_in_date && detail.conversation.check_out_date && (
