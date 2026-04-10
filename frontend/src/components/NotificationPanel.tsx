@@ -58,7 +58,7 @@ export default function NotificationPanel({ show, onClose, notifications, onNoti
         }}
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#0d1117', paddingTop: 'max(1rem, env(safe-area-inset-top, 0px))'}}>
+        <div className="sticky top-0 z-10 p-4" style={{borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#0d1117', paddingTop: '1rem'}}>
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold" style={{color: '#f1f5f9'}}>{'\uD83D\uDD14'} Notifications</h2>
             <div className="flex items-center gap-3">
