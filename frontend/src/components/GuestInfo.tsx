@@ -113,6 +113,25 @@ export default function GuestInfo({
   const [showAllSteps, setShowAllSteps] = useState(false)
   const [expandedStepId, setExpandedStepId] = useState<string | null>(null)
   const [pendingCount, setPendingCount] = useState(0)
+  const [guestProfile, setGuestProfile] = useState<any>(null)
+  const [linkedConversations, setLinkedConversations] = useState<any[]>([])
+
+  // Fetch guest profile for this conversation
+  useEffect(() => {
+    if (!selectedConvId) return
+    let cancelled = false
+    apiFetch(`/api/guests/by-conversation/${selectedConvId}`)
+      .then(data => {
+        if (!cancelled) {
+          setGuestProfile(data.profile)
+          setLinkedConversations((data.conversations || []).filter((c: any) => c.id !== selectedConvId))
+        }
+      })
+      .catch(() => {
+        if (!cancelled) { setGuestProfile(null); setLinkedConversations([]) }
+      })
+    return () => { cancelled = true }
+  }, [selectedConvId, detail])
 
   // Fetch next steps from dedicated API
   useEffect(() => {
@@ -187,6 +206,42 @@ export default function GuestInfo({
           </div>
         )}
       </div>
+
+      {/* Returning guest badge + linked conversations */}
+      {guestProfile && (guestProfile.is_returning || linkedConversations.length > 0) && (
+        <div className="p-3 space-y-2" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+          {guestProfile.is_returning && (
+            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium" style={{background: 'rgba(168,85,247,0.15)', color: '#c084fc', border: '1px solid rgba(168,85,247,0.25)'}}>
+              <span style={{fontSize: '10px'}}>&#x21BB;</span> Returning guest &middot; {guestProfile.total_stays} stay{guestProfile.total_stays !== 1 ? 's' : ''}
+            </div>
+          )}
+          {linkedConversations.length > 0 && (
+            <div className="space-y-1">
+              <div className="text-xs font-medium" style={{color: '#64748b'}}>Also seen on:</div>
+              {linkedConversations.map((c: any) => {
+                const channelColors: Record<string, string> = { airbnb: '#ff5a5f', direct: '#6395ff', booking: '#003580', email: '#22c55e', whatsapp: '#25d366' }
+                const color = channelColors[c.channel?.toLowerCase()] || '#94a3b8'
+                const label = c.property_name ? `${c.property_name}` : c.guest_name
+                return (
+                  <button key={c.id}
+                    onClick={() => {
+                      // Navigate to linked conversation
+                      window.dispatchEvent(new CustomEvent('navigate-conversation', { detail: { conversationId: c.id } }))
+                    }}
+                    className="flex items-center gap-1.5 w-full text-left text-xs px-2 py-1 rounded hover:bg-white/5 transition-colors"
+                    style={{color: '#e2e8f0'}}
+                  >
+                    <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{backgroundColor: color}} />
+                    <span className="capitalize" style={{color, fontSize: '10px', fontWeight: 600}}>[{c.channel}]</span>
+                    <span className="truncate">{label}</span>
+                    {c.check_in_date && <span style={{color: '#64748b', fontSize: '10px'}}>{format(new Date(c.check_in_date), 'MMM d')}</span>}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Financial info */}
       {detail.reservation && (detail.reservation.nightly_rate || detail.reservation.total_price || detail.reservation.host_payout || detail.reservation.cleaning_fee) && (() => {

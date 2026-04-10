@@ -111,6 +111,7 @@ export interface Conversation {
   sentiment?: string
   next_steps?: string
   conversation_intent?: string
+  guest_profile_id?: string
   created_at: string
   updated_at: string
 }

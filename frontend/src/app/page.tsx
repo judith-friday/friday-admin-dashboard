@@ -511,6 +511,20 @@ export default function MessageDashboard() {
     }
   }, [])
 
+  // Listen for navigate-conversation events (from linked guest conversations)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const convId = (e as CustomEvent).detail?.conversationId
+      if (convId) {
+        setSelectedConvId(convId)
+        fetchDetail(convId)
+        setMobileView('detail')
+      }
+    }
+    window.addEventListener('navigate-conversation', handler)
+    return () => window.removeEventListener('navigate-conversation', handler)
+  }, [fetchDetail])
+
   // Auto-select first conversation on initial load (desktop only)
   useEffect(() => {
     if (!selectedConvId && conversations.length > 0 && !loading && window.innerWidth >= 768) {
