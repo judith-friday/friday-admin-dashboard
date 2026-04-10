@@ -41,25 +41,31 @@ function formatSenderWithChannel(senderName: string | null, channel?: string | n
   return channelName ? `${personName} via Guesty on ${channelName}` : `${personName} via Guesty`
 }
 
-function WhatsAppWindowBadge({ windowOpen, expiresAt }: {
-  windowOpen?: boolean | null
-  expiresAt?: string | null
-}) {
+function useWhatsAppTimer(expiresAt?: string | null, windowOpen?: boolean | null) {
   const [timeLeft, setTimeLeft] = useState('')
 
   useEffect(() => {
-    if (!expiresAt || !windowOpen) return
+    if (!expiresAt || !windowOpen) { setTimeLeft(''); return }
     const update = () => {
       const diff = new Date(expiresAt).getTime() - Date.now()
       if (diff <= 0) { setTimeLeft(''); return }
       const h = Math.floor(diff / 3600000)
       const m = Math.floor((diff % 3600000) / 60000)
-      setTimeLeft(`${h}h ${m}m left`)
+      setTimeLeft(`${h}h ${m}m`)
     }
     update()
     const interval = setInterval(update, 60000)
     return () => clearInterval(interval)
   }, [expiresAt, windowOpen])
+
+  return timeLeft
+}
+
+function WhatsAppWindowBadge({ windowOpen, expiresAt }: {
+  windowOpen?: boolean | null
+  expiresAt?: string | null
+}) {
+  const timeLeft = useWhatsAppTimer(expiresAt, windowOpen)
 
   if (windowOpen == null) return null
 
@@ -69,7 +75,7 @@ function WhatsAppWindowBadge({ windowOpen, expiresAt }: {
         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
           style={{ background: 'rgba(34,197,94,0.12)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.25)' }}>
           <span>💬</span>
-          <span>24h window open{timeLeft ? ` · ${timeLeft}` : ''}</span>
+          <span>WhatsApp · 24h window open{timeLeft ? ` · ${timeLeft} left` : ''}</span>
         </div>
       </div>
     )
@@ -80,8 +86,31 @@ function WhatsAppWindowBadge({ windowOpen, expiresAt }: {
       <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
         style={{ background: 'rgba(239,68,68,0.12)', color: '#f87171', border: '1px solid rgba(239,68,68,0.25)' }}>
         <span>💬</span>
-        <span>Window closed — guest must message first</span>
+        <span>WhatsApp · Window closed — template required</span>
       </div>
+    </div>
+  )
+}
+
+function WhatsAppComposeTimer({ windowOpen, expiresAt }: {
+  windowOpen?: boolean | null
+  expiresAt?: string | null
+}) {
+  const timeLeft = useWhatsAppTimer(expiresAt, windowOpen)
+
+  if (windowOpen == null) return null
+
+  return (
+    <div className="flex-shrink-0 px-4 py-1" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      {windowOpen ? (
+        <span className="text-[11px]" style={{ color: '#4ade80' }}>
+          WhatsApp window: {timeLeft ? `${timeLeft} remaining` : 'open'}
+        </span>
+      ) : (
+        <span className="text-[11px]" style={{ color: '#f87171' }}>
+          ⚠️ WhatsApp window closed — use template to re-engage
+        </span>
+      )}
     </div>
   )
 }
@@ -566,6 +595,14 @@ export default function ConversationDetail({
         windowOpen={detail.whatsapp_window_open}
         expiresAt={detail.whatsapp_window_expires_at}
       />
+
+      {/* Compact WhatsApp timer near compose area */}
+      {detail.whatsapp_window_open != null && (
+        <WhatsAppComposeTimer
+          windowOpen={detail.whatsapp_window_open}
+          expiresAt={detail.whatsapp_window_expires_at}
+        />
+      )}
 
       {/* Show DraftPanel when there is a pending AI draft, otherwise show ComposePanel */}
       <div className="flex-shrink-0">
