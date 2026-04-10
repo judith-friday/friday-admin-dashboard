@@ -510,33 +510,33 @@ export default function ConsultChat({
         </div>
       )}
 
-      {/* Action buttons */}
-      {!loading && onConfirm && confirmLabel && (
-        <div className="flex gap-2 px-3 pb-3">
-          <button onClick={onConfirm}
-            className="px-3 py-1.5 text-sm rounded"
-            style={{ background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>
-            {confirmLabel}
-          </button>
-        </div>
-      )}
-
-      {/* Start fresh session link */}
-      {!loading && messages.length >= 2 && (
-        <div className="px-3 pb-2 text-center">
-          <button onClick={async () => {
-            if (!window.confirm('This will save and close the current conversation with Friday. Start a new one?')) return
-            if (sessionId) {
-              await apiFetch('/api/ai/consult/session/end', {
-                method: 'POST',
-                body: JSON.stringify({ sessionId, history: messages }),
-              }).catch(() => {})
-            }
-            resetState()
-            setTimeout(() => initSession(), 0)
-          }} className="text-xs opacity-60 hover:opacity-100 transition-opacity" style={{ color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}>
-            Start fresh session
-          </button>
+      {/* Action buttons + Start fresh session on same line */}
+      {!loading && (onConfirm || messages.length >= 2) && (
+        <div className="flex items-center justify-between px-3 pb-3">
+          <div>
+            {onConfirm && confirmLabel && (
+              <button onClick={onConfirm}
+                className="px-3 py-1.5 text-sm rounded"
+                style={{ background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)' }}>
+                {confirmLabel}
+              </button>
+            )}
+          </div>
+          {messages.length >= 2 && (
+            <button onClick={async () => {
+              if (!window.confirm('This will save and close the current conversation with Friday. Start a new one?')) return
+              if (sessionId) {
+                await apiFetch('/api/ai/consult/session/end', {
+                  method: 'POST',
+                  body: JSON.stringify({ sessionId, history: messages }),
+                }).catch(() => {})
+              }
+              resetState()
+              setTimeout(() => initSession(), 0)
+            }} className="text-xs opacity-60 hover:opacity-100 transition-opacity" style={{ color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}>
+              Start fresh session
+            </button>
+          )}
         </div>
       )}
     </div>
