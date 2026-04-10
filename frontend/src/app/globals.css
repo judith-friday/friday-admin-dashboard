@@ -341,18 +341,24 @@ input:focus, textarea:focus, select:focus {
     overflow-y: auto;
   }
 
+  /* Ask Friday reply input: prevent PWA keyboard shift */
+  .consult-chat-reply {
+    position: relative;
+    transform: translateZ(0); /* force compositing layer to prevent reflow jitter */
+  }
+
   /* Ask Friday chat messages: remove inner scroll on mobile so compose+AskFriday flow as one scrollable column */
   .consult-chat-messages {
     max-height: none !important;
     overflow-y: visible !important;
   }
 
-  /* Keep compose textarea and action buttons visible when Ask Friday is open */
+  /* Compose textarea: auto-resize friendly on mobile */
   [data-testid="input-compose-message"] {
-    max-height: 80px !important;
-    min-height: 56px !important;
+    max-height: 40vh !important;
+    min-height: 80px !important;
     overflow-y: auto !important;
-    resize: none !important;
+    resize: vertical !important;
   }
 
   /* Ensure conversation detail doesn't overflow — compose stays visible */
@@ -399,6 +405,23 @@ input:focus, textarea:focus, select:focus {
   /* Action buttons: 44px min-height (Done, Dismiss, Approve, Edit, Reject, etc.) */
   [data-testid="section-pending-actions"] button {
     min-height: 44px;
+  }
+
+  /* Action chips: compact on mobile — exempt from 44px touch-target rule */
+  .action-chips-row {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .action-chips-row::-webkit-scrollbar { display: none; }
+  .action-chips-row button {
+    min-height: unset !important;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 4px 8px !important;
+    font-size: 11px !important;
   }
 
   /* Draft panel action buttons: compact on mobile to prevent 3-row wrapping */

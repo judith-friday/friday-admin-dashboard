@@ -214,21 +214,35 @@ export default function ConsultChat({
     const el = textareaRef.current
     if (!el) return
     el.style.height = 'auto'
-    const maxH = window.innerWidth < 768 ? 72 : 96
+    const isMobile = (window.visualViewport?.width ?? window.innerWidth) < 768
+    const maxH = isMobile ? 72 : 96
     const newH = Math.min(el.scrollHeight, maxH)
     el.style.height = newH + 'px'
     el.style.overflowY = el.scrollHeight > maxH ? 'auto' : 'hidden'
   }
 
-  // Stabilize input on mobile: prevent keyboard from causing scroll jitter
+  // Stabilize input on mobile PWA: prevent keyboard from causing scroll jitter / layout shift
   useEffect(() => {
     const el = textareaRef.current
     if (!el || !active) return
     const handleFocus = () => {
-      // Use requestAnimationFrame to let keyboard appear first, then scroll
-      requestAnimationFrame(() => {
-        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-      })
+      // Use visualViewport resize to wait for keyboard, then scroll
+      if (window.visualViewport) {
+        const onResize = () => {
+          requestAnimationFrame(() => {
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+          })
+          window.visualViewport!.removeEventListener('resize', onResize)
+        }
+        window.visualViewport.addEventListener('resize', onResize, { once: true })
+        // Fallback if keyboard doesn't trigger resize (e.g. already open)
+        setTimeout(() => {
+          window.visualViewport!.removeEventListener('resize', onResize)
+          requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }))
+        }, 400)
+      } else {
+        requestAnimationFrame(() => el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }))
+      }
     }
     el.addEventListener('focus', handleFocus)
     return () => el.removeEventListener('focus', handleFocus)
@@ -474,7 +488,7 @@ export default function ConsultChat({
 
       {/* Auto-detected question chips */}
       {autoChips.length > 0 && !loading && (
-        <div className="px-3 pb-1 flex flex-wrap gap-1">
+        <div className="px-3 pb-1 flex flex-wrap gap-1 action-chips-row">
           {autoChips.map((chip, i) => (
             <button key={i}
               onClick={() => { setAutoChips([]); sendAndProcess(chip.text) }}
@@ -488,7 +502,7 @@ export default function ConsultChat({
 
       {/* Quick action chips */}
       {chips && chips.length > 0 && !loading && (
-        <div className="px-3 pb-1 flex flex-wrap gap-1">
+        <div className="px-3 pb-1 flex flex-wrap gap-1 action-chips-row">
           {chips.map((chip, i) => (
             <button key={i}
               onClick={() => chip.onClick ? chip.onClick() : chip.instruction ? sendAndProcess(chip.instruction) : null}
@@ -502,9 +516,9 @@ export default function ConsultChat({
 
       {/* Reply input */}
       {!loading && messages.length >= 2 && (
-        <div className="px-3 pb-2">
+        <div className="px-3 pb-2 consult-chat-reply">
           <div className="flex gap-2">
-            <textarea ref={textareaRef} value={replyText} onChange={e => { setReplyText(e.target.value); setTimeout(adjustTextareaHeight, 0) }}
+            <textarea ref={textareaRef} inputMode="text" value={replyText} onChange={e => { setReplyText(e.target.value); setTimeout(adjustTextareaHeight, 0) }}
               placeholder="Reply to Friday..."
               className="flex-1 text-base rounded px-2 py-1.5 outline-none resize-none"
               style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9', minHeight: '36px', maxHeight: '96px', overflowY: 'auto', transition: 'height 0.1s ease' }}

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { PencilSquareIcon, PaperAirplaneIcon, XMarkIcon, ChatBubbleLeftRightIcon, SparklesIcon } from '@heroicons/react/24/outline'
 import ConsultChat from './ConsultChat'
 
@@ -25,6 +25,18 @@ export default function ComposePanel({
   conversationId, conversationIntent, onTeachingCreated,
 }: ComposePanelProps) {
   const [showConsult, setShowConsult] = useState(false)
+  const composeRef = useRef<HTMLTextAreaElement>(null)
+
+  const autoResizeCompose = useCallback(() => {
+    const el = composeRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    const maxH = window.innerWidth < 768 ? 200 : 300
+    el.style.height = Math.min(el.scrollHeight, maxH) + 'px'
+    el.style.overflowY = el.scrollHeight > maxH ? 'auto' : 'hidden'
+  }, [])
+
+  useEffect(() => { autoResizeCompose() }, [composeText, autoResizeCompose])
 
   const canSend = composeText.trim().length > 0 && !composeSending && !composeFix
   const canFix = composeText.trim().length > 0 && !composeSending && !composeFix
@@ -51,11 +63,11 @@ export default function ComposePanel({
             </button>
           </div>
 
-          <textarea data-testid="input-compose-message" value={composeText} onChange={e => setComposeText(e.target.value)}
+          <textarea ref={composeRef} data-testid="input-compose-message" value={composeText} onChange={e => setComposeText(e.target.value)}
             onKeyDown={e => { e.stopPropagation(); if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && canSend) handleComposeSend() }}
             placeholder="Type your message to the guest..."
             className="w-full text-base rounded-lg px-3 py-1.5 outline-none" rows={3}
-            style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9', resize: 'none', minHeight: '72px', maxHeight: '160px', overflowY: 'auto'}} />
+            style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9', resize: 'vertical', minHeight: '120px', maxHeight: '50vh', overflowY: 'auto'}} />
 
           <div className="flex gap-2">
             {/* Fix button */}
