@@ -78,6 +78,33 @@ const HELP_DATA: HelpEntry[] = [
     ),
   },
   {
+    id: 'intent-detection',
+    title: 'Intent detection badges',
+    group: '🏠 Getting Started',
+    keywords: ['intent', 'badge', 'new booking', 'extension', 'followup', 'follow-up', 'green', 'blue', 'yellow', 'color', 'detect'],
+    content: 'Friday detects the guest intent and shows a colored badge in the conversation header. Green "New Booking" for new inquiries, blue "Extension" for stay extensions, yellow "Follow-up" for returning guests. Intent determines which knowledge bases are available and how Friday prioritizes the conversation.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Friday detects the guest\'s intent and shows a colored badge in the conversation header:')}</p>
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>New Booking</span>
+            <span>{hl('Guest is inquiring about a new reservation')}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>Extension</span>
+            <span>{hl('Guest wants to extend their current stay')}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>Follow-up</span>
+            <span>{hl('Returning guest or ongoing negotiation')}</span>
+          </div>
+        </div>
+        <p className="leading-relaxed mt-2">{hl('Intent determines which knowledge bases Friday uses and how it prioritizes the conversation.')}</p>
+      </div>
+    ),
+  },
+  {
     id: 'navigation',
     title: 'Keyboard shortcuts',
     group: '🏠 Getting Started',
@@ -189,6 +216,43 @@ const HELP_DATA: HelpEntry[] = [
           <div>• {hl('Access STR knowledge base for industry best practices')}</div>
         </div>
         <p className="leading-relaxed mt-2" style={{color: '#e2e8f0'}}>{hl('Friday is draft-aware — it knows when a draft exists and adjusts suggestions accordingly.')}</p>
+      </div>
+    ),
+  },
+  {
+    id: 'knowledge-bases',
+    title: 'Knowledge bases (STR KB & Sales KB)',
+    group: '✨ AI & Drafts',
+    keywords: ['knowledge', 'base', 'kb', 'str', 'sales', 'chip', 'short-term', 'rental', 'booking', 'inquiry'],
+    content: 'Friday has two knowledge bases available as chips in Ask Friday. STR KB (Short-Term Rental Knowledge Base) contains industry best practices, platform rules, and hospitality guidelines — available for all conversations. Sales KB contains pricing strategies, negotiation tactics, objection handling, and booking conversion tips — only available for new_booking, extension, and follow-up conversations.',
+    render: (hl) => (
+      <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
+        <p className="leading-relaxed">{hl('Friday has two knowledge bases, available as chips in Ask Friday:')}</p>
+        <div className="space-y-2 mt-2">
+          <div className="rounded-md p-2.5" style={{background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.15)'}}>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2 py-0.5 rounded-full text-xs" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff'}}>STR KB</span>
+              <span style={{color: '#e2e8f0', fontWeight: 500, fontSize: '11px'}}>All conversations</span>
+            </div>
+            <div className="space-y-0.5 mt-1">
+              <div>{hl('Industry best practices for short-term rentals')}</div>
+              <div>{hl('Platform rules (Airbnb, Booking.com policies)')}</div>
+              <div>{hl('Hospitality guidelines and guest communication tips')}</div>
+            </div>
+          </div>
+          <div className="rounded-md p-2.5" style={{background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)'}}>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="px-2 py-0.5 rounded-full text-xs" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>Sales KB</span>
+              <span style={{color: '#e2e8f0', fontWeight: 500, fontSize: '11px'}}>Booking/extension/follow-up only</span>
+            </div>
+            <div className="space-y-0.5 mt-1">
+              <div>{hl('Pricing strategies and negotiation tactics')}</div>
+              <div>{hl('Objection handling (price, cancellation, payment)')}</div>
+              <div>{hl('Booking conversion tips and follow-up templates')}</div>
+            </div>
+          </div>
+        </div>
+        <p className="leading-relaxed mt-2">{hl('Click a KB chip in Ask Friday to have Friday consult that knowledge base when drafting.')}</p>
       </div>
     ),
   },
@@ -431,19 +495,19 @@ const HELP_DATA: HelpEntry[] = [
   // ── 5. Operations ──────────────────────────────────────────────────────
   {
     id: 'inquiry-followup',
-    title: 'Inquiry follow-up system',
+    title: 'Inquiry follow-up & escalation system',
     group: '⚙️ Operations',
-    keywords: ['inquiry', 'follow-up', 'followup', 'escalation', '3h', '12h', '24h', '1w', 'automated'],
-    content: 'Unanswered inquiries trigger automated follow-ups on an escalation schedule: 3 hours, 12 hours, 24 hours, and 1 week. Each follow-up is AI-drafted and respects platform-specific rules (e.g., WhatsApp 24h window). Follow-ups appear in your queue for review before sending.',
+    keywords: ['inquiry', 'follow-up', 'followup', 'escalation', '3h', '12h', '24h', '1w', 'automated', 'platform', 'rules', 'risk', 'losing', 'booking'],
+    content: 'Unanswered inquiries trigger automated follow-ups on an escalation schedule: 3 hours, 12 hours, 24 hours, and 1 week. Each escalation increases urgency. Platform rules are respected — WhatsApp 24h window, Airbnb response time requirements. The Actions tab shows warning alerts like "78h without response — Risk of losing booking" when inquiries are stale. Follow-ups are AI-drafted and appear for review before sending.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Unanswered inquiries trigger automated follow-ups:')}</p>
+        <p className="leading-relaxed">{hl('Unanswered inquiries trigger automated follow-ups with escalating urgency:')}</p>
         <div className="space-y-1.5">
           {[
-            ['3h', 'Gentle first follow-up'],
-            ['12h', 'Second check-in with more detail'],
-            ['24h', 'Stronger follow-up with urgency'],
-            ['1w', 'Final outreach attempt'],
+            ['3h', 'Gentle first follow-up — MED urgency'],
+            ['12h', 'Second check-in with more detail — MED urgency'],
+            ['24h', 'Stronger follow-up — HIGH urgency'],
+            ['1w', 'Final outreach attempt — CRIT urgency'],
           ].map(([time, desc]) => (
             <div key={time} className="flex items-center gap-2">
               <span className="px-2 py-0.5 rounded text-xs flex-shrink-0" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>{time}</span>
@@ -451,7 +515,14 @@ const HELP_DATA: HelpEntry[] = [
             </div>
           ))}
         </div>
-        <p className="leading-relaxed mt-2">{hl('Follow-ups are AI-drafted, respect platform rules, and appear for your review before sending.')}</p>
+        <div className="rounded-md p-2.5 mt-2" style={{background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)'}}>
+          <span style={{color: '#fbbf24', fontWeight: 500}}>Platform rules:</span>
+          <div className="space-y-0.5 mt-1">
+            <div>{hl('WhatsApp: 24h messaging window respected — uses templates after expiry')}</div>
+            <div>{hl('Airbnb: Response time requirements tracked to protect host metrics')}</div>
+          </div>
+        </div>
+        <p className="leading-relaxed mt-2">{hl('Stale inquiries show warning alerts in the Actions tab (e.g., "78h without response — Risk of losing booking"). Follow-ups are AI-drafted and appear for your review before sending.')}</p>
       </div>
     ),
   },
@@ -514,19 +585,33 @@ const HELP_DATA: HelpEntry[] = [
   },
   {
     id: 'pending-actions',
-    title: 'Pending actions & click-to-navigate',
+    title: 'Pending actions',
     group: '⚙️ Operations',
-    keywords: ['pending', 'action', 'click', 'navigate', 'overdue', 'tasks', 'follow'],
-    content: 'Pending actions appear in the info panel and the Actions tab. Each action has an urgency badge (low, medium, high, critical). Click any pending action to navigate directly to the related conversation. Review pending actions at the start of each shift.',
+    keywords: ['pending', 'action', 'click', 'navigate', 'overdue', 'tasks', 'follow', 'urgency', 'owner', 'team', 'guest', 'deferred', 'category', 'badge'],
+    content: 'Pending actions appear in the info panel and the Actions tab. Each action has an owner (team or guest), a category, and an urgency badge. Urgency levels: MED (yellow), HIGH (orange), CRIT (red). Time indicators show OVERDUE, DUE SOON, or hours remaining. Deferred follow-ups have scheduled due dates. Actions can be marked Done, Dismissed, Edited, or consulted via Ask Friday.',
     render: (hl) => (
       <div className="space-y-2 text-xs" style={{color: '#94a3b8'}}>
-        <p className="leading-relaxed">{hl('Pending actions appear in the info panel and the Actions tab:')}</p>
-        <div className="space-y-1">
-          <div>• {hl('Click any pending action to navigate directly to that conversation')}</div>
-          <div>• {hl('Urgency badges: ')} <span style={{color: '#4ade80'}}>low</span>, <span style={{color: '#fbbf24'}}>medium</span>, <span style={{color: '#f97316'}}>high</span>, <span style={{color: '#f87171'}}>critical</span></div>
-          <div>• {hl('Overdue actions show an age indicator')}</div>
-          <div>• {hl('Review pending actions at the start of each shift')}</div>
+        <p className="leading-relaxed">{hl('Pending actions appear in the info panel and the dedicated Actions tab:')}</p>
+        <div className="space-y-1.5 mt-1">
+          <div><span style={{fontWeight: 500, color: '#e2e8f0'}}>Urgency badges:</span></div>
+          <div className="flex flex-wrap gap-2">
+            <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>MED</span>
+            <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(249,115,22,0.15)', color: '#f97316'}}>HIGH</span>
+            <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>CRIT</span>
+          </div>
+          <div><span style={{fontWeight: 500, color: '#e2e8f0'}}>Time indicators:</span></div>
+          <div className="flex flex-wrap gap-2">
+            <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>OVERDUE</span>
+            <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(245,158,11,0.15)', color: '#fbbf24'}}>DUE SOON</span>
+            <span className="px-2 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}}>3h</span>
+          </div>
         </div>
+        <div className="space-y-1 mt-2">
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Owner:</span> {hl('team (your responsibility) or awaiting guest (waiting on guest response)')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Deferred:</span> {hl('follow-ups with scheduled due dates — appear when due')}</div>
+          <div>• <span style={{fontWeight: 500, color: '#e2e8f0'}}>Actions:</span> {hl('Done, Dismiss, Edit, or Ask Friday for help')}</div>
+        </div>
+        <p className="leading-relaxed mt-2">{hl('Review pending actions at the start of each shift. Sort by urgency to prioritize.')}</p>
       </div>
     ),
   },
@@ -795,7 +880,7 @@ export default function HelpPanel({ isOpen, onClose }: { isOpen: boolean; onClos
           <div className="flex items-center justify-between mb-3">
             <div>
               <div className="text-base font-bold" style={{ color: '#f1f5f9' }}>Friday GMS Guide</div>
-              <div className="text-xs" style={{ color: '#64748b' }}>v5.9 — Sprint 5.1 audited</div>
+              <div className="text-xs" style={{ color: '#64748b' }}>v5.10 — Sprint 5.2 audited</div>
             </div>
             <button onClick={onClose} className="w-7 h-7 rounded-md flex items-center justify-center" data-testid="btn-close-help" style={{ background: 'rgba(255,255,255,0.06)', color: '#64748b' }}>✕</button>
           </div>
