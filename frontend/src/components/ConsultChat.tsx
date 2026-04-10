@@ -53,7 +53,7 @@ export default function ConsultChat({
   const [started, setStarted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [draftUpdated, setDraftUpdated] = useState(false)
-  const [teachingAction, setTeachingAction] = useState<TeachingActionData | null>(null)
+  const [teachingActions, setTeachingActions] = useState<TeachingActionData[]>([])
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [compactionNotice, setCompactionNotice] = useState(false)
   const [missingKnowledge, setMissingKnowledge] = useState(false)
@@ -93,7 +93,7 @@ export default function ConsultChat({
     setError(null)
     setReplyText('')
     setDraftUpdated(false)
-    setTeachingAction(null)
+    setTeachingActions([])
     setCompactionNotice(false)
     setMissingKnowledge(false)
     setDraftRefreshNotice(false)
@@ -152,8 +152,10 @@ export default function ConsultChat({
         setDraftUpdated(true)
         setTimeout(() => setDraftUpdated(false), 3000)
       }
-      if (data.teaching_action) {
-        setTeachingAction(data.teaching_action as TeachingActionData)
+      if (data.teaching_actions && data.teaching_actions.length > 0) {
+        setTeachingActions(prev => [...prev, ...data.teaching_actions as TeachingActionData[]])
+      } else if (data.teaching_action) {
+        setTeachingActions(prev => [...prev, data.teaching_action as TeachingActionData])
       }
       if (data.missingKnowledge) {
         setMissingKnowledge(true)
@@ -238,7 +240,7 @@ export default function ConsultChat({
     return () => el.removeEventListener('focus', handleFocus)
   }, [active, started])
 
-  const sendConsult = async (instruction: string, history: ChatMessage[]): Promise<{response: string | null, draftUpdate?: string, teachingAction?: TeachingActionData, sessionId?: string, compacted?: boolean, missingKnowledge?: boolean}> => {
+  const sendConsult = async (instruction: string, history: ChatMessage[]): Promise<{response: string | null, draftUpdate?: string, teachingAction?: TeachingActionData, teachingActions?: TeachingActionData[], sessionId?: string, compacted?: boolean, missingKnowledge?: boolean}> => {
     const data = await apiFetch('/api/ai/consult', {
       method: 'POST',
       body: JSON.stringify({
@@ -251,7 +253,7 @@ export default function ConsultChat({
         ...(sessionId ? { sessionId } : {}),
       }),
     })
-    return { response: data.response as string, draftUpdate: data.draft_update as string | undefined, teachingAction: data.teaching_action as TeachingActionData | undefined, sessionId: data.sessionId, compacted: data.compacted, missingKnowledge: data.missingKnowledge }
+    return { response: data.response as string, draftUpdate: data.draft_update as string | undefined, teachingAction: data.teaching_action as TeachingActionData | undefined, teachingActions: data.teaching_actions as TeachingActionData[] | undefined, sessionId: data.sessionId, compacted: data.compacted, missingKnowledge: data.missingKnowledge }
   }
 
   const sendAndProcess = async (instruction: string) => {
@@ -283,8 +285,10 @@ export default function ConsultChat({
         setDraftUpdated(true)
         setTimeout(() => setDraftUpdated(false), 3000)
       }
-      if (result.teachingAction) {
-        setTeachingAction(result.teachingAction)
+      if (result.teachingActions && result.teachingActions.length > 0) {
+        setTeachingActions(prev => [...prev, ...result.teachingActions!])
+      } else if (result.teachingAction) {
+        setTeachingActions(prev => [...prev, result.teachingAction!])
       }
       if (result.missingKnowledge) {
         setMissingKnowledge(true)
@@ -404,64 +408,67 @@ export default function ConsultChat({
       )}
 
       {/* Teaching action cards */}
-      {teachingAction && teachingAction.action === 'create' && (
-        <TeachingCard
-          instruction={teachingAction.instruction}
-          suggestedScope={(teachingAction.scope as 'global' | 'property') || 'global'}
-          propertyCode={teachingAction.propertyCode || propertyCode}
-          onConfirm={() => setTeachingAction(null)}
-          onDismiss={() => setTeachingAction(null)}
-          onTeachingCreated={onTeachingCreated}
-        />
-      )}
-      {teachingAction && teachingAction.action === 'update' && (
-        <TeachingCard
-          instruction={teachingAction.instruction}
-          suggestedScope="global"
-          propertyCode={teachingAction.propertyCode || propertyCode}
-          onConfirm={async () => {
-            if (teachingAction.existingTeachingId) {
-              await apiFetch(`/api/teachings/${teachingAction.existingTeachingId}/revoke`, {
-                method: 'PATCH',
-                body: JSON.stringify({ revoke_reason: 'Updated via Ask Friday' }),
-              })
-            }
-            setTeachingAction(null)
-          }}
-          onDismiss={() => setTeachingAction(null)}
-          onTeachingCreated={onTeachingCreated}
-        />
-      )}
-      {teachingAction && teachingAction.action === 'flag_conflict' && (
-        <ConflictBanner
-          message={teachingAction.reason || 'This conflicts with an existing teaching.'}
-          existingTeaching={teachingAction.conflictingTeachingIndex || undefined}
-          onUpdateTeaching={async () => {
-            if (teachingAction.conflictingTeachingId) {
-              await apiFetch(`/api/teachings/${teachingAction.conflictingTeachingId}/revoke`, {
-                method: 'PATCH',
-                body: JSON.stringify({ revoke_reason: 'Updated via Ask Friday conflict resolution' }),
-              })
-            }
-            const result = await apiFetch('/api/teachings', {
-              method: 'POST',
-              body: JSON.stringify({
-                instruction: teachingAction.instruction,
-                scope: 'global',
-                source: 'direct',
-                taught_by: 'team',
-              }),
-            })
-            const teachingId = result?.id || result?.teaching?.id
-            if (teachingId && onTeachingCreated) {
-              onTeachingCreated({ id: teachingId, instruction: teachingAction.instruction, scope: 'global' })
-            }
-            setTeachingAction(null)
-          }}
-          onException={() => setTeachingAction(null)}
-          onDismiss={() => setTeachingAction(null)}
-        />
-      )}
+      {teachingActions.map((ta, idx) => (
+        <React.Fragment key={idx}>
+          {ta.action === 'create' && (
+            <TeachingCard
+              instruction={ta.instruction}
+              suggestedScope={(ta.scope as 'global' | 'property') || 'global'}
+              propertyCode={ta.propertyCode || propertyCode}
+              onConfirm={() => setTeachingActions(prev => prev.filter((_, i) => i !== idx))}
+              onDismiss={() => setTeachingActions(prev => prev.filter((_, i) => i !== idx))}
+              onTeachingCreated={onTeachingCreated}
+            />
+          )}
+          {ta.action === 'update' && (
+            <TeachingCard
+              instruction={ta.instruction}
+              suggestedScope="global"
+              propertyCode={ta.propertyCode || propertyCode}
+              onConfirm={async () => {
+                if (ta.existingTeachingId) {
+                  await apiFetch(`/api/teachings/${ta.existingTeachingId}/revoke`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ revoke_reason: 'Updated via Ask Friday' }),
+                  })
+                }
+                setTeachingActions(prev => prev.filter((_, i) => i !== idx))
+              }}
+              onDismiss={() => setTeachingActions(prev => prev.filter((_, i) => i !== idx))}
+              onTeachingCreated={onTeachingCreated}
+            />
+          )}
+          {ta.action === 'flag_conflict' && (
+            <ConflictBanner
+              message={ta.reason || 'This conflicts with an existing teaching.'}
+              existingTeaching={ta.conflictingTeachingIndex || undefined}
+              onUpdateTeaching={async () => {
+                if (ta.conflictingTeachingId) {
+                  await apiFetch(`/api/teachings/${ta.conflictingTeachingId}/revoke`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ revoke_reason: 'Updated via Ask Friday conflict resolution' }),
+                  })
+                }
+                const result = await apiFetch('/api/teachings', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    instruction: ta.instruction,
+                    scope: 'global',
+                    source: 'direct',
+                    taught_by: 'team',
+                  }),
+                })
+                const teachingId = result?.id || result?.teaching?.id
+                if (teachingId && onTeachingCreated) {
+                  onTeachingCreated({ id: teachingId, instruction: ta.instruction, scope: 'global' })
+                }
+                setTeachingActions(prev => prev.filter((_, i) => i !== idx))
+              }}
+              onDismiss={() => setTeachingActions(prev => prev.filter((_, i) => i !== idx))}
+            />
+          )}
+        </React.Fragment>
+      ))}
 
       {/* Auto-detected question chips */}
       {autoChips.length > 0 && !loading && (
