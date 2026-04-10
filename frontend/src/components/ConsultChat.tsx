@@ -42,6 +42,17 @@ interface ChatMessage {
   sender?: string
 }
 
+interface HistorySession {
+  id: string
+  userName: string
+  messages: ChatMessage[]
+  summary: string | null
+  status: string
+  createdAt: string
+  endedAt: string | null
+  endReason: string | null
+}
+
 export default function ConsultChat({
   conversationId, context, initialInstruction, draftBody, contextData,
   onConfirm, onCancel, confirmLabel, propertyCode, active = true,
@@ -60,6 +71,8 @@ export default function ConsultChat({
   const [draftRefreshNotice, setDraftRefreshNotice] = useState(false)
 
   const [autoChips, setAutoChips] = useState<Array<{label: string, text: string}>>([])
+  const [historySessions, setHistorySessions] = useState<HistorySession[]>([])
+  const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null)
 
   const startedRef = useRef(false)
   const prevConversationIdRef = useRef(conversationId)
@@ -106,6 +119,19 @@ export default function ConsultChat({
     setLoading(true)
     setError(null)
     try {
+      // Load history for this conversation (Layer 1 — display only, no AI cost)
+      if (conversationId) {
+        apiFetch(`/api/ai/consult/history/${encodeURIComponent(conversationId)}`)
+          .then((data: any) => {
+            if (data.sessions && data.sessions.length > 0) {
+              // Filter out active sessions — those will be the current session
+              const ended = data.sessions.filter((s: HistorySession) => s.status === 'ended' && s.messages?.length > 0)
+              setHistorySessions(ended)
+            }
+          })
+          .catch(() => {}) // Non-blocking
+      }
+
       // Try to restore an existing active session
       if (conversationId) {
         try {
@@ -394,6 +420,53 @@ export default function ConsultChat({
       )}
       {/* Chat messages */}
       <div className="p-3 pt-1 space-y-2 overflow-y-auto custom-scrollbar consult-chat-messages" style={{ maxHeight: '40vh', overflowAnchor: 'none' }}>
+        {/* Historical sessions (Layer 1 — DB read, no AI cost) */}
+        {historySessions.map((session) => (
+          <div key={session.id} className="mb-2">
+            {/* Session divider */}
+            <div className="flex items-center gap-2 my-2">
+              <div className="flex-1 h-px" style={{ background: 'rgba(99,149,255,0.15)' }} />
+              <button
+                onClick={() => setExpandedHistoryId(expandedHistoryId === session.id ? null : session.id)}
+                className="text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap hover:opacity-80 transition-opacity"
+                style={{ color: '#64748b', background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.1)' }}
+              >
+                {new Date(session.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} — {session.userName}
+                {expandedHistoryId === session.id ? ' ▾' : ' ▸'}
+              </button>
+              <div className="flex-1 h-px" style={{ background: 'rgba(99,149,255,0.15)' }} />
+            </div>
+            {/* Summary or expanded messages */}
+            {expandedHistoryId === session.id ? (
+              <div className="space-y-1.5 pl-2" style={{ borderLeft: '2px solid rgba(99,149,255,0.1)' }}>
+                {session.messages.map((msg, j) => (
+                  <div key={j} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className="max-w-[85%] px-2 py-1 rounded text-xs" style={{
+                      background: msg.role === 'user' ? 'rgba(168,85,247,0.06)' : 'rgba(30,41,59,0.3)',
+                      color: msg.role === 'user' ? '#a78bfa' : '#94a3b8',
+                      border: `1px solid ${msg.role === 'user' ? 'rgba(168,85,247,0.1)' : 'rgba(99,149,255,0.05)'}`,
+                    }}>
+                      {msg.sender && <span className="text-[9px] opacity-60 block mb-0.5">{msg.sender}</span>}
+                      <ReactMarkdown>{stripProtocolTags(msg.content)}</ReactMarkdown>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : session.summary ? (
+              <div className="text-[11px] px-2 py-1 rounded" style={{ color: '#64748b', background: 'rgba(30,41,59,0.2)' }}>
+                {session.summary}
+              </div>
+            ) : null}
+          </div>
+        ))}
+        {/* Divider between history and current session */}
+        {historySessions.length > 0 && messages.length > 0 && (
+          <div className="flex items-center gap-2 my-2">
+            <div className="flex-1 h-px" style={{ background: 'rgba(99,149,255,0.25)' }} />
+            <span className="text-[10px] px-2" style={{ color: '#6395ff' }}>Current session</span>
+            <div className="flex-1 h-px" style={{ background: 'rgba(99,149,255,0.25)' }} />
+          </div>
+        )}
         {messages.map((msg, i) => {
           if (msg.role === 'user') {
             return (
@@ -580,10 +653,25 @@ export default function ConsultChat({
             <button onClick={async () => {
               if (!window.confirm('This will save and close the current conversation with Friday. Start a new one?')) return
               if (sessionId) {
+                // End session with reason
                 await apiFetch('/api/ai/consult/session/end', {
                   method: 'POST',
-                  body: JSON.stringify({ sessionId, history: messages }),
+                  body: JSON.stringify({ sessionId, history: messages, endReason: 'start_fresh' }),
                 }).catch(() => {})
+                // Summarize the old session (fire-and-forget)
+                apiFetch(`/api/ai/consult/${sessionId}/summarize`, { method: 'POST' }).catch(() => {})
+                // Add current session to visible history
+                const senderName = localStorage.getItem('gms_display_name') || 'Team member'
+                setHistorySessions(prev => [...prev, {
+                  id: sessionId,
+                  userName: senderName,
+                  messages: messages,
+                  summary: null,
+                  status: 'ended',
+                  createdAt: new Date().toISOString(),
+                  endedAt: new Date().toISOString(),
+                  endReason: 'start_fresh',
+                }])
               }
               resetState()
               setTimeout(() => initSession(), 0)
