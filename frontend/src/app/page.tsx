@@ -340,6 +340,13 @@ export default function MessageDashboard() {
     es.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data)
+        // Forward consult SSE events to ConsultChat via custom window events
+        if (data.type === 'consult_message') {
+          window.dispatchEvent(new CustomEvent('sse:consult_message', { detail: data.data }))
+        }
+        if (data.type === 'teaching_action') {
+          window.dispatchEvent(new CustomEvent('sse:teaching_action', { detail: data.data }))
+        }
         if (data.type === 'new_message' || data.type === 'draft_ready' || data.type === 'message_sent' || data.type === 'draft_updated' || data.type === 'pending_action_new') {
           fetchConversations()
           fetchStats()

@@ -63,6 +63,7 @@ export default function LoginScreen({ onLogin }: { onLogin: (token: string) => v
       if (!res.ok) throw new Error(data.error || 'Login failed')
       localStorage.setItem('gms_display_name', data.display_name || data.username)
       localStorage.setItem('gms_role', data.role || 'agent')
+      if (data.user_id) localStorage.setItem('gms_user_id', data.user_id)
 
       if (data.must_change_password) {
         setTempToken(data.token)

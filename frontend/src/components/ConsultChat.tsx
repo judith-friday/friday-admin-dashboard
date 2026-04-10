@@ -191,6 +191,53 @@ export default function ConsultChat({
     if (active) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [messages, loading, active])
 
+  // SSE: Listen for real-time consult messages from other users (shared sessions)
+  useEffect(() => {
+    if (!conversationId || !sessionId) return
+    const currentUserId = localStorage.getItem('gms_user_id')
+
+    const handleConsultMessage = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      if (detail?.conversationId !== conversationId || detail?.sessionId !== sessionId) return
+      // Skip messages from ourselves (we already have them locally)
+      if (detail?.userMessage?.senderId && detail.userMessage.senderId === currentUserId) return
+
+      const userMsg: ChatMessage = {
+        role: 'user',
+        content: detail.userMessage?.content || '',
+        sender: detail.userMessage?.sender || 'Team member',
+      }
+      const assistantMsg: ChatMessage = {
+        role: 'assistant',
+        content: stripProtocolTags(detail.assistantMessage?.content || ''),
+      }
+      setMessages(prev => [...prev, userMsg, assistantMsg])
+
+      // Handle draft updates from other users
+      if (detail.draftUpdate && onDraftUpdate) {
+        onDraftUpdate(detail.draftUpdate)
+        setDraftUpdated(true)
+        setTimeout(() => setDraftUpdated(false), 3000)
+      }
+    }
+
+    const handleTeachingAction = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      if (detail?.conversationId !== conversationId || detail?.sessionId !== sessionId) return
+      if (detail?.actorId && detail.actorId === currentUserId) return
+      if (detail?.actions && Array.isArray(detail.actions)) {
+        setTeachingActions(prev => [...prev, ...detail.actions])
+      }
+    }
+
+    window.addEventListener('sse:consult_message', handleConsultMessage)
+    window.addEventListener('sse:teaching_action', handleTeachingAction)
+    return () => {
+      window.removeEventListener('sse:consult_message', handleConsultMessage)
+      window.removeEventListener('sse:teaching_action', handleTeachingAction)
+    }
+  }, [conversationId, sessionId, onDraftUpdate]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Auto-detect question chips when messages change
   useEffect(() => {
     if (messages.length < 2) { setAutoChips([]); return }
