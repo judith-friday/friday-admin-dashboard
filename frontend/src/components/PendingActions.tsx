@@ -38,6 +38,7 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
   const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set())
   const [notesMap, setNotesMap] = useState<Record<string, { id: string; user_id: string; content: string; created_at: string }[]>>({})
   const [newNoteText, setNewNoteText] = useState<Record<string, string>>({})
+  const [submittingNote, setSubmittingNote] = useState(false)
   const [expandedHistory, setExpandedHistory] = useState<Set<string>>(new Set())
   const [historyMap, setHistoryMap] = useState<Record<string, { id: string; field_changed: string; old_value: string | null; new_value: string | null; changed_by: string | null; changed_at: string }[]>>({})
   const [resolvedActions, setResolvedActions] = useState<PendingAction[]>([])
@@ -224,8 +225,10 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
   }
 
   const addNote = async (actionId: string) => {
+    if (submittingNote) return
     const text = (newNoteText[actionId] || '').trim()
     if (!text) return
+    setSubmittingNote(true)
     try {
       const note = await apiFetch(`/api/pending-actions/${actionId}/notes`, {
         method: 'POST',
@@ -235,7 +238,7 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
       setNewNoteText(prev => ({ ...prev, [actionId]: '' }))
       trackEvent('pending_action_note_added', { actionId })
       toast.success('Note added')
-    } catch (err: any) { toast.error(err.message) }
+    } catch (err: any) { toast.error(err.message) } finally { setSubmittingNote(false) }
   }
 
   const toggleHistory = async (actionId: string) => {
@@ -401,7 +404,7 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
                         onChange={e => setNewNoteText(prev => ({ ...prev, [action.id]: e.target.value }))}
                         onKeyDown={e => e.key === 'Enter' && addNote(action.id)}
                         className="flex-1 text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} />
-                      <button onClick={() => addNote(action.id)} className="px-2 py-1 text-xs rounded" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>Add</button>
+                      <button onClick={() => addNote(action.id)} disabled={submittingNote} className="px-2 py-1 text-xs rounded disabled:opacity-50" style={{background: 'rgba(99,149,255,0.2)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>Add</button>
                     </div>
                   </div>
                 )}
