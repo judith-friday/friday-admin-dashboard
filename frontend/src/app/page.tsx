@@ -28,6 +28,7 @@ import ConversationDetailView from '../components/ConversationDetail'
 import GuestInfo from '../components/GuestInfo'
 import InstallPrompt from '../components/InstallPrompt'
 import NotificationPrompt from '../components/NotificationPrompt'
+import UserManagement from '../components/UserManagement'
 import useNotificationSound from '../components/useNotificationSound'
 import { usePushNotifications } from '../components/usePushNotifications'
 import AnalyticsDashboard from '../components/AnalyticsDashboard'
@@ -62,6 +63,7 @@ export default function MessageDashboard() {
   const [showAnalytics, setShowAnalytics] = useState(false)
   const [showSendQueue, setShowSendQueue] = useState(false)
   const [showNotificationPanel, setShowNotificationPanel] = useState(false)
+  const [showUserMgmt, setShowUserMgmt] = useState(false)
   const [propertyCard, setPropertyCard] = useState<{code: string; data: any; loading: boolean} | null>(null)
   const [cardEditing, setCardEditing] = useState(false)
   const [cardEditData, setCardEditData] = useState<string>('')
@@ -1073,6 +1075,7 @@ export default function MessageDashboard() {
       <BugReportsPanel show={showBugReportsPanel} onClose={() => setShowBugReportsPanel(false)} />
       <SendQueuePanel show={showSendQueue} onClose={() => setShowSendQueue(false)} onNavigate={(convId) => { setSelectedConvId(convId); setMobileView('detail') }} />
       <AnalyticsDashboard show={showAnalytics} onClose={() => setShowAnalytics(false)} />
+      {showUserMgmt && <UserManagement onClose={() => setShowUserMgmt(false)} />}
 
       <SendConfirmModal
         sendConfirm={sendConfirm}
@@ -1109,6 +1112,7 @@ export default function MessageDashboard() {
         setShowAnalytics={setShowAnalytics}
         showSendQueue={showSendQueue}
         setShowSendQueue={setShowSendQueue}
+        setShowUserMgmt={setShowUserMgmt}
       />
 
       {updateAvailable && (
