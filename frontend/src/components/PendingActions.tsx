@@ -51,6 +51,8 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
   const [showAllActions, setShowAllActions] = useState(false)
   const [suggestionsOpen, setSuggestionsOpen] = useState(false)
   const [suggestedActions, setSuggestedActions] = useState<PendingAction[]>([])
+  const [showAllSuggestions, setShowAllSuggestions] = useState(false)
+  const SUGGESTION_CAP = 5
 
   const handlePromote = async (id: string) => {
     try {
@@ -510,7 +512,7 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
             <span style={{color: '#94a3b8', fontSize: '0.75rem', fontStyle: 'italic'}}>💡 Suggestions ({suggestedActions.length})</span>
             <span style={{color: '#64748b', fontSize: '0.65rem'}}>{suggestionsOpen ? '▼' : '▶'}</span>
           </button>
-          {suggestionsOpen && suggestedActions.map(action => (
+          {suggestionsOpen && (showAllSuggestions ? suggestedActions : suggestedActions.slice(0, SUGGESTION_CAP)).map(action => (
             <div key={action.id} className="mx-2 mb-2 p-3 rounded-lg" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)'}}>
               <p className="text-sm" style={{color: '#94a3b8'}}>{action.action_text}</p>
               {action.owner && <p className="text-xs mt-1" style={{color: '#64748b'}}>Suggested for: {action.owner}</p>}
@@ -520,6 +522,16 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
               </div>
             </div>
           ))}
+          {suggestionsOpen && suggestedActions.length > SUGGESTION_CAP && !showAllSuggestions && (
+            <button onClick={() => setShowAllSuggestions(true)} className="w-full text-center py-2 text-xs" style={{color: '#6395ff', background: 'none', border: 'none', cursor: 'pointer'}}>
+              Show all {suggestedActions.length} suggestions
+            </button>
+          )}
+          {suggestionsOpen && showAllSuggestions && suggestedActions.length > SUGGESTION_CAP && (
+            <button onClick={() => setShowAllSuggestions(false)} className="w-full text-center py-2 text-xs" style={{color: '#64748b', background: 'none', border: 'none', cursor: 'pointer'}}>
+              Show less
+            </button>
+          )}
         </div>
       )}
 
