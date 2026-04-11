@@ -29,6 +29,10 @@ html, body {
   [data-install-button] {
     display: none !important;
   }
+  /* Add bottom padding under compose bar for PWA standalone mode */
+  [data-testid="container-compose-panel"] {
+    padding-bottom: 10px;
+  }
 }
 
 /* Custom scrollbar for dark theme - thin and rounded */
