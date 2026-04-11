@@ -36,6 +36,7 @@ import NotificationPanel from '../components/NotificationPanel'
 import { trackEvent } from '../lib/analytics'
 
 export default function MessageDashboard() {
+  const [updateAvailable, setUpdateAvailable] = useState(false)
   const [token, setTokenState] = useState<string | null>(null)
   const [displayName, setDisplayName] = useState<string>('Dashboard')
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -495,18 +496,7 @@ export default function MessageDashboard() {
       try {
         const d: { version: string } = await apiFetch('/api/version')
         if (knownVersionRef.current && d.version !== knownVersionRef.current) {
-          toast(
-            (t) => (
-              <span className="flex items-center gap-2">
-                New update available
-                <button onClick={() => { toast.dismiss(t.id); window.location.reload() }}
-                  style={{background: '#6395ff', color: '#fff', padding: '2px 10px', borderRadius: '4px', fontWeight: 600, fontSize: '13px'}}>
-                  Reload
-                </button>
-              </span>
-            ),
-            { duration: Infinity, id: 'version-update' }
-          )
+          setUpdateAvailable(true)
         }
       } catch {}
     }
@@ -1120,6 +1110,14 @@ export default function MessageDashboard() {
         showSendQueue={showSendQueue}
         setShowSendQueue={setShowSendQueue}
       />
+
+      {updateAvailable && (
+        <div className="bg-blue-600 text-white px-4 py-2 text-center text-sm flex items-center justify-center gap-2">
+          <span>A new version is available.</span>
+          <button onClick={() => window.location.reload()} className="underline font-medium">Refresh now</button>
+          <button onClick={() => setUpdateAvailable(false)} className="ml-2 opacity-70 hover:opacity-100">✕</button>
+        </div>
+      )}
 
       <NotificationPanel
         show={showNotificationPanel}
