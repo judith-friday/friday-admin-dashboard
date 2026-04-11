@@ -403,19 +403,21 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
                 {dismissReasonId === action.id && (
                   <div className="mb-2 p-2 rounded" style={{background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)'}}>
                     <div className="text-xs mb-1" style={{color: '#94a3b8'}}>Reason (optional):</div>
-                    <div className="flex gap-1.5">
+                    <div className="flex flex-col gap-1.5">
                       <input type="text" placeholder="e.g. Guest confirmed, no longer needed..."
                         value={dismissReasonText} onChange={e => setDismissReasonText(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleAction(action.id, dismissReasonStatus, dismissReasonText)}
-                        className="flex-1 text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} autoFocus />
-                      <button onClick={() => handleAction(action.id, dismissReasonStatus, dismissReasonText)}
-                        className="px-2 py-1 text-xs rounded shrink-0" style={{background: dismissReasonStatus === 'completed' ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.06)', color: dismissReasonStatus === 'completed' ? '#4ade80' : '#94a3b8', border: `1px solid ${dismissReasonStatus === 'completed' ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.08)'}`}}>
-                        {dismissReasonStatus === 'completed' ? 'Confirm Done' : 'Confirm Dismiss'}
-                      </button>
-                      <button onClick={() => setDismissReasonId(null)}
-                        className="px-2 py-1 text-xs rounded shrink-0" style={{background: 'rgba(255,255,255,0.06)', color: '#64748b'}}>
-                        <XMarkIcon className="h-3 w-3" />
-                      </button>
+                        className="w-full text-base rounded px-2 py-1 outline-none" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#f1f5f9'}} autoFocus />
+                      <div className="flex gap-1.5">
+                        <button onClick={() => handleAction(action.id, dismissReasonStatus, dismissReasonText)}
+                          className="px-2 py-1 text-xs rounded shrink-0" style={{background: dismissReasonStatus === 'completed' ? 'rgba(34,197,94,0.2)' : 'rgba(255,255,255,0.06)', color: dismissReasonStatus === 'completed' ? '#4ade80' : '#94a3b8', border: `1px solid ${dismissReasonStatus === 'completed' ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.08)'}`}}>
+                          {dismissReasonStatus === 'completed' ? 'Confirm Done' : 'Confirm Dismiss'}
+                        </button>
+                        <button onClick={() => setDismissReasonId(null)}
+                          className="px-2 py-1 text-xs rounded shrink-0" style={{background: 'rgba(255,255,255,0.06)', color: '#64748b'}}>
+                          <XMarkIcon className="h-3 w-3" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
