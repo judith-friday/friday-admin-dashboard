@@ -311,6 +311,49 @@ const ESSENTIALS_DATA: EssentialEntry[] = [
       </div>
     ),
   },
+  {
+    id: 'shared-ask-friday',
+    icon: '👥',
+    title: 'Shared Ask Friday Sessions',
+    brief: 'See what your team has asked Friday and build on each other\'s work',
+    keywords: ['shared', 'team', 'collaboration', 'session', 'ask friday', 'history'],
+    content: 'Ask Friday sessions are shared across your team. When someone consults Friday on a conversation, the entire team can see the session history, add context, and build on previous questions. This prevents duplicate work and lets Friday incorporate multiple perspectives into better drafts. For instance, Mathias might start a consult about a guest complaint at RC-15, asking Friday for help drafting a response. Ishant can see this session, add context about the property\'s maintenance history, and Friday incorporates both perspectives into the draft. Or Mary might check the shared Ask Friday history on a conversation to see if a refund was already discussed before she responds to a follow-up from the guest.',
+    render: (hl) => (
+      <div className="space-y-3 text-xs" style={{color: '#94a3b8'}}>
+        <div className="rounded-lg p-3" style={{background: 'rgba(99,149,255,0.08)', border: '1px solid rgba(99,149,255,0.12)'}}>
+          <p className="leading-relaxed" style={{color: '#e2e8f0'}}>
+            {hl('Ask Friday sessions are shared across your team. When someone consults Friday on a conversation, the entire team can see the session history, add context, and build on previous questions.')}
+          </p>
+        </div>
+
+        <div>
+          <div className="font-medium mb-1.5" style={{color: '#e2e8f0'}}>{hl('Why this matters')}</div>
+          <div className="space-y-1">
+            <div>• {hl('Prevents duplicate work — see what\'s already been asked')}</div>
+            <div>• {hl('Friday incorporates multiple perspectives into better drafts')}</div>
+            <div>• {hl('Team members can add context others might not have')}</div>
+          </div>
+        </div>
+
+        <div>
+          <div className="font-medium mb-1.5" style={{color: '#e2e8f0'}}>{hl('Real examples')}</div>
+          <div className="space-y-2">
+            <div className="rounded-md p-2.5" style={{background: 'rgba(255,255,255,0.03)'}}>
+              <p className="leading-relaxed">{hl('Mathias starts a consult about a guest complaint at RC-15, asking Friday for help drafting a response. Ishant can see this session, add context about the property\'s maintenance history, and Friday incorporates both perspectives into the draft.')}</p>
+            </div>
+            <div className="rounded-md p-2.5" style={{background: 'rgba(255,255,255,0.03)'}}>
+              <p className="leading-relaxed">{hl('Mary checks the shared Ask Friday history on a conversation to see if a refund was already discussed before she responds to a follow-up from the guest.')}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg p-2.5" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.1)'}}>
+          <span style={{color: '#4ade80', fontSize: '11px'}}>Here&apos;s a tip:</span>{' '}
+          <span>{hl('Before starting a new Ask Friday session, scroll up to check if a teammate already asked something similar — you can continue their conversation instead of starting fresh.')}</span>
+        </div>
+      </div>
+    ),
+  },
 ]
 
 // ---------------------------------------------------------------------------
