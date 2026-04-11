@@ -16,12 +16,8 @@ export default function NotificationPrompt() {
       const timer = setTimeout(() => setShow(true), 2000)
       return () => clearTimeout(timer)
     }
-    // Show if permission is 'granted' but no active subscription (broken state)
-    if (Notification.permission === 'granted' && !subscription) {
-      localStorage.removeItem(DISMISSED_KEY)
-      const timer = setTimeout(() => setShow(true), 2000)
-      return () => clearTimeout(timer)
-    }
+    // If permission is already granted or denied, never show the prompt
+    // (granted without subscription is handled silently by usePushNotifications)
   }, [subscription])
 
   if (!show) return null
@@ -29,6 +25,7 @@ export default function NotificationPrompt() {
   const handleEnable = async () => {
     const granted = await requestPermission()
     if (granted || Notification.permission === 'denied') {
+      localStorage.setItem(DISMISSED_KEY, 'true')
       setShow(false)
     }
     // If 'default' (user dismissed browser prompt), keep banner visible
