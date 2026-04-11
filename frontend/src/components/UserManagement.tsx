@@ -29,6 +29,11 @@ export default function UserManagement({ onClose }: { onClose: () => void }) {
   const [editName, setEditName] = useState('')
   const [editRole, setEditRole] = useState('')
   const [actionInProgress, setActionInProgress] = useState<string | null>(null)
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [currentPw, setCurrentPw] = useState('')
+  const [newPw, setNewPw] = useState('')
+  const [confirmPw, setConfirmPw] = useState('')
+  const [changingPw, setChangingPw] = useState(false)
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -109,6 +114,18 @@ export default function UserManagement({ onClose }: { onClose: () => void }) {
     }
   }
 
+  const handleChangePassword = async () => {
+    if (newPw.length < 8) { toast.error('Password must be at least 8 characters'); return }
+    if (newPw !== confirmPw) { toast.error('Passwords do not match'); return }
+    setChangingPw(true)
+    try {
+      await apiFetch('/auth/me/password', { method: 'PATCH', body: JSON.stringify({ current_password: currentPw, new_password: newPw }) })
+      toast.success('Password changed successfully')
+      setCurrentPw(''); setNewPw(''); setConfirmPw(''); setShowPasswordForm(false)
+    } catch (err: any) { toast.error(err.message || 'Failed to change password') }
+    finally { setChangingPw(false) }
+  }
+
   const activeUsers = users.filter(u => u.is_active)
   const inactiveUsers = users.filter(u => !u.is_active)
 
@@ -123,6 +140,23 @@ export default function UserManagement({ onClose }: { onClose: () => void }) {
             </button>
             <button onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center text-sm" style={{ color: '#64748b' }}>✕</button>
           </div>
+        </div>
+
+        {/* Change Password Section */}
+        <div className="mb-4 p-3 rounded-lg" style={{background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)'}}>
+          <button onClick={() => setShowPasswordForm(!showPasswordForm)} className="text-xs font-medium" style={{color: '#94a3b8'}}>
+            🔒 Change My Password {showPasswordForm ? '▼' : '▶'}
+          </button>
+          {showPasswordForm && (
+            <div className="mt-3 space-y-2">
+              <input type="password" placeholder="Current password" value={currentPw} onChange={e => setCurrentPw(e.target.value)} className="w-full text-sm rounded-lg px-3 py-2" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9'}} />
+              <input type="password" placeholder="New password (min 8 chars)" value={newPw} onChange={e => setNewPw(e.target.value)} className="w-full text-sm rounded-lg px-3 py-2" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9'}} />
+              <input type="password" placeholder="Confirm new password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)} className="w-full text-sm rounded-lg px-3 py-2" style={{background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9'}} />
+              <button onClick={handleChangePassword} disabled={changingPw} className="text-xs px-3 py-1.5 rounded-lg" style={{background: 'rgba(99,149,255,0.15)', color: '#6395ff', border: '1px solid rgba(99,149,255,0.3)'}}>
+                {changingPw ? 'Changing...' : 'Update Password'}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Add User Form */}
