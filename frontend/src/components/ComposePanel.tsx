@@ -122,14 +122,14 @@ export default function ComposePanel({
                 { label: 'More formal', instruction: 'Make this message more formal and professional in tone.' },
                 { label: 'More casual', instruction: 'Make this message more casual and friendly in tone.' },
                 { label: 'STR KB', instruction: '[STR_KB] Review this message against the full STR best practices and suggest improvements.' },
-                ...(['new_booking', 'extension', 'followup'].includes(conversationIntent || '') ? [
+                ...(['new_inquiry', 'extension_request', 'price_negotiation', 'upsell', 'booking_modification'].includes(conversationIntent || '') ? [
                   { label: 'Sales KB', instruction: '[SALES_KB] Review this message against the full sales knowledge base and suggest improvements.' },
                 ] : []),
               ] : [
                 { label: 'Write it for me', instruction: 'Write a complete message to the guest based on the conversation context. Use appropriate tone for the channel.' },
                 { label: 'Check rules', instruction: 'Check this conversation against active teachings and platform rules. Flag any issues or recommended actions.' },
                 { label: 'STR KB', instruction: '[STR_KB] What STR best practices apply to this conversation? Give me actionable advice.' },
-                ...(['new_booking', 'extension', 'followup'].includes(conversationIntent || '') ? [
+                ...(['new_inquiry', 'extension_request', 'price_negotiation', 'upsell', 'booking_modification'].includes(conversationIntent || '') ? [
                   { label: 'Sales KB', instruction: '[SALES_KB] What sales best practices apply to this conversation? Give me actionable advice.' },
                 ] : []),
               ]}

@@ -223,7 +223,7 @@ export default function DraftPanel({
                     { label: 'More formal', instruction: 'Make this draft more formal and professional in tone.' },
                     { label: 'More casual', instruction: 'Make this draft more casual and friendly in tone.' },
                     { label: 'STR KB', instruction: '[STR_KB] Review this draft against the full STR best practices. Flag any issues and suggest improvements.' },
-                    ...(['new_booking', 'extension', 'followup'].includes(conversationIntent || '') ? [
+                    ...(['new_inquiry', 'extension_request', 'price_negotiation', 'upsell', 'booking_modification'].includes(conversationIntent || '') ? [
                       { label: 'Sales KB', instruction: '[SALES_KB] Review this draft against the full sales knowledge base. Flag any missed sales opportunities and suggest improvements.' },
                     ] : []),
                   ]}
