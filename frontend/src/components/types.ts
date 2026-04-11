@@ -181,6 +181,8 @@ export interface PendingAction {
   urgency?: 'low' | 'medium' | 'high' | 'critical'
   escalation_level?: number
   action_type?: string
+  tier?: string  // 'active' | 'suggested'
+  owner?: string
 }
 
 export interface NextStep {

@@ -47,6 +47,19 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
   const [dismissReasonText, setDismissReasonText] = useState('')
   const [dismissReasonStatus, setDismissReasonStatus] = useState<'completed' | 'dismissed'>('completed')
   const [showAllActions, setShowAllActions] = useState(false)
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false)
+  const [suggestedActions, setSuggestedActions] = useState<PendingAction[]>([])
+
+  const handlePromote = async (id: string) => {
+    try {
+      await apiFetch(`/api/pending-actions/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ tier: 'active' }),
+      })
+      toast.success('Promoted to active task')
+      fetchActions()
+    } catch (err: any) { toast.error(err.message) }
+  }
 
   const fetchActions = useCallback(async () => {
     try {
@@ -62,8 +75,12 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
         // Only show pending items in main list
         filtered = filtered.filter((a: PendingAction) => a.status === 'pending')
       }
-      setActions(filtered)
-      onCountChange?.(filtered.filter((a: PendingAction) => a.status === 'pending').length)
+      // Split out suggested-tier actions
+      const active = filtered.filter((a: PendingAction) => a.tier !== 'suggested')
+      const suggested = filtered.filter((a: PendingAction) => a.tier === 'suggested' && a.status === 'pending')
+      setActions(active)
+      setSuggestedActions(suggested)
+      onCountChange?.(active.filter((a: PendingAction) => a.status === 'pending').length)
     } catch { } finally { setLoading(false) }
   }, [conversationFilter, onCountChange])
 
@@ -479,6 +496,26 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
         <button onClick={() => setShowAllActions(true)} className="w-full text-xs py-2" style={{color: '#64748b', background: 'none', border: 'none', cursor: 'pointer', borderTop: '1px solid rgba(255,255,255,0.03)'}}>
           Show {sortedActions.length - 3} more...
         </button>
+      )}
+
+      {/* Suggested Actions */}
+      {suggestedActions.length > 0 && (
+        <div className="mt-4">
+          <button onClick={() => setSuggestionsOpen(!suggestionsOpen)} className="flex items-center gap-2 px-3 py-2 w-full text-left">
+            <span style={{color: '#94a3b8', fontSize: '0.75rem', fontStyle: 'italic'}}>💡 Suggestions ({suggestedActions.length})</span>
+            <span style={{color: '#64748b', fontSize: '0.65rem'}}>{suggestionsOpen ? '▼' : '▶'}</span>
+          </button>
+          {suggestionsOpen && suggestedActions.map(action => (
+            <div key={action.id} className="mx-2 mb-2 p-3 rounded-lg" style={{background: 'rgba(99,149,255,0.06)', border: '1px solid rgba(99,149,255,0.15)'}}>
+              <p className="text-sm" style={{color: '#94a3b8'}}>{action.action_text}</p>
+              {action.owner && <p className="text-xs mt-1" style={{color: '#64748b'}}>Suggested for: {action.owner}</p>}
+              <div className="flex gap-2 mt-2">
+                <button onClick={() => handlePromote(action.id)} className="text-xs px-2 py-1 rounded" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>↑ Promote</button>
+                <button onClick={() => handleAction(action.id, 'dismissed')} className="text-xs px-2 py-1 rounded" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)'}}>✕</button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Resolved/Dismissed Actions */}

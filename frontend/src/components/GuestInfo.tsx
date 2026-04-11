@@ -133,12 +133,24 @@ export default function GuestInfo({
     return () => { cancelled = true }
   }, [selectedConvId, detail])
 
-  // Fetch next steps from dedicated API
+  // Fetch suggestions from pending-actions API (tier=suggested)
   useEffect(() => {
     if (!selectedConvId) return
     let cancelled = false
-    apiFetch(`/api/conversations/${selectedConvId}/next-steps`)
-      .then(data => { if (!cancelled) setNextSteps(data.next_steps || []) })
+    apiFetch(`/api/pending-actions?conversation_id=${selectedConvId}&tier=suggested`)
+      .then(data => {
+        if (!cancelled) {
+          const actions = data.actions || []
+          setNextSteps(actions.map((a: any) => ({
+            id: a.id,
+            conversation_id: a.conversation_id,
+            text: a.action_text,
+            who: a.owner,
+            status: a.status === 'pending' ? 'active' : a.status,
+            icon: a.icon,
+          })))
+        }
+      })
       .catch(() => { if (!cancelled) setNextSteps([]) })
     return () => { cancelled = true }
   }, [selectedConvId, detail])
@@ -403,7 +415,7 @@ export default function GuestInfo({
 
       {/* Suggested next steps - collapsible */}
       {nextSteps.length > 0 && (
-        <CollapsibleSection title="Next Steps" defaultOpen={false} count={activeSteps.length}>
+        <CollapsibleSection title="💡 Suggestions" defaultOpen={false} count={activeSteps.length}>
           <div className="px-3 pb-3 space-y-1.5">
             {(showAllSteps ? activeSteps : activeSteps.slice(0, 3)).map((s, i) => {
               const isExpanded = expandedStepId === s.id
