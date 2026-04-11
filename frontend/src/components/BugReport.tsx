@@ -48,14 +48,44 @@ export default function BugReport({ selectedConvId, displayName }: BugReportProp
 
     try {
       const { toJpeg } = await import('html-to-image')
-      const dataUrl = await toJpeg(document.body, {
+      const target = document.querySelector('[data-pwa-shell]') || document.body
+      const dataUrl = await toJpeg(target as HTMLElement, {
         quality: 0.6,
         pixelRatio: 0.5,
         backgroundColor: '#0d1117',
+        filter: (node: HTMLElement) => {
+          // Skip external images that cause CORS failures
+          if (node.tagName === 'IMG') {
+            const src = (node as HTMLImageElement).src || ''
+            if (src.startsWith('http') && !src.includes(window.location.hostname)) {
+              return false
+            }
+          }
+          // Skip iframes
+          if (node.tagName === 'IFRAME') return false
+          return true
+        },
       })
       setScreenshotData(dataUrl)
     } catch (err) {
       console.error('[BugReport] Screenshot capture failed:', err)
+      // Fallback: try with even more aggressive filtering
+      try {
+        const { toJpeg } = await import('html-to-image')
+        const target = document.querySelector('[data-pwa-shell]') || document.body
+        const dataUrl = await toJpeg(target as HTMLElement, {
+          quality: 0.4,
+          pixelRatio: 0.3,
+          backgroundColor: '#0d1117',
+          filter: (node: HTMLElement) => {
+            if (node.tagName === 'IMG' || node.tagName === 'IFRAME' || node.tagName === 'VIDEO' || node.tagName === 'CANVAS') return false
+            return true
+          },
+        })
+        setScreenshotData(dataUrl)
+      } catch {
+        // Give up on screenshot — bug report still works without it
+      }
     } finally {
       setCapturing(false)
       setBugReportOpen(true)
