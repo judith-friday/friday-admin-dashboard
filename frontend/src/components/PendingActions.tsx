@@ -30,6 +30,7 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
   const [editDueBy, setEditDueBy] = useState('')
+  const [editReason, setEditReason] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
   const [newAction, setNewAction] = useState({ conversation_id: '', action_text: '', due_by: '' })
   const [conversations, setConversations] = useState<{ id: string; guest_name: string }[]>([])
@@ -156,6 +157,7 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
       })
       toast.success('Action updated')
       setEditingId(null)
+      setEditReason('')
       fetchActions()
     } catch (err: any) { toast.error(err.message) }
   }
