@@ -590,13 +590,7 @@ export default function ConversationDetail({
       )}
       </div>
 
-      {/* WhatsApp 24h window indicator */}
-      <WhatsAppWindowBadge
-        windowOpen={detail.whatsapp_window_open}
-        expiresAt={detail.whatsapp_window_expires_at}
-      />
-
-      {/* Compact WhatsApp timer near compose area */}
+      {/* WhatsApp 24h timer — single instance near compose area */}
       {detail.whatsapp_window_open != null && (
         <WhatsAppComposeTimer
           windowOpen={detail.whatsapp_window_open}
