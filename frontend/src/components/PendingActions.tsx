@@ -89,6 +89,23 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
         method: 'PATCH',
         body: JSON.stringify({ status, completion_note: reason || completionNotes[id] || undefined }),
       })
+      // Capture feedback for the learning pipeline
+      const action = actions.find(a => a.id === id)
+      if (action && (reason || completionNotes[id])) {
+        try {
+          await apiFetch('/api/action-feedback', {
+            method: 'POST',
+            body: JSON.stringify({
+              action_id: id,
+              action_type: 'pending_action',
+              feedback_type: status === 'completed' ? 'accept' : 'reject',
+              original_text: action.action_text,
+              edited_text: reason || completionNotes[id] || undefined,
+              rejection_reason: status === 'dismissed' ? (reason || completionNotes[id]) : undefined,
+            }),
+          })
+        } catch {} // Non-critical — don't block action completion
+      }
       toast.success(`Action ${status}`)
       setDismissReasonId(null)
       setDismissReasonText('')
