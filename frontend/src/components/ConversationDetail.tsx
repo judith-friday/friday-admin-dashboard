@@ -61,37 +61,6 @@ function useWhatsAppTimer(expiresAt?: string | null, windowOpen?: boolean | null
   return timeLeft
 }
 
-function WhatsAppWindowBadge({ windowOpen, expiresAt }: {
-  windowOpen?: boolean | null
-  expiresAt?: string | null
-}) {
-  const timeLeft = useWhatsAppTimer(expiresAt, windowOpen)
-
-  if (windowOpen == null) return null
-
-  if (windowOpen) {
-    return (
-      <div className="flex-shrink-0 px-3 py-1.5">
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
-          style={{ background: 'rgba(34,197,94,0.12)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.25)' }}>
-          <span>💬</span>
-          <span>WhatsApp · 24h window open{timeLeft ? ` · ${timeLeft} left` : ''}</span>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="flex-shrink-0 px-3 py-1.5">
-      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
-        style={{ background: 'rgba(239,68,68,0.12)', color: '#f87171', border: '1px solid rgba(239,68,68,0.25)' }}>
-        <span>💬</span>
-        <span>WhatsApp · Window closed — template required</span>
-      </div>
-    </div>
-  )
-}
-
 function WhatsAppComposeTimer({ windowOpen, expiresAt }: {
   windowOpen?: boolean | null
   expiresAt?: string | null
