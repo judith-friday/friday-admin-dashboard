@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { toast, Toaster } from 'react-hot-toast'
-import { format } from 'date-fns'
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline'
 
 // Shared types and utilities
@@ -913,10 +912,6 @@ export default function MessageDashboard() {
   const filteredConversations = baseConversations.filter(c => {
     if (isSearchActive) return true // search API already filtered
     if (activeTab === 'review') return c.latest_draft_state === 'draft_ready' && c.last_message_direction !== 'outbound'
-    // DEPRECATED: Remove in Task 8 (C3) — old tab filters replaced by filter chips
-    // if (activeTab === 'unread') return c.is_unread === true
-    // if (activeTab === 'open') return c.status === 'active' && c.latest_draft_state !== 'sent'
-    // if (activeTab === 'done') return c.status === 'done'
     return true
   })
 
