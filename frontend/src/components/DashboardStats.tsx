@@ -38,6 +38,8 @@ interface DashboardStatsProps {
   showSendQueue: boolean
   setShowSendQueue: (v: boolean) => void
   setShowUserMgmt: (v: boolean) => void
+  onShowRefundLog?: () => void
+  onShowAutoDismissRules?: () => void
 }
 
 function rtColor(mins?: number) {
@@ -63,6 +65,8 @@ export default function DashboardStats({
   showAnalytics, setShowAnalytics,
   showSendQueue, setShowSendQueue,
   setShowUserMgmt,
+  onShowRefundLog,
+  onShowAutoDismissRules,
 }: DashboardStatsProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showInstallHelp, setShowInstallHelp] = useState(false)
@@ -130,6 +134,12 @@ export default function DashboardStats({
               <button onClick={() => setShowBugReportsPanel(!showBugReportsPanel)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(239,68,68,0.1)', color: '#f87171'}} title="Bug Reports">{'\u{1F41B}'}</button>
               <button onClick={() => { trackEvent('panel_opened', { panel: 'analytics' }); setShowAnalytics(true) }} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.1)', color: '#6395ff'}} title="Analytics">{'\u{1F4CA}'}</button>
               <button onClick={() => setShowUserMgmt(true)} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.1)', color: '#94a3b8'}} title="User Management">{'\u{1F465}'}</button>
+              {onShowRefundLog && (
+                <button onClick={onShowRefundLog} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(245,158,11,0.1)', color: '#fbbf24'}} title="Refund Log">{'\u{1F4B0}'}</button>
+              )}
+              {onShowAutoDismissRules && (
+                <button onClick={onShowAutoDismissRules} className="ml-1 px-1.5 py-0.5 rounded text-xs" style={{background: 'rgba(99,149,255,0.1)', color: '#94a3b8'}} title="Auto-Dismiss Rules">{'\u{1F507}'}</button>
+              )}
               <button onClick={() => window.location.reload()} className="ml-1 min-w-[44px] min-h-[44px] flex items-center justify-center rounded" style={{color: '#64748b'}} title="Refresh app">
                 <ArrowPathIcon className="h-4 w-4" />
               </button>

@@ -19,8 +19,8 @@ interface ConversationListProps {
   conversations: Conversation[]
   filteredConversations: Conversation[]
   selectedConvId: string | null
-  activeTab: 'all' | 'unread' | 'review' | 'open' | 'done' | 'actions'
-  setActiveTab: (tab: 'all' | 'unread' | 'review' | 'open' | 'done' | 'actions') => void
+  activeTab: 'inbox' | 'review' | 'actions'
+  setActiveTab: (tab: 'inbox' | 'review' | 'actions') => void
   unreadCount: number
   stats: InboxStats | null
   token: string
@@ -277,32 +277,31 @@ export default function ConversationList({
         </div>
       )}
 
-      {/* Tabs */}
-      {!isSearchActive && (
-        <div className="flex flex-wrap text-xs tabs-scroll" style={{borderBottom: '1px solid rgba(255,255,255,0.06)', gap: '2px'}}>
-          {([
-            ['all', 'All'],
-            ['unread', 'Unread'],
-            ['review', 'Review'],
-            ['open', 'Open'],
-            ['done', 'Done'],
-            ['actions', 'Actions'],
-          ] as [string, string][]).map(([key, label]) => (
-            <button key={key} onClick={() => { if (key === 'actions') trackEvent('pending_actions_viewed'); setActiveTab(key as any) }}
-              className="flex-1 py-1 text-center text-xs transition-all duration-200 ease-in-out hover:bg-white/5" style={{borderBottom: activeTab === key ? '2px solid #6395ff' : '2px solid transparent', color: activeTab === key ? '#6395ff' : '#64748b', fontWeight: activeTab === key ? 500 : 400, minWidth: 'fit-content', padding: '0.25rem 0.5rem'}}>
-              {label}
-              {key === 'unread' && unreadCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs" style={{background: '#3b82f6', color: 'white'}}>{unreadCount}</span>
-              )}
-              {key === 'actions' && stats && stats.pending_actions_count > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs" style={{background: stats.overdue_actions_count > 0 ? '#ef4444' : 'rgba(245,158,11,0.15)', color: stats.overdue_actions_count > 0 ? 'white' : '#fbbf24'}}>
-                  {stats.pending_actions_count}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Tabs — 3-tab structure (Inbox / Review / Actions) */}
+      {!isSearchActive && (() => {
+        const reviewCount = filteredConversations.filter(c => c.latest_draft_state === 'draft_ready' && c.last_message_direction !== 'outbound').length
+        const tabs: { key: 'inbox' | 'review' | 'actions'; label: string; badge?: number }[] = [
+          { key: 'inbox', label: 'Inbox', badge: unreadCount || undefined },
+          { key: 'review', label: 'Review', badge: reviewCount || undefined },
+          { key: 'actions', label: 'Actions', badge: stats?.pending_actions_count || undefined },
+        ]
+        return (
+          <div className="flex text-xs" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+            {tabs.map(({ key, label, badge }) => (
+              <button key={key} onClick={() => { if (key === 'actions') trackEvent('pending_actions_viewed'); setActiveTab(key) }}
+                className="flex-1 py-1 text-center text-xs transition-all duration-200 ease-in-out hover:bg-white/5" style={{borderBottom: activeTab === key ? '2px solid #6395ff' : '2px solid transparent', color: activeTab === key ? '#6395ff' : '#64748b', fontWeight: activeTab === key ? 500 : 400, padding: '0.25rem 0.5rem'}}>
+                {label}
+                {badge && badge > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs" style={{
+                    background: key === 'actions' && stats && stats.overdue_actions_count > 0 ? '#ef4444' : key === 'actions' ? 'rgba(245,158,11,0.15)' : '#3b82f6',
+                    color: key === 'actions' && stats && stats.overdue_actions_count > 0 ? 'white' : key === 'actions' ? '#fbbf24' : 'white',
+                  }}>{badge}</span>
+                )}
+              </button>
+            ))}
+          </div>
+        )
+      })()}
 
       {activeTab === 'actions' && !isSearchActive ? (
         <PendingActionsTab token={token} onNavigateToConversation={onNavigateToConversation} />

@@ -50,7 +50,7 @@ export default function MessageDashboard() {
   const [pollerStatus, setPollerStatus] = useState<{api_down: boolean, send_queue_length: number} | null>(null)
   const [queueCount, setQueueCount] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'review' | 'open' | 'done' | 'actions'>('all')
+  const [activeTab, setActiveTab] = useState<'inbox' | 'review' | 'actions'>('inbox')
   const [editingDraft, setEditingDraft] = useState<string | null>(null)
   const isEditingRef = useRef(false)
   const [revisionPending, setRevisionPending] = useState(false)
@@ -198,7 +198,7 @@ export default function MessageDashboard() {
     setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x))
     if (n.conversationId) {
       setSelectedConvId(n.conversationId)
-      setActiveTab('all')
+      setActiveTab('inbox')
       setMobileView('detail')
       apiFetch(`/api/conversations/${n.conversationId}`).then((data: any) => {
         setDetail(data)
@@ -912,10 +912,11 @@ export default function MessageDashboard() {
   const baseConversations = isSearchActive ? searchResults : conversations
   const filteredConversations = baseConversations.filter(c => {
     if (isSearchActive) return true // search API already filtered
-    if (activeTab === 'unread') return c.is_unread === true
     if (activeTab === 'review') return c.latest_draft_state === 'draft_ready' && c.last_message_direction !== 'outbound'
-    if (activeTab === 'open') return c.status === 'active' && c.latest_draft_state !== 'sent'
-    if (activeTab === 'done') return c.status === 'done'
+    // DEPRECATED: Remove in Task 8 (C3) — old tab filters replaced by filter chips
+    // if (activeTab === 'unread') return c.is_unread === true
+    // if (activeTab === 'open') return c.status === 'active' && c.latest_draft_state !== 'sent'
+    // if (activeTab === 'done') return c.status === 'done'
     return true
   })
 
@@ -1119,6 +1120,8 @@ export default function MessageDashboard() {
         showSendQueue={showSendQueue}
         setShowSendQueue={setShowSendQueue}
         setShowUserMgmt={setShowUserMgmt}
+        onShowRefundLog={() => setShowRefundLog(true)}
+        onShowAutoDismissRules={() => setShowAutoDismissRules(true)}
       />
 
       {updateAvailable && (
@@ -1179,7 +1182,7 @@ export default function MessageDashboard() {
           onRefresh={fetchConversations}
           onNavigateToConversation={(convId) => {
             setSelectedConvId(convId)
-            setActiveTab('all')
+            setActiveTab('inbox')
             setMobileView('detail')
             fetchDetail(convId)
           }}
@@ -1265,7 +1268,7 @@ export default function MessageDashboard() {
               <div className="px-4 py-3 flex-shrink-0" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
                 <h3 className="text-lg font-medium" style={{color: '#f1f5f9'}}>Pending Actions</h3>
               </div>
-              <PendingActionsTab token={token!} onNavigateToConversation={(convId) => { setSelectedConvId(convId); setActiveTab('all'); setMobileView('detail') }} />
+              <PendingActionsTab token={token!} onNavigateToConversation={(convId) => { setSelectedConvId(convId); setActiveTab('inbox'); setMobileView('detail') }} />
             </div>
           ) : (
             <div className="flex-1 hidden md:flex items-center justify-center" style={{background: 'rgba(255,255,255,0.01)'}}>

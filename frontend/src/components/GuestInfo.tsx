@@ -32,7 +32,7 @@ interface GuestInfoProps {
   showDoneWarning: boolean
   setShowDoneWarning: (v: boolean) => void
   doneWarningCount: number
-  setActiveTab: (tab: 'all' | 'unread' | 'review' | 'open' | 'done' | 'actions') => void
+  setActiveTab: (tab: 'inbox' | 'review' | 'actions') => void
   staffNotes: string
   handleNotesChange: (value: string, convId: string) => void
   notesTimerRef: React.MutableRefObject<NodeJS.Timeout | null>
