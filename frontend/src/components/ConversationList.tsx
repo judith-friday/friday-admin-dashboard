@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { Conversation, InboxStats, decodeHtmlEntities } from './types'
 import PendingActionsTab from './PendingActions'
+import FilterChips from './FilterChips'
 
 interface ConversationListProps {
   conversations: Conversation[]
@@ -46,7 +47,7 @@ interface ConversationListProps {
 }
 
 export default function ConversationList({
-  filteredConversations, selectedConvId, activeTab, setActiveTab,
+  conversations, filteredConversations, selectedConvId, activeTab, setActiveTab,
   unreadCount, stats, token, mobileView,
   selectConversation, handleMarkUnread, fetchPropertyCard,
   statusBadge, channelBadge,
@@ -55,6 +56,7 @@ export default function ConversationList({
   onRefresh,
   onNavigateToConversation,
 }: ConversationListProps) {
+  const [inboxFilter, setInboxFilter] = useState<'all' | 'unread' | 'open' | 'done'>('all')
   const [showFilters, setShowFilters] = useState(false)
   const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'urgency'>('recent')
   const [showSortMenu, setShowSortMenu] = useState(false)
@@ -74,6 +76,26 @@ export default function ConversationList({
   useEffect(() => {
     isTouchDevice.current = 'ontouchstart' in window || navigator.maxTouchPoints > 0
   }, [])
+
+  // Reset inbox filter when switching away from inbox
+  useEffect(() => {
+    if (activeTab !== 'inbox') setInboxFilter('all')
+  }, [activeTab])
+
+  // Inbox filter counts (derived from full conversations list)
+  const allCount = conversations.length
+  const openCount = conversations.filter(c => c.status === 'active').length
+  const doneCount = conversations.filter(c => c.status === 'done').length
+
+  // Apply inbox filter on top of already-filtered conversations
+  const inboxFilteredConversations = activeTab === 'inbox' && inboxFilter !== 'all'
+    ? filteredConversations.filter(c => {
+        if (inboxFilter === 'unread') return c.is_unread
+        if (inboxFilter === 'open') return c.status === 'active'
+        if (inboxFilter === 'done') return c.status === 'done'
+        return true
+      })
+    : filteredConversations
 
   const PULL_THRESHOLD = 70
 
@@ -303,6 +325,20 @@ export default function ConversationList({
         )
       })()}
 
+      {/* Inbox filter chips */}
+      {activeTab === 'inbox' && !isSearchActive && (
+        <FilterChips
+          chips={[
+            { key: 'all', label: 'All', count: allCount },
+            { key: 'unread', label: 'Unread', count: unreadCount },
+            { key: 'open', label: 'Open', count: openCount },
+            { key: 'done', label: 'Done', count: doneCount },
+          ]}
+          activeKey={inboxFilter}
+          onChange={(key) => setInboxFilter(key as any)}
+        />
+      )}
+
       {activeTab === 'actions' && !isSearchActive ? (
         <PendingActionsTab token={token} onNavigateToConversation={onNavigateToConversation} />
       ) : (<>
@@ -326,7 +362,7 @@ export default function ConversationList({
               </div>
             </div>
           )}
-          {filteredConversations.length === 0 ? (
+          {inboxFilteredConversations.length === 0 ? (
             <div className="p-4 text-center" style={{color: '#64748b'}}>
               <ChatBubbleLeftRightIcon className="h-12 w-12 mx-auto mb-2" style={{color: '#334155'}} />
               <p>{isSearchActive ? 'No results found' : 'No conversations'}</p>
@@ -335,7 +371,7 @@ export default function ConversationList({
               )}
             </div>
           ) : (
-            [...filteredConversations].sort((a, b) => {
+            [...inboxFilteredConversations].sort((a, b) => {
               if (sortBy === 'recent') return new Date(b.last_message_at || 0).getTime() - new Date(a.last_message_at || 0).getTime()
               if (sortBy === 'oldest') return new Date(a.last_message_at || 0).getTime() - new Date(b.last_message_at || 0).getTime()
               if (sortBy === 'urgency') {
