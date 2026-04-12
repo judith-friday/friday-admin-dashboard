@@ -377,6 +377,11 @@ export default function ConversationList({
                       <span title={conv.sentiment === 'upset' ? 'Guest is upset' : conv.sentiment === 'frustrated' ? 'Guest seems frustrated' : conv.sentiment === 'positive' ? 'Positive sentiment' : conv.sentiment} className="flex-shrink-0 inline-block w-2 h-2 rounded-full" style={{marginLeft: '4px', backgroundColor: conv.sentiment === 'upset' ? '#ef4444' : conv.sentiment === 'frustrated' ? '#f59e0b' : conv.sentiment === 'positive' ? '#22c55e' : '#64748b'}} />
                     )}
                     {conv.channel && channelBadge(conv.channel)}
+                    {conv.channel && (
+                      <span className="text-[10px] ml-1" style={{color: '#475569'}}>
+                        {conv.channel === 'airbnb' ? '\u{1F3E0}' : conv.channel === 'booking' ? '\u{1F171}\uFE0F' : conv.channel === 'whatsapp' ? '\u{1F4AC}' : conv.channel === 'email' ? '\u2709\uFE0F' : conv.channel === 'direct' ? '\u{1F4F1}' : ''}
+                      </span>
+                    )}
                   </div>
                   {conv.last_message_at && (
                     <span className="text-xs flex-shrink-0 ml-1" style={{color: '#64748b'}}>

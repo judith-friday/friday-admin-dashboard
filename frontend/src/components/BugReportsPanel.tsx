@@ -72,6 +72,7 @@ export default function BugReportsPanel({ show, onClose }: BugReportsPanelProps)
   const [editTitle, setEditTitle] = useState('')
   const [editDescription, setEditDescription] = useState('')
   const [editStatus, setEditStatus] = useState('')
+  const [expandedScreenshot, setExpandedScreenshot] = useState<string | null>(null)
 
   const fetchBugs = useCallback(async () => {
     setLoading(true)
@@ -219,6 +220,13 @@ export default function BugReportsPanel({ show, onClose }: BugReportsPanelProps)
                     {bug.review_comment && (
                       <div className="text-xs mt-1 italic" style={{ color: '#fb923c' }}>
                         {'\u{1F4AC}'} {bug.review_comment} — {bug.reviewed_by}
+                      </div>
+                    )}
+                    {bug.screenshot && (
+                      <div className="mt-2 cursor-pointer" onClick={(e) => { e.stopPropagation(); setExpandedScreenshot(expandedScreenshot === bug.id ? null : bug.id) }}>
+                        <img src={bug.screenshot} alt="Bug screenshot"
+                          className="rounded border"
+                          style={{maxHeight: expandedScreenshot === bug.id ? '400px' : '80px', width: 'auto', border: '1px solid rgba(255,255,255,0.1)', transition: 'max-height 0.2s'}} />
                       </div>
                     )}
                   </div>

@@ -515,6 +515,11 @@ export default function ConversationDetail({
                   {!isOutbound && isNonEnglish && (
                     <span className="ml-1">{LANG_FLAGS[msg.original_language!] || ''} {LANG_NAMES[msg.original_language!] || msg.original_language}</span>
                   )}
+                  {!isOutbound && (msg as any).module_type && (
+                    <span className="ml-1" style={{color: '#475569'}}>
+                      · via {(msg as any).module_type === 'airbnb2' ? 'Airbnb' : (msg as any).module_type === 'bookingCom' ? 'Booking.com' : (msg as any).module_type === 'whatsapp' ? 'WhatsApp' : (msg as any).module_type === 'email' ? 'Email' : (msg as any).module_type}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
