@@ -54,6 +54,50 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
   const [showAllSuggestions, setShowAllSuggestions] = useState(false)
   const SUGGESTION_CAP = 5
 
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [showBulkConfirm, setShowBulkConfirm] = useState<'dismissed' | 'completed' | null>(null)
+  const [bulkReason, setBulkReason] = useState('')
+
+  const toggleSelected = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }
+
+  const toggleSelectAll = () => {
+    const pendingIds = actions.filter(a => a.status === 'pending').map(a => a.id)
+    const allSelected = pendingIds.every(id => selectedIds.has(id))
+    if (allSelected) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(pendingIds))
+    }
+  }
+
+  const handleBulkAction = async () => {
+    if (!showBulkConfirm || selectedIds.size === 0) return
+    try {
+      const data = await apiFetch('/api/pending-actions/bulk', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          actionIds: Array.from(selectedIds),
+          status: showBulkConfirm,
+          completion_note: bulkReason || undefined,
+        }),
+      })
+      toast.success(`${data.updated} action${data.updated !== 1 ? 's' : ''} ${showBulkConfirm}, ${data.skipped} skipped`)
+      setSelectedIds(new Set())
+      setShowBulkConfirm(null)
+      setBulkReason('')
+      fetchActions()
+    } catch (err: any) {
+      toast.error(err.message)
+    }
+  }
+
   const handlePromote = async (id: string) => {
     try {
       await apiFetch(`/api/pending-actions/${id}`, {
@@ -89,6 +133,9 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
   }, [conversationFilter, onCountChange])
 
   useEffect(() => { fetchActions() }, [fetchActions])
+
+  // Clear bulk selection when filters change
+  useEffect(() => { setSelectedIds(new Set()) }, [conversationFilter, sortBy])
 
   useEffect(() => {
     if (showAddForm && conversations.length === 0) {
@@ -317,7 +364,17 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
     <div data-testid="section-pending-actions" className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
       {!conversationFilter && (
         <div className="p-3 flex justify-between items-center" style={{borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
-          <span className="text-sm font-medium" style={{color: '#94a3b8'}}>{actions.length} pending action{actions.length !== 1 ? 's' : ''}</span>
+          <span className="text-sm font-medium flex items-center gap-2" style={{color: '#94a3b8'}}>
+            {actions.filter(a => a.status === 'pending').length > 0 && (
+              <input type="checkbox"
+                checked={actions.filter(a => a.status === 'pending').every(a => selectedIds.has(a.id)) && actions.filter(a => a.status === 'pending').length > 0}
+                onChange={toggleSelectAll}
+                className="accent-blue-500 cursor-pointer"
+                title="Select all pending actions"
+                style={{width: 14, height: 14}} />
+            )}
+            {actions.length} pending action{actions.length !== 1 ? 's' : ''}
+          </span>
           <div className="flex items-center gap-2">
             <select value={sortBy} onChange={e => setSortBy(e.target.value as SortKey)}
               className="text-base py-0.5 px-1.5 rounded outline-none" style={{background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)'}}>
@@ -362,7 +419,17 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
         (showAllActions ? sortedActions : sortedActions.slice(0, 3)).map(action => (
           <div key={action.id} className="p-3" style={{borderBottom: '1px solid rgba(255,255,255,0.03)', opacity: action.status !== 'pending' ? 0.5 : 1}}>
             <div className="flex justify-between items-start mb-1 cursor-pointer group" onClick={() => onNavigateToConversation?.(action.conversation_id)}>
-              <span className="text-sm font-medium group-hover:underline" style={{color: '#f1f5f9'}}>{action.guest_name}</span>
+              <span className="text-sm font-medium group-hover:underline flex items-center gap-2" style={{color: '#f1f5f9'}}>
+                {action.status === 'pending' && (
+                  <input type="checkbox"
+                    checked={selectedIds.has(action.id)}
+                    onChange={(e) => { e.stopPropagation(); toggleSelected(action.id) }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="accent-blue-500 cursor-pointer"
+                    style={{width: 14, height: 14}} />
+                )}
+                {action.guest_name}
+              </span>
               <div className="flex items-center gap-1.5">
                 {action.status === 'pending' && urgencyBadge(action)}
                 {action.status === 'pending' && ageBadge(action)}
@@ -651,6 +718,82 @@ export default function PendingActionsTab({ token, conversationFilter, onNavigat
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Bulk action bar */}
+      {selectedIds.size > 0 && (
+        <div style={{
+          position: 'sticky', bottom: 0, left: 0, right: 0,
+          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+          borderTop: '1px solid rgba(99,149,255,0.2)',
+          padding: '10px 16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          zIndex: 20,
+        }}>
+          <span className="text-xs font-medium" style={{color: '#94a3b8'}}>
+            {selectedIds.size} action{selectedIds.size !== 1 ? 's' : ''} selected
+          </span>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setShowBulkConfirm('completed')}
+              className="px-3 py-1.5 text-xs rounded font-medium"
+              style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.3)'}}>
+              ✅ Complete ({selectedIds.size})
+            </button>
+            <button onClick={() => setShowBulkConfirm('dismissed')}
+              className="px-3 py-1.5 text-xs rounded font-medium"
+              style={{background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)'}}>
+              ❌ Dismiss ({selectedIds.size})
+            </button>
+            <button onClick={() => setSelectedIds(new Set())}
+              className="px-2 py-1.5 text-xs rounded"
+              style={{color: '#64748b'}}>
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk confirm modal */}
+      {showBulkConfirm && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 50,
+        }} onClick={() => { setShowBulkConfirm(null); setBulkReason('') }}>
+          <div style={{
+            background: '#1e293b', borderRadius: '12px', padding: '20px',
+            width: '400px', maxWidth: '90vw',
+            border: '1px solid rgba(255,255,255,0.1)',
+          }} onClick={e => e.stopPropagation()}>
+            <h3 className="text-sm font-semibold mb-3" style={{color: '#e2e8f0'}}>
+              {showBulkConfirm === 'completed' ? 'Complete' : 'Dismiss'} {selectedIds.size} action{selectedIds.size !== 1 ? 's' : ''}?
+            </h3>
+            <textarea
+              value={bulkReason}
+              onChange={e => setBulkReason(e.target.value)}
+              placeholder={showBulkConfirm === 'dismissed' ? 'Reason for dismissing (recommended)...' : 'Completion note (optional)...'}
+              rows={3}
+              className="w-full text-xs rounded p-2 mb-3"
+              style={{background: '#0f172a', color: '#e2e8f0', border: '1px solid rgba(255,255,255,0.1)', resize: 'vertical'}}
+            />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => { setShowBulkConfirm(null); setBulkReason('') }}
+                className="px-3 py-1.5 text-xs rounded"
+                style={{color: '#94a3b8', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)'}}>
+                Cancel
+              </button>
+              <button onClick={handleBulkAction}
+                className="px-3 py-1.5 text-xs rounded font-medium"
+                style={{
+                  background: showBulkConfirm === 'completed' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)',
+                  color: showBulkConfirm === 'completed' ? '#4ade80' : '#f87171',
+                  border: `1px solid ${showBulkConfirm === 'completed' ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                }}>
+                {showBulkConfirm === 'completed' ? 'Complete' : 'Dismiss'} {selectedIds.size} action{selectedIds.size !== 1 ? 's' : ''}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
