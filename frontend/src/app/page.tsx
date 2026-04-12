@@ -19,6 +19,7 @@ import LoginScreen from '../components/LoginScreen'
 import BugReport from '../components/BugReport'
 import BugReportsPanel from '../components/BugReportsPanel'
 import RefundLogPanel from '../components/RefundLogPanel'
+import AutoDismissRulesPanel from '../components/AutoDismissRulesPanel'
 import SendQueuePanel from '../components/SendQueuePanel'
 import PropertyCard from '../components/PropertyCard'
 import SendConfirmModal, { LearnMode, LearnScope } from '../components/SendConfirmModal'
@@ -66,6 +67,7 @@ export default function MessageDashboard() {
   const [showNotificationPanel, setShowNotificationPanel] = useState(false)
   const [showUserMgmt, setShowUserMgmt] = useState(false)
   const [showRefundLog, setShowRefundLog] = useState(false)
+  const [showAutoDismissRules, setShowAutoDismissRules] = useState(false)
   const [propertyCard, setPropertyCard] = useState<{code: string; data: any; loading: boolean} | null>(null)
   const [cardEditing, setCardEditing] = useState(false)
   const [cardEditData, setCardEditData] = useState<string>('')
@@ -1076,6 +1078,7 @@ export default function MessageDashboard() {
       <BugReport selectedConvId={selectedConvId} displayName={displayName} />
       <BugReportsPanel show={showBugReportsPanel} onClose={() => setShowBugReportsPanel(false)} />
       <RefundLogPanel show={showRefundLog} onClose={() => setShowRefundLog(false)} />
+      <AutoDismissRulesPanel show={showAutoDismissRules} onClose={() => setShowAutoDismissRules(false)} />
       <SendQueuePanel show={showSendQueue} onClose={() => setShowSendQueue(false)} onNavigate={(convId) => { setSelectedConvId(convId); setMobileView('detail') }} />
       <AnalyticsDashboard show={showAnalytics} onClose={() => setShowAnalytics(false)} />
       {showUserMgmt && <UserManagement onClose={() => setShowUserMgmt(false)} />}
