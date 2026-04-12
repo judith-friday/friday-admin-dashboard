@@ -124,6 +124,7 @@ export interface ConversationDetail {
   whatsapp_window_open?: boolean | null
   whatsapp_window_expires_at?: string | null
   available_channels?: string[] | null
+  seen_by?: { user_id: string; display_name: string; last_read_at: string }[]
 }
 
 export interface MessageItem {

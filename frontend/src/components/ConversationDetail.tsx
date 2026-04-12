@@ -277,6 +277,15 @@ export default function ConversationDetail({
           </div>
         </div>
 
+        {detail.seen_by && detail.seen_by.length > 0 && (
+          <div className="text-[10px] mt-0.5" style={{color: '#475569'}}>
+            Seen by {detail.seen_by
+              .filter((s: any) => s.display_name !== displayName)
+              .map((s: any) => s.display_name)
+              .join(', ') || 'only you'}
+          </div>
+        )}
+
         {/* Collapsible summary — collapsed by default, one-line truncated */}
         {detail.conversation.conversation_summary && (
           <button
