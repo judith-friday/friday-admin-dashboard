@@ -520,7 +520,7 @@ export default function ConversationDetail({
                 )}
 
                 <div className="text-xs mt-1" style={{color: '#64748b'}}>
-                  {formatTimestamp(msg.created_at)} {msg.sender_name && ` · ${formatSenderWithChannel(msg.sender_name, detail.conversation.communication_channel || detail.conversation.channel, msg.sent_by, msg.sent_via_system)}`}
+                  {formatTimestamp(msg.created_at)} {msg.sender_name && ` · ${formatSenderWithChannel(msg.sender_name, (msg as any).module_type || detail.conversation.communication_channel || detail.conversation.channel, msg.sent_by, msg.sent_via_system)}`}
                   {!isOutbound && isNonEnglish && (
                     <span className="ml-1">{LANG_FLAGS[msg.original_language!] || ''} {LANG_NAMES[msg.original_language!] || msg.original_language}</span>
                   )}
