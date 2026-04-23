@@ -15,8 +15,12 @@ export const metadata: Metadata = {
     title: 'Friday Admin',
   },
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
+    icon: [
+      { url: '/friday-logo.jpg', type: 'image/jpeg' },
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
+    apple: '/friday-logo.jpg',
+    shortcut: '/friday-logo.jpg',
   },
 }
 

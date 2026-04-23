@@ -1,0 +1,2414 @@
+'use client';
+
+import { FilterBar, FilterChip } from '../FilterBar';
+import { iconFor, IconPlus } from '../icons';
+import type { ModuleDef } from '../../_data/modules';
+import { ModuleHeader } from '../ModuleHeader';
+import {
+  FIN_KPIS,
+  FIN_PAYOUTS,
+  FIN_REFUNDS,
+  FIN_TX,
+  LEGAL_COMPLIANCE,
+  LEGAL_CONTRACTS,
+  LEGAL_DOCS,
+  LEGAL_LICENSES,
+  LEGAL_RENEWALS,
+  OPS_CLEANS,
+  OPS_ROSTER,
+  OPS_TICKETS,
+  OPS_WEEK,
+  OWNER_STATEMENTS,
+  OWNERS,
+  PROPERTIES,
+  PROP_TABS,
+  TASK_DETAIL,
+  TASKS,
+  TOURIST_TAX,
+  type Task,
+} from '../../_data/fixtures';
+import { useState } from 'react';
+
+const pct = (n: number) => Math.round(n * 100) + '%';
+
+const CURRENT_USER = 'Ishant';
+const TASK_SOURCES = ['Inbox', 'Finance', 'Breezeway', 'Ops', 'CRM', 'Intel'];
+
+type TaskView = 'list' | 'board' | 'today' | 'calendar' | 'property' | 'assignee';
+
+export function TasksModule() {
+  const [tab, setTab] = useState('mine');
+  const [view, setView] = useState<TaskView>('list');
+  const [sourceFilter, setSourceFilter] = useState<string | null>(null);
+  const [urgencyFilter, setUrgencyFilter] = useState<'red' | 'amber' | null>(null);
+  const [sel, setSel] = useState<string | null>(null);
+
+  const filtered = TASKS.filter((t) => {
+    if (tab === 'mine' && t.assignee !== CURRENT_USER) return false;
+    if (tab === 'today' && t.due !== 'Today' && t.status !== 'overdue') return false;
+    if (tab === 'open' && t.status === 'done') return false;
+    if (tab === 'unassigned' && t.assignee !== '—') return false;
+    if (sourceFilter && t.source !== sourceFilter) return false;
+    if (urgencyFilter && t.urgency !== urgencyFilter) return false;
+    return true;
+  });
+
+  const selected = sel ? TASKS.find((t) => t.id === sel) : null;
+
+  const tabs = [
+    { id: 'mine', label: 'Mine', count: TASKS.filter((t) => t.assignee === CURRENT_USER).length },
+    { id: 'open', label: 'Open', count: TASKS.filter((t) => t.status !== 'done').length },
+    { id: 'today', label: 'Today', count: TASKS.filter((t) => t.due === 'Today' || t.status === 'overdue').length },
+    { id: 'all', label: 'All open' },
+    { id: 'team', label: 'By team' },
+    { id: 'unassigned', label: 'Unassigned' },
+  ];
+
+  return (
+    <>
+      <ModuleHeader
+        title="Tasks"
+        subtitle="Personal + team to-do, sourced from Inbox, Ops, Finance, CRM"
+        tabs={tabs}
+        activeTab={tab}
+        onTabChange={setTab}
+        actions={
+          <>
+            <div
+              style={{
+                display: 'flex',
+                border: '0.5px solid var(--color-border-secondary)',
+                borderRadius: 4,
+                overflow: 'hidden',
+              }}
+            >
+              {(
+                [
+                  { id: 'list', label: 'List' },
+                  { id: 'board', label: 'Board' },
+                  { id: 'today', label: 'Today' },
+                  { id: 'calendar', label: 'Calendar' },
+                  { id: 'property', label: 'By property' },
+                  { id: 'assignee', label: 'By assignee' },
+                ] as const
+              ).map((v) => (
+                <button
+                  key={v.id}
+                  className={'btn sm' + (view === v.id ? ' primary' : ' ghost')}
+                  onClick={() => setView(v.id)}
+                  style={{ borderRadius: 0, border: 0 }}
+                >
+                  {v.label}
+                </button>
+              ))}
+            </div>
+            <button className="btn primary sm">
+              <IconPlus size={12} /> New task
+            </button>
+          </>
+        }
+      />
+      
+      <div className="fad-module-body">
+        <FilterBar
+          count={`${filtered.length} of ${TASKS.length}`}
+          onClear={
+            sourceFilter || urgencyFilter
+              ? () => {
+                  setSourceFilter(null);
+                  setUrgencyFilter(null);
+                }
+              : undefined
+          }
+        >
+          <FilterChip
+            active={urgencyFilter === 'red'}
+            dot="red"
+            onClick={() => setUrgencyFilter((u) => (u === 'red' ? null : 'red'))}
+          >
+            Urgent
+          </FilterChip>
+          <FilterChip
+            active={urgencyFilter === 'amber'}
+            dot="amber"
+            onClick={() => setUrgencyFilter((u) => (u === 'amber' ? null : 'amber'))}
+          >
+            Priority
+          </FilterChip>
+          {TASK_SOURCES.map((s) => (
+            <FilterChip
+              key={s}
+              active={sourceFilter === s}
+              onClick={() => setSourceFilter((v) => (v === s ? null : s))}
+            >
+              {s}
+            </FilterChip>
+          ))}
+        </FilterBar>
+        {view === 'board' ? (
+          <TasksKanban tasks={filtered} onSelect={setSel} selectedId={sel} />
+        ) : view === 'today' ? (
+          <TasksToday tasks={filtered} onSelect={setSel} selectedId={sel} />
+        ) : view === 'calendar' ? (
+          <TasksCalendar tasks={filtered} onSelect={setSel} />
+        ) : view === 'property' ? (
+          <TasksByProperty tasks={filtered} onSelect={setSel} />
+        ) : view === 'assignee' ? (
+          <TasksByAssignee tasks={filtered} onSelect={setSel} />
+        ) : (
+          <div className="card">
+            {filtered.length === 0 && (
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-text-tertiary)', fontSize: 13 }}>
+                No tasks match.
+              </div>
+            )}
+            {filtered.map((t) => (
+            <div
+              key={t.id}
+              className={'row' + (sel === t.id ? ' selected' : '')}
+              style={{ display: 'grid', gridTemplateColumns: '4px 16px 10px 1fr auto', gap: 12 }}
+              onClick={() => setSel(t.id)}
+            >
+              <span
+                style={{
+                  alignSelf: 'stretch',
+                  background:
+                    t.status === 'overdue'
+                      ? 'var(--color-text-danger)'
+                      : t.status === 'progress'
+                      ? 'var(--color-brand-accent)'
+                      : t.status === 'done'
+                      ? 'var(--color-text-success)'
+                      : 'var(--color-text-tertiary)',
+                  opacity: t.status === 'todo' ? 0.5 : 1,
+                  width: 4,
+                  marginLeft: -16,
+                }}
+              />
+              <span
+                style={{
+                  width: 16,
+                  height: 16,
+                  borderRadius: 4,
+                  border: '1px solid var(--color-border-secondary)',
+                  background: t.done ? 'var(--color-brand-accent)' : 'var(--color-background-primary)',
+                }}
+              />
+              <span className={'dot ' + t.urgency} style={{ marginTop: 6 }} />
+              <div style={{ minWidth: 0 }}>
+                <div className="row-primary" style={{ fontWeight: t.done ? 400 : 500 }}>
+                  {t.title}
+                </div>
+                <div className="row-meta" style={{ marginTop: 2 }}>
+                  <span>{t.property}</span>
+                  <span className="sep">·</span>
+                  <span>{t.assignee}</span>
+                  <span className="sep">·</span>
+                  <span>{t.source}</span>
+                </div>
+              </div>
+              <span className="row-time">{t.due}</span>
+            </div>
+          ))}
+          </div>
+        )}
+      </div>
+      <TaskDetailPane task={selected} onClose={() => setSel(null)} />
+    </>
+  );
+}
+
+function TasksKanban({
+  tasks,
+  onSelect,
+  selectedId,
+}: {
+  tasks: Task[];
+  onSelect: (id: string) => void;
+  selectedId: string | null;
+}) {
+  const cols: { id: Task['status']; label: string }[] = [
+    { id: 'todo', label: 'To do' },
+    { id: 'progress', label: 'In progress' },
+    { id: 'overdue', label: 'Overdue' },
+    { id: 'done', label: 'Done' },
+  ];
+  return (
+    <div className="tasks-kanban">
+      {cols.map((c) => {
+        const col = tasks.filter((t) => t.status === c.id);
+        return (
+          <div key={c.id} className="tasks-kanban-col">
+            <div className="tasks-kanban-head">
+              <span className="tasks-kanban-title">{c.label}</span>
+              <span className="tasks-kanban-count">{col.length}</span>
+            </div>
+            <div className="tasks-kanban-body">
+              {col.map((t) => (
+                <div
+                  key={t.id}
+                  className={
+                    'tasks-kanban-card ' +
+                    t.status +
+                    (selectedId === t.id ? ' selected' : '')
+                  }
+                  onClick={() => onSelect(t.id)}
+                >
+                  <div className="tasks-kanban-card-title">{t.title}</div>
+                  <div className="tasks-kanban-card-meta">
+                    <span className={'dot ' + t.urgency} />
+                    <span>{t.property}</span>
+                    <span className="sep">·</span>
+                    <span>{t.source}</span>
+                  </div>
+                  <div className="tasks-kanban-card-foot">
+                    <span className="avatar xs">{t.assignee[0]}</span>
+                    <span className="mono" style={{ color: 'var(--color-text-tertiary)' }}>
+                      {t.due}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {col.length === 0 && (
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: 'var(--color-text-tertiary)',
+                    textAlign: 'center',
+                    padding: 16,
+                  }}
+                >
+                  —
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function TasksToday({
+  tasks,
+  onSelect,
+  selectedId,
+}: {
+  tasks: Task[];
+  onSelect: (id: string) => void;
+  selectedId: string | null;
+}) {
+  const groups: { id: string; label: string; list: Task[] }[] = [
+    { id: 'overdue', label: 'Overdue', list: tasks.filter((t) => t.status === 'overdue') },
+    { id: 'today', label: 'Today', list: tasks.filter((t) => t.due === 'Today' && t.status !== 'overdue') },
+    { id: 'tomorrow', label: 'Tomorrow', list: tasks.filter((t) => t.due === 'Tomorrow') },
+    { id: 'later', label: 'Later this week', list: tasks.filter((t) => !['Today', 'Tomorrow', 'Yesterday'].includes(t.due) && t.status !== 'overdue' && t.status !== 'done') },
+  ];
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {groups.map((g) => (
+        <div key={g.id}>
+          <div
+            style={{
+              fontSize: 11,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              color: 'var(--color-text-tertiary)',
+              marginBottom: 6,
+              display: 'flex',
+              gap: 8,
+              alignItems: 'baseline',
+            }}
+          >
+            <span>{g.label}</span>
+            <span className="mono">{g.list.length}</span>
+          </div>
+          <div className="card">
+            {g.list.length === 0 && (
+              <div style={{ padding: 20, textAlign: 'center', color: 'var(--color-text-tertiary)', fontSize: 12 }}>
+                nothing
+              </div>
+            )}
+            {g.list.map((t) => (
+              <div
+                key={t.id}
+                className={'row' + (selectedId === t.id ? ' selected' : '')}
+                onClick={() => onSelect(t.id)}
+                style={{ display: 'grid', gridTemplateColumns: '10px 1fr auto auto', gap: 12 }}
+              >
+                <span className={'dot ' + t.urgency} />
+                <div>
+                  <div className="row-primary" style={{ fontWeight: 500 }}>
+                    {t.title}
+                  </div>
+                  <div className="row-meta">
+                    <span>{t.property}</span>
+                    <span className="sep">·</span>
+                    <span>{t.source}</span>
+                  </div>
+                </div>
+                <span className="avatar xs">{t.assignee[0]}</span>
+                <span className="row-time">{t.due}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TasksCalendar({
+  tasks,
+  onSelect,
+}: {
+  tasks: Task[];
+  onSelect: (id: string) => void;
+}) {
+  // map due strings to relative day offsets (demo bucket)
+  const bucketFor = (due: string) => {
+    if (due === 'Yesterday') return 'overdue';
+    if (due === 'Today') return 'today';
+    if (due === 'Tomorrow') return 'tomorrow';
+    if (['Wed', 'Thu', 'Fri', 'Sat', 'Sun'].some((d) => due === d)) return 'week';
+    if (due === 'Mon') return 'nextWeek';
+    if (due === 'Next wk') return 'nextWeek';
+    return 'later';
+  };
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const todayIdx = 3; // Thursday demo
+  const cells = dayNames.map((d, i) => {
+    let list: Task[];
+    if (i < todayIdx) list = tasks.filter((t) => bucketFor(t.due) === 'overdue');
+    else if (i === todayIdx) list = tasks.filter((t) => bucketFor(t.due) === 'today');
+    else if (i === todayIdx + 1) list = tasks.filter((t) => bucketFor(t.due) === 'tomorrow');
+    else list = tasks.filter((t) => bucketFor(t.due) === 'week').slice(0, 1 + (i % 2));
+    return { day: d, list };
+  });
+  return (
+    <div className="card">
+      <div className="card-header">
+        <div className="card-title">Week view</div>
+        <div className="card-subtitle">Apr 14 – Apr 20 · tasks positioned by due</div>
+      </div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(7, 1fr)',
+          borderTop: '0.5px solid var(--color-border-tertiary)',
+        }}
+      >
+        {dayNames.map((d, i) => (
+          <div
+            key={d}
+            style={{
+              padding: '8px 10px',
+              fontSize: 11,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              color: i === todayIdx ? 'var(--color-brand-accent)' : 'var(--color-text-tertiary)',
+              borderRight:
+                i < 6 ? '0.5px solid var(--color-border-tertiary)' : 'none',
+              borderBottom: '0.5px solid var(--color-border-tertiary)',
+              fontWeight: i === todayIdx ? 500 : 400,
+              background:
+                i === todayIdx ? 'var(--color-brand-accent-softer)' : 'transparent',
+            }}
+          >
+            {d}{' '}
+            <span className="mono" style={{ fontSize: 10, marginLeft: 4 }}>
+              Apr {14 + i}
+            </span>
+          </div>
+        ))}
+        {cells.map((c, i) => (
+          <div
+            key={c.day + i}
+            style={{
+              minHeight: 180,
+              padding: 6,
+              borderRight:
+                i < 6 ? '0.5px solid var(--color-border-tertiary)' : 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 4,
+              background:
+                i === todayIdx ? 'var(--color-brand-accent-softer)' : 'transparent',
+            }}
+          >
+            {c.list.map((t) => (
+              <div
+                key={t.id}
+                onClick={() => onSelect(t.id)}
+                style={{
+                  padding: '6px 8px',
+                  background: 'var(--color-background-primary)',
+                  borderLeft:
+                    '2px solid ' +
+                    (t.status === 'overdue'
+                      ? 'var(--color-text-danger)'
+                      : t.status === 'progress'
+                      ? 'var(--color-brand-accent)'
+                      : t.status === 'done'
+                      ? 'var(--color-text-success)'
+                      : 'var(--color-text-tertiary)'),
+                  borderRadius: 'var(--radius-sm)',
+                  cursor: 'pointer',
+                  fontSize: 11,
+                  lineHeight: 1.35,
+                }}
+              >
+                <div style={{ fontWeight: 500, marginBottom: 2 }}>{t.title}</div>
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                  <span className={'dot ' + t.urgency} style={{ width: 4, height: 4 }} />
+                  <span style={{ color: 'var(--color-text-tertiary)' }}>
+                    {t.property} · {t.assignee}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TasksByProperty({
+  tasks,
+  onSelect,
+}: {
+  tasks: Task[];
+  onSelect: (id: string) => void;
+}) {
+  const groups: Record<string, Task[]> = {};
+  tasks.forEach((t) => {
+    (groups[t.property] = groups[t.property] || []).push(t);
+  });
+  const keys = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {keys.map((k) => (
+        <div key={k}>
+          <div
+            style={{
+              display: 'flex',
+              gap: 8,
+              alignItems: 'baseline',
+              marginBottom: 6,
+              padding: '0 2px',
+            }}
+          >
+            <span style={{ fontSize: 13, fontWeight: 500 }}>{k}</span>
+            <span
+              className="mono"
+              style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}
+            >
+              {groups[k].length} {groups[k].length === 1 ? 'task' : 'tasks'}
+            </span>
+          </div>
+          <div className="card">
+            {groups[k].map((t) => (
+              <div
+                key={t.id}
+                className="row"
+                style={{ display: 'grid', gridTemplateColumns: '10px 1fr auto auto', gap: 12 }}
+                onClick={() => onSelect(t.id)}
+              >
+                <span className={'dot ' + t.urgency} />
+                <div>
+                  <div className="row-primary" style={{ fontWeight: 500 }}>
+                    {t.title}
+                  </div>
+                  <div className="row-meta">
+                    <span>{t.assignee}</span>
+                    <span className="sep">·</span>
+                    <span>{t.source}</span>
+                  </div>
+                </div>
+                <span
+                  className={
+                    'chip ' +
+                    (t.status === 'overdue'
+                      ? 'warn'
+                      : t.status === 'progress'
+                      ? 'info'
+                      : '')
+                  }
+                >
+                  {t.status}
+                </span>
+                <span className="row-time">{t.due}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TasksByAssignee({
+  tasks,
+  onSelect,
+}: {
+  tasks: Task[];
+  onSelect: (id: string) => void;
+}) {
+  const groups: Record<string, Task[]> = {};
+  tasks.forEach((t) => {
+    (groups[t.assignee] = groups[t.assignee] || []).push(t);
+  });
+  const keys = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+      {keys.map((k) => {
+        const open = groups[k].filter((t) => t.status !== 'done').length;
+        const overdue = groups[k].filter((t) => t.status === 'overdue').length;
+        return (
+          <div key={k} className="card">
+            <div className="card-header">
+              <span className="avatar sm">{k[0]}</span>
+              <div style={{ flex: 1 }}>
+                <div className="card-title">{k}</div>
+                <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+                  {open} open
+                  {overdue > 0 && (
+                    <>
+                      {' '}
+                      ·{' '}
+                      <span style={{ color: 'var(--color-text-danger)' }}>
+                        {overdue} overdue
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <span
+                className="mono"
+                style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}
+              >
+                {groups[k].length}
+              </span>
+            </div>
+            {groups[k].map((t) => (
+              <div
+                key={t.id}
+                className="row"
+                style={{ display: 'grid', gridTemplateColumns: '10px 1fr auto', gap: 10 }}
+                onClick={() => onSelect(t.id)}
+              >
+                <span className={'dot ' + t.urgency} />
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 500 }}>{t.title}</div>
+                  <div className="row-meta">
+                    <span>{t.property}</span>
+                    <span className="sep">·</span>
+                    <span>{t.source}</span>
+                  </div>
+                </div>
+                <span
+                  className="mono"
+                  style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}
+                >
+                  {t.due}
+                </span>
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function TaskDetailPane({ task, onClose }: { task: Task | null | undefined; onClose: () => void }) {
+  const open = !!task;
+  const detail = task ? TASK_DETAIL[task.id] : null;
+  return (
+    <>
+      {open && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: '48px 0 0 0',
+            background: 'rgba(15, 24, 54, 0.12)',
+            zIndex: 44,
+          }}
+          onClick={onClose}
+        />
+      )}
+      <aside className={'task-detail-pane' + (open ? ' open' : '')}>
+        {task && (
+          <>
+            <div className="task-detail-header">
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                <span className={'dot ' + task.urgency} style={{ marginTop: 6 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 4 }}>{task.title}</div>
+                  <div className="row-meta">
+                    <span>{task.property}</span>
+                    <span className="sep">·</span>
+                    <span>{task.assignee}</span>
+                    <span className="sep">·</span>
+                    <span>due {task.due}</span>
+                  </div>
+                </div>
+                <button className="fad-util-btn" onClick={onClose} title="Close">
+                  ×
+                </button>
+              </div>
+              <div style={{ marginTop: 10, display: 'flex', gap: 6 }}>
+                <span
+                  className={
+                    'chip ' +
+                    (task.status === 'overdue'
+                      ? 'warn'
+                      : task.status === 'progress'
+                      ? 'info'
+                      : '')
+                  }
+                >
+                  {task.status}
+                </span>
+                <span className="chip">{task.source}</span>
+              </div>
+              <div style={{ marginTop: 12, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <button className="btn sm">
+                  <IconPlus size={12} /> Add to Breezeway
+                </button>
+                <button className="btn ghost sm">Assign</button>
+                <button className="btn ghost sm">Reschedule</button>
+                {task.status !== 'done' && (
+                  <button className="btn ghost sm">Mark done</button>
+                )}
+              </div>
+            </div>
+            <div className="task-detail-body">
+              {detail && (
+                <>
+                  <div className="task-detail-section">
+                    <h5>Description</h5>
+                    <div style={{ fontSize: 13, lineHeight: 1.55 }}>{detail.description}</div>
+                  </div>
+                  <div className="task-detail-section">
+                    <h5>Linked</h5>
+                    {detail.links.map((l, i) => (
+                      <div key={i} className="row" style={{ padding: '8px 0', border: 0 }}>
+                        <span
+                          className="mono"
+                          style={{ fontSize: 11, color: 'var(--color-text-tertiary)', width: 90 }}
+                        >
+                          {l.kind}
+                        </span>
+                        <span style={{ fontSize: 13 }}>{l.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="task-detail-section">
+                    <h5>Comments · {detail.comments.length}</h5>
+                    {detail.comments.map((c, i) => (
+                      <div key={i} className="task-comment">
+                        <div className="task-comment-head">
+                          <span>{c.who}</span>
+                          <span>{c.time}</span>
+                        </div>
+                        <div>{c.body}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="task-detail-section">
+                    <h5>Activity</h5>
+                    {detail.activity.map((a, i) => (
+                      <div key={i} className="task-activity">
+                        {a.time} · {a.text}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              {!detail && (
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: 'var(--color-text-tertiary)',
+                    textAlign: 'center',
+                    padding: 40,
+                  }}
+                >
+                  No detail recorded yet. Click ⌘K to draft.
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </aside>
+    </>
+  );
+}
+
+export function FinanceModule() {
+  const [tab, setTab] = useState('overview');
+  const tabs = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'tx', label: 'Transactions' },
+    { id: 'payouts', label: 'Payouts' },
+    { id: 'refunds', label: 'Refunds' },
+    { id: 'tax', label: 'Tourist tax' },
+    { id: 'statements', label: 'Owner statements' },
+  ];
+  return (
+    <>
+      <ModuleHeader
+        title="Finance"
+        subtitle="Payouts, tourist tax, owner statements, refunds"
+        tabs={tabs}
+        activeTab={tab}
+        onTabChange={setTab}
+      />
+      
+      <div className="fad-module-body">
+        {tab === 'overview' && (
+          <>
+            <div className="kpi-grid">
+              {FIN_KPIS.map((k, i) => (
+                <div className="kpi" key={i}>
+                  <div className="kpi-label">{k.label}</div>
+                  <div className="kpi-value">{k.value}</div>
+                  <div className={'kpi-sub' + (k.dir ? ' ' + k.dir : '')}>{k.sub}</div>
+                </div>
+              ))}
+            </div>
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Recent transactions</div>
+                <div className="card-subtitle">Apr 2026</div>
+              </div>
+              {FIN_TX.map((tx, i) => (
+                <div key={i} className="row">
+                  <div style={{ flex: 1 }}>
+                    <div className="row-primary">{tx.desc}</div>
+                    <div className="row-meta">{tx.meta}</div>
+                  </div>
+                  <span
+                    className="mono"
+                    style={{
+                      fontSize: 13,
+                      color: tx.amount.startsWith('+')
+                        ? 'var(--color-text-success)'
+                        : tx.amount.startsWith('−')
+                        ? 'var(--color-text-danger)'
+                        : 'var(--color-text-primary)',
+                    }}
+                  >
+                    {tx.amount}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+        {tab === 'tx' && (
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title">All transactions</div>
+              <div className="card-subtitle">Apr 2026</div>
+            </div>
+            {FIN_TX.concat(FIN_TX).map((tx, i) => (
+              <div key={i} className="row">
+                <div style={{ flex: 1 }}>
+                  <div className="row-primary">{tx.desc}</div>
+                  <div className="row-meta">{tx.meta}</div>
+                </div>
+                <span
+                  className="mono"
+                  style={{
+                    fontSize: 13,
+                    color: tx.amount.startsWith('+')
+                      ? 'var(--color-text-success)'
+                      : tx.amount.startsWith('−')
+                      ? 'var(--color-text-danger)'
+                      : 'var(--color-text-primary)',
+                  }}
+                >
+                  {tx.amount}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        {tab === 'payouts' && (
+          <div className="card">
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr',
+                gap: 12,
+                padding: '10px 16px',
+                borderBottom: '0.5px solid var(--color-border-tertiary)',
+                fontSize: 11,
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                color: 'var(--color-text-tertiary)',
+              }}
+            >
+              <span>Channel</span>
+              <span>Period</span>
+              <span>Date</span>
+              <span>Ref</span>
+              <span>Amount</span>
+              <span>Status</span>
+            </div>
+            {FIN_PAYOUTS.map((p) => (
+              <div
+                key={p.id}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr',
+                  gap: 12,
+                  padding: '14px 16px',
+                  borderBottom: '0.5px solid var(--color-border-tertiary)',
+                  fontSize: 13,
+                  alignItems: 'center',
+                }}
+              >
+                <span>{p.channel}</span>
+                <span className="mono" style={{ fontSize: 12 }}>
+                  {p.period}
+                </span>
+                <span className="mono" style={{ fontSize: 12 }}>
+                  {p.date}
+                </span>
+                <span
+                  className="mono"
+                  style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}
+                >
+                  {p.ref}
+                </span>
+                <span className="mono" style={{ fontWeight: 500 }}>
+                  € {p.amount.toLocaleString()}
+                </span>
+                <span className={'chip ' + (p.status === 'settled' ? 'info' : 'warn')}>
+                  {p.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        {tab === 'refunds' && (
+          <div className="card">
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1.4fr 2fr 0.8fr 0.8fr 0.8fr 0.8fr',
+                gap: 12,
+                padding: '10px 16px',
+                borderBottom: '0.5px solid var(--color-border-tertiary)',
+                fontSize: 11,
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                color: 'var(--color-text-tertiary)',
+              }}
+            >
+              <span>Guest</span>
+              <span>Reason</span>
+              <span>Amount</span>
+              <span>Date</span>
+              <span>Processed by</span>
+              <span>Status</span>
+            </div>
+            {FIN_REFUNDS.map((r) => (
+              <div
+                key={r.id}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1.4fr 2fr 0.8fr 0.8fr 0.8fr 0.8fr',
+                  gap: 12,
+                  padding: '14px 16px',
+                  borderBottom: '0.5px solid var(--color-border-tertiary)',
+                  fontSize: 13,
+                  alignItems: 'center',
+                }}
+              >
+                <span>{r.guest}</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}>{r.reason}</span>
+                <span
+                  className="mono"
+                  style={{ color: 'var(--color-text-danger)', fontWeight: 500 }}
+                >
+                  −€ {r.amount.toLocaleString()}
+                </span>
+                <span className="mono" style={{ fontSize: 12 }}>
+                  {r.date}
+                </span>
+                <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>{r.by}</span>
+                <span className={'chip ' + (r.status === 'processed' ? 'info' : 'warn')}>
+                  {r.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        {tab === 'tax' && <TouristTaxTab />}
+        {tab === 'statements' && <OwnerStatementsTab />}
+      </div>
+    </>
+  );
+}
+
+function TouristTaxTab() {
+  const current = TOURIST_TAX.find((m) => !m.filed);
+  return (
+    <>
+      <div className="two-col" style={{ marginBottom: 20 }}>
+        <div className="card">
+          <div className="card-header">
+            <div className="card-title">Monthly roll-up · YTD</div>
+            <div className="card-subtitle">€18/nt per adult · 3★+ classification</div>
+          </div>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '80px 1fr 1fr 1fr 1fr',
+              gap: 12,
+              padding: '10px 16px',
+              borderBottom: '0.5px solid var(--color-border-tertiary)',
+              fontSize: 11,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              color: 'var(--color-text-tertiary)',
+            }}
+          >
+            <span>Month</span>
+            <span>Collected</span>
+            <span>Refunded</span>
+            <span>Net owed</span>
+            <span>Filed</span>
+          </div>
+          {TOURIST_TAX.map((m) => (
+            <div
+              key={m.month}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '80px 1fr 1fr 1fr 1fr',
+                gap: 12,
+                padding: '14px 16px',
+                borderBottom: '0.5px solid var(--color-border-tertiary)',
+                fontSize: 13,
+                alignItems: 'center',
+              }}
+            >
+              <span style={{ fontWeight: 500 }}>{m.month}</span>
+              <span className="mono">€ {m.collected.toLocaleString()}</span>
+              <span
+                className="mono"
+                style={{
+                  color: m.refunded
+                    ? 'var(--color-text-secondary)'
+                    : 'var(--color-text-tertiary)',
+                }}
+              >
+                {m.refunded ? '− € ' + m.refunded : '—'}
+              </span>
+              <span className="mono" style={{ fontWeight: 500 }}>
+                € {m.owed.toLocaleString()}
+              </span>
+              <span>
+                {m.filed ? (
+                  <span className="chip info">filed {m.filedAt}</span>
+                ) : (
+                  <span className="chip warn">due May 7</span>
+                )}
+              </span>
+            </div>
+          ))}
+        </div>
+        {current && (
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title">{current.month} filing</div>
+              <div className="card-subtitle">MRA submission</div>
+            </div>
+            <div className="card-body">
+              <div style={{ fontSize: 28, fontWeight: 500, fontFamily: 'var(--font-mono-fad)', marginBottom: 4 }}>
+                € {current.owed.toLocaleString()}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginBottom: 16 }}>
+                owed · filing due{' '}
+                <span style={{ color: 'var(--color-text-warning)', fontWeight: 500 }}>May 7</span>
+              </div>
+              <div
+                style={{
+                  fontSize: 12,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 6,
+                  paddingBottom: 14,
+                  borderBottom: '0.5px solid var(--color-border-tertiary)',
+                  marginBottom: 14,
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--color-text-tertiary)' }}>Collected</span>
+                  <span className="mono">€ {current.collected.toLocaleString()}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--color-text-tertiary)' }}>Refunded</span>
+                  <span className="mono">− € {current.refunded.toLocaleString()}</span>
+                </div>
+              </div>
+              <button className="btn primary" style={{ width: '100%', justifyContent: 'center' }}>
+                Generate MRA submission
+              </button>
+              <button
+                className="btn ghost"
+                style={{ width: '100%', justifyContent: 'center', marginTop: 6 }}
+              >
+                Export CSV
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+function OwnerStatementsTab() {
+  return (
+    <div className="card">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 0.8fr',
+          gap: 12,
+          padding: '10px 16px',
+          borderBottom: '0.5px solid var(--color-border-tertiary)',
+          fontSize: 11,
+          textTransform: 'uppercase',
+          letterSpacing: '0.04em',
+          color: 'var(--color-text-tertiary)',
+        }}
+      >
+        <span>Owner</span>
+        <span>Period</span>
+        <span>Gross</span>
+        <span>Fees</span>
+        <span>Net</span>
+        <span>Status</span>
+      </div>
+      {OWNER_STATEMENTS.map((s, i) => (
+        <div
+          key={i}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 0.8fr',
+            gap: 12,
+            padding: '14px 16px',
+            borderBottom: '0.5px solid var(--color-border-tertiary)',
+            fontSize: 13,
+            alignItems: 'center',
+          }}
+        >
+          <span style={{ fontWeight: 500 }}>{s.owner}</span>
+          <span className="mono" style={{ fontSize: 12 }}>
+            {s.period}
+          </span>
+          <span className="mono">€ {s.gross.toLocaleString()}</span>
+          <span className="mono" style={{ color: 'var(--color-text-secondary)' }}>
+            − € {s.fees.toLocaleString()}
+          </span>
+          <span className="mono" style={{ fontWeight: 500 }}>
+            € {s.net.toLocaleString()}
+          </span>
+          <span className={'chip ' + (s.status === 'ready' ? 'info' : 'warn')}>{s.status}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function LegalModule() {
+  const [tab, setTab] = useState('contracts');
+  const tabs = [
+    { id: 'contracts', label: 'Contracts' },
+    { id: 'renewals', label: 'Renewals' },
+    { id: 'licenses', label: 'Licenses' },
+    { id: 'compliance', label: 'Compliance' },
+    { id: 'documents', label: 'Documents' },
+  ];
+  return (
+    <>
+      <ModuleHeader
+        title="Legal & Admin"
+        subtitle="Contracts, renewals, licenses, compliance"
+        tabs={tabs}
+        activeTab={tab}
+        onTabChange={setTab}
+      />
+      
+      <div className="fad-module-body">
+        {tab === 'contracts' && (
+          <div className="card">
+            {LEGAL_CONTRACTS.map((c, i) => (
+              <div key={i} className="row">
+                <div style={{ flex: 1 }}>
+                  <div className="row-primary">{c.party}</div>
+                  <div className="row-meta">
+                    {c.kind} · ends {c.ends}
+                  </div>
+                </div>
+                <span
+                  className={
+                    'chip ' +
+                    (c.status === 'renewal due' ? 'warn' : c.status === 'active' ? 'info' : '')
+                  }
+                >
+                  {c.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        {tab === 'renewals' && (
+          <div className="card">
+            {LEGAL_RENEWALS.map((r, i) => (
+              <div key={i} className="row">
+                <div style={{ flex: 1 }}>
+                  <div className="row-primary">{r.party}</div>
+                  <div className="row-meta">
+                    {r.kind} · ends {r.ends}
+                  </div>
+                </div>
+                <span className="chip warn">{r.action}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {tab === 'licenses' && (
+          <div className="card">
+            {LEGAL_LICENSES.map((l, i) => (
+              <div key={i} className="row">
+                <div style={{ flex: 1 }}>
+                  <div className="row-primary">{l.name}</div>
+                  <div className="row-meta">
+                    {l.holder} · expires {l.ends}
+                  </div>
+                </div>
+                <span className={'chip ' + (l.status === 'active' ? 'info' : 'warn')}>
+                  {l.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        {tab === 'compliance' && <ComplianceCalendar />}
+        {tab === 'documents' && (
+          <div className="card">
+            {LEGAL_DOCS.map((d, i) => (
+              <div key={i} className="row">
+                <div style={{ flex: 1 }}>
+                  <div className="row-primary">{d.name}</div>
+                  <div className="row-meta">{d.kind}</div>
+                </div>
+                <span className="mono" style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+                  {d.size}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+function ComplianceCalendar() {
+  const monthsOrder = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
+  const byMonth: Record<string, typeof LEGAL_COMPLIANCE> = {};
+  for (const m of monthsOrder) byMonth[m] = [];
+  byMonth['Other'] = [];
+  for (const c of LEGAL_COMPLIANCE) {
+    const match = monthsOrder.find((m) => c.due.startsWith(m));
+    if (match) byMonth[match].push(c);
+    else byMonth['Other'].push(c);
+  }
+  return (
+    <>
+      <div
+        style={{
+          marginBottom: 16,
+          padding: 12,
+          background: 'var(--color-bg-warning)',
+          borderLeft: '2px solid var(--color-text-warning)',
+          borderRadius: 4,
+          fontSize: 13,
+          color: 'var(--color-text-warning)',
+        }}
+      >
+        <strong style={{ fontWeight: 500 }}>3 items open for Mary</strong> — tourist tax Apr filing
+        (May 7), trade license renewal (Jun 30), MRA VAT return Q2 (Jul 20).
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {monthsOrder.map((m) => {
+          const items = byMonth[m];
+          if (!items.length) return null;
+          return (
+            <div key={m}>
+              <div
+                style={{
+                  fontSize: 11,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                  color: 'var(--color-text-tertiary)',
+                  marginBottom: 6,
+                  display: 'flex',
+                  gap: 8,
+                  alignItems: 'baseline',
+                }}
+              >
+                <span>{m} 2026</span>
+                <span className="mono">{items.length}</span>
+              </div>
+              <div className="card">
+                {items.map((c, i) => (
+                  <div key={i} className="row">
+                    <span
+                      className={
+                        'dot ' +
+                        (c.status === 'done' ? 'green' : c.status === 'open' ? 'amber' : 'neutral')
+                      }
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div className="row-primary">{c.item}</div>
+                      <div className="row-meta">
+                        <span>{c.kind}</span>
+                        <span className="sep">·</span>
+                        <span>Owner: {c.owner}</span>
+                        <span className="sep">·</span>
+                        <span>Due {c.due}</span>
+                      </div>
+                    </div>
+                    <span
+                      className={
+                        'chip ' +
+                        (c.status === 'done' ? 'info' : c.status === 'open' ? 'warn' : '')
+                      }
+                    >
+                      {c.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+        {byMonth['Other'].length > 0 && (
+          <div>
+            <div
+              style={{
+                fontSize: 11,
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                color: 'var(--color-text-tertiary)',
+                marginBottom: 6,
+              }}
+            >
+              Done / past
+            </div>
+            <div className="card">
+              {byMonth['Other'].map((c, i) => (
+                <div key={i} className="row">
+                  <span className="dot green" />
+                  <div style={{ flex: 1 }}>
+                    <div className="row-primary">{c.item}</div>
+                    <div className="row-meta">
+                      {c.kind} · {c.owner} · filed {c.due}
+                    </div>
+                  </div>
+                  <span className="chip info">{c.status}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+export function PropertiesModule() {
+  const [tab, setTab] = useState('All');
+  const [sel, setSel] = useState<string | null>(null);
+  if (sel) {
+    const p = PROPERTIES.find((x) => x.code === sel);
+    if (p) return <PropertyDetail prop={p} onBack={() => setSel(null)} />;
+  }
+  return (
+    <>
+      <ModuleHeader
+        title="Properties"
+        subtitle="Portfolio across North, West, South and Nitzana launch"
+        tabs={PROP_TABS.map((p) => ({ id: p, label: p }))}
+        activeTab={tab}
+        onTabChange={setTab}
+      />
+      
+      <div className="fad-module-body">
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: 16,
+          }}
+        >
+          {PROPERTIES.map((p) => (
+            <div
+              key={p.code}
+              className="card"
+              style={{ cursor: 'pointer' }}
+              onClick={() => setSel(p.code)}
+            >
+              <div
+                style={{
+                  aspectRatio: '16 / 10',
+                  background:
+                    'radial-gradient(ellipse at 30% 30%, rgba(86,128,202,0.4), transparent 60%), linear-gradient(135deg, var(--color-brand-navy), #1a2855)',
+                  position: 'relative',
+                }}
+              >
+                <span
+                  className="mono"
+                  style={{
+                    position: 'absolute',
+                    top: 10,
+                    left: 10,
+                    fontSize: 10,
+                    color: 'rgba(255,255,255,0.7)',
+                  }}
+                >
+                  {p.code}
+                </span>
+              </div>
+              <div style={{ padding: '12px 14px' }}>
+                <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{p.name}</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginBottom: 10 }}>
+                  {p.area}
+                </div>
+                <div style={{ display: 'flex', gap: 16, fontSize: 11 }}>
+                  <Stat label="Occ" value={pct(p.occ)} />
+                  <Stat label="ADR" value={'€ ' + p.adr} />
+                  <Stat label="Rating" value={p.rating.toFixed(2)} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function PropertyDetail({
+  prop,
+  onBack,
+}: {
+  prop: (typeof PROPERTIES)[number];
+  onBack: () => void;
+}) {
+  const [subTab, setSubTab] = useState('overview');
+  const subTabs = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'calendar', label: 'Calendar' },
+    { id: 'finance', label: 'Finance' },
+    { id: 'guests', label: 'Guests' },
+    { id: 'ops', label: 'Ops' },
+  ];
+  return (
+    <>
+      <div className="fad-module-header">
+        <div className="fad-module-header-main">
+          <button className="btn ghost sm" onClick={onBack} style={{ marginBottom: 8 }}>
+            ← All properties
+          </button>
+          <h1 className="fad-module-title">{prop.name}</h1>
+          <div className="fad-module-subtitle">
+            {prop.area} · {prop.code}
+          </div>
+          <div className="fad-tabs">
+            {subTabs.map((t) => (
+              <button
+                key={t.id}
+                className={'fad-tab' + (subTab === t.id ? ' active' : '')}
+                onClick={() => setSubTab(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="fad-module-actions">
+          <button className="btn sm">Edit listing</button>
+          <button className="btn primary sm">New reservation</button>
+        </div>
+      </div>
+      <div className="fad-module-body">
+        <div className="pdetail-hero">
+          <div className="pdetail-cover">
+            <span className="pdetail-cover-code mono">{prop.code}</span>
+          </div>
+          <div className="pdetail-info">
+            <div style={{ flex: 1 }}>
+              <div className="pdetail-name">{prop.name}</div>
+              <div className="pdetail-area">{prop.area}</div>
+            </div>
+            <div className="pdetail-info-stats">
+              <div className="pdetail-info-stat">
+                <div className="val">{pct(prop.occ)}</div>
+                <div className="lab">Occ</div>
+              </div>
+              <div className="pdetail-info-stat">
+                <div className="val">€ {prop.adr}</div>
+                <div className="lab">ADR</div>
+              </div>
+              <div className="pdetail-info-stat">
+                <div className="val">{prop.rating.toFixed(2)}</div>
+                <div className="lab">Rating</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {subTab === 'calendar' && (
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title">Upcoming reservations</div>
+              <div className="card-subtitle">next 30 days · {prop.code}</div>
+            </div>
+            {[
+              { d: 'Apr 17', stay: 'Apr 17 → Apr 24 · 7 nights', guest: 'Marchand (2nd stay)', total: '€ 2,940', status: 'confirmed' },
+              { d: 'Apr 28', stay: 'Apr 28 → May 2 · 4 nights', guest: 'Okonkwo family', total: '€ 1,680', status: 'confirmed' },
+              { d: 'May 5', stay: 'May 5 → May 12 · 7 nights', guest: 'Iyer (VIP · annual)', total: '€ 2,940', status: 'confirmed' },
+              { d: 'May 18', stay: 'May 18 → May 22 · 4 nights', guest: 'Dubois', total: '€ 1,680', status: 'hold' },
+            ].map((r, i) => (
+              <div key={i} className="row">
+                <span
+                  className="mono"
+                  style={{ width: 60, fontSize: 11, color: 'var(--color-text-tertiary)' }}
+                >
+                  {r.d}
+                </span>
+                <div style={{ flex: 1 }}>
+                  <div className="row-primary">{r.guest}</div>
+                  <div className="row-meta">{r.stay}</div>
+                </div>
+                <span className="mono" style={{ fontSize: 12 }}>
+                  {r.total}
+                </span>
+                <span className={'chip ' + (r.status === 'hold' ? 'warn' : 'info')}>{r.status}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {subTab === 'finance' && (
+          <>
+            <div className="kpi-grid">
+              <div className="kpi">
+                <div className="kpi-label">MTD gross</div>
+                <div className="kpi-value">€ 10,080</div>
+                <div className="kpi-sub up">+8% vs Mar</div>
+              </div>
+              <div className="kpi">
+                <div className="kpi-label">MTD fees</div>
+                <div className="kpi-value">€ 2,620</div>
+                <div className="kpi-sub">26% · standard</div>
+              </div>
+              <div className="kpi">
+                <div className="kpi-label">MTD net to owner</div>
+                <div className="kpi-value">€ 7,460</div>
+                <div className="kpi-sub">paid May 3</div>
+              </div>
+              <div className="kpi">
+                <div className="kpi-label">Tourist tax collected</div>
+                <div className="kpi-value">€ 408</div>
+                <div className="kpi-sub">€18/nt · 24 nts</div>
+              </div>
+            </div>
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Recent transactions</div>
+                <div className="card-subtitle">{prop.name}</div>
+              </div>
+              {[
+                { desc: 'Marchand booking capture', meta: 'Apr 15 · Airbnb · VAZ-APR17', amount: '+€ 2,940' },
+                { desc: 'Dubois payout', meta: 'Apr 14 · settled · VAZ-APR08', amount: '+€ 2,850' },
+                { desc: 'Pool service invoice', meta: 'Apr 16 · Breezeway', amount: '−€ 320' },
+                { desc: 'Tourist tax · Dubois', meta: 'remitted Apr 15', amount: '−€ 126' },
+              ].map((tx, i) => (
+                <div key={i} className="row">
+                  <div style={{ flex: 1 }}>
+                    <div className="row-primary">{tx.desc}</div>
+                    <div className="row-meta">{tx.meta}</div>
+                  </div>
+                  <span
+                    className="mono"
+                    style={{
+                      fontSize: 13,
+                      color: tx.amount.startsWith('+')
+                        ? 'var(--color-text-success)'
+                        : 'var(--color-text-danger)',
+                    }}
+                  >
+                    {tx.amount}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+        {subTab === 'guests' && (
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title">Recent guests</div>
+              <div className="card-subtitle">trailing 90 days · {prop.name}</div>
+            </div>
+            {[
+              { name: 'Thibault Marchand', initials: 'TM', when: 'Apr 17 upcoming · 2nd stay', rating: '5.0' },
+              { name: 'Amélie Dubois', initials: 'AD', when: 'Apr 8 – Apr 14', rating: '5.0' },
+              { name: 'Priya Iyer', initials: 'PI', when: 'Apr 7 · VIP returning', rating: '5.0' },
+              { name: 'Lucas Perrin', initials: 'LP', when: 'Mar 22 – Mar 28', rating: '4.8' },
+              { name: 'Sana Malik', initials: 'SM', when: 'Mar 12 – Mar 18', rating: '4.9' },
+            ].map((g, i) => (
+              <div key={i} className="row">
+                <span className="avatar sm">{g.initials}</span>
+                <div style={{ flex: 1 }}>
+                  <div className="row-primary">{g.name}</div>
+                  <div className="row-meta">{g.when}</div>
+                </div>
+                <span className="mono" style={{ fontSize: 13, fontWeight: 500 }}>
+                  {g.rating}★
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        {subTab === 'ops' && (
+          <div className="two-col">
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Open tickets</div>
+                <div className="card-subtitle">maintenance · {prop.code}</div>
+              </div>
+              {[
+                { urgency: 'amber' as const, title: 'AC noisy in master bedroom', meta: 'reported Apr 15 · Alex assigned' },
+                { urgency: 'neutral' as const, title: 'Replace terrace chairs × 4', meta: 'seasonal · scheduled May 1' },
+              ].map((t, i) => (
+                <div key={i} className="row">
+                  <span className={'dot ' + t.urgency} />
+                  <div style={{ flex: 1 }}>
+                    <div className="row-primary">{t.title}</div>
+                    <div className="row-meta">{t.meta}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Cleaning schedule</div>
+                <div className="card-subtitle">next 7 days</div>
+              </div>
+              {[
+                { day: 'Apr 17', time: '10:00', who: 'Priya · Breezeway', kind: 'Deep clean + turnover' },
+                { day: 'Apr 24', time: '11:30', who: 'Priya · Breezeway', kind: 'Departure clean' },
+                { day: 'May 5', time: '09:00', who: 'Priya · Breezeway', kind: 'Pre-arrival' },
+              ].map((c, i) => (
+                <div key={i} className="row">
+                  <span
+                    className="mono"
+                    style={{ width: 52, fontSize: 11, color: 'var(--color-text-tertiary)' }}
+                  >
+                    {c.day}
+                  </span>
+                  <div style={{ flex: 1 }}>
+                    <div className="row-primary">{c.kind}</div>
+                    <div className="row-meta">{c.who}</div>
+                  </div>
+                  <span className="mono" style={{ fontSize: 11 }}>
+                    {c.time}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {subTab === 'overview' && (
+          <div className="two-col">
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">This month</div>
+                <div className="card-subtitle">Apr 2026</div>
+              </div>
+              <div className="card-body fad-mini-grid-3">
+                <div>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Reservations</div>
+                  <div className="mono" style={{ fontSize: 20, fontWeight: 500 }}>4</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Nights booked</div>
+                  <div className="mono" style={{ fontSize: 20, fontWeight: 500 }}>24</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Gross revenue</div>
+                  <div className="mono" style={{ fontSize: 20, fontWeight: 500 }}>€ 10,080</div>
+                </div>
+              </div>
+            </div>
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Recent activity</div>
+              </div>
+              <div className="row">
+                <div style={{ flex: 1 }}>
+                  <div className="row-primary">Marchand check-in confirmed</div>
+                  <div className="row-meta">Apr 17 · Ravi driver · 14:30 early</div>
+                </div>
+              </div>
+              <div className="row">
+                <div style={{ flex: 1 }}>
+                  <div className="row-primary">Dubois checkout complete</div>
+                  <div className="row-meta">Apr 14 · 5.0★ pending</div>
+                </div>
+              </div>
+              <div className="row">
+                <div style={{ flex: 1 }}>
+                  <div className="row-primary">Pool service scheduled</div>
+                  <div className="row-meta">Apr 16 · Breezeway · Priya</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div
+        style={{
+          color: 'var(--color-text-tertiary)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.04em',
+          fontSize: 10,
+        }}
+      >
+        {label}
+      </div>
+      <div className="mono" style={{ fontSize: 12 }}>
+        {value}
+      </div>
+    </div>
+  );
+}
+
+export function OperationsModule() {
+  const [tab, setTab] = useState('today');
+  const tabs = [
+    { id: 'today', label: 'Today' },
+    { id: 'week', label: 'Week' },
+    { id: 'all', label: 'All tickets' },
+    { id: 'roster', label: 'Breezeway roster' },
+  ];
+  return (
+    <>
+      <ModuleHeader
+        title="Operations"
+        subtitle="Cleanings, maintenance, Breezeway roster"
+        tabs={tabs}
+        activeTab={tab}
+        onTabChange={setTab}
+      />
+      
+      <div className="fad-module-body">
+        {tab === 'today' && (
+          <div className="two-col">
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Cleanings today</div>
+                <div className="card-subtitle">{OPS_CLEANS.length}</div>
+              </div>
+              {OPS_CLEANS.map((c, i) => (
+                <div key={i} className="row">
+                  <span className="dot green" />
+                  <div style={{ flex: 1 }}>
+                    <div className="row-primary">{c.prop}</div>
+                    <div className="row-meta">{c.cleaner}</div>
+                  </div>
+                  <span className="row-time">{c.time}</span>
+                </div>
+              ))}
+            </div>
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Maintenance</div>
+                <div className="card-subtitle">{OPS_TICKETS.length}</div>
+              </div>
+              {OPS_TICKETS.map((t, i) => (
+                <div key={i} className="row">
+                  <span className={'dot ' + t.urgency} />
+                  <div style={{ flex: 1 }}>
+                    <div className="row-primary">{t.title}</div>
+                    <div className="row-meta">{t.prop}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {tab === 'week' && (
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title">Week workload</div>
+              <div className="card-subtitle">cleanings + maintenance by day</div>
+            </div>
+            <div className="card-body">
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  gap: 12,
+                  height: 160,
+                  marginBottom: 12,
+                }}
+              >
+                {OPS_WEEK.map((d) => {
+                  const max = Math.max(...OPS_WEEK.map((x) => x.cleans + x.maint));
+                  const cleanH = (d.cleans / max) * 100;
+                  const maintH = (d.maint / max) * 100;
+                  return (
+                    <div
+                      key={d.day}
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: 4,
+                        height: '100%',
+                      }}
+                    >
+                      <div
+                        style={{
+                          flex: 1,
+                          width: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'flex-end',
+                        }}
+                      >
+                        <div
+                          style={{
+                            background: 'var(--color-text-warning)',
+                            height: `${maintH}%`,
+                            minHeight: d.maint ? 2 : 0,
+                          }}
+                        />
+                        <div
+                          style={{
+                            background: 'var(--color-brand-accent)',
+                            height: `${cleanH}%`,
+                            minHeight: d.cleans ? 2 : 0,
+                          }}
+                        />
+                      </div>
+                      <div
+                        className="mono"
+                        style={{
+                          fontSize: 11,
+                          color: d.today
+                            ? 'var(--color-brand-accent)'
+                            : 'var(--color-text-tertiary)',
+                          fontWeight: d.today ? 500 : 400,
+                        }}
+                      >
+                        {d.day}
+                      </div>
+                      <div className="mono" style={{ fontSize: 10 }}>
+                        {d.cleans + d.maint}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ display: 'flex', gap: 16, fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span
+                    style={{ width: 10, height: 10, background: 'var(--color-brand-accent)' }}
+                  />
+                  Cleanings
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span
+                    style={{ width: 10, height: 10, background: 'var(--color-text-warning)' }}
+                  />
+                  Maintenance
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+        {tab === 'all' && (
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title">All maintenance tickets</div>
+              <div className="card-subtitle">{OPS_TICKETS.length} open</div>
+            </div>
+            {OPS_TICKETS.map((t, i) => (
+              <div key={i} className="row">
+                <span className={'dot ' + t.urgency} />
+                <div style={{ flex: 1 }}>
+                  <div className="row-primary">{t.title}</div>
+                  <div className="row-meta">
+                    <span>{t.prop}</span>
+                    <span className="sep">·</span>
+                    <span>Alex</span>
+                    <span className="sep">·</span>
+                    <span>opened 2d ago</span>
+                  </div>
+                </div>
+                <span
+                  className={
+                    'chip ' + (t.urgency === 'red' ? 'warn' : t.urgency === 'amber' ? 'warn' : '')
+                  }
+                >
+                  {t.urgency === 'red' ? 'urgent' : t.urgency === 'amber' ? 'priority' : 'routine'}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        {tab === 'roster' && (
+          <div className="card">
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '2fr 1.2fr 1.6fr 0.8fr 0.8fr 0.8fr',
+                gap: 12,
+                padding: '10px 16px',
+                borderBottom: '0.5px solid var(--color-border-tertiary)',
+                fontSize: 11,
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                color: 'var(--color-text-tertiary)',
+              }}
+            >
+              <span>Member</span>
+              <span>Role</span>
+              <span>Properties</span>
+              <span>Today</span>
+              <span>Week</span>
+              <span>Status</span>
+            </div>
+            {OPS_ROSTER.map((r, i) => (
+              <div
+                key={i}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '2fr 1.2fr 1.6fr 0.8fr 0.8fr 0.8fr',
+                  gap: 12,
+                  padding: '14px 16px',
+                  borderBottom: '0.5px solid var(--color-border-tertiary)',
+                  alignItems: 'center',
+                  fontSize: 13,
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span className="avatar sm">{r.name[0]}</span>
+                  <span style={{ fontWeight: 500 }}>{r.name}</span>
+                </div>
+                <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>{r.role}</span>
+                <span
+                  className="mono"
+                  style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}
+                >
+                  {r.props.join(' · ')}
+                </span>
+                <span className="mono">{r.today}</span>
+                <span className="mono">{r.week}</span>
+                <span className={'chip ' + (r.status === 'on-duty' ? 'info' : '')}>
+                  {r.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+export function OwnersModule() {
+  const [tab, setTab] = useState('all');
+  const [sel, setSel] = useState<string | null>(null);
+  const tabs = [
+    { id: 'all', label: 'All owners' },
+    { id: 'statements', label: 'Statements' },
+    { id: 'payouts', label: 'Payouts' },
+    { id: 'documents', label: 'Documents' },
+  ];
+  if (sel) {
+    const owner = OWNERS.find((o) => o.name === sel);
+    if (owner) return <OwnerDetail owner={owner} onBack={() => setSel(null)} />;
+  }
+  return (
+    <>
+      <ModuleHeader
+        title="Owners"
+        subtitle="Owner relationships and monthly statements"
+        tabs={tabs}
+        activeTab={tab}
+        onTabChange={setTab}
+      />
+      
+      <div className="fad-module-body">
+        <div className="card">
+          {OWNERS.map((o, i) => (
+            <div key={i} className="row" onClick={() => setSel(o.name)}>
+              <div style={{ flex: 1 }}>
+                <div className="row-primary">{o.name}</div>
+                <div className="row-meta">
+                  {o.props} properties · YTD {o.ytd} · next statement {o.next}
+                </div>
+              </div>
+              <span className={'chip ' + (o.status === 'renewal' ? 'warn' : 'info')}>
+                {o.status}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function OwnerDetail({ owner, onBack }: { owner: (typeof OWNERS)[number]; onBack: () => void }) {
+  return (
+    <>
+      <div className="fad-module-header">
+        <div className="fad-module-header-main">
+          <button className="btn ghost sm" onClick={onBack} style={{ marginBottom: 8 }}>
+            ← All owners
+          </button>
+          <h1 className="fad-module-title">{owner.name}</h1>
+          <div className="fad-module-subtitle">
+            {owner.props} {owner.props === 1 ? 'property' : 'properties'} · YTD {owner.ytd}
+          </div>
+        </div>
+        <div className="fad-module-actions">
+          <button className="btn sm">Send statement</button>
+          <button className="btn primary sm">New payout</button>
+        </div>
+      </div>
+      <div className="fad-module-body">
+        <div className="kpi-grid">
+          <div className="kpi">
+            <div className="kpi-label">YTD gross</div>
+            <div className="kpi-value">{owner.ytd}</div>
+            <div className="kpi-sub">across {owner.props} prop</div>
+          </div>
+          <div className="kpi">
+            <div className="kpi-label">Next statement</div>
+            <div className="kpi-value">{owner.next}</div>
+            <div className="kpi-sub">auto-send enabled</div>
+          </div>
+          <div className="kpi">
+            <div className="kpi-label">Agreement status</div>
+            <div className="kpi-value" style={{ fontSize: 18 }}>
+              {owner.status}
+            </div>
+            <div className="kpi-sub">review window open</div>
+          </div>
+          <div className="kpi">
+            <div className="kpi-label">Docs on file</div>
+            <div className="kpi-value">4</div>
+            <div className="kpi-sub">contract + KYC</div>
+          </div>
+        </div>
+        <div className="two-col">
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title">Recent statements</div>
+              <div className="card-subtitle">last 3 months</div>
+            </div>
+            <div className="row">
+              <div style={{ flex: 1 }}>
+                <div className="row-primary">Mar 2026</div>
+                <div className="row-meta">gross €38,400 · fees €9,960 · net €28,440</div>
+              </div>
+              <span className="chip info">settled</span>
+            </div>
+            <div className="row">
+              <div style={{ flex: 1 }}>
+                <div className="row-primary">Feb 2026</div>
+                <div className="row-meta">gross €33,200 · fees €8,632 · net €24,568</div>
+              </div>
+              <span className="chip info">settled</span>
+            </div>
+            <div className="row">
+              <div style={{ flex: 1 }}>
+                <div className="row-primary">Jan 2026</div>
+                <div className="row-meta">gross €28,400 · fees €7,384 · net €21,016</div>
+              </div>
+              <span className="chip info">settled</span>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title">Contact</div>
+            </div>
+            <div className="card-body" style={{ fontSize: 13, lineHeight: 1.7 }}>
+              <div>
+                <span style={{ color: 'var(--color-text-tertiary)' }}>Primary:</span> David Cohen
+              </div>
+              <div>
+                <span style={{ color: 'var(--color-text-tertiary)' }}>Email:</span> david@nitzana.co
+              </div>
+              <div>
+                <span style={{ color: 'var(--color-text-tertiary)' }}>Partner since:</span> Mar 2024
+              </div>
+              <div style={{ marginTop: 8, fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                Premium tier — high-touch. Soft launch Apr; full calendar open May.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+interface PitchSpec {
+  icon: string;
+  title: string;
+  ship: string;
+  tagline: string;
+  features: { icon: string; title: string; desc: string }[];
+}
+
+const PITCH_SPECS: Record<string, PitchSpec> = {
+  reviews: {
+    icon: 'IconReviews',
+    title: 'Guest reviews',
+    ship: 'soon',
+    tagline:
+      'Reviews scattered across Airbnb, Booking and direct — no unified view, slow SLA. One inbox, AI-drafted replies in brand voice, sentiment per property.',
+    features: [
+      { icon: 'IconMail', title: 'Unified inbox', desc: 'All channels — Airbnb, Booking, Google, direct — in one stream with keyboard-first triage.' },
+      { icon: 'IconAI', title: 'AI-drafted replies', desc: 'Friday drafts replies honoring your tone and property-specific talking points. You review and send.' },
+      { icon: 'IconChart', title: 'Sentiment per property', desc: 'Trend lines per listing so you spot soft spots before they cost stars.' },
+      { icon: 'IconBell', title: 'SLA alerts', desc: 'Low-score or negative reviews ping you within minutes — inside Inbox, not buried in tabs.' },
+    ],
+  },
+  guests: {
+    icon: 'IconGuests',
+    title: 'Guests',
+    ship: "Jul '26",
+    tagline:
+      'A proper guest profile — every stay, every conversation, every preference — so Friday can personalize and your team never re-asks.',
+    features: [
+      { icon: 'IconBook', title: 'Unified guest profile', desc: 'Consolidated across OTAs by name, email, phone — stays, spend, preferences, language.' },
+      { icon: 'IconChat', title: 'Conversation history', desc: 'Every thread ever exchanged with a guest, across any property and any channel.' },
+      { icon: 'IconPin', title: 'Preferences memory', desc: "Notes, allergies, kids' ages, early check-in tendencies — Friday recalls on the next booking." },
+      { icon: 'IconUsers', title: 'Returning guest flags', desc: 'See at a glance which inquiries are from past guests so you can prioritize accordingly.' },
+    ],
+  },
+  marketing: {
+    icon: 'IconMkt',
+    title: 'Marketing',
+    ship: "Aug '26",
+    tagline:
+      'Channel mix, campaign attribution and direct-booking growth — the activities Nitzana expects of a premium partner.',
+    features: [
+      { icon: 'IconSpark', title: 'Campaigns', desc: 'Seasonal offers and packages scheduled across email, social and the direct site — one place.' },
+      { icon: 'IconChart', title: 'Channel attribution', desc: 'See which sources actually convert to stays, not just clicks. Spend allocation follows.' },
+      { icon: 'IconMail', title: 'Lifecycle emails', desc: 'Welcome, mid-stay, review-ask, winback — templated and triggered on real reservation events.' },
+      { icon: 'IconPin', title: 'Direct-booking growth', desc: 'Landing pages, discount codes and tracking so direct stays grow past 22%.' },
+    ],
+  },
+  leads: {
+    icon: 'IconLeads',
+    title: 'Leads / CRM-lite',
+    ship: 'soon',
+    tagline:
+      "Nitzana's urgent ask: a pipeline for inbound property inquiries — owners, co-investors, B2B — without adopting a heavy CRM.",
+    features: [
+      { icon: 'IconUsers', title: 'Pipeline stages', desc: 'Inquiry → qualifying → meeting → proposal → won/lost. Drag cards across, or keyboard-triage.' },
+      { icon: 'IconMail', title: 'Conversation sync', desc: 'Phase 2 unifies Inbox: lead threads live next to guest threads, polymorphic contact_ref.' },
+      { icon: 'IconBook', title: 'Notes + follow-ups', desc: 'Structured notes, next-step dates, owners. Friday nudges what went quiet.' },
+      { icon: 'IconChart', title: 'Pipeline metrics', desc: 'Throughput, stage dwell time, win-rate by source. Quiet reports, nothing ambient.' },
+    ],
+  },
+  intelligence: {
+    icon: 'IconIntel',
+    title: 'Intelligence',
+    ship: "Aug '26",
+    tagline:
+      'Operational telemetry and portfolio reports — the "question Friday can answer" surface. Quiet by default, depth on request.',
+    features: [
+      { icon: 'IconChart', title: 'Portfolio health', desc: 'Occupancy, ADR, RevPAR, guest-sat trend per property. A single glance, not a dashboard to maintain.' },
+      { icon: 'IconSpark', title: 'Question-first', desc: 'Ask Friday any ops question — Friday tool-calls the data layer and renders a scoped view.' },
+      { icon: 'IconMail', title: 'Morning digest', desc: 'One cached call per user per morning — the three things worth knowing. Never ambient polling.' },
+      { icon: 'IconBook', title: 'Exportable reports', desc: 'PDF and CSV at month-end for owner reviews and board packs.' },
+    ],
+  },
+};
+
+export function PitchModule({ mod }: { mod: ModuleDef }) {
+  const spec = PITCH_SPECS[mod.id];
+  if (!spec) {
+    return <div className="fad-module-body">Pitch spec not found.</div>;
+  }
+  const HeroIcon = iconFor(spec.icon);
+  return (
+    <>
+      <ModuleHeader title={spec.title} subtitle="Vision preview · feature overview" />
+      <div className="fad-module-body" style={{ flex: 1, overflowY: 'auto' }}>
+        <div className="pitch-wrap">
+          <div className="pitch-hero">
+            <div className="pitch-icon">
+              <HeroIcon size={32} />
+            </div>
+            <div>
+              <h2>
+                {spec.title}{' '}
+                <span className={'chip ' + (spec.ship === 'soon' ? 'info' : '')}>{spec.ship}</span>
+              </h2>
+              <p className="pitch-tagline">{spec.tagline}</p>
+            </div>
+          </div>
+          <div className="pitch-grid">
+            {spec.features.map((f, i) => {
+              const FI = iconFor(f.icon);
+              return (
+                <div key={i} className="pitch-feature">
+                  <div className="pitch-feature-icon">
+                    <FI size={16} />
+                  </div>
+                  <h4>{f.title}</h4>
+                  <p>{f.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+          <div className="pitch-cta">
+            <button className="btn primary">Notify me when live</button>
+            <button className="btn">View roadmap</button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+interface TeaseSpec {
+  tagline: string;
+  description: string;
+  entities: { name: string; desc: string }[];
+  tabs: string[];
+  users: string;
+  integration: string;
+}
+
+const TEASE_SPECS: Record<string, TeaseSpec> = {
+  syndic: {
+    tagline: 'Shared-building management for co-owned properties',
+    description:
+      'Assemblies, dues, votes, vendor coordination. The funnel upstream of Owner: we sign a building as syndic, then pitch individual unit owners into Friday-managed rentals.',
+    entities: [
+      { name: 'Buildings', desc: 'physical assets under syndic' },
+      { name: 'Units', desc: 'individual apartments, owner-mapped' },
+      { name: 'Assemblies', desc: 'general meetings · minutes · attendance' },
+      { name: 'Dues ledger', desc: 'monthly fees · arrears · collections' },
+      { name: 'Votes', desc: 'motions · quorum · results' },
+    ],
+    tabs: ['Buildings', 'Dues', 'Assemblies', 'Owner directory'],
+    users: 'Friday staff first. Phase 2: unit owners get read-only portal (building-scoped).',
+    integration:
+      'Unit owners reuse the contacts table. Building-tagged Inbox threads. "Managed units" conversion tracker (Syndic → Owner → Managed funnel).',
+  },
+  interior: {
+    tagline: 'Interior design + furnishing services productized',
+    description:
+      'The Ohana House-style work as a repeatable business unit. Starts with Friday-managed owners — mood-board a refresh, project-manage the fit-out, track spend vs budget — and expands to third-party clients in Phase 2.',
+    entities: [
+      { name: 'Projects', desc: 'briefs · timelines · budgets' },
+      { name: 'Mood boards', desc: 'visual direction · client sign-off' },
+      { name: 'Vendors', desc: 'carpenters · textiles · lighting · imports' },
+      { name: 'Fit-out milestones', desc: 'gantt · dependencies · status' },
+      { name: 'Financials', desc: 'spend vs budget · invoicing · margin' },
+    ],
+    tabs: ['Active projects', 'Vendor directory', 'Past projects', 'Financials'],
+    users:
+      'Ishant + Franny internal. Per-project client-view link for owner (read-only: brief, mood board, milestone status, spend vs budget).',
+    integration:
+      'Project ↔ Property. Owner = Owner contact. Auto-create Operations tasks on managed-property projects.',
+  },
+  agency: {
+    tagline: 'Real estate agency arm — listings + transactions',
+    description:
+      'Listings, showings, comparables, offers. Thin scaffold until 2028 — Ishant-only, Notion-depth. Scope dependent on 2027 strategic review.',
+    entities: [
+      { name: 'Listings', desc: 'properties for sale · asking · days on market' },
+      { name: 'Interested parties', desc: 'buyers · tenants · investors' },
+      { name: 'Comparables', desc: 'market data · sqm pricing · trend' },
+    ],
+    tabs: ['Active listings', 'Past transactions', 'Market comps'],
+    users: 'Ishant only until 2028.',
+    integration:
+      'Listings ↔ Properties (or external-property records). Interested parties = contacts table. Notion-scratchpad-thin for 2026.',
+  },
+};
+
+export function TeaseModule({ mod }: { mod: ModuleDef }) {
+  const I = iconFor(mod.icon);
+  const spec = TEASE_SPECS[mod.id];
+  if (!spec) {
+    return (
+      <div className="fad-module-body">
+        <div className="tease-wrap">
+          <div className="tease-icon">
+            <I size={24} />
+          </div>
+          <h2 className="tease-title">
+            {mod.label} <span className="chip">{mod.ship}</span>
+          </h2>
+          <p className="tease-desc">Coming later.</p>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <>
+      <ModuleHeader title={mod.label} subtitle={spec.tagline} />
+      <div className="fad-module-body" style={{ flex: 1, overflowY: 'auto' }}>
+        <div className="pitch-wrap">
+          <div className="pitch-hero">
+            <div className="pitch-icon">
+              <I size={32} />
+            </div>
+            <div>
+              <h2>
+                {mod.label}{' '}
+                <span
+                  className="chip"
+                  style={{
+                    borderStyle: 'dashed',
+                    background: 'transparent',
+                  }}
+                >
+                  {mod.ship}
+                </span>
+              </h2>
+              <p className="pitch-tagline">{spec.description}</p>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 32 }}>
+            <div
+              style={{
+                fontSize: 11,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                color: 'var(--color-text-tertiary)',
+                marginBottom: 10,
+              }}
+            >
+              Planned tabs
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                gap: 2,
+                borderBottom: '0.5px solid var(--color-border-tertiary)',
+                opacity: 0.7,
+              }}
+            >
+              {spec.tabs.map((t, i) => (
+                <div
+                  key={t}
+                  className={'fad-tab' + (i === 0 ? ' active' : '')}
+                  style={{ cursor: 'default' }}
+                >
+                  {t}
+                </div>
+              ))}
+            </div>
+            <div
+              className="card"
+              style={{
+                padding: 32,
+                textAlign: 'center',
+                color: 'var(--color-text-tertiary)',
+                fontSize: 13,
+                borderStyle: 'dashed',
+                background: 'transparent',
+              }}
+            >
+              Lands {mod.ship} · scaffolded UI illustrates structure only
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 32 }}>
+            <div
+              style={{
+                fontSize: 11,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                color: 'var(--color-text-tertiary)',
+                marginBottom: 10,
+              }}
+            >
+              Key entities
+            </div>
+            <div className="pitch-grid">
+              {spec.entities.map((e, i) => (
+                <div key={i} className="pitch-feature">
+                  <div className="pitch-feature-icon">
+                    <I size={16} />
+                  </div>
+                  <h4>{e.name}</h4>
+                  <p>{e.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="two-col" style={{ marginBottom: 32 }}>
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Users</div>
+              </div>
+              <div className="card-body" style={{ fontSize: 13, lineHeight: 1.55 }}>
+                {spec.users}
+              </div>
+            </div>
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">Integration with FAD</div>
+              </div>
+              <div className="card-body" style={{ fontSize: 13, lineHeight: 1.55 }}>
+                {spec.integration}
+              </div>
+            </div>
+          </div>
+
+          <div className="pitch-cta">
+            <button className="btn primary">Notify me when live</button>
+            <button className="btn">View roadmap</button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
