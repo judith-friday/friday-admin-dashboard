@@ -150,6 +150,16 @@ export interface Property {
   /** Maintenance spend cap override in MUR minor. Undefined = inherit from contract.
    *  Per T&Cs: Rs 2,500 OR 10% of booking, whichever applies (Finance/Owner contract owns). */
   maintenanceCapOverrideMinor?: number;
+  /** Friday-Owner contract block (signing party = primaryOwner). */
+  contract?: {
+    status: 'active' | 'pending' | 'renewal_due' | 'expired';
+    commissionPct: number;
+    paymentDay: number;
+    /** Renewal date (display only). */
+    endsAt?: string;
+    /** Cross-link to Legal/Admin → Xodo Sign envelope. */
+    xodoEnvelopeId?: string;
+  };
 
   // Listings
   listings: ListingRecord[];
@@ -810,6 +820,28 @@ export function checklistProgress(p: Property): { done: number; total: number; p
   const total = ONBOARDING_REQUIRED.length;
   const done = ONBOARDING_REQUIRED.filter((k) => p.onboardingChecklist[k] === 'complete').length;
   return { done, total, pct: Math.round((done / total) * 100) };
+}
+
+// ───────────────── Contract helper ─────────────────
+
+/** Returns the property's contract, falling back to a sensible default for
+ *  Phase 1 fixtures that don't carry one. Real contract data lands when
+ *  Owners module + Legal/Admin Xodo integration ships. */
+export function getContract(p: Property): Required<NonNullable<Property['contract']>> | { status: 'pending'; commissionPct: 0; paymentDay: 0 } {
+  if (p.contract) {
+    return {
+      status: p.contract.status,
+      commissionPct: p.contract.commissionPct,
+      paymentDay: p.contract.paymentDay,
+      endsAt: p.contract.endsAt ?? '—',
+      xodoEnvelopeId: p.contract.xodoEnvelopeId ?? '—',
+    };
+  }
+  if (p.lifecycleStatus === 'onboarding') {
+    return { status: 'pending', commissionPct: 0, paymentDay: 0 };
+  }
+  // Reasonable Phase 1 default for live properties without explicit contract data.
+  return { status: 'active', commissionPct: 20, paymentDay: 3, endsAt: '2027-12-31', xodoEnvelopeId: 'xodo-default' };
 }
 
 // ───────────────── Owners (N:M) ─────────────────

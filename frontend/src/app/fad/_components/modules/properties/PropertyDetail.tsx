@@ -8,10 +8,18 @@ import {
   checklistProgress,
   isOnboardingComplete,
   LISTING_CHANNEL_LABEL,
+  PROPERTY_CARD_CATEGORY_LABEL,
+  cardsForProperty,
+  activityForProperty,
+  ownersOfProperty,
+  getContract,
   type Property,
+  type PropertyCard,
+  type PropertyCardCategory,
 } from '../../../_data/properties';
 import { COHORT_LABEL } from '../../../_data/reviews';
 import { FIN_OWNERS } from '../../../_data/finance';
+import { RESERVATIONS } from '../../../_data/reservations';
 import { useCurrentRole } from '../../usePermissions';
 
 interface Props {
@@ -33,15 +41,8 @@ const TABS = [
 /** Role-based tab gating per scoping pack §6. */
 function visibleTabsFor(role: string): string[] {
   if (role === 'field') {
-    // Contributor: Identity & Layout / Operational / Reservations / Activity. No Financial / Owner.
     return ['overview', 'identity', 'operational', 'reservations', 'activity'];
   }
-  if (role === 'commercial_marketing' || role === 'ops_manager') {
-    // Manager: all except detailed Owner contract + commission %. Owner tab still visible
-    // (we hide the sensitive fields inside the tab in commit 2).
-    return TABS.map((t) => t.id);
-  }
-  // Director / admin
   return TABS.map((t) => t.id);
 }
 
@@ -80,13 +81,13 @@ export function PropertyDetail({ propertyCode, onClose }: Props) {
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
         {tab === 'overview' && <OverviewTab property={property} />}
-        {tab === 'identity' && <StubTab title="Identity & Layout" hint="Photo gallery, rooms & beds, max occupancy, listing type, sqm, building name, full + published address, geo, multi-unit group membership." />}
-        {tab === 'owner' && <StubTab title="Owner" hint="Linked owner record(s) with ownership %, contract status, commission %, payment day, contract document link (Legal/Admin → Xodo Sign), maintenance spend cap." />}
-        {tab === 'operational' && <StubTab title="Operational" hint="Property Cards (8 categories · AI-knowledge surface), key systems, time-gated access codes, wifi (team view), syndic flag + cross-link, cleaner / inspector / maintenance defaults from Breezeway." />}
-        {tab === 'financial' && <StubTab title="Financial" hint="Per-property revenue YTD, payout YTD, owner balance, recent transactions, tourist tax collected. Role-gated." />}
-        {tab === 'listings' && <StubTab title="Listings" hint="Per-channel listing IDs + status (Airbnb / Booking / VRBO / friday.mu), descriptions per channel, channel-specific photo subset, Guesty Accounting Dimensions, channel-specific commissions and markups." />}
-        {tab === 'reservations' && <StubTab title="Reservations" hint="Recent + upcoming list, cross-link to Reservations module." />}
-        {tab === 'activity' && <StubTab title="Activity" hint="Full audit trail — onboarding step completions, lifecycle status changes, owner changes, photo updates, contract events, cross-module events." />}
+        {tab === 'identity' && <IdentityTab property={property} />}
+        {tab === 'owner' && <OwnerTab property={property} role={role} />}
+        {tab === 'operational' && <OperationalTab property={property} role={role} />}
+        {tab === 'financial' && <FinancialTab property={property} role={role} />}
+        {tab === 'listings' && <ListingsTab property={property} />}
+        {tab === 'reservations' && <ReservationsTab property={property} />}
+        {tab === 'activity' && <ActivityTab property={property} />}
       </div>
     </aside>
   );
@@ -140,6 +141,8 @@ function PropertyDetailHeader({ property, onClose }: { property: Property; onClo
     </div>
   );
 }
+
+// ───────────────── Tab: Overview ─────────────────
 
 function OverviewTab({ property }: { property: Property }) {
   return (
@@ -199,6 +202,465 @@ function OverviewTab({ property }: { property: Property }) {
   );
 }
 
+// ───────────────── Tab: Identity & Layout ─────────────────
+
+function IdentityTab({ property }: { property: Property }) {
+  const photoIds = property.photoIds.length > 0 ? property.photoIds : Array(4).fill(null).map((_, i) => `placeholder-${i}`);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <Section title="Photo gallery">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
+          {photoIds.map((pid, i) => {
+            const isHero = property.heroPhotoId === pid;
+            return (
+              <div
+                key={pid}
+                style={{
+                  aspectRatio: '4 / 3',
+                  background: 'radial-gradient(ellipse at 40% 40%, rgba(86,128,202,0.25), transparent 60%), linear-gradient(135deg, var(--color-brand-navy), #1a2855)',
+                  borderRadius: 'var(--radius-sm)',
+                  position: 'relative',
+                  border: isHero ? '1.5px solid var(--color-brand-accent)' : '0.5px solid var(--color-border-tertiary)',
+                }}
+              >
+                {isHero && <span className="chip info" style={{ position: 'absolute', top: 6, left: 6, fontSize: 10 }}>Hero</span>}
+                <span className="mono" style={{ position: 'absolute', bottom: 6, right: 6, fontSize: 9, color: 'rgba(255,255,255,0.5)' }}>#{i + 1}</span>
+              </div>
+            );
+          })}
+        </div>
+        <p style={{ margin: '8px 0 0', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+          {property.photoIds.length === 0 ? 'No photos uploaded yet.' : `${property.photoIds.length} photo${property.photoIds.length === 1 ? '' : 's'} · drag to reorder · hero badged.`}
+        </p>
+      </Section>
+
+      <Section title="Layout">
+        <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 8, fontSize: 13 }}>
+          <Label>Type</Label><div style={{ textTransform: 'capitalize' }}>{property.listingType}</div>
+          <Label>Bedrooms</Label><div>{property.bedrooms === 0 ? 'Studio' : property.bedrooms}</div>
+          {property.bathrooms !== undefined && <><Label>Bathrooms</Label><div>{property.bathrooms}</div></>}
+          <Label>Max occupancy</Label><div>{property.maxOccupancy}</div>
+          {property.sqm !== undefined && <><Label>Floor area</Label><div>{property.sqm} m²</div></>}
+          {property.buildingName && <><Label>Building</Label><div>{property.buildingName}</div></>}
+        </div>
+      </Section>
+
+      <Section title="Address">
+        <div style={{ fontSize: 13 }}>{property.address}</div>
+        <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 4 }}>
+          Region: {COHORT_LABEL[property.region]} · Sub-region: {property.area}
+        </div>
+        {property.geo && (
+          <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginTop: 4 }} className="mono">
+            {property.geo.lat.toFixed(4)}, {property.geo.lng.toFixed(4)}
+          </div>
+        )}
+      </Section>
+
+      {(property.parentPropertyId || property.isCombo) && (
+        <Section title="Multi-unit group">
+          {property.parentPropertyId && (
+            <div style={{ fontSize: 13 }}>
+              Part of: <span className="mono">{PROPERTY_BY_ID[property.parentPropertyId]?.code}</span> · {PROPERTY_BY_ID[property.parentPropertyId]?.name}
+            </div>
+          )}
+          {property.isCombo && property.componentPropertyIds && (
+            <div style={{ fontSize: 13 }}>
+              Combo of: {property.componentPropertyIds.map((cid) => (
+                <span key={cid} className="mono" style={{ marginRight: 8 }}>{PROPERTY_BY_ID[cid]?.code}</span>
+              ))}
+              <p style={{ margin: '6px 0 0', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+                Calendar dependency managed via Guesty Smart Calendar Rules. FAD reads.
+              </p>
+            </div>
+          )}
+        </Section>
+      )}
+    </div>
+  );
+}
+
+// ───────────────── Tab: Owner ─────────────────
+
+function OwnerTab({ property, role }: { property: Property; role: string }) {
+  const owners = ownersOfProperty(property.id);
+  const contract = getContract(property);
+  const showSensitive = role === 'director';
+  const showCapPresence = role === 'commercial_marketing' || role === 'ops_manager' || role === 'director';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <Section title="Owners">
+        {owners.map((po) => {
+          const owner = FIN_OWNERS.find((o) => o.id === po.ownerId);
+          if (!owner) return null;
+          return (
+            <div key={po.ownerId} className="card" style={{ padding: 14, marginBottom: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <strong style={{ fontSize: 14 }}>{owner.name}</strong>
+                {po.isPrimary && <span className="chip sm info">Primary</span>}
+                <span style={{ marginLeft: 'auto', fontSize: 13 }}><strong>{po.ownershipPct}%</strong> ownership</span>
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                <span>Language: {owner.language.toUpperCase()}</span>
+                <span className="mono">{owner.whatsapp}</span>
+              </div>
+              <button
+                className="btn ghost sm"
+                style={{ marginTop: 8 }}
+                onClick={() => { window.location.href = `/fad?m=owners`; }}
+              >
+                Open in Owners →
+              </button>
+            </div>
+          );
+        })}
+      </Section>
+
+      <Section title="Contract">
+        <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 8, fontSize: 13 }}>
+          <Label>Status</Label>
+          <div>
+            <span className={`chip sm ${contract.status === 'active' ? 'info' : contract.status === 'renewal_due' ? 'warn' : ''}`}>{contract.status.replace('_', ' ')}</span>
+          </div>
+          {showSensitive ? (
+            <>
+              <Label>Commission</Label><div><strong>{contract.commissionPct}%</strong></div>
+              <Label>Payment day</Label><div>Day {contract.paymentDay} of month</div>
+              {'endsAt' in contract && contract.endsAt && contract.endsAt !== '—' && <><Label>Renewal</Label><div>{contract.endsAt}</div></>}
+              {'xodoEnvelopeId' in contract && contract.xodoEnvelopeId && contract.xodoEnvelopeId !== '—' && (
+                <>
+                  <Label>Xodo envelope</Label>
+                  <div className="mono" style={{ fontSize: 11 }}>{contract.xodoEnvelopeId}</div>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <Label>Commission</Label><div style={{ color: 'var(--color-text-tertiary)' }}>· hidden ·</div>
+              <Label>Payment day</Label><div style={{ color: 'var(--color-text-tertiary)' }}>· hidden ·</div>
+            </>
+          )}
+        </div>
+        <p style={{ margin: '12px 0 0', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+          Contract document lives in Legal/Admin (Xodo Sign envelope). Phase 2: deep-link to Xodo viewer.
+        </p>
+      </Section>
+
+      {showCapPresence && (
+        <Section title="Maintenance spend cap">
+          {showSensitive ? (
+            <p style={{ margin: 0, fontSize: 13 }}>
+              <strong>Rs 2,500 OR 10% of booking</strong>, whichever applies per Owner contract terms (T&Cs).
+              {property.maintenanceCapOverrideMinor !== undefined && (
+                <> Override: <strong>Rs {(property.maintenanceCapOverrideMinor / 100).toLocaleString()}</strong>.</>
+              )}
+            </p>
+          ) : (
+            <p style={{ margin: 0, fontSize: 13, color: 'var(--color-text-tertiary)' }}>
+              Cap configured · amount visible to Director only.
+            </p>
+          )}
+          <p style={{ margin: '6px 0 0', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+            Properties surfaces this read-only · Finance / Owner contract owns enforcement.
+          </p>
+        </Section>
+      )}
+    </div>
+  );
+}
+
+// ───────────────── Tab: Operational ─────────────────
+
+function OperationalTab({ property, role }: { property: Property; role: string }) {
+  const cards = useMemo(() => cardsForProperty(property.id, { includeGlobal: true }), [property.id]);
+  const cardsByCategory = useMemo(() => {
+    const map: Partial<Record<PropertyCardCategory, PropertyCard[]>> = {};
+    cards.forEach((c) => { (map[c.category] = map[c.category] ?? []).push(c); });
+    return map;
+  }, [cards]);
+
+  const isFieldRole = role === 'field';
+  // Time-gated access codes: if Field, would only show on day-of-task-at-property in real product.
+  // For Phase 1 mock, show with a notice.
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <Section title="Property Cards · AI-knowledge surface">
+        <p style={{ margin: '0 0 12px', fontSize: 12, color: 'var(--color-text-tertiary)' }}>
+          {cards.length} card{cards.length === 1 ? '' : 's'} · 8 categories · consumed by Ask Friday for guest / cleaner / team queries.
+        </p>
+        {Object.entries(PROPERTY_CARD_CATEGORY_LABEL).map(([cat, catLabel]) => {
+          const items = cardsByCategory[cat as PropertyCardCategory] ?? [];
+          if (items.length === 0) return null;
+          return (
+            <div key={cat} style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--color-text-tertiary)', marginBottom: 6 }}>
+                {catLabel}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {items.map((c) => (
+                  <CardRow key={c.id} card={c} accessTimeGated={isFieldRole && c.category === 'access'} />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+        {cards.length === 0 && (
+          <p style={{ margin: 0, fontSize: 12, color: 'var(--color-text-tertiary)', fontStyle: 'italic' }}>
+            No Property Cards yet. Add one to bootstrap AI knowledge.
+          </p>
+        )}
+      </Section>
+
+      <Section title="Defaults from Breezeway">
+        <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 8, fontSize: 13 }}>
+          <Label>Cleaner</Label><div style={{ color: 'var(--color-text-tertiary)' }}>· read-from Breezeway · Phase 2 ·</div>
+          <Label>Inspector</Label><div style={{ color: 'var(--color-text-tertiary)' }}>· read-from Breezeway · Phase 2 ·</div>
+          <Label>Maintenance</Label><div style={{ color: 'var(--color-text-tertiary)' }}>· read-from Breezeway · Phase 2 ·</div>
+        </div>
+      </Section>
+
+      {property.isSyndicManaged && (
+        <Section title="Syndic">
+          <p style={{ margin: 0, fontSize: 13 }}>
+            Friday Retreats acts as the syndicate for this building.
+          </p>
+          <button
+            className="btn ghost sm"
+            style={{ marginTop: 8 }}
+            onClick={() => { window.location.href = `/fad?m=syndic`; }}
+          >
+            Open in Syndic →
+          </button>
+        </Section>
+      )}
+    </div>
+  );
+}
+
+function CardRow({ card, accessTimeGated }: { card: PropertyCard; accessTimeGated: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="card" style={{ padding: 10 }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', padding: 0, cursor: 'pointer', width: '100%', textAlign: 'left' }}
+      >
+        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)' }}>{card.title}</span>
+        <span className={`chip sm ${card.surface === 'guest_facing' ? 'info' : ''}`} style={{ marginLeft: 'auto' }}>
+          {card.surface === 'guest_facing' ? 'Guest' : card.surface === 'internal_only' ? 'Internal' : 'Both'}
+        </span>
+        {card.source !== 'manual' && <span className="chip sm">{card.source.replace('_', ' ')}</span>}
+        <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>{open ? '▴' : '▾'}</span>
+      </button>
+      {open && (
+        <div style={{ marginTop: 8, padding: '8px 0', borderTop: '0.5px solid var(--color-border-tertiary)', fontSize: 12, color: 'var(--color-text-secondary)', whiteSpace: 'pre-wrap' }}>
+          {accessTimeGated ? (
+            <span style={{ color: 'var(--color-text-tertiary)', fontStyle: 'italic' }}>
+              · access details visible only on day of task at this property ·
+            </span>
+          ) : (
+            card.body
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ───────────────── Tab: Financial ─────────────────
+
+function FinancialTab({ property, role }: { property: Property; role: string }) {
+  // Mock per-property revenue using ADR + occupancy. Real numbers come from Finance Phase 2.
+  const yearlyRevenueMUR = Math.round(property.adr * 365 * property.occupancyYTD * 44); // 44 ≈ MUR per EUR
+  const payoutMUR = Math.round(yearlyRevenueMUR * (1 - 0.20 - 0.17)); // less PMC commission + Airbnb
+  const ownerBalanceMUR = Math.round(payoutMUR * 0.08); // mock float
+  const touristTaxMUR = Math.round(property.adr * 0.05 * 365 * property.occupancyYTD * 44);
+
+  const showOwnerBalance = role === 'director';
+
+  if (property.lifecycleStatus === 'onboarding') {
+    return (
+      <p style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
+        Property is in onboarding · no revenue yet. Gap-analysis purchases will surface here once Finance integration is complete.
+      </p>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <Section title="Year to date">
+        <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
+          <Stat label="Revenue YTD" value={`Rs ${(yearlyRevenueMUR).toLocaleString()}`} />
+          <Stat label="Payout YTD" value={`Rs ${(payoutMUR).toLocaleString()}`} />
+          {showOwnerBalance && <Stat label="Owner balance" value={`Rs ${(ownerBalanceMUR).toLocaleString()}`} />}
+          <Stat label="Tourist tax collected" value={`Rs ${(touristTaxMUR).toLocaleString()}`} />
+        </div>
+        <p style={{ margin: '8px 0 0', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+          Mock · derived from occupancy × ADR × WAR rate. Real numbers source from FinanceModule period close · Phase 2.
+        </p>
+      </Section>
+
+      <Section title="Recent transactions">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <TxRow desc="Channel payout — Airbnb · April batch" amount="+ Rs 184,200" date="2026-04-26" />
+          <TxRow desc="Owner statement — March release" amount="− Rs 64,400" date="2026-04-03" />
+          <TxRow desc="Maintenance · A/C service · Mathias 2hr" amount="− Rs 1,500" date="2026-04-15" />
+          <TxRow desc="Tourist tax remittance · March" amount="− Rs 8,820" date="2026-04-07" />
+        </div>
+        <button className="btn ghost sm" style={{ marginTop: 12 }} onClick={() => { window.location.href = `/fad?m=finance&sub=transactions`; }}>
+          Open in Finance →
+        </button>
+      </Section>
+    </div>
+  );
+}
+
+function TxRow({ desc, amount, date }: { desc: string; amount: string; date: string }) {
+  const isPositive = amount.startsWith('+');
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, padding: '6px 0', borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
+      <span style={{ flex: 1 }}>{desc}</span>
+      <span className="mono" style={{ color: 'var(--color-text-tertiary)', fontSize: 11 }}>{date}</span>
+      <span className="mono" style={{ width: 110, textAlign: 'right', color: isPositive ? 'var(--color-text-success)' : 'var(--color-text-primary)' }}>{amount}</span>
+    </div>
+  );
+}
+
+// ───────────────── Tab: Listings ─────────────────
+
+function ListingsTab({ property }: { property: Property }) {
+  if (property.listings.length === 0) {
+    return (
+      <p style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
+        No active listings. Listings push during onboarding (Listing Setup artifact).
+      </p>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <Section title="Per-channel listings">
+        <p style={{ margin: '0 0 12px', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+          Read-only Phase 1 · Phase 2 enables write-through to Guesty.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {property.listings.map((l) => (
+            <div key={l.channel + l.externalId} className="card" style={{ padding: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <strong style={{ fontSize: 13 }}>{LISTING_CHANNEL_LABEL[l.channel]}</strong>
+                <span className={`chip sm ${l.status === 'active' ? 'info' : l.status === 'paused' ? 'warn' : ''}`}>{l.status}</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 6, fontSize: 12 }}>
+                <Label>Listing ID</Label><div className="mono" style={{ fontSize: 11 }}>{l.externalId}</div>
+                {l.commissionPct !== undefined && <><Label>Commission</Label><div>{l.commissionPct}%</div></>}
+                <Label>Description</Label><div style={{ color: 'var(--color-text-tertiary)' }}>· read from Guesty Phase 1 ·</div>
+                <Label>Photo subset</Label><div style={{ color: 'var(--color-text-tertiary)' }}>· {property.photoIds.length} eligible · channel filter Phase 2 ·</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Base price">
+        <p style={{ margin: 0, fontSize: 13 }}>
+          {property.baseRateMUR > 0 ? `Rs ${(property.baseRateMUR / 100).toLocaleString()} / night` : 'Not set'}
+        </p>
+        <p style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+          Source-of-truth: Guesty pricing rules. Properties surfaces current rate.
+        </p>
+      </Section>
+
+      <Section title="Guesty Accounting Dimensions">
+        <p style={{ margin: 0, fontSize: 12, color: 'var(--color-text-tertiary)', fontStyle: 'italic' }}>
+          Read-from Guesty · Phase 2 surfaces dimension assignments here.
+        </p>
+      </Section>
+    </div>
+  );
+}
+
+// ───────────────── Tab: Reservations ─────────────────
+
+function ReservationsTab({ property }: { property: Property }) {
+  const reservations = useMemo(
+    () => RESERVATIONS.filter((r) => r.propertyCode === property.code).slice(0, 20),
+    [property.code],
+  );
+
+  if (reservations.length === 0) {
+    return (
+      <p style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
+        No reservations on file for this property.
+      </p>
+    );
+  }
+
+  const upcoming = reservations.filter((r) => r.checkIn >= '2026-04-27');
+  const past = reservations.filter((r) => r.checkIn < '2026-04-27');
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {upcoming.length > 0 && (
+        <Section title={`Upcoming (${upcoming.length})`}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {upcoming.map((r) => <RsvRow key={r.id} reservation={r} />)}
+          </div>
+        </Section>
+      )}
+      {past.length > 0 && (
+        <Section title={`Past (${past.length})`}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {past.map((r) => <RsvRow key={r.id} reservation={r} />)}
+          </div>
+        </Section>
+      )}
+    </div>
+  );
+}
+
+function RsvRow({ reservation }: { reservation: typeof RESERVATIONS[number] }) {
+  return (
+    <button
+      onClick={() => { window.location.href = `/fad?m=reservations&sub=overview&rsv=${reservation.id}`; }}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px',
+        background: 'var(--color-background-primary)', border: '0.5px solid var(--color-border-tertiary)',
+        borderRadius: 'var(--radius-sm)', cursor: 'pointer', textAlign: 'left', width: '100%', color: 'var(--color-text-primary)',
+      }}
+    >
+      <span className="mono" style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>{reservation.checkIn.slice(5)}</span>
+      <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>→ {reservation.checkOut.slice(5)}</span>
+      <span style={{ fontSize: 13, fontWeight: 500, flex: 1 }}>{reservation.guestName}</span>
+      <span className="chip sm">{reservation.channel}</span>
+      <span className={`chip sm ${reservation.status === 'confirmed' ? 'info' : reservation.status === 'cancelled' ? 'warn' : ''}`}>{reservation.status}</span>
+    </button>
+  );
+}
+
+// ───────────────── Tab: Activity ─────────────────
+
+function ActivityTab({ property }: { property: Property }) {
+  const events = useMemo(() => activityForProperty(property.id), [property.id]);
+  if (events.length === 0) {
+    return <p style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>No activity recorded.</p>;
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {events.map((e) => (
+        <div key={e.id} style={{ display: 'flex', gap: 12, padding: '8px 0', borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
+          <span className="mono" style={{ fontSize: 11, color: 'var(--color-text-tertiary)', width: 90, flexShrink: 0 }}>{e.ts.slice(0, 10)}</span>
+          <span className="chip sm" style={{ flexShrink: 0 }}>{e.kind.replace(/_/g, ' ')}</span>
+          <span style={{ fontSize: 12 }}>{e.detail}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ───────────────── Helpers ─────────────────
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
@@ -217,12 +679,8 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function StubTab({ title, hint }: { title: string; hint: string }) {
+function Label({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ padding: 32, textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
-      <h3 style={{ margin: '0 0 8px', fontSize: 14, fontWeight: 500, color: 'var(--color-text-secondary)' }}>{title}</h3>
-      <p style={{ margin: 0, fontSize: 12, maxWidth: 480, marginInline: 'auto' }}>{hint}</p>
-      <p style={{ margin: '12px 0 0', fontSize: 11, fontStyle: 'italic' }}>Lands in commit 2 of the Properties rebuild.</p>
-    </div>
+    <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{children}</div>
   );
 }
