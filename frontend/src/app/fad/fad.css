@@ -465,29 +465,6 @@ html.fad-dark .fad-dropdown { box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
   font-size: 13px;
   margin-bottom: 16px;
 }
-
-/* Per-module help button — sits next to the module title, opens
-   ModuleHelpDrawer with role-aware "what is this module" content. */
-.fad-module-help-btn {
-  width: 22px;
-  height: 22px;
-  border-radius: 11px;
-  border: 0.5px solid var(--color-border-tertiary);
-  background: var(--color-background-secondary);
-  color: var(--color-text-tertiary);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: color var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease);
-  flex-shrink: 0;
-}
-.fad-module-help-btn:hover {
-  color: var(--color-brand-accent);
-  border-color: var(--color-brand-accent);
-}
 .fad-module-actions { display: flex; align-items: center; gap: 8px; padding-bottom: 14px; }
 
 .fad-tabs {

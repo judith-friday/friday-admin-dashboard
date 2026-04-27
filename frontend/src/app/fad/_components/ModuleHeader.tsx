@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState, type ReactNode } from 'react';
-import { ModuleHelpButton, ModuleHelpDrawer } from './ModuleHelp';
+import { useState, type ReactNode } from 'react';
 
 export interface Tab {
   id: string;
@@ -16,37 +15,19 @@ interface Props {
   activeTab?: string;
   onTabChange?: (id: string) => void;
   actions?: ReactNode;
-  /** Module id used to look up help content. Optional — falls back to
-   *  generic FAD help if not provided. */
-  helpKey?: string;
 }
 
 const MOBILE_OVERFLOW_THRESHOLD = 4;
 
-export function ModuleHeader({ title, subtitle, tabs, activeTab, onTabChange, actions, helpKey }: Props) {
+export function ModuleHeader({ title, subtitle, tabs, activeTab, onTabChange, actions }: Props) {
   const [overflowOpen, setOverflowOpen] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
-  // Derive helpKey from the URL `m=` param when not explicitly passed —
-  // saves plumbing it through every module call site.
-  const [resolvedHelpKey, setResolvedHelpKey] = useState<string | undefined>(helpKey);
-  useEffect(() => {
-    if (helpKey) {
-      setResolvedHelpKey(helpKey);
-      return;
-    }
-    const m = new URLSearchParams(window.location.search).get('m');
-    if (m) setResolvedHelpKey(m);
-  }, [helpKey]);
   const showOverflow = !!tabs && tabs.length > MOBILE_OVERFLOW_THRESHOLD;
   const activeTabObj = tabs?.find((t) => t.id === activeTab);
 
   return (
     <div className="fad-module-header">
       <div className="fad-module-header-main">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <h1 className="fad-module-title">{title}</h1>
-          <ModuleHelpButton onClick={() => setHelpOpen(true)} />
-        </div>
+        <h1 className="fad-module-title">{title}</h1>
         {subtitle && <div className="fad-module-subtitle">{subtitle}</div>}
         {tabs && (
           <>
@@ -128,7 +109,6 @@ export function ModuleHeader({ title, subtitle, tabs, activeTab, onTabChange, ac
         )}
       </div>
       {actions && <div className="fad-module-actions">{actions}</div>}
-      <ModuleHelpDrawer open={helpOpen} onClose={() => setHelpOpen(false)} helpKey={resolvedHelpKey} />
     </div>
   );
 }
