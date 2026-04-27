@@ -17,6 +17,23 @@ export type InboxChannel =
   | 'vendor_driver'
   | 'vendor_chef';
 
+/** Stay status — where the guest is in the reservation lifecycle.
+ *  Drives Inbox filtering ("Currently staying", "Booked", etc.). */
+export type StayStatus = 'inquiry' | 'booked' | 'currently_staying' | 'checked_out' | 'cancelled' | 'na';
+
+/** Internal note attached to a guest/owner/vendor thread. Only visible to the team —
+ *  the external party (guest, owner, vendor) never sees these. Supports @mentions. */
+export interface InternalNote {
+  id: string;
+  threadId: string;
+  authorId: string;
+  authorName: string;
+  body: string;
+  /** TaskUser ids @mentioned in the note. */
+  mentions: string[];
+  createdAt: string;
+}
+
 export interface InboxThread {
   id: string;
   unread: boolean;
@@ -29,6 +46,12 @@ export interface InboxThread {
   channelKey: InboxChannel;
   property: string;
   time: string;
+  /** Triage status — used by the Filter sheet (was the All/Unread/Review/Open/Done tabs). */
+  triageStatus?: 'unread' | 'review' | 'open' | 'done';
+  /** Stay status for guest threads. Owner/vendor threads are 'na'. */
+  stayStatus?: StayStatus;
+  /** Whether the current user is @mentioned in this thread. */
+  mentionsMe?: boolean;
   messages?: InboxMessage[];
   summary?: string;
   sentiment?: 'positive' | 'neutral' | 'negative' | 'urgent';
@@ -43,6 +66,7 @@ export const INBOX_THREADS: InboxThread[] = [
     preview: 'Hi Friday team, our flight lands at 15:20 on Thursday. Can you confirm the driver will meet us at…',
     channel: 'Airbnb', time: '08:14', property: 'Villa Azur · Bel Ombre',
     language: 'FR',
+    triageStatus: 'open', stayStatus: 'booked',
     summary: 'Guest arriving Thu 15:20 on MK 47 · confirms driver and requests early check-in 14:30 · kids under 5.',
     sentiment: 'neutral',
     messages: [
@@ -55,6 +79,7 @@ export const INBOX_THREADS: InboxThread[] = [
     preview: "Hi! We booked the chef service add-on for Saturday. Do we pick the menu or does the chef suggest?…",
     channel: 'WhatsApp', time: '07:52', property: 'Blue Bay House · Blue Bay',
     language: 'EN',
+    triageStatus: 'open', stayStatus: 'currently_staying',
     summary: 'Guest asks whether chef proposes menu or they choose · 6-guest party · dietary shellfish-free.',
     sentiment: 'positive',
     whatsappWindow: { open: true, expiresInMinutes: 222 },
@@ -65,6 +90,7 @@ export const INBOX_THREADS: InboxThread[] = [
     preview: 'Brilliant — thank you. See you Friday.', channel: 'Booking', time: 'Wed',
     property: 'Sable Noir Retreat · Tamarin',
     language: 'EN',
+    triageStatus: 'done', stayStatus: 'checked_out',
     sentiment: 'positive',
   },
   {
@@ -73,6 +99,7 @@ export const INBOX_THREADS: InboxThread[] = [
     preview: 'Could you share the receipt? My employer needs it for reimbursement.', channel: 'Email', time: 'Tue',
     property: 'Villa Azur · Bel Ombre',
     language: 'FR',
+    triageStatus: 'review', stayStatus: 'booked', mentionsMe: true,
     sentiment: 'neutral',
   },
   {
@@ -81,9 +108,29 @@ export const INBOX_THREADS: InboxThread[] = [
     preview: 'The AC in the master bedroom stopped 20 min ago. Kids can\'t sleep. Please help urgently.',
     channel: 'WhatsApp', time: '23:18', property: 'Coral Reef Bungalow',
     language: 'EN',
+    triageStatus: 'open', stayStatus: 'currently_staying', mentionsMe: true,
     summary: 'AC failure master bedroom · active guest complaint · kids impacted · needs urgent dispatch.',
     sentiment: 'urgent',
     whatsappWindow: { open: true, expiresInMinutes: 38 },
+  },
+  {
+    id: 't6', unread: false, entity: 'guest', channelKey: 'email',
+    guest: 'Greta Larsson', subject: 'Inquiry — July dates for family of 8?',
+    preview: 'Hi, looking for a 4-bedroom villa for a family of 8 (4 adults, 4 kids) for last 2 weeks of July…',
+    channel: 'Email', time: 'Mon', property: 'Looking · 4BR + pool',
+    language: 'EN',
+    triageStatus: 'review', stayStatus: 'inquiry',
+    sentiment: 'positive',
+    summary: 'Pre-booking inquiry · July 18-31 · 4 adults + 4 kids · 4-bedroom needed · pool important.',
+  },
+  {
+    id: 't7', unread: false, entity: 'guest', channelKey: 'airbnb',
+    guest: 'Yuki Sato', subject: 'Cancellation request — change of plans',
+    preview: 'Unfortunately we need to cancel our June stay. Family emergency. Please advise on refund policy.',
+    channel: 'Airbnb', time: 'Mon', property: 'Sable Noir Retreat · Tamarin',
+    language: 'EN',
+    triageStatus: 'review', stayStatus: 'cancelled',
+    sentiment: 'negative',
   },
   {
     id: 'o1', unread: true, entity: 'owner', channelKey: 'owner_email',
@@ -91,6 +138,7 @@ export const INBOX_THREADS: InboxThread[] = [
     preview: 'Bonjour, could you send the final May opening schedule for Orchidée / Jacaranda / Dauphin?',
     channel: 'Owner email', time: '09:40', property: 'Nitzana · Orchidée + 2 more',
     language: 'FR',
+    triageStatus: 'open', stayStatus: 'na',
     summary: 'Owner asks for final May calendar for 3 Nitzana villas · soft-launch sequence decision needed.',
     sentiment: 'neutral',
   },
@@ -100,6 +148,7 @@ export const INBOX_THREADS: InboxThread[] = [
     preview: 'Got the statement — can you explain the Breezeway line please?',
     channel: 'Owner WhatsApp', time: 'Wed', property: 'Blue Bay House',
     language: 'EN',
+    triageStatus: 'open', stayStatus: 'na',
     sentiment: 'neutral',
     whatsappWindow: { open: false },
   },
@@ -109,6 +158,7 @@ export const INBOX_THREADS: InboxThread[] = [
     preview: 'Renuka out sick tomorrow. I can cover VAZ solo but will be 90min late starting BBH. OK?',
     channel: 'Breezeway', time: '22:05', property: 'Villa Azur · Blue Bay House',
     language: 'EN',
+    triageStatus: 'open', stayStatus: 'na', mentionsMe: true,
     sentiment: 'neutral',
     summary: 'Housekeeping understaffed Thu · proposes solo coverage with 90min delay on 2nd property.',
   },
@@ -118,6 +168,7 @@ export const INBOX_THREADS: InboxThread[] = [
     preview: 'Just confirming I\'ve got the Friday sign ready. Will text when they clear customs.',
     channel: 'Driver', time: '14:55', property: 'Villa Azur · Marchand',
     language: 'EN',
+    triageStatus: 'done', stayStatus: 'na',
     sentiment: 'positive',
   },
   {
@@ -126,7 +177,29 @@ export const INBOX_THREADS: InboxThread[] = [
     preview: 'Proposed 4-course tasting attached — pescatarian alt for guest 3. €85pp × 6.',
     channel: 'Chef', time: 'Wed', property: 'Blue Bay House',
     language: 'EN',
+    triageStatus: 'review', stayStatus: 'na',
     sentiment: 'neutral',
+  },
+];
+
+export const INBOX_INTERNAL_NOTES: InternalNote[] = [
+  {
+    id: 'note-001',
+    threadId: 't1',
+    authorId: 'u-judith',
+    authorName: 'Judith Friday',
+    body: '@Bryan Henri — please confirm Ravi has the Friday sign + flight number before 9am. The guest is anxious because of the kids.',
+    mentions: ['u-bryan'],
+    createdAt: '2026-04-26T18:30:00',
+  },
+  {
+    id: 'note-002',
+    threadId: 't5',
+    authorId: 'u-franny',
+    authorName: 'Franny Henri',
+    body: '@Mathias David Coolbreeze parts ETA 14:00 — can you do the install or should I send Bryan?',
+    mentions: ['u-mathias'],
+    createdAt: '2026-04-26T23:25:00',
   },
 ];
 

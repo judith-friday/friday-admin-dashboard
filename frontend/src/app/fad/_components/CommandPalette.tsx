@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MODULES } from '../_data/modules';
 import { iconFor, IconSearch } from './icons';
+import { canSeeModule, useCurrentRole } from './usePermissions';
 
 interface ResultItem {
   type: 'module' | 'cmd';
@@ -33,14 +34,17 @@ export function CommandPalette({ open, onClose, onNavigate, onAskFriday, onToggl
     }
   }, [open]);
 
+  const role = useCurrentRole();
   const results: ResultItem[] = useMemo(() => {
-    const modItems: ResultItem[] = MODULES.map((m) => ({
-      type: 'module',
-      id: m.id,
-      label: m.label,
-      hint: m.group,
-      icon: m.icon,
-    }));
+    const modItems: ResultItem[] = MODULES
+      .filter((m) => canSeeModule(role, m.id))
+      .map((m) => ({
+        type: 'module',
+        id: m.id,
+        label: m.label,
+        hint: m.group,
+        icon: m.icon,
+      }));
     const commands: ResultItem[] = [
       { type: 'cmd', id: 'ask', label: 'Ask Friday about this view', hint: '⌘/', icon: 'IconSparkle' },
       { type: 'cmd', id: 'new-task', label: 'New task', hint: 'action', icon: 'IconPlus' },
@@ -53,7 +57,7 @@ export function CommandPalette({ open, onClose, onNavigate, onAskFriday, onToggl
     return all.filter(
       (x) => x.label.toLowerCase().includes(lc) || x.hint.toLowerCase().includes(lc)
     );
-  }, [q]);
+  }, [q, role]);
 
   useEffect(() => {
     if (idx >= results.length) setIdx(0);

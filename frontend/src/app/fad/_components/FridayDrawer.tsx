@@ -5,6 +5,8 @@ import type { FridayCard, FridayStep } from '../_data/friday';
 import { FRIDAY_PROMPTS_HOME, pickScript } from '../_data/friday';
 import { FCard } from './FridayCards';
 import { IconCheck, IconClose, IconExpand, IconSend, IconSparkle } from './icons';
+import { canSeeFridayCard, useCurrentRole, useCurrentUserId } from './usePermissions';
+import { TASK_USER_BY_ID } from '../_data/tasks';
 
 interface AIMessage {
   role: 'ai';
@@ -84,9 +86,13 @@ export function FridayMessage({
   onNavigate: (mod: string) => void;
   onFollowup: (q: string) => void;
 }) {
+  const role = useCurrentRole();
   if (m.role === 'user') {
     return <div className="friday-msg friday-msg-user">{m.body}</div>;
   }
+  const visibleCards = m.cards.filter((c) =>
+    canSeeFridayCard(role, c.type, c.type === 'action' ? c.module : undefined),
+  );
   return (
     <div className="friday-msg friday-msg-ai">
       <div className="friday-msg-header">
@@ -109,7 +115,7 @@ export function FridayMessage({
       {m.ready && (
         <>
           {m.text && <div className="friday-msg-text">{m.text}</div>}
-          {m.cards.map((c, i) => (
+          {visibleCards.map((c, i) => (
             <div key={i} style={{ marginTop: 8 }}>
               <FCard card={c} onNavigate={onNavigate} />
             </div>
@@ -141,6 +147,8 @@ export function FridayDrawer({ open, onClose, scope, onNavigate, onExpand }: Pro
   const { msgs, submit } = useFridayChat(scope);
   const [input, setInput] = useState('');
   const endRef = useRef<HTMLDivElement>(null);
+  const currentUserId = useCurrentUserId();
+  const greetName = TASK_USER_BY_ID[currentUserId]?.name.split(' ')[0] ?? 'there';
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -184,7 +192,7 @@ export function FridayDrawer({ open, onClose, scope, onNavigate, onExpand }: Pro
         <div className="fad-drawer-body friday-body">
           {msgs.length === 0 && (
             <div className="friday-empty">
-              <div className="friday-empty-title">Hi Ishant — ask me anything.</div>
+              <div className="friday-empty-title">Hi {greetName} — ask me anything.</div>
               <div className="friday-empty-sub">
                 I&apos;ll pull from Inbox, Finance, Calendar, Operations, and the module you&apos;re
                 viewing.

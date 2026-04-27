@@ -2,11 +2,16 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
-  INBOX_CHANNEL_TREE,
+  INBOX_INTERNAL_NOTES,
   INBOX_THREADS,
-  type InboxChannel,
   type InboxEntity,
+  type InboxThread,
+  type InternalNote,
+  type StayStatus,
 } from '../../_data/fixtures';
+import { TASK_USERS, TASK_USER_BY_ID } from '../../_data/tasks';
+import { useCurrentUserId } from '../usePermissions';
+import { fireToast } from '../Toaster';
 import { FridayConsult } from '../FridayConsult';
 import {
   IconAI,
@@ -26,19 +31,43 @@ import {
   IconUsers,
 } from '../icons';
 import { ModuleHeader } from '../ModuleHeader';
+import { useCanAccess } from '../usePermissions';
+import { TeamInbox } from './inbox/TeamInbox';
 
 interface Props {
   onAskFriday: () => void;
 }
 
 export function InboxModule({ onAskFriday }: Props) {
-  const [tab, setTab] = useState('all');
-  const [entityFilter, setEntityFilter] = useState<'all' | InboxEntity>('all');
-  const [channelFilter, setChannelFilter] = useState<InboxChannel | null>(null);
+  const canSeeGuest = useCanAccess('inbox_guest', 'read');
+  const canSeeTeam = useCanAccess('inbox_team', 'read');
+
+  type EntityChip = 'all' | InboxEntity | 'team';
+  const [entityFilter, setEntityFilter] = useState<EntityChip>(() => (canSeeGuest ? 'all' : 'team'));
+
+  // Auto-switch if current chip becomes inaccessible.
+  useEffect(() => {
+    if (!canSeeGuest && entityFilter !== 'team' && canSeeTeam) setEntityFilter('team');
+    if (!canSeeTeam && entityFilter === 'team' && canSeeGuest) setEntityFilter('all');
+  }, [canSeeGuest, canSeeTeam, entityFilter]);
+
+  // Filter sheet state — replaces the old All/Unread/Review/Open/Done tabs.
+  type TriageFilter = 'all' | 'unread' | 'review' | 'open' | 'done';
+  type StayFilter = 'all' | StayStatus;
+  const [triageFilter, setTriageFilter] = useState<TriageFilter>('all');
+  const [stayFilter, setStayFilter] = useState<StayFilter>('all');
+  const [mentionsOnly, setMentionsOnly] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
+
   const [selected, setSelected] = useState('t1');
+  // Compose mode — 'reply' goes to the guest, 'note' is internal-only.
+  const [composeMode, setComposeMode] = useState<'reply' | 'note'>('reply');
+  const [noteDraft, setNoteDraft] = useState('');
+  const [noteMentions, setNoteMentions] = useState<string[]>([]);
+  const [, setNotesRev] = useState(0);
+  const currentUserId = useCurrentUserId();
   const [consultOpen, setConsultOpen] = useState(false);
   const [mobileThreadOpen, setMobileThreadOpen] = useState(false);
-  const [treeCollapsed, setTreeCollapsed] = useState(false);
   const [listCollapsed, setListCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -48,7 +77,6 @@ export function InboxModule({ onAskFriday }: Props) {
   const [composeCollapsed, setComposeCollapsed] = useState(false);
 
   useEffect(() => {
-    setTreeCollapsed(localStorage.getItem('fad:inbox:tree') === '1');
     setListCollapsed(localStorage.getItem('fad:inbox:list') === '1');
     setRightCollapsed(localStorage.getItem('fad:inbox:right') === '1');
     const mobile = window.innerWidth <= 768;
@@ -65,9 +93,6 @@ export function InboxModule({ onAskFriday }: Props) {
   }, []);
 
   useEffect(() => {
-    if (hydrated) localStorage.setItem('fad:inbox:tree', treeCollapsed ? '1' : '0');
-  }, [treeCollapsed, hydrated]);
-  useEffect(() => {
     if (hydrated) localStorage.setItem('fad:inbox:list', listCollapsed ? '1' : '0');
   }, [listCollapsed, hydrated]);
   useEffect(() => {
@@ -79,42 +104,101 @@ export function InboxModule({ onAskFriday }: Props) {
 
   const counts = useMemo(() => {
     const byEntity: Record<string, number> = { guest: 0, owner: 0, vendor: 0, all: INBOX_THREADS.length };
-    const byChannel: Partial<Record<InboxChannel, number>> = {};
     for (const t of INBOX_THREADS) {
       byEntity[t.entity] = (byEntity[t.entity] || 0) + 1;
-      byChannel[t.channelKey] = (byChannel[t.channelKey] || 0) + 1;
     }
-    return { byEntity, byChannel };
+    return { byEntity };
   }, []);
 
   const filtered = INBOX_THREADS.filter((t) => {
-    if (entityFilter !== 'all' && t.entity !== entityFilter) return false;
-    if (channelFilter && t.channelKey !== channelFilter) return false;
-    if (tab === 'unread' && !t.unread) return false;
+    if (entityFilter !== 'all' && entityFilter !== 'team' && t.entity !== entityFilter) return false;
+    if (triageFilter === 'unread' && !t.unread) return false;
+    if (triageFilter === 'review' && t.triageStatus !== 'review') return false;
+    if (triageFilter === 'open' && t.triageStatus !== 'open') return false;
+    if (triageFilter === 'done' && t.triageStatus !== 'done') return false;
+    if (stayFilter !== 'all' && t.stayStatus !== stayFilter) return false;
+    if (mentionsOnly && !t.mentionsMe) return false;
     return true;
   });
 
   const thread = filtered.find((t) => t.id === selected) || filtered[0] || INBOX_THREADS[0];
   const unread = INBOX_THREADS.filter((t) => t.unread).length;
 
-  const tabs = [
-    { id: 'all', label: 'All', count: filtered.length },
-    { id: 'unread', label: 'Unread', count: INBOX_THREADS.filter((t) => t.unread).length },
-    { id: 'review', label: 'Review', count: 2 },
-    { id: 'open', label: 'Open', count: 3 },
-    { id: 'done', label: 'Done' },
-  ];
+  const activeFilterCount =
+    (triageFilter !== 'all' ? 1 : 0) +
+    (stayFilter !== 'all' ? 1 : 0) +
+    (mentionsOnly ? 1 : 0);
 
   const actions = (
     <>
-      <button className="btn ghost sm">
-        <IconFilter size={14} />
-      </button>
+      <FilterButton
+        triageFilter={triageFilter}
+        setTriageFilter={setTriageFilter}
+        stayFilter={stayFilter}
+        setStayFilter={setStayFilter}
+        mentionsOnly={mentionsOnly}
+        setMentionsOnly={setMentionsOnly}
+        open={filterOpen}
+        setOpen={setFilterOpen}
+        activeCount={activeFilterCount}
+      />
       <button className="btn primary sm">
         <IconPlus size={12} /> Compose
       </button>
     </>
   );
+
+  const onTeam = entityFilter === 'team';
+
+  const externalChips: { key: 'all' | InboxEntity; label: string; count: number }[] = [
+    { key: 'all', label: 'All', count: counts.byEntity.all },
+    { key: 'guest', label: 'Guest', count: counts.byEntity.guest },
+    { key: 'owner', label: 'Owner', count: counts.byEntity.owner },
+    { key: 'vendor', label: 'Vendor', count: counts.byEntity.vendor },
+  ];
+
+  const chipsRow = (
+    <div className="inbox-chips-row">
+      {canSeeGuest && externalChips.map((c) => (
+        <button
+          key={c.key}
+          className={'inbox-chip' + (entityFilter === c.key ? ' active' : '')}
+          onClick={() => setEntityFilter(c.key)}
+        >
+          {c.label}{' '}
+          <span className="mono" style={{ fontSize: 10, marginLeft: 4, opacity: 0.8 }}>
+            {c.count}
+          </span>
+        </button>
+      ))}
+      {canSeeTeam && (
+        <button
+          className={'inbox-chip' + (onTeam ? ' active' : '')}
+          onClick={() => setEntityFilter('team')}
+          title="Internal team channels and DMs"
+        >
+          Team
+        </button>
+      )}
+      <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+        {onTeam ? 'Channels · DMs · calls' : `${unread} unread across all channels`}
+      </span>
+    </div>
+  );
+
+  if (onTeam) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+        <ModuleHeader
+          title="Inbox"
+          subtitle="Team channels · DMs · scheduled calls"
+          actions={actions}
+        />
+        {chipsRow}
+        <TeamInbox mentionsOnly={mentionsOnly} />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -124,123 +208,13 @@ export function InboxModule({ onAskFriday }: Props) {
       <ModuleHeader
         title="Inbox"
         subtitle="Guest · owner · vendor threads across Airbnb, Booking, WhatsApp, Email"
-        tabs={tabs}
-        activeTab={tab}
-        onTabChange={setTab}
         actions={actions}
       />
-      <div className="inbox-chips-row">
-        {(
-          [
-            { key: 'all' as const, label: 'All', count: counts.byEntity.all },
-            { key: 'guest' as const, label: 'Guest', count: counts.byEntity.guest },
-            { key: 'owner' as const, label: 'Owner', count: counts.byEntity.owner },
-            { key: 'vendor' as const, label: 'Vendor', count: counts.byEntity.vendor },
-          ] as { key: 'all' | InboxEntity; label: string; count: number }[]
-        ).map((c) => (
-          <button
-            key={c.key}
-            className={'inbox-chip' + (entityFilter === c.key ? ' active' : '')}
-            onClick={() => {
-              setEntityFilter(c.key);
-              setChannelFilter(null);
-            }}
-          >
-            {c.label}{' '}
-            <span
-              className="mono"
-              style={{ fontSize: 10, marginLeft: 4, opacity: 0.8 }}
-            >
-              {c.count}
-            </span>
-          </button>
-        ))}
-        <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
-          {unread} unread across all channels
-        </span>
-      </div>
+      {chipsRow}
       <div
         className={'inbox-split' + (mobileThreadOpen ? ' thread-open' : '')}
         style={{ flex: 1 }}
       >
-        <aside className={'inbox-tree' + (treeCollapsed ? ' collapsed' : '')}>
-          <button
-            className="inbox-collapse-btn"
-            onClick={() => setTreeCollapsed((v) => !v)}
-            title={treeCollapsed ? 'Show channels' : 'Collapse channels'}
-          >
-            <IconChevron size={12} />
-          </button>
-          {treeCollapsed && (
-            <div className="inbox-tree-rail">
-              <IconFilter size={14} />
-              <span>Channels</span>
-            </div>
-          )}
-          <div className="inbox-tree-group">
-            <button
-              className={'inbox-tree-item all' + (entityFilter === 'all' && !channelFilter ? ' active' : '')}
-              onClick={() => {
-                setEntityFilter('all');
-                setChannelFilter(null);
-              }}
-            >
-              <span>All inbox</span>
-              <span className="count">{counts.byEntity.all}</span>
-            </button>
-          </div>
-          <TreeGroup
-            label="Guest"
-            entity="guest"
-            entityFilter={entityFilter}
-            channelFilter={channelFilter}
-            onEntity={(e) => {
-              setEntityFilter(e);
-              setChannelFilter(null);
-            }}
-            onChannel={(c) => {
-              setChannelFilter(c);
-              setEntityFilter('guest');
-            }}
-            count={counts.byEntity.guest}
-            channels={INBOX_CHANNEL_TREE.guest}
-            channelCounts={counts.byChannel}
-          />
-          <TreeGroup
-            label="Owner"
-            entity="owner"
-            entityFilter={entityFilter}
-            channelFilter={channelFilter}
-            onEntity={(e) => {
-              setEntityFilter(e);
-              setChannelFilter(null);
-            }}
-            onChannel={(c) => {
-              setChannelFilter(c);
-              setEntityFilter('owner');
-            }}
-            count={counts.byEntity.owner}
-            channels={INBOX_CHANNEL_TREE.owner}
-            channelCounts={counts.byChannel}
-          />
-          <TreeGroup
-            label="Vendor"
-            entity="vendor"
-            entityFilter={entityFilter}
-            channelFilter={channelFilter}
-            onEntity={(e) => {
-              setEntityFilter(e);
-              setChannelFilter(null);
-            }}
-            onChannel={(c) => {
-              setChannelFilter(c);
-              setEntityFilter('vendor');
-            }}
-            count={counts.byEntity.vendor}
-            channels={INBOX_CHANNEL_TREE.vendor}
-            channelCounts={counts.byChannel}
-          />
-        </aside>
         <div className={'inbox-list' + (listCollapsed ? ' collapsed' : '')}>
           <button
             className="inbox-collapse-btn"
@@ -464,6 +438,12 @@ export function InboxModule({ onAskFriday }: Props) {
               </div>
               <div className="msg-body">{thread.messages?.[0]?.body || thread.preview}</div>
             </div>
+
+            {/* Internal notes — visible to team only, not to the guest */}
+            {INBOX_INTERNAL_NOTES.filter((n) => n.threadId === thread.id).map((n) => (
+              <InternalNoteBubble key={n.id} note={n} />
+            ))}
+
             <div className="msg-bubble us">
               <div className="msg-meta">You · draft</div>
               <div className="msg-body" style={{ fontStyle: 'italic', opacity: 0.85 }}>
@@ -504,59 +484,119 @@ export function InboxModule({ onAskFriday }: Props) {
                 ×
               </button>
             )}
-            <div className="inbox-compose-toolbar">
+            {/* Compose mode toggle — Reply (visible to guest) vs Internal note (team only) */}
+            <div
+              style={{
+                display: 'flex',
+                gap: 4,
+                padding: '6px 10px',
+                borderBottom: '0.5px solid var(--color-border-tertiary)',
+              }}
+            >
               <button
-                className={'btn ghost sm' + (consultOpen ? ' primary' : '')}
-                onClick={() => setConsultOpen((v) => !v)}
+                onClick={() => setComposeMode('reply')}
+                style={{
+                  background: composeMode === 'reply' ? 'var(--color-background-tertiary)' : 'transparent',
+                  border: 0,
+                  padding: '6px 12px',
+                  fontSize: 12,
+                  fontWeight: composeMode === 'reply' ? 500 : 400,
+                  color: 'var(--color-text-primary)',
+                  cursor: 'pointer',
+                  borderRadius: 4,
+                }}
               >
-                <IconSparkle size={12} /> Friday Consult
+                💬 Reply to {thread.entity}
               </button>
-              <button className="btn ghost sm">
-                <IconPaperclip size={12} /> Attach
+              <button
+                onClick={() => setComposeMode('note')}
+                style={{
+                  background: composeMode === 'note' ? 'var(--color-bg-warning)' : 'transparent',
+                  color: composeMode === 'note' ? 'var(--color-text-warning)' : 'var(--color-text-secondary)',
+                  border: 0,
+                  padding: '6px 12px',
+                  fontSize: 12,
+                  fontWeight: composeMode === 'note' ? 500 : 400,
+                  cursor: 'pointer',
+                  borderRadius: 4,
+                }}
+                title="Tag teammates privately — guest never sees this"
+              >
+                🔒 Internal note
               </button>
-              <span style={{ marginLeft: 'auto' }} className="mono">
-                {thread.channel} · reply-all
+              <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+                {composeMode === 'reply' ? `${thread.channel} · reply-all` : 'team-only · not sent to guest'}
               </span>
             </div>
-            <textarea
-              className="inbox-compose-textarea"
-              placeholder="Write a reply…"
-              defaultValue={
-                thread.id === 't1'
-                  ? 'Bonjour Thibault — confirming Ravi will meet you at SSR arrivals at 15:20 with a Friday sign. Early check-in 14:30 approved. À tout bientôt, Friday team.'
-                  : ''
-              }
-            />
-            <div
-              className="inbox-compose-actions"
-              style={{ position: 'relative', justifyContent: 'space-between' }}
-            >
-              <button className="btn ghost">
-                <IconAI size={12} /> Polish with Friday
-              </button>
-              <div className="send-split">
-                <button className="send-split-main" onClick={() => setSendMenuOpen(false)}>
-                  <IconSend size={12} /> Send
-                </button>
-                <button
-                  className="send-split-caret"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSendMenuOpen((v) => !v);
-                  }}
-                  aria-haspopup="menu"
-                  aria-expanded={sendMenuOpen}
+
+            {composeMode === 'reply' ? (
+              <>
+                <div className="inbox-compose-toolbar">
+                  <button
+                    className={'btn ghost sm' + (consultOpen ? ' primary' : '')}
+                    onClick={() => setConsultOpen((v) => !v)}
+                  >
+                    <IconSparkle size={12} /> Friday Consult
+                  </button>
+                  <button className="btn ghost sm">
+                    <IconPaperclip size={12} /> Attach
+                  </button>
+                </div>
+                <textarea
+                  className="inbox-compose-textarea"
+                  placeholder="Write a reply…"
+                  defaultValue={
+                    thread.id === 't1'
+                      ? 'Bonjour Thibault — confirming Ravi will meet you at SSR arrivals at 15:20 with a Friday sign. Early check-in 14:30 approved. À tout bientôt, Friday team.'
+                      : ''
+                  }
+                />
+                <div
+                  className="inbox-compose-actions"
+                  style={{ position: 'relative', justifyContent: 'space-between' }}
                 >
-                  ▾
-                </button>
-                {sendMenuOpen && (
-                  <SendByMenu
-                    channel={thread.channel}
-                    onClose={() => setSendMenuOpen(false)}
-                  />
-                )}
-              </div>
-            </div>
+                  <button className="btn ghost">
+                    <IconAI size={12} /> Polish with Friday
+                  </button>
+                  <div className="send-split">
+                    <button className="send-split-main" onClick={() => setSendMenuOpen(false)}>
+                      <IconSend size={12} /> Send
+                    </button>
+                    <button
+                      className="send-split-caret"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSendMenuOpen((v) => !v);
+                      }}
+                      aria-haspopup="menu"
+                      aria-expanded={sendMenuOpen}
+                    >
+                      ▾
+                    </button>
+                    {sendMenuOpen && (
+                      <SendByMenu
+                        channel={thread.channel}
+                        onClose={() => setSendMenuOpen(false)}
+                      />
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <InternalNoteCompose
+                threadId={thread.id}
+                draft={noteDraft}
+                setDraft={setNoteDraft}
+                mentions={noteMentions}
+                setMentions={setNoteMentions}
+                onPosted={() => {
+                  setNoteDraft('');
+                  setNoteMentions([]);
+                  setNotesRev((n) => n + 1);
+                }}
+                authorId={currentUserId}
+              />
+            )}
           </div>
         </div>
 
@@ -640,58 +680,6 @@ export function InboxModule({ onAskFriday }: Props) {
   );
 }
 
-function TreeGroup({
-  label,
-  entity,
-  entityFilter,
-  channelFilter,
-  onEntity,
-  onChannel,
-  count,
-  channels,
-  channelCounts,
-}: {
-  label: string;
-  entity: InboxEntity;
-  entityFilter: 'all' | InboxEntity;
-  channelFilter: InboxChannel | null;
-  onEntity: (e: InboxEntity) => void;
-  onChannel: (c: InboxChannel) => void;
-  count: number;
-  channels: { key: InboxChannel; label: string }[];
-  channelCounts: Partial<Record<InboxChannel, number>>;
-}) {
-  return (
-    <div className="inbox-tree-group">
-      <div className="inbox-tree-head">
-        <button
-          className={
-            'inbox-tree-item all' +
-            (entityFilter === entity && !channelFilter ? ' active' : '')
-          }
-          onClick={() => onEntity(entity)}
-          style={{ padding: '4px 8px' }}
-        >
-          <span>{label}</span>
-          <span className="count">{count}</span>
-        </button>
-      </div>
-      {channels.map((c) => (
-        <button
-          key={c.key}
-          className={
-            'inbox-tree-item' + (channelFilter === c.key ? ' active' : '')
-          }
-          onClick={() => onChannel(c.key)}
-        >
-          <span>{c.label}</span>
-          <span className="count">{channelCounts[c.key] || 0}</span>
-        </button>
-      ))}
-    </div>
-  );
-}
-
 function WhatsAppTimer({
   window,
 }: {
@@ -743,6 +731,419 @@ function WhatsAppTimer({
       )}
     </div>
   );
+}
+
+// ───────────────── Filter button + popover ─────────────────
+
+const TRIAGE_OPTIONS: { value: 'all' | 'unread' | 'review' | 'open' | 'done'; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'unread', label: 'Unread' },
+  { value: 'review', label: 'Review' },
+  { value: 'open', label: 'Open' },
+  { value: 'done', label: 'Done' },
+];
+
+const STAY_OPTIONS: { value: 'all' | StayStatus; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'inquiry', label: 'Inquiry' },
+  { value: 'booked', label: 'Booked' },
+  { value: 'currently_staying', label: 'Currently staying' },
+  { value: 'checked_out', label: 'Checked out' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'na', label: 'No reservation (owner / vendor)' },
+];
+
+function FilterButton({
+  triageFilter,
+  setTriageFilter,
+  stayFilter,
+  setStayFilter,
+  mentionsOnly,
+  setMentionsOnly,
+  open,
+  setOpen,
+  activeCount,
+}: {
+  triageFilter: 'all' | 'unread' | 'review' | 'open' | 'done';
+  setTriageFilter: (v: 'all' | 'unread' | 'review' | 'open' | 'done') => void;
+  stayFilter: 'all' | StayStatus;
+  setStayFilter: (v: 'all' | StayStatus) => void;
+  mentionsOnly: boolean;
+  setMentionsOnly: (v: boolean) => void;
+  open: boolean;
+  setOpen: (v: boolean) => void;
+  activeCount: number;
+}) {
+  return (
+    <div style={{ position: 'relative' }}>
+      <button
+        className={'btn ghost sm' + (open || activeCount > 0 ? ' active' : '')}
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(!open);
+        }}
+        title="Filter threads"
+        style={{
+          background: activeCount > 0 ? 'var(--color-background-tertiary)' : undefined,
+          color: activeCount > 0 ? 'var(--color-brand-accent)' : undefined,
+        }}
+      >
+        <IconFilter size={14} />
+        {activeCount > 0 && (
+          <span
+            className="mono"
+            style={{
+              fontSize: 10,
+              marginLeft: 4,
+              padding: '0 5px',
+              borderRadius: 8,
+              background: 'var(--color-brand-accent)',
+              color: 'white',
+            }}
+          >
+            {activeCount}
+          </span>
+        )}
+      </button>
+      {open && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 9 }} onClick={() => setOpen(false)} />
+          <div
+            className="fad-dropdown"
+            style={{
+              position: 'absolute',
+              top: '100%',
+              right: 0,
+              marginTop: 4,
+              minWidth: 280,
+              maxWidth: 'calc(100vw - 24px)',
+              padding: 14,
+              zIndex: 10,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <FilterGroup label="Triage status">
+              <FilterPills
+                options={TRIAGE_OPTIONS}
+                value={triageFilter}
+                onChange={setTriageFilter}
+              />
+            </FilterGroup>
+            <FilterGroup label="Stay status">
+              <FilterPills
+                options={STAY_OPTIONS}
+                value={stayFilter}
+                onChange={setStayFilter}
+              />
+            </FilterGroup>
+            <FilterGroup label="Mentions">
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13 }}>
+                <input
+                  type="checkbox"
+                  checked={mentionsOnly}
+                  onChange={(e) => setMentionsOnly(e.target.checked)}
+                />
+                Only threads where I'm @mentioned
+              </label>
+            </FilterGroup>
+            <div style={{ display: 'flex', gap: 8, marginTop: 12, paddingTop: 12, borderTop: '0.5px solid var(--color-border-tertiary)' }}>
+              <button
+                className="btn ghost sm"
+                onClick={() => {
+                  setTriageFilter('all');
+                  setStayFilter('all');
+                  setMentionsOnly(false);
+                }}
+                disabled={activeCount === 0}
+              >
+                Clear all
+              </button>
+              <button className="btn primary sm" onClick={() => setOpen(false)} style={{ marginLeft: 'auto' }}>
+                Done
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <div
+        style={{
+          fontSize: 10,
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          color: 'var(--color-text-tertiary)',
+          fontWeight: 500,
+          marginBottom: 6,
+        }}
+      >
+        {label}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function FilterPills<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: T; label: string }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+      {options.map((o) => (
+        <button
+          key={o.value}
+          onClick={() => onChange(o.value)}
+          className={'inbox-chip' + (value === o.value ? ' active' : '')}
+          style={{ fontSize: 11 }}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ───────────────── Internal notes (team-only) ─────────────────
+
+function InternalNoteBubble({ note }: { note: InternalNote }) {
+  const author = TASK_USER_BY_ID[note.authorId];
+  return (
+    <div
+      style={{
+        margin: '12px 0',
+        padding: 12,
+        background: 'var(--color-bg-warning)',
+        border: '0.5px solid var(--color-text-warning)',
+        borderRadius: 8,
+        fontSize: 13,
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          marginBottom: 6,
+          fontSize: 11,
+          fontWeight: 500,
+          color: 'var(--color-text-warning)',
+        }}
+      >
+        <span>🔒</span>
+        <span style={{ textTransform: 'uppercase', letterSpacing: '0.06em' }}>Internal note · team only</span>
+        <span style={{ marginLeft: 'auto', fontWeight: 400, color: 'var(--color-text-tertiary)' }}>
+          {note.authorName} · {formatNoteTime(note.createdAt)}
+        </span>
+      </div>
+      <div style={{ color: 'var(--color-text-primary)', lineHeight: 1.5 }}>
+        {renderNoteWithMentions(note.body)}
+      </div>
+    </div>
+  );
+}
+
+function InternalNoteCompose({
+  threadId,
+  draft,
+  setDraft,
+  mentions,
+  setMentions,
+  authorId,
+  onPosted,
+}: {
+  threadId: string;
+  draft: string;
+  setDraft: (v: string) => void;
+  mentions: string[];
+  setMentions: (v: string[]) => void;
+  authorId: string;
+  onPosted: () => void;
+}) {
+  const [mentionPickerOpen, setMentionPickerOpen] = useState(false);
+  const candidateMentions = TASK_USERS.filter((u) => u.role !== 'external' && u.active && u.id !== authorId);
+  const author = TASK_USER_BY_ID[authorId];
+
+  const insertMention = (userId: string) => {
+    const u = TASK_USER_BY_ID[userId];
+    if (!u) return;
+    setDraft(draft + (draft.endsWith(' ') || draft.length === 0 ? '' : ' ') + `@${u.name} `);
+    if (!mentions.includes(userId)) setMentions([...mentions, userId]);
+    setMentionPickerOpen(false);
+  };
+
+  const post = () => {
+    const text = draft.trim();
+    if (!text) return;
+    const note: InternalNote = {
+      id: `note-${Date.now()}`,
+      threadId,
+      authorId,
+      authorName: author?.name ?? 'Unknown',
+      body: text,
+      mentions,
+      createdAt: new Date().toISOString(),
+    };
+    INBOX_INTERNAL_NOTES.push(note);
+    fireToast(
+      mentions.length > 0
+        ? `Internal note posted · ${mentions.length} teammate${mentions.length === 1 ? '' : 's'} notified`
+        : 'Internal note posted',
+    );
+    onPosted();
+  };
+
+  return (
+    <div style={{ background: 'var(--color-bg-warning)', borderRadius: 6, padding: 10, margin: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, position: 'relative' }}>
+        <span style={{ fontSize: 11, color: 'var(--color-text-warning)', fontWeight: 500 }}>
+          🔒 Internal note · only your team can see this
+        </span>
+        <span style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
+          <button
+            type="button"
+            className="btn ghost sm"
+            onClick={() => setMentionPickerOpen((v) => !v)}
+            title="Tag a teammate"
+          >
+            @ Mention
+          </button>
+        </span>
+        {mentionPickerOpen && (
+          <>
+            <div
+              style={{ position: 'fixed', inset: 0, zIndex: 9 }}
+              onClick={() => setMentionPickerOpen(false)}
+            />
+            <div
+              className="fad-dropdown"
+              style={{
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                marginTop: 4,
+                minWidth: 200,
+                maxHeight: 240,
+                overflowY: 'auto',
+                zIndex: 10,
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {candidateMentions.map((u) => (
+                <button
+                  key={u.id}
+                  className="fad-dropdown-item"
+                  onClick={() => insertMention(u.id)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}
+                >
+                  <span
+                    style={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: 10,
+                      background: u.avatarColor,
+                      color: 'white',
+                      fontSize: 9,
+                      fontWeight: 500,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {u.initials}
+                  </span>
+                  {u.name}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+      <textarea
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        placeholder="Tag a teammate (@) and explain what you need…"
+        style={{
+          width: '100%',
+          minHeight: 70,
+          padding: 8,
+          fontSize: 13,
+          fontFamily: 'inherit',
+          border: '0.5px solid var(--color-text-warning)',
+          borderRadius: 4,
+          background: 'var(--color-background-primary)',
+          marginBottom: 8,
+        }}
+      />
+      {mentions.length > 0 && (
+        <div style={{ marginBottom: 8, fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+          Will notify:{' '}
+          {mentions.map((id, i) => (
+            <span key={id} style={{ color: 'var(--color-text-warning)', fontWeight: 500 }}>
+              {i > 0 && ', '}
+              {TASK_USER_BY_ID[id]?.name.split(' ')[0]}
+            </span>
+          ))}
+        </div>
+      )}
+      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+        <button className="btn ghost sm" onClick={() => setDraft('')}>
+          Clear
+        </button>
+        <button
+          className="btn primary sm"
+          onClick={post}
+          disabled={!draft.trim()}
+          style={{
+            background: draft.trim() ? 'var(--color-text-warning)' : undefined,
+            borderColor: draft.trim() ? 'var(--color-text-warning)' : undefined,
+          }}
+        >
+          Post note
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function renderNoteWithMentions(text: string): React.ReactNode {
+  const parts = text.split(/(@[A-Z][a-zA-Z]+(?:\s[A-Z][a-zA-Z]+)?)/g);
+  return parts.map((p, i) =>
+    p.startsWith('@') ? (
+      <span
+        key={i}
+        style={{
+          color: 'var(--color-text-warning)',
+          background: 'var(--color-bg-warning)',
+          padding: '0 4px',
+          borderRadius: 3,
+          fontWeight: 500,
+        }}
+      >
+        {p}
+      </span>
+    ) : (
+      <span key={i}>{p}</span>
+    ),
+  );
+}
+
+function formatNoteTime(iso: string): string {
+  const d = new Date(iso);
+  const today = new Date('2026-04-27');
+  const sameDay = d.toDateString() === today.toDateString();
+  if (sameDay) return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleDateString('en-GB', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 function SendByMenu({ channel, onClose }: { channel: string; onClose: () => void }) {

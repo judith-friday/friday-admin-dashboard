@@ -15,6 +15,10 @@ import {
   IconSun,
   IconTool,
 } from './icons';
+import { RoleSwitcher } from './PermissionGate';
+import { usePermissions } from './usePermissions';
+import { TASK_USER_BY_ID } from '../_data/tasks';
+import { ROLE_LABEL } from '../_data/permissions';
 
 interface Props {
   onOpenPalette: () => void;
@@ -47,6 +51,8 @@ export function Header({
   onOpenAvatar,
   avatarOpen,
 }: Props) {
+  const { currentUserId } = usePermissions();
+  const currentUser = TASK_USER_BY_ID[currentUserId];
   return (
     <header className="fad-header">
       <div className="fad-brand">
@@ -72,7 +78,7 @@ export function Header({
             height={32}
           />
           <span className="fad-brand-name">
-            Friday
+            friday.mu
             <span className="fad-brand-sub">Admin</span>
           </span>
         </button>
@@ -89,6 +95,7 @@ export function Header({
       </div>
 
       <div className="fad-utilities">
+        <RoleSwitcher />
         <button
           className={'fad-util-btn' + (fridayOpen ? ' active' : '')}
           onClick={onOpenFriday}
@@ -125,8 +132,13 @@ export function Header({
           {theme === 'dark' ? <IconSun /> : <IconMoon />}
         </button>
         <div style={{ position: 'relative' }}>
-          <button onClick={onOpenAvatar} className="fad-avatar" title="Account">
-            IS
+          <button
+            onClick={onOpenAvatar}
+            className="fad-avatar"
+            title="Account"
+            style={currentUser ? { background: currentUser.avatarColor } : undefined}
+          >
+            {currentUser?.initials ?? 'IS'}
           </button>
           {avatarOpen && <AvatarDropdown />}
         </div>
@@ -183,11 +195,15 @@ function HelpDropdown() {
 }
 
 function AvatarDropdown() {
+  const { currentUserId, role } = usePermissions();
+  const user = TASK_USER_BY_ID[currentUserId];
   return (
     <div className="fad-dropdown" style={{ width: 220 }}>
       <div style={{ padding: '10px', borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
-        <div style={{ fontWeight: 500, fontSize: 13 }}>Ishant Sagoo</div>
-        <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>Admin · friday.mu</div>
+        <div style={{ fontWeight: 500, fontSize: 13 }}>{user?.name ?? 'Unknown user'}</div>
+        <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>
+          {ROLE_LABEL[role]} · friday.mu
+        </div>
       </div>
       <button className="fad-dropdown-item">Profile</button>
       <button className="fad-dropdown-item">Preferences</button>

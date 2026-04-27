@@ -4,11 +4,8 @@ import { FilterBar, FilterChip } from '../FilterBar';
 import { iconFor, IconPlus } from '../icons';
 import type { ModuleDef } from '../../_data/modules';
 import { ModuleHeader } from '../ModuleHeader';
+import { useReviewMode } from '../../_data/reviewMode';
 import {
-  FIN_KPIS,
-  FIN_PAYOUTS,
-  FIN_REFUNDS,
-  FIN_TX,
   LEGAL_COMPLIANCE,
   LEGAL_CONTRACTS,
   LEGAL_DOCS,
@@ -24,7 +21,6 @@ import {
   PROP_TABS,
   TASK_DETAIL,
   TASKS,
-  TOURIST_TAX,
   type Task,
 } from '../../_data/fixtures';
 import { useState } from 'react';
@@ -744,387 +740,6 @@ function TaskDetailPane({ task, onClose }: { task: Task | null | undefined; onCl
         )}
       </aside>
     </>
-  );
-}
-
-export function FinanceModule() {
-  const [tab, setTab] = useState('overview');
-  const tabs = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'tx', label: 'Transactions' },
-    { id: 'payouts', label: 'Payouts' },
-    { id: 'refunds', label: 'Refunds' },
-    { id: 'tax', label: 'Tourist tax' },
-    { id: 'statements', label: 'Owner statements' },
-  ];
-  return (
-    <>
-      <ModuleHeader
-        title="Finance"
-        subtitle="Payouts, tourist tax, owner statements, refunds"
-        tabs={tabs}
-        activeTab={tab}
-        onTabChange={setTab}
-      />
-      
-      <div className="fad-module-body">
-        {tab === 'overview' && (
-          <>
-            <div className="kpi-grid">
-              {FIN_KPIS.map((k, i) => (
-                <div className="kpi" key={i}>
-                  <div className="kpi-label">{k.label}</div>
-                  <div className="kpi-value">{k.value}</div>
-                  <div className={'kpi-sub' + (k.dir ? ' ' + k.dir : '')}>{k.sub}</div>
-                </div>
-              ))}
-            </div>
-            <div className="card">
-              <div className="card-header">
-                <div className="card-title">Recent transactions</div>
-                <div className="card-subtitle">Apr 2026</div>
-              </div>
-              {FIN_TX.map((tx, i) => (
-                <div key={i} className="row">
-                  <div style={{ flex: 1 }}>
-                    <div className="row-primary">{tx.desc}</div>
-                    <div className="row-meta">{tx.meta}</div>
-                  </div>
-                  <span
-                    className="mono"
-                    style={{
-                      fontSize: 13,
-                      color: tx.amount.startsWith('+')
-                        ? 'var(--color-text-success)'
-                        : tx.amount.startsWith('−')
-                        ? 'var(--color-text-danger)'
-                        : 'var(--color-text-primary)',
-                    }}
-                  >
-                    {tx.amount}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-        {tab === 'tx' && (
-          <div className="card">
-            <div className="card-header">
-              <div className="card-title">All transactions</div>
-              <div className="card-subtitle">Apr 2026</div>
-            </div>
-            {FIN_TX.concat(FIN_TX).map((tx, i) => (
-              <div key={i} className="row">
-                <div style={{ flex: 1 }}>
-                  <div className="row-primary">{tx.desc}</div>
-                  <div className="row-meta">{tx.meta}</div>
-                </div>
-                <span
-                  className="mono"
-                  style={{
-                    fontSize: 13,
-                    color: tx.amount.startsWith('+')
-                      ? 'var(--color-text-success)'
-                      : tx.amount.startsWith('−')
-                      ? 'var(--color-text-danger)'
-                      : 'var(--color-text-primary)',
-                  }}
-                >
-                  {tx.amount}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-        {tab === 'payouts' && (
-          <div className="card">
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr',
-                gap: 12,
-                padding: '10px 16px',
-                borderBottom: '0.5px solid var(--color-border-tertiary)',
-                fontSize: 11,
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em',
-                color: 'var(--color-text-tertiary)',
-              }}
-            >
-              <span>Channel</span>
-              <span>Period</span>
-              <span>Date</span>
-              <span>Ref</span>
-              <span>Amount</span>
-              <span>Status</span>
-            </div>
-            {FIN_PAYOUTS.map((p) => (
-              <div
-                key={p.id}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr',
-                  gap: 12,
-                  padding: '14px 16px',
-                  borderBottom: '0.5px solid var(--color-border-tertiary)',
-                  fontSize: 13,
-                  alignItems: 'center',
-                }}
-              >
-                <span>{p.channel}</span>
-                <span className="mono" style={{ fontSize: 12 }}>
-                  {p.period}
-                </span>
-                <span className="mono" style={{ fontSize: 12 }}>
-                  {p.date}
-                </span>
-                <span
-                  className="mono"
-                  style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}
-                >
-                  {p.ref}
-                </span>
-                <span className="mono" style={{ fontWeight: 500 }}>
-                  € {p.amount.toLocaleString()}
-                </span>
-                <span className={'chip ' + (p.status === 'settled' ? 'info' : 'warn')}>
-                  {p.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-        {tab === 'refunds' && (
-          <div className="card">
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1.4fr 2fr 0.8fr 0.8fr 0.8fr 0.8fr',
-                gap: 12,
-                padding: '10px 16px',
-                borderBottom: '0.5px solid var(--color-border-tertiary)',
-                fontSize: 11,
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em',
-                color: 'var(--color-text-tertiary)',
-              }}
-            >
-              <span>Guest</span>
-              <span>Reason</span>
-              <span>Amount</span>
-              <span>Date</span>
-              <span>Processed by</span>
-              <span>Status</span>
-            </div>
-            {FIN_REFUNDS.map((r) => (
-              <div
-                key={r.id}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1.4fr 2fr 0.8fr 0.8fr 0.8fr 0.8fr',
-                  gap: 12,
-                  padding: '14px 16px',
-                  borderBottom: '0.5px solid var(--color-border-tertiary)',
-                  fontSize: 13,
-                  alignItems: 'center',
-                }}
-              >
-                <span>{r.guest}</span>
-                <span style={{ color: 'var(--color-text-secondary)' }}>{r.reason}</span>
-                <span
-                  className="mono"
-                  style={{ color: 'var(--color-text-danger)', fontWeight: 500 }}
-                >
-                  −€ {r.amount.toLocaleString()}
-                </span>
-                <span className="mono" style={{ fontSize: 12 }}>
-                  {r.date}
-                </span>
-                <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>{r.by}</span>
-                <span className={'chip ' + (r.status === 'processed' ? 'info' : 'warn')}>
-                  {r.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-        {tab === 'tax' && <TouristTaxTab />}
-        {tab === 'statements' && <OwnerStatementsTab />}
-      </div>
-    </>
-  );
-}
-
-function TouristTaxTab() {
-  const current = TOURIST_TAX.find((m) => !m.filed);
-  return (
-    <>
-      <div className="two-col" style={{ marginBottom: 20 }}>
-        <div className="card">
-          <div className="card-header">
-            <div className="card-title">Monthly roll-up · YTD</div>
-            <div className="card-subtitle">€18/nt per adult · 3★+ classification</div>
-          </div>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '80px 1fr 1fr 1fr 1fr',
-              gap: 12,
-              padding: '10px 16px',
-              borderBottom: '0.5px solid var(--color-border-tertiary)',
-              fontSize: 11,
-              textTransform: 'uppercase',
-              letterSpacing: '0.04em',
-              color: 'var(--color-text-tertiary)',
-            }}
-          >
-            <span>Month</span>
-            <span>Collected</span>
-            <span>Refunded</span>
-            <span>Net owed</span>
-            <span>Filed</span>
-          </div>
-          {TOURIST_TAX.map((m) => (
-            <div
-              key={m.month}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '80px 1fr 1fr 1fr 1fr',
-                gap: 12,
-                padding: '14px 16px',
-                borderBottom: '0.5px solid var(--color-border-tertiary)',
-                fontSize: 13,
-                alignItems: 'center',
-              }}
-            >
-              <span style={{ fontWeight: 500 }}>{m.month}</span>
-              <span className="mono">€ {m.collected.toLocaleString()}</span>
-              <span
-                className="mono"
-                style={{
-                  color: m.refunded
-                    ? 'var(--color-text-secondary)'
-                    : 'var(--color-text-tertiary)',
-                }}
-              >
-                {m.refunded ? '− € ' + m.refunded : '—'}
-              </span>
-              <span className="mono" style={{ fontWeight: 500 }}>
-                € {m.owed.toLocaleString()}
-              </span>
-              <span>
-                {m.filed ? (
-                  <span className="chip info">filed {m.filedAt}</span>
-                ) : (
-                  <span className="chip warn">due May 7</span>
-                )}
-              </span>
-            </div>
-          ))}
-        </div>
-        {current && (
-          <div className="card">
-            <div className="card-header">
-              <div className="card-title">{current.month} filing</div>
-              <div className="card-subtitle">MRA submission</div>
-            </div>
-            <div className="card-body">
-              <div style={{ fontSize: 28, fontWeight: 500, fontFamily: 'var(--font-mono-fad)', marginBottom: 4 }}>
-                € {current.owed.toLocaleString()}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginBottom: 16 }}>
-                owed · filing due{' '}
-                <span style={{ color: 'var(--color-text-warning)', fontWeight: 500 }}>May 7</span>
-              </div>
-              <div
-                style={{
-                  fontSize: 12,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 6,
-                  paddingBottom: 14,
-                  borderBottom: '0.5px solid var(--color-border-tertiary)',
-                  marginBottom: 14,
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--color-text-tertiary)' }}>Collected</span>
-                  <span className="mono">€ {current.collected.toLocaleString()}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--color-text-tertiary)' }}>Refunded</span>
-                  <span className="mono">− € {current.refunded.toLocaleString()}</span>
-                </div>
-              </div>
-              <button className="btn primary" style={{ width: '100%', justifyContent: 'center' }}>
-                Generate MRA submission
-              </button>
-              <button
-                className="btn ghost"
-                style={{ width: '100%', justifyContent: 'center', marginTop: 6 }}
-              >
-                Export CSV
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
-
-function OwnerStatementsTab() {
-  return (
-    <div className="card">
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 0.8fr',
-          gap: 12,
-          padding: '10px 16px',
-          borderBottom: '0.5px solid var(--color-border-tertiary)',
-          fontSize: 11,
-          textTransform: 'uppercase',
-          letterSpacing: '0.04em',
-          color: 'var(--color-text-tertiary)',
-        }}
-      >
-        <span>Owner</span>
-        <span>Period</span>
-        <span>Gross</span>
-        <span>Fees</span>
-        <span>Net</span>
-        <span>Status</span>
-      </div>
-      {OWNER_STATEMENTS.map((s, i) => (
-        <div
-          key={i}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr 0.8fr',
-            gap: 12,
-            padding: '14px 16px',
-            borderBottom: '0.5px solid var(--color-border-tertiary)',
-            fontSize: 13,
-            alignItems: 'center',
-          }}
-        >
-          <span style={{ fontWeight: 500 }}>{s.owner}</span>
-          <span className="mono" style={{ fontSize: 12 }}>
-            {s.period}
-          </span>
-          <span className="mono">€ {s.gross.toLocaleString()}</span>
-          <span className="mono" style={{ color: 'var(--color-text-secondary)' }}>
-            − € {s.fees.toLocaleString()}
-          </span>
-          <span className="mono" style={{ fontWeight: 500 }}>
-            € {s.net.toLocaleString()}
-          </span>
-          <span className={'chip ' + (s.status === 'ready' ? 'info' : 'warn')}>{s.status}</span>
-        </div>
-      ))}
-    </div>
   );
 }
 
@@ -2170,6 +1785,7 @@ export function PitchModule({ mod }: { mod: ModuleDef }) {
     return <div className="fad-module-body">Pitch spec not found.</div>;
   }
   const HeroIcon = iconFor(spec.icon);
+  const review = useReviewMode();
   return (
     <>
       <ModuleHeader title={spec.title} subtitle="Vision preview · feature overview" />
@@ -2181,8 +1797,13 @@ export function PitchModule({ mod }: { mod: ModuleDef }) {
             </div>
             <div>
               <h2>
-                {spec.title}{' '}
-                <span className={'chip ' + (spec.ship === 'soon' ? 'info' : '')}>{spec.ship}</span>
+                {spec.title}
+                {review && (
+                  <>
+                    {' '}
+                    <span className={'chip ' + (spec.ship === 'soon' ? 'info' : '')}>{spec.ship}</span>
+                  </>
+                )}
               </h2>
               <p className="pitch-tagline">{spec.tagline}</p>
             </div>
@@ -2273,6 +1894,7 @@ const TEASE_SPECS: Record<string, TeaseSpec> = {
 export function TeaseModule({ mod }: { mod: ModuleDef }) {
   const I = iconFor(mod.icon);
   const spec = TEASE_SPECS[mod.id];
+  const review = useReviewMode();
   if (!spec) {
     return (
       <div className="fad-module-body">
@@ -2281,7 +1903,13 @@ export function TeaseModule({ mod }: { mod: ModuleDef }) {
             <I size={24} />
           </div>
           <h2 className="tease-title">
-            {mod.label} <span className="chip">{mod.ship}</span>
+            {mod.label}
+            {review && (
+              <>
+                {' '}
+                <span className="chip">{mod.ship}</span>
+              </>
+            )}
           </h2>
           <p className="tease-desc">Coming later.</p>
         </div>
@@ -2299,16 +1927,21 @@ export function TeaseModule({ mod }: { mod: ModuleDef }) {
             </div>
             <div>
               <h2>
-                {mod.label}{' '}
-                <span
-                  className="chip"
-                  style={{
-                    borderStyle: 'dashed',
-                    background: 'transparent',
-                  }}
-                >
-                  {mod.ship}
-                </span>
+                {mod.label}
+                {review && (
+                  <>
+                    {' '}
+                    <span
+                      className="chip"
+                      style={{
+                        borderStyle: 'dashed',
+                        background: 'transparent',
+                      }}
+                    >
+                      {mod.ship}
+                    </span>
+                  </>
+                )}
               </h2>
               <p className="pitch-tagline">{spec.description}</p>
             </div>
@@ -2355,7 +1988,7 @@ export function TeaseModule({ mod }: { mod: ModuleDef }) {
                 background: 'transparent',
               }}
             >
-              Lands {mod.ship} · scaffolded UI illustrates structure only
+              {review ? `Lands ${mod.ship} · scaffolded UI illustrates structure only` : 'Scaffolded UI illustrates structure only'}
             </div>
           </div>
 

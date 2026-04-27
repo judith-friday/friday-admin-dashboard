@@ -1,4 +1,10 @@
 export type Tier = 'live' | 'preview' | 'pitch' | 'tease';
+export type GroupTier = 'today' | 'manage';
+
+export interface SubPage {
+  id: string;
+  label: string;
+}
 
 export interface ModuleDef {
   id: string;
@@ -9,26 +15,51 @@ export interface ModuleDef {
   icon: string;
   path: string;
   warning?: boolean;
+  subPages?: SubPage[];
 }
 
 export interface GroupDef {
   id: string;
   label: string;
-  suffix?: string;
+  tier: GroupTier;
 }
 
 export const MODULES: ModuleDef[] = [
-  { id: 'inbox', label: 'Inbox', group: 'Work', tier: 'live', ship: 'live', icon: 'IconInbox', path: '/gms/inbox' },
-  { id: 'tasks', label: 'Tasks', group: 'Work', tier: 'preview', ship: '3.2', icon: 'IconTasks', path: '/gms/tasks' },
-  { id: 'calendar', label: 'Calendar', group: 'Work', tier: 'live', ship: 'live', icon: 'IconCal', path: '/gms/calendar' },
-  { id: 'reviews', label: 'Reviews', group: 'Work', tier: 'preview', ship: "May '26", icon: 'IconReviews', path: '/gms/reviews' },
+  { id: 'inbox', label: 'Inbox', group: 'Today', tier: 'live', ship: 'live', icon: 'IconInbox', path: '/gms/inbox' },
+  { id: 'operations', label: 'Operations', group: 'Today', tier: 'live', ship: 'live', icon: 'IconTasks', path: '/fad/operations', subPages: [
+    { id: 'overview', label: 'Overview' },
+    { id: 'all', label: 'All tasks' },
+    { id: 'issues', label: 'Reported issues' },
+    { id: 'approvals', label: 'Approvals' },
+    { id: 'roster', label: 'Roster' },
+    { id: 'insights', label: 'Insights' },
+    { id: 'settings', label: 'Settings' },
+  ] },
+  { id: 'calendar', label: 'Calendar', group: 'Today', tier: 'live', ship: 'live', icon: 'IconCal', path: '/gms/calendar' },
   { id: 'properties', label: 'Properties', group: 'Portfolio', tier: 'preview', ship: "May '26", icon: 'IconProp', path: '/gms/properties' },
-  { id: 'operations', label: 'Operations', group: 'Portfolio', tier: 'preview', ship: "May '26", icon: 'IconOps', path: '/gms/operations' },
   { id: 'reservations', label: 'Reservations', group: 'Portfolio', tier: 'preview', ship: "May '26", icon: 'IconBook', path: '/gms/reservations' },
-  { id: 'finance', label: 'Finance', group: 'Business', tier: 'preview', warning: true, ship: "Apr '26", icon: 'IconFinance', path: '/gms/finance' },
+  { id: 'finance', label: 'Finance', group: 'Business', tier: 'preview', warning: true, ship: "Apr '26", icon: 'IconFinance', path: '/gms/finance', subPages: [
+    { id: 'overview', label: 'Overview' },
+    { id: 'transactions', label: 'Transactions' },
+    { id: 'approvals', label: 'Approvals' },
+    { id: 'owner-statements', label: 'Owner statements' },
+    { id: 'tourist-tax', label: 'Tourist tax' },
+    { id: 'pnl', label: 'P&L dashboard' },
+    { id: 'float-ledger', label: 'Float ledger' },
+    { id: 'reports', label: 'Reports' },
+    { id: 'settings', label: 'Settings' },
+  ] },
   { id: 'legal', label: 'Legal & Admin', group: 'Business', tier: 'preview', warning: true, ship: "Apr '26", icon: 'IconLegal', path: '/gms/legal' },
   { id: 'guests', label: 'Guests', group: 'People', tier: 'pitch', ship: "Jul '26", icon: 'IconGuests', path: '/gms/guests' },
   { id: 'owners', label: 'Owners', group: 'People', tier: 'preview', ship: "May '26", icon: 'IconOwners', path: '/gms/owners' },
+  { id: 'reviews', label: 'Reviews', group: 'People', tier: 'preview', ship: "May '26", icon: 'IconReviews', path: '/gms/reviews' },
+  { id: 'hr', label: 'HR', group: 'People', tier: 'live', ship: 'live', icon: 'IconUsers', path: '/fad/hr', subPages: [
+    { id: 'staff', label: 'Staff' },
+    { id: 'roster', label: 'Roster' },
+    { id: 'time-off', label: 'Time-off' },
+    { id: 'stats', label: 'Stats' },
+    { id: 'permissions', label: 'Permissions' },
+  ] },
   { id: 'marketing', label: 'Marketing', group: 'Growth', tier: 'pitch', ship: "Aug '26", icon: 'IconMkt', path: '/gms/marketing' },
   { id: 'leads', label: 'Leads / CRM-lite', group: 'Growth', tier: 'pitch', ship: 'soon', icon: 'IconLeads', path: '/gms/leads' },
   { id: 'analytics', label: 'Analytics', group: 'Growth', tier: 'preview', ship: "Jun '26", icon: 'IconChart', path: '/gms/analytics' },
@@ -41,11 +72,11 @@ export const MODULES: ModuleDef[] = [
 ];
 
 export const GROUPS: GroupDef[] = [
-  { id: 'Work', label: 'Work', suffix: 'daily' },
-  { id: 'Portfolio', label: 'Portfolio' },
-  { id: 'Business', label: 'Business' },
-  { id: 'People', label: 'People' },
-  { id: 'Growth', label: 'Growth' },
-  { id: 'Units', label: 'Business Units' },
-  { id: 'System', label: 'System' },
+  { id: 'Today', label: 'Today', tier: 'today' },
+  { id: 'Portfolio', label: 'Portfolio', tier: 'manage' },
+  { id: 'Business', label: 'Business', tier: 'manage' },
+  { id: 'People', label: 'People', tier: 'manage' },
+  { id: 'Growth', label: 'Growth', tier: 'manage' },
+  { id: 'Units', label: 'Business Units', tier: 'manage' },
+  { id: 'System', label: 'System', tier: 'manage' },
 ];

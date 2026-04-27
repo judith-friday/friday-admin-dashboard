@@ -43,19 +43,3 @@ export function ModuleHeader({ title, subtitle, tabs, activeTab, onTabChange, ac
   );
 }
 
-interface BannerProps {
-  warning?: boolean;
-  ship: string;
-}
-
-export function PreviewBanner({ warning, ship }: BannerProps) {
-  return (
-    <div className={'fad-preview-banner' + (warning ? ' warning' : '')}>
-      <span>
-        <strong style={{ fontWeight: 500 }}>Preview</strong> — design complete, data is
-        illustrative. Shipping {ship}.
-      </span>
-      <span className="ship">{ship}</span>
-    </div>
-  );
-}
