@@ -52,7 +52,13 @@ export const MODULES: ModuleDef[] = [
   { id: 'legal', label: 'Legal & Admin', group: 'Business', tier: 'preview', warning: true, ship: "Apr '26", icon: 'IconLegal', path: '/gms/legal' },
   { id: 'guests', label: 'Guests', group: 'People', tier: 'pitch', ship: "Jul '26", icon: 'IconGuests', path: '/gms/guests' },
   { id: 'owners', label: 'Owners', group: 'People', tier: 'preview', ship: "May '26", icon: 'IconOwners', path: '/gms/owners' },
-  { id: 'reviews', label: 'Reviews', group: 'People', tier: 'preview', ship: "May '26", icon: 'IconReviews', path: '/gms/reviews' },
+  { id: 'reviews', label: 'Reviews', group: 'People', tier: 'live', ship: 'live', icon: 'IconReviews', path: '/fad/reviews', subPages: [
+    { id: 'overview', label: 'Overview' },
+    { id: 'all', label: 'All reviews' },
+    { id: 'trends', label: 'Trends' },
+    { id: 'staff', label: 'Staff performance' },
+    { id: 'settings', label: 'Settings' },
+  ] },
   { id: 'hr', label: 'HR', group: 'People', tier: 'live', ship: 'live', icon: 'IconUsers', path: '/fad/hr', subPages: [
     { id: 'staff', label: 'Staff' },
     { id: 'roster', label: 'Roster' },

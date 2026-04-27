@@ -45,7 +45,8 @@ export type TaskSource =
   | 'group_email'
   | 'friday'
   | 'reported_issue'
-  | 'personal';
+  | 'personal'
+  | 'review';
 
 export type TaskVisibility = 'all' | 'team' | 'self';
 

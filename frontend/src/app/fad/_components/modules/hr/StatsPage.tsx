@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { TASK_USERS, type TaskUser } from '../../../_data/tasks';
 import { ROLE_LABEL } from '../../../_data/permissions';
 import { ROSTER_LAST_WEEK, ROSTER_THIS_WEEK } from '../../../_data/roster';
+import { staffPerformance } from '../../../_data/reviews';
 import { useCurrentUserId, usePermissions } from '../../usePermissions';
 
 interface StaffStat {
@@ -57,6 +58,22 @@ export function StatsPage() {
     if (role === 'commercial_marketing') return allStats.filter((s) => s.user.id === currentUserId);
     return allStats;
   }, [allStats, role, currentUserId]);
+
+  // Review-attributed metrics (cleaner role only — Reviews module attributes
+  // by cleaning task). Indexed by staff id for O(1) lookup in the per-staff
+  // card render below.
+  const cleanerPerf = useMemo(() => {
+    const map: Record<string, { avgRating: number; good: number; bad: number; reviewCount: number }> = {};
+    for (const p of staffPerformance('cleaner')) {
+      map[p.staffId] = {
+        avgRating: p.avgRating,
+        good: p.goodTagCount,
+        bad: p.badTagCount,
+        reviewCount: p.reviewCount,
+      };
+    }
+    return map;
+  }, []);
 
   const maxOffCount = Math.max(8, ...visible.map((s) => Math.max(s.satOff8Wks, s.sunOff8Wks)));
 
@@ -113,6 +130,35 @@ export function StatsPage() {
             <StatRow label="Sat off (8 wks)" value={`${s.satOff8Wks} of 8`} />
             <StatRow label="Sun off (8 wks)" value={`${s.sunOff8Wks} of 8`} />
             <StatRow label="Leave balance" value={`${s.leaveBalance} days`} />
+            {cleanerPerf[s.user.id] && cleanerPerf[s.user.id].reviewCount > 0 && (
+              <>
+                <div
+                  style={{
+                    margin: '8px 0 6px',
+                    paddingTop: 8,
+                    borderTop: '0.5px dashed var(--color-border-tertiary)',
+                    fontSize: 10,
+                    color: 'var(--color-text-tertiary)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                  }}
+                >
+                  Review attribution · {cleanerPerf[s.user.id].reviewCount} reviews
+                </div>
+                <StatRow
+                  label="Avg review rating"
+                  value={`${cleanerPerf[s.user.id].avgRating.toFixed(2)} ★`}
+                />
+                <StatRow
+                  label="Good-clean tags"
+                  value={cleanerPerf[s.user.id].good.toString()}
+                />
+                <StatRow
+                  label="Bad-clean tags"
+                  value={cleanerPerf[s.user.id].bad.toString()}
+                />
+              </>
+            )}
           </div>
         ))}
       </div>

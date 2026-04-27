@@ -49,6 +49,7 @@ const SOURCE_LABEL: Record<TaskSource, string> = {
   friday: 'Friday',
   reported_issue: 'Issue',
   personal: 'Personal',
+  review: 'Review',
 };
 
 // Priority left-bar bullets resolve through palette so they read sensibly in
@@ -532,6 +533,7 @@ function AllTasksPage({ onOpenTask, onCreate }: { onOpenTask: (id: string) => vo
           { value: 'reported_issue', label: 'Issue' },
           { value: 'group_email', label: 'Email' },
           { value: 'personal', label: 'Personal' },
+          { value: 'review', label: 'Review' },
         ]}
         onChange={(v) => setFilters({ ...filters, source: v as TaskSource | 'all' })}
       />

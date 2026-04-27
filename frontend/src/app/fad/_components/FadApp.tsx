@@ -24,8 +24,8 @@ import {
   IntelligenceModule,
   LeadsModule,
   MarketingModule,
-  ReviewsModule,
 } from './modules/Tier3Modules';
+import { ReviewsModule } from './modules/ReviewsModule';
 import { BugReportFab } from './BugReport';
 import { AnalyticsModule } from './modules/AnalyticsModule';
 import { ReservationsModule } from './modules/ReservationsModule';
@@ -335,7 +335,7 @@ function renderModuleInner(
     case 'owners':
       return <OwnersModule />;
     case 'reviews':
-      return <ReviewsModule />;
+      return <ReviewsModule subPage={subPage || 'overview'} onChangeSubPage={ctx.setSubPage} />;
     case 'guests':
       return <GuestsModule />;
     case 'marketing':
