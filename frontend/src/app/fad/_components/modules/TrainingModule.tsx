@@ -129,7 +129,7 @@ function TeachingsTab() {
                 <span>{t.applications} applications</span>
               </div>
             </div>
-            <span className={'chip ' + (t.status === 'active' ? 'info' : t.status === 'retired' ? '' : 'warn')}>
+            <span className={'chip ' + (t.status === 'active' ? 'info' : t.status === 'retired' ? '' : 'warn')} style={{ flexShrink: 0 }}>
               {t.status}
             </span>
           </div>
@@ -242,9 +242,9 @@ function CandidateRow({ c }: { c: LearningCandidate }) {
   const lowConf = c.confidence < 0.8;
   return (
     <div style={{ padding: '14px 16px', borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
         <span className="avatar sm"><IconAI size={14} /></span>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 13, lineHeight: 1.55, marginBottom: 6 }}>{c.summary}</div>
           <div className="row-meta">
             <span>{c.evidence.length} threads</span>
@@ -256,9 +256,11 @@ function CandidateRow({ c }: { c: LearningCandidate }) {
             </span>
           </div>
         </div>
-        <button className="btn ghost sm" onClick={() => setExpanded((v) => !v)}>{expanded ? 'Hide evidence' : 'Evidence'}</button>
-        <button className="btn sm"><IconCheck size={12} /> Approve</button>
-        <button className="btn ghost sm">Reject</button>
+        <div style={{ display: 'flex', gap: 6, marginLeft: 'auto', flexShrink: 0, flexWrap: 'wrap' }}>
+          <button className="btn ghost sm" onClick={() => setExpanded((v) => !v)}>{expanded ? 'Hide evidence' : 'Evidence'}</button>
+          <button className="btn sm"><IconCheck size={12} /> Approve</button>
+          <button className="btn ghost sm">Reject</button>
+        </div>
       </div>
       {expanded && (
         <div style={{ marginTop: 10, marginLeft: 42, padding: 10, background: 'var(--color-background-secondary)', borderRadius: 4 }}>
@@ -433,7 +435,7 @@ function VoiceTab() {
     <div style={{ display: 'grid', gap: 16 }}>
       <div className="card" style={{ padding: 20 }}>
         <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-tertiary)', marginBottom: 12 }}>Principles</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
           {BRAND_VOICE.principles.map((p, i) => (
             <div key={i}>
               <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{p.title}</div>
@@ -532,7 +534,9 @@ function AutomationRow({ a }: { a: Automation }) {
             <span>last: {a.lastFired}</span>
           </div>
         </div>
-        <div className={'toggle' + (active ? ' on' : '')} onClick={() => setActive((v) => !v)} title={active ? 'Disable rule' : 'Enable rule'} />
+        <div style={{ flexShrink: 0, alignSelf: 'flex-start', marginLeft: 8 }}>
+          <div className={'toggle' + (active ? ' on' : '')} onClick={() => setActive((v) => !v)} title={active ? 'Disable rule' : 'Enable rule'} />
+        </div>
       </div>
     </div>
   );
