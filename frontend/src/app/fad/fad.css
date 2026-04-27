@@ -5580,3 +5580,101 @@ html.fad-dark .fin-friday-flag-tag { background: rgba(0,0,0,0.25); }
   flex: 1;
   min-width: 0;
 }
+
+/* ───────────────────────────────────────────────────────────────────────
+   Reservations table (All Reservations sub-page).
+   Desktop = sortable column grid. Mobile = stacked card per row. */
+.fad-rsv-table {
+  overflow: hidden;
+}
+.fad-rsv-head,
+.fad-rsv-row {
+  display: grid;
+  grid-template-columns: 0.7fr 0.7fr 1fr 0.7fr 1.3fr 0.8fr 0.9fr 0.8fr;
+  gap: 12px;
+  align-items: center;
+}
+.fad-rsv-head {
+  padding: 10px 16px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.fad-rsv-row {
+  padding: 12px 16px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  font-size: 13px;
+  cursor: pointer;
+}
+.fad-rsv-row:last-child {
+  border-bottom: 0;
+}
+.fad-rsv-row:hover {
+  background: var(--color-background-secondary);
+}
+.fad-rsv-th {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  font-family: inherit;
+}
+.fad-rsv-cell {
+  font-size: 12px;
+  min-width: 0;
+}
+.fad-rsv-cell.mono { font-size: 12px; }
+.fad-rsv-conf { font-size: 11px; color: var(--color-text-tertiary); }
+.fad-rsv-muted { color: var(--color-text-tertiary); }
+.fad-rsv-guest {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fad-rsv-balance {
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .fad-rsv-head { display: none; }
+  .fad-rsv-row {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 8px;
+    row-gap: 4px;
+    padding: 12px 14px;
+  }
+  .fad-rsv-cell {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .fad-rsv-cell::before {
+    content: attr(data-mlabel);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-tertiary);
+    min-width: 60px;
+    flex-shrink: 0;
+  }
+  /* Guest spans both columns and reads larger */
+  .fad-rsv-guest {
+    grid-column: 1 / -1;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: normal;
+    text-overflow: clip;
+    margin-bottom: 2px;
+  }
+  .fad-rsv-guest::before { display: none; }
+  /* Status chip cell — no label, just the chip on its own row */
+  .fad-rsv-cell:nth-child(7) { grid-column: 1 / -1; }
+  .fad-rsv-cell:nth-child(7)::before { display: none; }
+  .fad-rsv-balance { text-align: left; }
+}

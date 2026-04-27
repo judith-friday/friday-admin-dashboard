@@ -403,8 +403,8 @@ export interface CalEvent {
 }
 
 /** Static maintenance + meeting events keyed by absolute date so they survive
- *  calendar navigation. Check-in / check-out come from `RESERVATIONS`; task
- *  events come from `TASKS`. */
+ *  calendar navigation. Check-in / check-out come from `_data/reservations.ts:RESERVATIONS`;
+ *  task events come from `_data/tasks.ts:TASKS`. */
 export interface FixedCalEvent {
   isoDate: string;
   start: number;
@@ -421,46 +421,6 @@ export const CAL_EVENTS: FixedCalEvent[] = [
   { isoDate: '2026-04-30', start: 15, end: 16, type: 'maint', title: 'Gardener · DMT' },
   { isoDate: '2026-05-01', start: 14, end: 15, type: 'meeting', title: 'Owner call · Nitzana' },
   { isoDate: '2026-05-03', start: 11, end: 12, type: 'maint', title: 'Deep clean · OCT' },
-];
-
-/* ───── Reservations ───── */
-
-export interface Reservation {
-  id: string;
-  guest: string;
-  property: string;
-  propCode: string;
-  channel: 'Airbnb' | 'Booking' | 'Direct' | 'VRBO' | 'Email';
-  checkIn: string;
-  checkOut: string;
-  nights: number;
-  adults: number;
-  children: number;
-  total: number;
-  touristTax: number;
-  payoutStatus: 'captured' | 'pending' | 'settled' | 'refunded';
-  status: 'confirmed' | 'hold' | 'checked-in' | 'checked-out' | 'cancelled';
-  notes?: string;
-}
-
-export const RESERVATIONS: Reservation[] = [
-  { id: 'R-24018', guest: 'Thibault Marchand', property: 'Villa Azur', propCode: 'VAZ', channel: 'Airbnb', checkIn: 'Apr 17', checkOut: 'Apr 24', nights: 7, adults: 2, children: 2, total: 2940, touristTax: 126, payoutStatus: 'captured', status: 'confirmed', notes: 'Returning guest · early check-in 14:30 approved · driver Ravi' },
-  { id: 'R-24017', guest: 'Sophia Linde', property: 'Blue Bay House', propCode: 'BBH', channel: 'Direct', checkIn: 'Apr 15', checkOut: 'Apr 22', nights: 7, adults: 2, children: 0, total: 3570, touristTax: 126, payoutStatus: 'captured', status: 'checked-in', notes: 'Chef evening Sat · dietary: no shellfish' },
-  { id: 'R-24016', guest: 'James Okonkwo', property: 'Sable Noir', propCode: 'SBN', channel: 'Booking', checkIn: 'Apr 14', checkOut: 'Apr 16', nights: 2, adults: 4, children: 0, total: 770, touristTax: 36, payoutStatus: 'settled', status: 'checked-out' },
-  { id: 'R-24015', guest: 'Isabella Fonseca', property: 'Sable Noir', propCode: 'SBN', channel: 'Booking', checkIn: 'Apr 9', checkOut: 'Apr 13', nights: 4, adults: 2, children: 0, total: 1540, touristTax: 72, payoutStatus: 'refunded', status: 'checked-out', notes: 'Hot water incident · €180 refund issued' },
-  { id: 'R-24014', guest: 'Priya Iyer', property: 'Villa Azur', propCode: 'VAZ', channel: 'Direct', checkIn: 'Apr 1', checkOut: 'Apr 7', nights: 6, adults: 2, children: 0, total: 2520, touristTax: 108, payoutStatus: 'settled', status: 'checked-out', notes: 'VIP · gluten-free · champagne on arrival' },
-  { id: 'R-24013', guest: 'Amélie Dubois', property: 'Villa Azur', propCode: 'VAZ', channel: 'Airbnb', checkIn: 'Apr 8', checkOut: 'Apr 10', nights: 2, adults: 1, children: 0, total: 840, touristTax: 36, payoutStatus: 'settled', status: 'checked-out' },
-  { id: 'R-24019', guest: 'Marianne Beaumont', property: 'Villa Azur', propCode: 'VAZ', channel: 'Email', checkIn: 'Apr 28', checkOut: 'May 2', nights: 4, adults: 2, children: 2, total: 1680, touristTax: 72, payoutStatus: 'pending', status: 'confirmed' },
-  { id: 'R-24020', guest: 'Yun Chen', property: 'La Casa Palm', propCode: 'LCA', channel: 'Airbnb', checkIn: 'Apr 19', checkOut: 'Apr 25', nights: 6, adults: 2, children: 1, total: 1770, touristTax: 108, payoutStatus: 'pending', status: 'confirmed' },
-  { id: 'R-24021', guest: 'Sofia Mendes', property: 'Nitzana · Jacaranda', propCode: 'NIT', channel: 'Direct', checkIn: 'May 2', checkOut: 'May 7', nights: 5, adults: 2, children: 0, total: 4450, touristTax: 90, payoutStatus: 'pending', status: 'hold', notes: 'Awaiting deposit confirmation' },
-  { id: 'R-24022', guest: 'Marco Ricci', property: 'Ocean Terrace', propCode: 'OCT', channel: 'VRBO', checkIn: 'May 12', checkOut: 'May 20', nights: 8, adults: 4, children: 0, total: 2640, touristTax: 144, payoutStatus: 'captured', status: 'confirmed' },
-];
-
-export const RESERVATION_KPI = [
-  { label: 'In-house today', value: '3', sub: 'VAZ · BBH · DMT' },
-  { label: 'Arriving this week', value: '5', sub: 'incl. 1 returning' },
-  { label: 'Booking value MTD', value: '€ 22,710', sub: '10 reservations' },
-  { label: 'Avg stay length', value: '5.1 nts', sub: '+0.3 vs Mar' },
 ];
 
 /* ───── Extended fixtures (tier-2 detail views) ───── */

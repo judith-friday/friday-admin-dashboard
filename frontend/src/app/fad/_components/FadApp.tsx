@@ -325,7 +325,7 @@ function renderModuleInner(
     case 'hr':
       return <HRModule subPage={subPage || 'staff'} onChangeSubPage={ctx.setSubPage} />;
     case 'reservations':
-      return <ReservationsModule />;
+      return <ReservationsModule subPage={subPage || 'overview'} onChangeSubPage={ctx.setSubPage} />;
     case 'finance':
       return <FinanceModule subPage={subPage || 'overview'} role={ctx.finRole} onRoleChange={ctx.setFinRole} onAskFriday={ctx.openFriday} />;
     case 'legal':
