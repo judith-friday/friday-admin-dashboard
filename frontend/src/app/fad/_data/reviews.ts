@@ -1,15 +1,18 @@
 /**
- * Reviews module — Phase 1 fixture (read-from-Reva model).
+ * Reviews module — Phase 1 fixture (direct read from Guesty + Breezeway).
  *
- * Phase 1 reads reviews + tags + staff attribution from Reva's API. This
- * fixture mirrors the shape that integration will return so downstream UI
- * can be built against it now. Schema deliberately matches the §8 schema
- * sketch in `~/Desktop/FAD Modules Scoping/reviews_scoping_pack.md`.
+ * Strategic frame (per Apr 2026 sessions): skip Reva entirely. Once the FAD
+ * backend is built, reviews come from Guesty's API (Airbnb / Booking / VRBO
+ * / Direct) and staff attribution comes from Breezeway task IDs. Reva is
+ * decommissioned the moment FAD is up. This fixture mirrors the shape that
+ * integration will return so the UI can be built against it now.
  *
  * Cross-link primary keys:
  *  - reservationId → `reservations.ts:RESERVATION_BY_ID`
  *  - propertyCode  → `tasks.ts:TASK_PROPERTY_BY_CODE`
  *  - staff (cleaner/inspector) → `tasks.ts:TASK_USER_BY_ID`
+ *  - breezewayTaskId on each StaffReviewLink — the join key for Phase 2's
+ *    real Breezeway-task ↔ review correlation
  */
 
 export type ReviewChannel = 'airbnb' | 'booking' | 'vrbo' | 'google' | 'direct';

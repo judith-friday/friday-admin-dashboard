@@ -10,7 +10,8 @@ export function SettingsPage() {
   });
   const [autoPublishMin, setAutoPublishMin] = useState(5);
   const [lowActivityDays, setLowActivityDays] = useState(90);
-  const [revaApiKey, setRevaApiKey] = useState('••••••••••••reva_8f2a');
+  const [guestyApiKey, setGuestyApiKey] = useState('••••••••••••gst_8f2a');
+  const [breezewayApiKey, setBreezewayApiKey] = useState('••••••••••••brz_4d91');
 
   const toggleChannel = (ch: ReviewChannel) => {
     setChannelSubs((prev) => ({ ...prev, [ch]: !prev[ch] }));
@@ -19,25 +20,41 @@ export function SettingsPage() {
 
   return (
     <div className="fad-module-body">
-      {/* Reva integration */}
+      {/* Guesty + Breezeway integration */}
       <div className="card" style={{ padding: 14, marginBottom: 16 }}>
         <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-          Reva integration · Phase 1
+          Integrations
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginBottom: 12, lineHeight: 1.5 }}>
+          Reviews are pulled directly from Guesty (per-channel feeds) and joined to Breezeway tasks for staff attribution. No Reva dependency.
         </div>
         <div style={{ marginBottom: 10 }}>
-          <label style={{ display: 'block', fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.04em' }}>API key</label>
+          <label style={{ display: 'block', fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Guesty API key</label>
           <div style={{ display: 'flex', gap: 6 }}>
             <input
               type="text"
-              value={revaApiKey}
-              onChange={(e) => setRevaApiKey(e.target.value)}
+              value={guestyApiKey}
+              onChange={(e) => setGuestyApiKey(e.target.value)}
               style={{ flex: 1, padding: '6px 10px', fontSize: 12, fontFamily: 'var(--font-mono-fad)' }}
             />
-            <button className="btn ghost sm" onClick={() => fireToast('Reva connection test · stub')}>Test</button>
+            <button className="btn ghost sm" onClick={() => fireToast('Guesty connection test · stub')}>Test</button>
+          </div>
+        </div>
+        <div style={{ marginBottom: 10 }}>
+          <label style={{ display: 'block', fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Breezeway API key</label>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <input
+              type="text"
+              value={breezewayApiKey}
+              onChange={(e) => setBreezewayApiKey(e.target.value)}
+              style={{ flex: 1, padding: '6px 10px', fontSize: 12, fontFamily: 'var(--font-mono-fad)' }}
+            />
+            <button className="btn ghost sm" onClick={() => fireToast('Breezeway connection test · stub')}>Test</button>
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 8, fontSize: 12 }}>
-          <Stat label="Last sync" value="2 minutes ago" />
+          <Stat label="Last sync · Guesty" value="2 minutes ago" />
+          <Stat label="Last sync · Breezeway" value="6 minutes ago" />
           <Stat label="Last error" value="None · 7d" />
           <Stat label="Reviews today" value="3" />
         </div>
@@ -49,7 +66,7 @@ export function SettingsPage() {
           Channel subscriptions
         </div>
         <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginBottom: 12, lineHeight: 1.5 }}>
-          Reva pulls reviews from these channels. Direct-booking review collection is owned by the Marketing module's website widget pipeline (Phase 2+).
+          Channels enabled here pull through Guesty into the Reviews module. Direct-booking review collection is owned by the Marketing module's website widget pipeline (Phase 2+).
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {(['airbnb', 'booking', 'vrbo', 'google', 'direct'] as const).map((ch) => (
@@ -78,7 +95,7 @@ export function SettingsPage() {
           Auto-publish threshold
         </div>
         <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginBottom: 12, lineHeight: 1.5 }}>
-          Mirror of Reva's setting · function unknown to Friday in Phase 1. Wave 1 audit will resolve what auto-publish actually pushes (website widget? OTA reply auto-submit? internal flag?). Phase 2 decision pivots on the answer.
+          When ON, reviews at or above the threshold auto-publish to friday.mu's website widget pipeline (Marketing module). Lower-rated reviews stay internal-only until reviewed.
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <label style={{ fontSize: 12 }}>Reviews ≥</label>
