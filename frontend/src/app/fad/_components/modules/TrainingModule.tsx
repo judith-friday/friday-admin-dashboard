@@ -335,10 +335,12 @@ function PerformanceTab() {
           <div className="card-title">Per-staff performance</div>
           <div className="card-subtitle">trailing 30 days</div>
         </div>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: '1.4fr 1fr 0.8fr 1.2fr 1fr 1fr 0.8fr',
+            minWidth: 720,
             gap: 12,
             padding: '10px 16px',
             borderBottom: '0.5px solid var(--color-border-tertiary)',
@@ -362,6 +364,7 @@ function PerformanceTab() {
             style={{
               display: 'grid',
               gridTemplateColumns: '1.4fr 1fr 0.8fr 1.2fr 1fr 1fr 0.8fr',
+            minWidth: 720,
               gap: 12,
               padding: '14px 16px',
               borderBottom: '0.5px solid var(--color-border-tertiary)',
@@ -386,6 +389,7 @@ function PerformanceTab() {
             <span className="mono" style={{ fontSize: 12 }}>€ {p.creditSpend.toFixed(2)}</span>
           </div>
         ))}
+        </div>
       </div>
     </>
   );
