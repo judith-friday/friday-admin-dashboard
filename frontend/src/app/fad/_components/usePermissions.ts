@@ -214,7 +214,9 @@ export const MODULE_RESOURCE: Record<string, Resource[]> = {
   properties: ['properties'],
   reservations: ['reservations'],
   finance: ['finance'],
-  legal: ['settings'],
+  // Legal & Admin gated by `owners` (contracts / legal docs sit in the owner-domain)
+  // rather than `settings` — keeps it hidden from Field while leaving Settings open.
+  legal: ['owners'],
   guests: ['owners'],
   owners: ['owners'],
   reviews: ['owners'],
@@ -223,7 +225,12 @@ export const MODULE_RESOURCE: Record<string, Resource[]> = {
   analytics: ['owners'],
   intelligence: ['owners'],
   syndic: ['inbox_syndic'],
-  // interior, agency, training: tease/preview business-unit modules — leave open
+  // Tease/preview business-unit + system modules. Gated by `owners` so Field
+  // (no owners scope) doesn't see them in the sidebar; Director / Commercial /
+  // Ops all retain visibility. Refine semantics when these modules ship for real.
+  interior: ['owners'],
+  agency: ['owners'],
+  training: ['owners'],
   settings: ['settings'],
   hr: ['hr_staff'],
 };

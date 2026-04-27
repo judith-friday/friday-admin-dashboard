@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ModuleHeader } from '../ModuleHeader';
+import { useCurrentRole } from '../usePermissions';
 
 interface Props {
   theme: 'light' | 'dark';
@@ -17,15 +18,20 @@ const SECTIONS = [
   { id: 'billing', label: 'Billing' },
 ];
 
+// Field staff get a slimmed Settings — only personal-scope sections.
+const FIELD_SECTION_IDS = new Set(['appearance', 'account']);
+
 export function SettingsModule({ theme, onToggleTheme }: Props) {
-  const [section, setSection] = useState('appearance');
+  const role = useCurrentRole();
+  const sections = role === 'field' ? SECTIONS.filter((s) => FIELD_SECTION_IDS.has(s.id)) : SECTIONS;
+  const [section, setSection] = useState(sections[0]?.id ?? 'appearance');
   return (
     <>
       <ModuleHeader title="Settings" subtitle="Your profile, team, GMS, and system preferences" />
       <div className="fad-module-body">
         <div className="settings-layout">
           <div className="settings-nav">
-            {SECTIONS.map((s) => (
+            {sections.map((s) => (
               <button
                 key={s.id}
                 className={'settings-nav-item' + (section === s.id ? ' active' : '')}

@@ -142,7 +142,9 @@ const FIELD_PERMS: RolePermissions = {
   // separately inside ReservationDetail by `financialAccessFor(role)`.
   reservations: READ_ONLY,
   properties: {},
-  settings: {},
+  // Field gets a slimmed Settings (Appearance + Account only — section gating in
+  // SettingsModule). SELF_ONLY here unlocks the module; sections handle the rest.
+  settings: SELF_ONLY,
 };
 
 const EXTERNAL_PERMS: RolePermissions = {
