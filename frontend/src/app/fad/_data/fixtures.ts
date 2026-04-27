@@ -188,6 +188,66 @@ export const INBOX_THREADS: InboxThread[] = [
     triageStatus: 'review', stayStatus: 'na',
     sentiment: 'neutral',
   },
+
+  // ───── Threads referenced by tasks/issues for click-through demo ─────
+  {
+    id: 'inb-lb2-guest-22', unread: false, urgent: 'red', entity: 'guest', channelKey: 'whatsapp',
+    guest: 'Lukas Bauer', subject: 'AC bedroom not working — kids hot',
+    preview: 'AC in master bedroom died around 22:00. Tried the remote, breaker, nothing. Two kids under 6 — please help.',
+    channel: 'WhatsApp', time: 'Wed', property: 'Lagon Bleu 2 · Trou aux Biches',
+    language: 'EN',
+    triageStatus: 'open', stayStatus: 'currently_staying',
+    summary: 'AC compressor failure master bedroom · escalated to Mathias · parts ETA 14:00 · spend Rs 4,800.',
+    sentiment: 'urgent',
+    whatsappWindow: { open: true, expiresInMinutes: 540 },
+    messages: [
+      { from: 'them', name: 'Lukas', time: 'Wed 22:18', body: 'AC in master bedroom died around 22:00. Tried the remote, breaker, nothing. Two kids under 6 — please help.' },
+      { from: 'us', name: 'Franny', time: 'Wed 22:30', body: "So sorry Lukas — escalating to maintenance now. Mathias is on call and will be in touch. Two portable fans dropping off in 30 min." },
+      { from: 'them', name: 'Lukas', time: 'Wed 22:42', body: 'Thanks. Fans would help a lot.' },
+    ],
+  },
+  {
+    id: 'inb-lv10-guest-04', unread: true, urgent: 'amber', entity: 'guest', channelKey: 'whatsapp',
+    guest: 'Mariana Costa', subject: 'Smell from the kitchen sink',
+    preview: "There's a sulphur-like smell coming from around the kitchen sink. Pretty strong this morning.",
+    channel: 'WhatsApp', time: '07:42', property: 'Le Vivier 10 · Pereybere',
+    language: 'EN',
+    triageStatus: 'open', stayStatus: 'currently_staying',
+    summary: 'Sulphur smell at kitchen sink · likely dry drain trap · maintenance/plumbing routing.',
+    sentiment: 'neutral',
+    whatsappWindow: { open: true, expiresInMinutes: 1320 },
+    messages: [
+      { from: 'them', name: 'Mariana', time: 'Thu 07:42', body: "Hi! There's a sulphur-like smell coming from around the kitchen sink. Pretty strong this morning. Otherwise everything's been great." },
+    ],
+  },
+  {
+    id: 'inb-bs1-wang-late', unread: true, entity: 'guest', channelKey: 'whatsapp',
+    guest: 'Hua Wang', subject: 'Late checkout request — flight at 19:00',
+    preview: "Our flight isn't until evening — could we keep the villa until 14:00 instead of 11:00?",
+    channel: 'WhatsApp', time: '08:02', property: 'Bois Sec 1 · Bel Ombre',
+    language: 'EN',
+    triageStatus: 'open', stayStatus: 'currently_staying',
+    summary: 'Wang asks 14:00 checkout (4h late) · no incoming guest until 18:00 · Rs 1,500 fee applies.',
+    sentiment: 'positive',
+    whatsappWindow: { open: true, expiresInMinutes: 1380 },
+    messages: [
+      { from: 'them', name: 'Hua', time: 'Thu 08:02', body: "Hi Friday team — our flight isn't until 19:00 tonight. Could we keep the villa until 14:00 instead of 11:00? Happy to pay a fee if needed." },
+    ],
+  },
+  {
+    id: 'inb-rc15-kanarski', unread: true, entity: 'guest', channelKey: 'whatsapp',
+    guest: 'Aleks Kanarski', subject: 'Welcome basket — chocolates missing?',
+    preview: "Just arrived — the welcome basket is lovely, just noticed there are no chocolates inside. Are they coming separately?",
+    channel: 'WhatsApp', time: '09:30', property: 'Reflet de Corail 15 · Flic en Flac',
+    language: 'EN',
+    triageStatus: 'open', stayStatus: 'currently_staying',
+    summary: 'Welcome basket missing chocolates · Alex on-site (pre-arrival inspection) · drop chocolates 15 min.',
+    sentiment: 'neutral',
+    whatsappWindow: { open: true, expiresInMinutes: 1410 },
+    messages: [
+      { from: 'them', name: 'Aleks', time: 'Thu 09:30', body: "Hi! Just arrived — the welcome basket is lovely, just noticed there are no chocolates inside. Are they coming separately?" },
+    ],
+  },
 ];
 
 export const INBOX_INTERNAL_NOTES: InternalNote[] = [
