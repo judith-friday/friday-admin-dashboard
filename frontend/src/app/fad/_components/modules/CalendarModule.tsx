@@ -312,6 +312,16 @@ export function CalendarModule() {
         onTabChange={(id) => setTab(id as typeof tab)}
         actions={
           <>
+            <select
+              className="cal-view-switcher"
+              value={tab}
+              onChange={(e) => setTab(e.target.value as CalView)}
+              aria-label="Calendar view"
+            >
+              <option value="day">Day</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+            </select>
             <div className="cal-nav">
               <button className="btn ghost sm" onClick={() => navStep(-1)} aria-label="Previous">
                 ‹
@@ -323,7 +333,13 @@ export function CalendarModule() {
                 ›
               </button>
             </div>
-            <button className="btn sm">
+            <button
+              className="btn sm cal-action-sync"
+              onClick={() =>
+                fireToast('Sync · stub — will pull/push reservations + tasks to Guesty when integration lands')
+              }
+              title="Sync with Guesty (pending integration)"
+            >
               <IconRefresh size={12} /> Sync
             </button>
             <button className="btn primary sm" onClick={() => setCreateOpen(true)}>

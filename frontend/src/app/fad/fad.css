@@ -2596,8 +2596,29 @@ html.fad-dark .cal-popover { box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
   padding: 4px 8px;
 }
 
-/* Mobile: cal-nav drops "Today" text width, action cluster wraps below tabs. */
+/* The view-switcher dropdown replaces the Day/Week/Month tabs at <768px. */
+.cal-view-switcher {
+  display: none;
+}
+
 @media (max-width: 768px) {
+  /* Tabs hide; dropdown appears in the actions row instead. */
+  .fad-module-header .fad-tabs { display: none; }
+  .cal-view-switcher {
+    display: inline-flex;
+    height: 28px;
+    padding: 0 8px;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+  /* Sync is a stub on mobile — hide it to save space; user can still trigger
+     from desktop. */
+  .cal-action-sync { display: none !important; }
   .cal-nav {
     margin-right: 0;
   }
@@ -2606,9 +2627,34 @@ html.fad-dark .cal-popover { box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
     padding: 3px 6px;
     font-size: 12px;
   }
-  /* Force the title+tabs block onto its own row so actions wrap below; keeps
-     all 3 view tabs visible without horizontal scroll. */
-  .fad-module-header-main { flex-basis: 100%; }
+
+  /* Calendar mobile: tighter spacing + smaller text so more events fit. */
+  .cal-mobile-pager {
+    padding: 4px 0 8px;
+  }
+  .cal-mobile-pager > div {
+    line-height: 1.2;
+  }
+  .cal-mobile-event {
+    grid-template-columns: 44px auto 1fr;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+  }
+  .cal-mobile-event-time { font-size: 11px; }
+  .cal-mobile-event-type { font-size: 8px; }
+  .cal-mobile-event-title { font-size: 12px; }
+  .cal-mobile-list { gap: 4px; }
+  .cal-mobile-allday {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+  }
+  .cal-mobile-allday-label { font-size: 9px; margin-bottom: 4px; }
+
+  /* Calendar in-residence strip on day view: shrink pills */
+  .cal-day-stays { padding: 6px 10px; }
+  .cal-day-stays-label { font-size: 9px; margin-bottom: 4px; }
+  .cal-stay-band { height: 20px; font-size: 10px; padding: 0 8px; }
 }
 
 /* Month calendar */
