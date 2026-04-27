@@ -56,6 +56,8 @@ export function AllReservationsPage({ onOpen }: Props) {
   const [propertyFilter, setPropertyFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
   const [balanceDueOnly, setBalanceDueOnly] = useState(false);
+  const [dateFrom, setDateFrom] = useState<string>('');
+  const [dateTo, setDateTo] = useState<string>('');
   const [sortKey, setSortKey] = useState<SortKey>('checkIn');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
 
@@ -76,13 +78,16 @@ export function AllReservationsPage({ onOpen }: Props) {
       if (channelFilter !== 'all' && r.channel !== channelFilter) return false;
       if (propertyFilter !== 'all' && r.propertyCode !== propertyFilter) return false;
       if (balanceDueOnly && r.balanceDue <= 0) return false;
+      // Date range filter applies to check-in date.
+      if (dateFrom && r.checkIn.slice(0, 10) < dateFrom) return false;
+      if (dateTo && r.checkIn.slice(0, 10) > dateTo) return false;
       if (q) {
         const hay = `${r.guestName} ${r.confirmationCode} ${r.propertyCode}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
-  }, [allInScope, statusFilter, channelFilter, propertyFilter, search, balanceDueOnly]);
+  }, [allInScope, statusFilter, channelFilter, propertyFilter, search, balanceDueOnly, dateFrom, dateTo]);
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
@@ -108,13 +113,22 @@ export function AllReservationsPage({ onOpen }: Props) {
 
   const sortInd = (key: SortKey) => (sortKey === key ? (sortDir === 'asc' ? ' ↑' : ' ↓') : '');
 
-  const filtersDirty = statusFilter !== 'all' || channelFilter !== 'all' || propertyFilter !== 'all' || balanceDueOnly || search.trim() !== '';
+  const filtersDirty =
+    statusFilter !== 'all' ||
+    channelFilter !== 'all' ||
+    propertyFilter !== 'all' ||
+    balanceDueOnly ||
+    search.trim() !== '' ||
+    dateFrom !== '' ||
+    dateTo !== '';
   const clearAll = () => {
     setStatusFilter('all');
     setChannelFilter('all');
     setPropertyFilter('all');
     setBalanceDueOnly(false);
     setSearch('');
+    setDateFrom('');
+    setDateTo('');
   };
 
   return (
@@ -186,6 +200,15 @@ export function AllReservationsPage({ onOpen }: Props) {
             ...properties.map((p) => ({ value: p, label: p })),
           ]}
         />
+        <DateRangePill
+          label="Date range"
+          from={dateFrom}
+          to={dateTo}
+          onChange={(f, t) => {
+            setDateFrom(f);
+            setDateTo(t);
+          }}
+        />
       </FilterBar>
 
       <div className="card fad-rsv-table">
@@ -233,3 +256,76 @@ export function AllReservationsPage({ onOpen }: Props) {
     </div>
   );
 }
+
+function DateRangePill({
+  label,
+  from,
+  to,
+  onChange,
+}: {
+  label: string;
+  from: string;
+  to: string;
+  onChange: (from: string, to: string) => void;
+}) {
+  const display = from && to ? `${from} → ${to}` : from ? `from ${from}` : to ? `until ${to}` : 'Any';
+  const dirty = from !== '' || to !== '';
+  return (
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+        padding: '4px 8px',
+        border: '0.5px solid var(--color-border-tertiary)',
+        borderRadius: 999,
+        fontSize: 11,
+        background: dirty ? 'var(--color-brand-accent-soft)' : 'transparent',
+      }}
+    >
+      <span style={{ color: 'var(--color-text-tertiary)' }}>{label}</span>
+      <input
+        type="date"
+        value={from}
+        onChange={(e) => onChange(e.target.value, to)}
+        style={{ ...miniInputStyle, width: 110 }}
+        title="From"
+      />
+      <span style={{ color: 'var(--color-text-tertiary)' }}>→</span>
+      <input
+        type="date"
+        value={to}
+        onChange={(e) => onChange(from, e.target.value)}
+        style={{ ...miniInputStyle, width: 110 }}
+        title="To"
+      />
+      {dirty && (
+        <button
+          onClick={() => onChange('', '')}
+          aria-label="Clear date range"
+          style={{
+            background: 'transparent',
+            border: 0,
+            color: 'var(--color-text-tertiary)',
+            cursor: 'pointer',
+            padding: '0 2px',
+            fontSize: 12,
+          }}
+        >
+          ×
+        </button>
+      )}
+      <span className="sr-only">{display}</span>
+    </div>
+  );
+}
+
+const miniInputStyle: React.CSSProperties = {
+  border: 0,
+  background: 'transparent',
+  fontSize: 11,
+  fontFamily: 'inherit',
+  color: 'inherit',
+  outline: 'none',
+  padding: 0,
+};

@@ -1768,7 +1768,10 @@ html.fad-dark .bug-fab:hover { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6); }
 /* ───────────── Mobile · max-width 768 ───────────── */
 @media (max-width: 768px) {
   .inbox-mobile-back { display: inline-flex !important; }
-  /* Sidebar becomes slide-in drawer */
+  /* Sidebar becomes slide-in drawer.
+   * z-index sits ABOVE module-level drawers (.task-detail-pane = 45) so the
+   * sidebar always wins on mobile — opening the sidebar with a reservation
+   * detail / task drawer open should slide over them, not behind. */
   .fad-sidebar {
     position: fixed;
     top: 48px;
@@ -1776,7 +1779,7 @@ html.fad-dark .bug-fab:hover { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6); }
     bottom: 0;
     width: 260px;
     flex: 0 0 260px;
-    z-index: 45;
+    z-index: 50;
     transform: translateX(-100%);
     transition: transform var(--dur-2) var(--ease);
     box-shadow: 4px 0 16px rgba(15, 24, 54, 0.12);
@@ -1798,7 +1801,7 @@ html.fad-dark .bug-fab:hover { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6); }
     right: 0;
     bottom: 0;
     background: rgba(15, 24, 54, 0.3);
-    z-index: 44;
+    z-index: 49;
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--dur-2) var(--ease);

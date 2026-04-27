@@ -4,10 +4,13 @@ import { useEffect, useState } from 'react';
 import { ModuleHeader } from '../ModuleHeader';
 import { IconPlus } from '../icons';
 import { fireToast } from '../Toaster';
+import type { Reservation } from '../../_data/reservations';
 import { OverviewPage } from './reservations/OverviewPage';
 import { AllReservationsPage } from './reservations/AllReservationsPage';
 import { InquiriesPage } from './reservations/InquiriesPage';
 import { ReservationDetail } from './reservations/ReservationDetail';
+import { CreateReservationDrawer } from './reservations/CreateReservationDrawer';
+import { CreateTaskDrawer } from './operations/CreateTaskDrawer';
 
 interface Props {
   subPage: string;
@@ -24,6 +27,8 @@ export function ReservationsModule({ subPage, onChangeSubPage }: Props) {
   const active = tabs.find((t) => t.id === subPage)?.id ?? 'overview';
 
   const [openId, setOpenId] = useState<string | null>(null);
+  const [taskFromRsv, setTaskFromRsv] = useState<Reservation | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
 
   // Cross-link target: ?rsv=<id> opens detail directly. Also supports the
   // legacy ?detail= query param for backwards compatibility with stub links.
@@ -34,9 +39,7 @@ export function ReservationsModule({ subPage, onChangeSubPage }: Props) {
     if (target) setOpenId(target);
   }, []);
 
-  const handleNew = () => {
-    fireToast('Create reservation — opens the Calendar Find-availability flow (Phase 2 wiring; Calendar owns the create entry per scoping pack §8).');
-  };
+  const handleNew = () => setCreateOpen(true);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
@@ -57,7 +60,39 @@ export function ReservationsModule({ subPage, onChangeSubPage }: Props) {
         {active === 'all' && <AllReservationsPage onOpen={setOpenId} />}
         {active === 'inquiries' && <InquiriesPage onOpenReservation={setOpenId} />}
       </div>
-      {openId && <ReservationDetail reservationId={openId} onClose={() => setOpenId(null)} />}
+      {openId && (
+        <ReservationDetail
+          reservationId={openId}
+          onClose={() => setOpenId(null)}
+          onCreateTask={(rsv) => setTaskFromRsv(rsv)}
+        />
+      )}
+      <CreateTaskDrawer
+        open={!!taskFromRsv}
+        onClose={() => setTaskFromRsv(null)}
+        onCreated={(t) => {
+          setTaskFromRsv(null);
+          fireToast(`Task created · ${t.id}`);
+        }}
+        prefill={
+          taskFromRsv
+            ? {
+                title: '',
+                propertyCode: taskFromRsv.propertyCode,
+                reservationId: taskFromRsv.id,
+                source: 'manual',
+              }
+            : undefined
+        }
+      />
+      <CreateReservationDrawer
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={(rsv) => {
+          setCreateOpen(false);
+          setOpenId(rsv.id);
+        }}
+      />
     </div>
   );
 }
