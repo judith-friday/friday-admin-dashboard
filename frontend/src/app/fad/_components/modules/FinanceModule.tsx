@@ -63,6 +63,25 @@ interface Props {
 // Shared with FadApp + Sidebar via `_data/financeRoles.ts`.
 
 import { FIN_ROLE_GATES, FIN_ROLE_LABELS, type FinRole } from '../../_data/financeRoles';
+import {
+  FIN_PAYOUT_DISCREPANCIES,
+  DISCREPANCY_KIND_LABEL,
+  detectAllAnomalies,
+  discrepancyForReservation,
+  openDiscrepancies,
+  openReconValueMinor,
+  openReconCountsByKind,
+  type PayoutDiscrepancy,
+} from '../../_data/financeAnomalies';
+import { FIN_ESCALATION_CHAIN } from '../../_data/finance';
+import {
+  applyOwnerCharge,
+  applyFareCollapseSplit,
+  requestRefundApproval,
+  postFinanceEscalation,
+} from '../../_data/breezeway';
+import { useCurrentUserId } from '../usePermissions';
+import { fireToast } from '../Toaster';
 
 // ─────────────────────────────────── SHARED CONTEXT ───────────────────────────────────
 
@@ -261,6 +280,10 @@ function FinanceOverview({ onResumeClose }: { onResumeClose: () => void }) {
   const period = CURRENT_PERIOD;
   const stageLabels = ['Pre-flight', 'FX rate', 'Bank recon', 'Revenue recon', 'Per-property', 'Tourist tax', 'P&L preview', 'Lock + post'];
 
+  const reconOpen = openDiscrepancies();
+  const reconValueMinor = openReconValueMinor();
+  const reconCounts = openReconCountsByKind();
+
   return (
     <>
       <FridayBrief />
@@ -287,6 +310,60 @@ function FinanceOverview({ onResumeClose }: { onResumeClose: () => void }) {
           <div className="kpi-sub">{FIN_TOURIST_TAX.filter((m) => !m.filed).length} unfiled months</div>
         </div>
       </div>
+
+      {/* Open reconciliation items — Mathias's recon engine surface outside period close */}
+      {reconOpen.length > 0 && (
+        <div className="card fin-card" style={{ marginTop: 16, borderLeft: '3px solid var(--color-text-warning)' }}>
+          <div className="card-header">
+            <div>
+              <div className="card-title">Open reconciliation items · {reconOpen.length}</div>
+              <div className="card-subtitle">
+                {formatCurrency(reconValueMinor, 'MUR')} in pending Owner Charges · auto-detected from Guesty vs channel-actual payouts
+              </div>
+            </div>
+            <button className="btn sm" onClick={onResumeClose}>Resolve in period close</button>
+          </div>
+          <div style={{ padding: '8px 16px 16px', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {(['resolution_centre', 'special_offer_collapse', 'reservation_change', 'platform_discount'] as const).map((k) => {
+              const count = reconCounts[k];
+              if (count === 0) return null;
+              return (
+                <span
+                  key={k}
+                  className="chip"
+                  style={{
+                    background: 'var(--color-bg-warning)',
+                    color: 'var(--color-text-warning)',
+                    fontSize: 11,
+                  }}
+                >
+                  {DISCREPANCY_KIND_LABEL[k]} · {count}
+                </span>
+              );
+            })}
+          </div>
+          <div className="fin-tt-table" style={{ borderTop: '0.5px solid var(--color-border-tertiary)' }}>
+            {reconOpen.slice(0, 3).map((d) => (
+              <div key={d.id} className="fin-tt-row" style={{ padding: '10px 16px', display: 'grid', gridTemplateColumns: '120px 1fr 1fr 100px', gap: 12, alignItems: 'center', fontSize: 12 }}>
+                <span className="mono">{d.reservationId}</span>
+                <span>
+                  <strong>{d.guestName}</strong>{' '}
+                  <span style={{ color: 'var(--color-text-tertiary)' }}>· {d.propertyCode}</span>
+                </span>
+                <span style={{ color: 'var(--color-text-secondary)' }}>{DISCREPANCY_KIND_LABEL[d.kind]}</span>
+                <span className="mono" style={{ textAlign: 'right', fontWeight: 500 }}>
+                  {d.suggestedOwnerChargeMinor === 0 ? 'split only' : `Rs ${(d.suggestedOwnerChargeMinor / 100).toLocaleString()}`}
+                </span>
+              </div>
+            ))}
+            {reconOpen.length > 3 && (
+              <div style={{ padding: '8px 16px', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+                + {reconOpen.length - 3} more in Stage 4 of period close
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="fin-row" style={{ marginTop: 20 }}>
         <div className="card fin-card">
@@ -485,12 +562,14 @@ function FinanceTransactions() {
   const [statusFilter, setStatusFilter] = useState<ExpenseStatus | 'all'>('all');
   const [billToFilter, setBillToFilter] = useState<BillTo | 'all'>('all');
   const [propertyFilter, setPropertyFilter] = useState<string | 'all'>('all');
+  const [reconOnly, setReconOnly] = useState(false);
   const [search, setSearch] = useState('');
 
   const filtered = FIN_EXPENSES.filter((e) => {
     if (statusFilter !== 'all' && e.status !== statusFilter) return false;
     if (billToFilter !== 'all' && e.billTo !== billToFilter) return false;
     if (propertyFilter !== 'all' && e.propertyCode !== propertyFilter) return false;
+    if (reconOnly && !(e.reservationId && discrepancyForReservation(e.reservationId))) return false;
     if (search) {
       const q = search.toLowerCase();
       if (!e.vendorName.toLowerCase().includes(q) && !e.description.toLowerCase().includes(q) && !(e.brzTaskId || '').toLowerCase().includes(q)) return false;
@@ -522,6 +601,13 @@ function FinanceTransactions() {
           <option value="all">All properties</option>
           {FIN_PROPERTIES.map((p) => <option key={p.code} value={p.code}>{p.code} · {p.name}</option>)}
         </select>
+        <button
+          className={'inbox-chip' + (reconOnly ? ' active' : '')}
+          onClick={() => setReconOnly((v) => !v)}
+          title="Show only rows linked to an open reconciliation discrepancy"
+        >
+          ⚠ Recon anomalies {openDiscrepancies().length > 0 && `· ${openDiscrepancies().length}`}
+        </button>
         <span className="fin-tx-count">{filtered.length} of {FIN_EXPENSES.length}</span>
       </div>
 
@@ -536,13 +622,24 @@ function FinanceTransactions() {
           <div>Status</div>
           <div>By</div>
         </div>
-        {filtered.map((e) => (
+        {filtered.map((e) => {
+          const recon = e.reservationId ? discrepancyForReservation(e.reservationId) : undefined;
+          return (
           <div key={e.id} className="fin-tx-row">
             <div className="mono fin-tx-date">{e.occurredAt.split(' ')[0]}</div>
             <div className="fin-tx-desc">
               <div className="fin-tx-vendor">
                 {e.vendorName}
                 {e.vendorUnrecognized && <span className="chip warn sm">unknown</span>}
+                {recon && !recon.resolvedAt && (
+                  <span
+                    className="chip warn sm"
+                    title={`${DISCREPANCY_KIND_LABEL[recon.kind]} — open recon item linked to ${recon.reservationId}`}
+                    style={{ background: 'var(--color-bg-warning)', color: 'var(--color-text-warning)' }}
+                  >
+                    ⚠ recon
+                  </span>
+                )}
               </div>
               <div className="fin-tx-descline">{e.description}</div>
             </div>
@@ -559,7 +656,8 @@ function FinanceTransactions() {
             </div>
             <div className="fin-tx-by">{e.enteredBy}</div>
           </div>
-        ))}
+          );
+        })}
         {filtered.length === 0 && <div className="fin-empty" style={{ padding: 32 }}>No transactions match your filters.</div>}
       </div>
     </>
@@ -1703,13 +1801,14 @@ function FinanceReports() {
 // ─────────────────────────────────── SETTINGS ───────────────────────────────────
 
 function FinanceSettings() {
-  const [tab, setTab] = useState<'categories' | 'caps' | 'vendors' | 'accounts' | 'integrations'>('categories');
+  const [tab, setTab] = useState<'categories' | 'caps' | 'escalation' | 'vendors' | 'accounts' | 'integrations'>('categories');
   return (
     <>
       <div className="fin-settings-tabs">
         {[
           { id: 'categories', label: 'Categories' },
           { id: 'caps', label: 'Spending caps' },
+          { id: 'escalation', label: 'Approval escalation' },
           { id: 'vendors', label: 'Vendors' },
           { id: 'accounts', label: 'Accounts' },
           { id: 'integrations', label: 'Integrations' },
@@ -1717,16 +1816,133 @@ function FinanceSettings() {
           <button
             key={t.id}
             className={'fin-settings-tab' + (tab === t.id ? ' active' : '')}
-            onClick={() => setTab(t.id as 'categories' | 'caps' | 'vendors' | 'accounts' | 'integrations')}
+            onClick={() => setTab(t.id as 'categories' | 'caps' | 'escalation' | 'vendors' | 'accounts' | 'integrations')}
           >{t.label}</button>
         ))}
       </div>
       {tab === 'categories' && <SettingsCategories />}
       {tab === 'caps' && <SettingsCaps />}
+      {tab === 'escalation' && <SettingsEscalation />}
       {tab === 'vendors' && <SettingsVendors />}
       {tab === 'accounts' && <SettingsAccounts />}
       {tab === 'integrations' && <SettingsIntegrations />}
     </>
+  );
+}
+
+// Approval escalation chain — internal refund / reconciliation routing.
+// Replaces the originally-locked Slack-DM-Ishant flow per running decisions
+// log §3.1. Editable timer thresholds + recipient list + Mathias's fallback
+// approval cap.
+function SettingsEscalation() {
+  const currentUserId = useCurrentUserId();
+  const [chain, setChain] = useState({
+    t1Mins: FIN_ESCALATION_CHAIN.tier1.silentTimeoutMins,
+    t2Mins: FIN_ESCALATION_CHAIN.tier2.silentTimeoutMins,
+    t3FallbackCapMinor: FIN_ESCALATION_CHAIN.tier3.fallbackApprovalCapMinor,
+  });
+  const tier1Recipient = TASK_USER_BY_ID_OR_NAME(FIN_ESCALATION_CHAIN.tier1.recipientId);
+  const tier3Recipient = TASK_USER_BY_ID_OR_NAME(FIN_ESCALATION_CHAIN.tier3.recipientId);
+  const tier3Final = TASK_USER_BY_ID_OR_NAME(FIN_ESCALATION_CHAIN.tier3.finalFallbackRecipientId);
+
+  const save = () => {
+    FIN_ESCALATION_CHAIN.tier1.silentTimeoutMins = chain.t1Mins;
+    FIN_ESCALATION_CHAIN.tier2.silentTimeoutMins = chain.t2Mins;
+    FIN_ESCALATION_CHAIN.tier3.fallbackApprovalCapMinor = chain.t3FallbackCapMinor;
+    fireToast('Escalation chain saved · applies to next request');
+  };
+
+  const test = () => {
+    requestRefundApproval({
+      amountMinor: 500_00,
+      currency: 'MUR',
+      requestorId: currentUserId,
+      reason: 'Test escalation — Settings → Approval escalation',
+      urgent: false,
+    });
+  };
+
+  return (
+    <div className="card fin-card">
+      <div className="card-header">
+        <div>
+          <div className="card-title">Approval escalation chain</div>
+          <div className="card-subtitle">
+            Routing for above-cap refunds and reconciliation requests · supersedes the originally-locked Slack-DM rule (running decisions log §3.1)
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button className="btn ghost sm" onClick={test}>Test post to #finance</button>
+          <button className="btn primary sm" onClick={save}>Save chain</button>
+        </div>
+      </div>
+
+      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {/* Tier 1 */}
+        <div style={{ padding: 12, background: 'var(--color-background-secondary)', borderRadius: 6, borderLeft: '3px solid var(--color-brand-accent)' }}>
+          <div style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-brand-accent)', marginBottom: 6 }}>
+            Tier 1 · FAD Inbox post
+          </div>
+          <div style={{ fontSize: 13, marginBottom: 8 }}>
+            Posts to <span className="mono">#finance</span> tagging <strong>{tier1Recipient}</strong>. Default landing tier for every above-cap request.
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+            <label>Silent timeout (urgent only):</label>
+            <input
+              type="number" min={5} max={240} step={5}
+              value={chain.t1Mins}
+              onChange={(e) => setChain((c) => ({ ...c, t1Mins: parseInt(e.target.value) }))}
+              style={{ width: 80, padding: '4px 8px' }}
+            />
+            <span>min before tier 2</span>
+          </div>
+        </div>
+
+        {/* Tier 2 */}
+        <div style={{ padding: 12, background: 'var(--color-bg-warning)', borderRadius: 6, borderLeft: '3px solid var(--color-text-warning)' }}>
+          <div style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-warning)', marginBottom: 6 }}>
+            Tier 2 · 3CX phone (urgent + silent only)
+          </div>
+          <div style={{ fontSize: 13, marginBottom: 8 }}>
+            Auto-dials <strong>{tier1Recipient}</strong> via 3CX when an urgent request is silent past the tier-1 timeout.
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+            <label>Silent timeout:</label>
+            <input
+              type="number" min={5} max={120} step={5}
+              value={chain.t2Mins}
+              onChange={(e) => setChain((c) => ({ ...c, t2Mins: parseInt(e.target.value) }))}
+              style={{ width: 80, padding: '4px 8px' }}
+            />
+            <span>min before tier 3</span>
+          </div>
+        </div>
+
+        {/* Tier 3 */}
+        <div style={{ padding: 12, background: 'var(--color-background-secondary)', borderRadius: 6, borderLeft: '3px solid var(--color-text-tertiary)' }}>
+          <div style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: 6 }}>
+            Tier 3 · Fallback approver
+          </div>
+          <div style={{ fontSize: 13, marginBottom: 8, lineHeight: 1.5 }}>
+            If both tiers above stay silent, the request falls through to <strong>{tier3Recipient}</strong>. Mathias may approve up to the cap below; above the cap it routes to <strong>{tier3Final}</strong> as last resort.
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+            <label>{tier3Recipient}'s fallback cap:</label>
+            <span className="mono">Rs</span>
+            <input
+              type="number" min={0} max={1_000_000} step={500}
+              value={chain.t3FallbackCapMinor / 100}
+              onChange={(e) => setChain((c) => ({ ...c, t3FallbackCapMinor: parseInt(e.target.value) * 100 }))}
+              style={{ width: 110, padding: '4px 8px' }}
+            />
+          </div>
+        </div>
+
+        <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', lineHeight: 1.5 }}>
+          Phase 1: tier-2 phone is a stub (toast). Phase 2 wires real 3CX click-to-dial + a backend cron that advances stuck requests through the chain on the timer thresholds set above.
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -1977,7 +2193,7 @@ function SettingsCaps() {
     <div className="card fin-card">
       <div className="card-header">
         <div className="card-title">Per-user spending caps</div>
-        <div className="card-subtitle">Captures over cap auto-flag + Slack DM Ishant</div>
+        <div className="card-subtitle">Captures over cap auto-flag + post to FAD Inbox <span className="mono">#finance</span></div>
       </div>
       <div className="fin-tt-table">
         <div className="fin-tt-row fin-tt-head fin-settings-cap-row">
@@ -2530,54 +2746,97 @@ function PCStage3() {
 
 function PCStage4() {
   const { openConfirm } = useFinCtx();
-  const issues = [
-    { resId: 'r-2026-1188', guest: 'Ramgoolam family', property: 'VV-47', issue: 'Cleaning fee missing', suggested: '+Rs 5,000', amount: 5_000_00 },
-    { resId: 'r-2026-1175', guest: 'Beemul family', property: 'LC-9', issue: 'Refund via resolution centre', suggested: '−Rs 2,800', amount: -2_800_00 },
-    { resId: 'r-2026-1192', guest: 'Wilson, M.', property: 'BL-12', issue: 'Length-of-stay discount applied', suggested: '−Rs 1,250', amount: -1_250_00 },
-  ];
+  const currentUserId = useCurrentUserId();
+  const [, setRev] = useState(0);
+  const bumpRev = () => setRev((n) => n + 1);
+
+  // Items A + B detector now drives Stage 4. The seeded fixtures from before
+  // (cleaning-fee-missing, length-of-stay) live in `financeAnomalies.ts` as
+  // additional rows so the demo data stays comparable. Above-cap = €200 / 30%
+  // routes via FAD Inbox per running decisions log §3.1 (was Slack-DM-Ishant
+  // — supersedes the originally-locked rule in the UX brief §6).
+  const items = detectAllAnomalies();
+  const cap = 200_00; // Mathias refund authority cap, MUR minor (€200 ≈ Rs 200 * 100... use 200_00 as fixture cap)
+
+  const handleApply = (d: PayoutDiscrepancy) => {
+    const aboveCap = Math.abs(d.suggestedOwnerChargeMinor) > cap;
+    openConfirm({
+      title: `Apply · ${DISCREPANCY_KIND_LABEL[d.kind]}`,
+      body: (
+        <>
+          <p><strong>Reservation:</strong> <span className="mono">{d.reservationId}</span> · {d.guestName} ({d.propertyCode})</p>
+          <p><strong>Suggested:</strong> {d.suggestedOwnerChargeMinor === 0 ? 'fare-line split (no money diff)' : `Rs ${(d.suggestedOwnerChargeMinor / 100).toLocaleString()}`}</p>
+          <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 8, lineHeight: 1.5 }}>
+            {d.detectorReason}
+          </p>
+          <p style={{ marginTop: 8 }}>
+            {d.kind === 'special_offer_collapse'
+              ? <>Re-instates the cleaning fee line on the reservation and queues a Stage 5 per-property review entry.</>
+              : <>Posts an Owner Charge to <span className="mono">FIN_EXPENSES</span> and queues a Stage 5 per-property review entry. Audit log records Mathias as actor.</>}
+          </p>
+          {aboveCap && (
+            <p style={{ marginTop: 6, color: 'var(--color-text-warning)' }}>
+              ⚠ Above Mathias's €200 cap — auto-routes to {TASK_USER_BY_ID_OR_NAME(FIN_ESCALATION_CHAIN.tier1.recipientId)} via FAD Inbox <span className="mono">#finance</span> for approval before posting.
+            </p>
+          )}
+        </>
+      ),
+      primaryLabel: aboveCap ? 'Send for approval' : 'Apply',
+      onConfirm: () => {
+        if (aboveCap) {
+          requestRefundApproval({
+            reservationId: d.reservationId,
+            amountMinor: d.suggestedOwnerChargeMinor,
+            currency: d.currency,
+            requestorId: currentUserId,
+            reason: `${DISCREPANCY_KIND_LABEL[d.kind]} · ${d.guestName} · ${d.propertyCode}`,
+            urgent: d.severity === 'high',
+          });
+        } else if (d.kind === 'special_offer_collapse') {
+          applyFareCollapseSplit(d, currentUserId);
+        } else {
+          applyOwnerCharge(d, currentUserId);
+        }
+        bumpRev();
+      },
+    });
+  };
+
   return (
     <>
       <h2 className="fin-pc-h2">Stage 4 · Revenue recon (Mathias)</h2>
-      <p className="fin-pc-p">Cross-check every reservation against Guesty for cleaning fees, refunds, discounts, stay changes. Above-cap items Slack-DM to Ishant.</p>
+      <p className="fin-pc-p">
+        Auto-detected discrepancies between Guesty and channel-actual payouts (Airbnb host report / Booking.com payouts). Above-cap items route to <span className="mono">#finance</span> in FAD Inbox.
+      </p>
 
       <div className="card fin-card" style={{ marginTop: 14 }}>
         <div className="fin-tt-table">
           <div className="fin-tt-row fin-tt-head fin-pc-rev-row">
             <div>Reservation</div><div>Guest · property</div><div>Issue</div><div className="amount-col">Suggested</div><div></div>
           </div>
-          {issues.map((it) => (
-            <div key={it.resId} className="fin-tt-row fin-pc-rev-row">
-              <div className="mono">{it.resId}</div>
+          {items.length === 0 && (
+            <div className="fin-empty" style={{ padding: 20 }}>All caught up — no discrepancies detected for this period.</div>
+          )}
+          {items.map((d) => (
+            <div key={d.id} className="fin-tt-row fin-pc-rev-row">
+              <div className="mono">{d.reservationId}</div>
               <div>
-                <div className="fin-row-title">{it.guest}</div>
-                <div className="fin-row-sub mono">{it.property}</div>
+                <div className="fin-row-title">{d.guestName}</div>
+                <div className="fin-row-sub mono">{d.propertyCode}</div>
               </div>
-              <div>{it.issue}</div>
-              <div className="amount-col mono" style={{ color: it.amount < 0 ? 'var(--color-text-warning)' : 'var(--color-text-success)' }}>
-                {it.suggested}
+              <div>
+                <div>{DISCREPANCY_KIND_LABEL[d.kind]}</div>
+                <div className="fin-row-sub" style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>{d.summary}</div>
+              </div>
+              <div className="amount-col mono" style={{ color: d.suggestedOwnerChargeMinor === 0 ? 'var(--color-text-tertiary)' : 'var(--color-text-success)' }}>
+                {d.suggestedOwnerChargeMinor === 0 ? 'split only' : `+Rs ${(d.suggestedOwnerChargeMinor / 100).toLocaleString()}`}
               </div>
               <div style={{ display: 'flex', gap: 4 }}>
-                <button
-                  className="btn primary sm"
-                  onClick={() => openConfirm({
-                    title: `Apply · ${it.issue}`,
-                    body: (
-                      <>
-                        <p><strong>Reservation:</strong> {it.resId} · {it.guest} ({it.property})</p>
-                        <p><strong>Adjustment:</strong> {it.suggested}</p>
-                        <p style={{ marginTop: 8 }}>Writes to <span className="mono">reservation_adjustments</span> and queues an entry into Stage 5 per-property review. Audit log records Mathias as actor.</p>
-                        {Math.abs(it.amount) > 200_00 && (
-                          <p style={{ marginTop: 6, color: 'var(--color-text-warning)' }}>⚠ Above Mathias's €200 cap — Slack DM auto-fires to Ishant for confirmation before posting.</p>
-                        )}
-                      </>
-                    ),
-                    primaryLabel: 'Apply',
-                  })}
-                >Apply</button>
+                <button className="btn primary sm" onClick={() => handleApply(d)}>Apply</button>
                 <button
                   className="btn ghost sm"
                   onClick={() => openConfirm({
-                    title: `Defer · ${it.resId}`,
+                    title: `Defer · ${d.reservationId}`,
                     body: <p>Moves this issue to next period's queue. Used when more guest information is needed.</p>,
                     primaryLabel: 'Defer',
                   })}
@@ -2589,6 +2848,15 @@ function PCStage4() {
       </div>
     </>
   );
+}
+
+// Tiny helper — recipient-id → display name. Dodges importing TASK_USER_BY_ID
+// at the top of this file (FinanceModule has many existing imports already).
+function TASK_USER_BY_ID_OR_NAME(id: string): string {
+  if (id === 'u-ishant') return 'Ishant';
+  if (id === 'u-mathias') return 'Mathias';
+  if (id === 'u-franny') return 'Franny';
+  return id;
 }
 
 function PCStage5() {
