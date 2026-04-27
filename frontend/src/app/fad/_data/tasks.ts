@@ -236,6 +236,12 @@ export const TASK_PROPERTIES: TaskProperty[] = [
   { code: 'LV-10', name: 'La Verdure 10', zone: 'west', tier: 'medium' },
   { code: 'BCN-A', name: 'Beacon A', zone: 'north', tier: 'small' },
   { code: 'BS-1', name: 'Bay Studio 1', zone: 'west', tier: 'small' },
+  // Legacy property codes inherited from old reservation fixture (still
+  // referenced by `_data/reservations.ts` rows + Inbox threads).
+  { code: 'VAZ', name: 'Villa Azur · Bel Ombre', zone: 'west', tier: 'big' },
+  { code: 'BBH', name: 'Blue Bay House · Blue Bay', zone: 'west', tier: 'medium' },
+  { code: 'SBN', name: 'Sable Noir Retreat · Tamarin', zone: 'west', tier: 'medium' },
+  { code: 'COR', name: 'Coral Reef Bungalow', zone: 'west', tier: 'small' },
   { code: 'OFFICE', name: 'Office / Store / Admin', zone: 'office', tier: 'small' },
 ];
 

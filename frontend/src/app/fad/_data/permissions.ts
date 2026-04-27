@@ -137,7 +137,10 @@ const FIELD_PERMS: RolePermissions = {
   crm: {},
   owners: {},
   finance: {},
-  reservations: {},
+  // Field/Contributor (per Reservations scoping pack §6) sees the reservation
+  // itself but not finance sub-tabs — Folio/Accounting/Payments are gated
+  // separately inside ReservationDetail by `financialAccessFor(role)`.
+  reservations: READ_ONLY,
   properties: {},
   settings: {},
 };

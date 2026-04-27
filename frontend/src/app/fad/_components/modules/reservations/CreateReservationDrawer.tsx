@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import {
   RESERVATIONS,
+  RESERVATION_BY_ID,
   CHANNEL_LABEL,
   CLEANING_ARRANGEMENT_LABEL,
   SPECIAL_REQUEST_LABEL,
@@ -136,6 +137,8 @@ export function CreateReservationDrawer({ open, onClose, onCreated }: Props) {
       createdAt: new Date().toISOString(),
     };
     RESERVATIONS.push(newRsv);
+    // Keep the by-id index in sync so the detail drawer can find it.
+    RESERVATION_BY_ID[newRsv.id] = newRsv;
     onCreated(newRsv);
     fireToast(
       isOwnerStay

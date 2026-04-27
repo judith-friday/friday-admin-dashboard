@@ -32,11 +32,20 @@ export function ReservationsModule({ subPage, onChangeSubPage }: Props) {
 
   // Cross-link target: ?rsv=<id> opens detail directly. Also supports the
   // legacy ?detail= query param for backwards compatibility with stub links.
+  // Strip the param after reading so closing the drawer + navigating away then
+  // back doesn't re-open it on remount.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const target = params.get('rsv') || params.get('detail');
-    if (target) setOpenId(target);
+    if (target) {
+      setOpenId(target);
+      params.delete('rsv');
+      params.delete('detail');
+      const qs = params.toString();
+      const nextUrl = window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash;
+      window.history.replaceState(window.history.state, '', nextUrl);
+    }
   }, []);
 
   const handleNew = () => setCreateOpen(true);

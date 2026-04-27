@@ -631,7 +631,7 @@ function BookingDetailsTab({ r }: { r: Reservation }) {
 
 function GuestsTab({ r }: { r: Reservation }) {
   const profile = GUEST_PROFILES[r.guestName];
-  const priorStays = useMemo(() => priorReservationsForGuest(r.guestName, r.id), [r.guestName, r.id]);
+  const priorStays = priorReservationsForGuest(r.guestName, r.id);
 
   if (!profile) {
     return (
@@ -740,7 +740,7 @@ function GuestsTab({ r }: { r: Reservation }) {
 }
 
 function OperationsTab({ r }: { r: Reservation }) {
-  const linked = useMemo(() => TASKS.filter((t) => t.reservationId === r.id), [r.id]);
+  const linked = TASKS.filter((t) => t.reservationId === r.id);
   if (linked.length === 0) {
     return (
       <div className="task-detail-section">
@@ -784,7 +784,10 @@ function FolioTab({ r, access }: { r: Reservation; access: FinancialAccess }) {
   const [, setRev] = useState(0);
   const bumpRev = () => setRev((n) => n + 1);
   const [addOpen, setAddOpen] = useState(false);
-  const customLines = useMemo(() => folioLinesForReservation(r.id), [r.id]);
+  // Fixture is mutable (add/edit/remove) — read fresh on every render
+  // rather than memoising. Cost is trivial (small filter); memoising required
+  // a `rev` dep that was easy to forget.
+  const customLines = folioLinesForReservation(r.id);
 
   if (access === 'none') return null;
 
@@ -1124,7 +1127,8 @@ const tdStyle: React.CSSProperties = {
 };
 
 function PaymentsTab({ r }: { r: Reservation }) {
-  const payments = useMemo(() => paymentsForReservation(r.id), [r.id]);
+  // Read fresh on every render — fixture is mutated by recordManualPayment.
+  const payments = paymentsForReservation(r.id);
   const [recordOpen, setRecordOpen] = useState(false);
   const [amount, setAmount] = useState(r.balanceDue);
   const [method, setMethod] = useState<PaymentMethod>('bank_transfer');
@@ -1317,7 +1321,7 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: 'su
 }
 
 function ActivityTab({ r }: { r: Reservation }) {
-  const activity = useMemo(() => activityForReservation(r.id), [r.id]);
+  const activity = activityForReservation(r.id);
   if (activity.length === 0) {
     return (
       <div className="task-detail-section">
