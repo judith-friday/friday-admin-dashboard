@@ -61,7 +61,6 @@ export const MODULES: ModuleDef[] = [
   ] },
   { id: 'hr', label: 'HR', group: 'People', tier: 'live', ship: 'live', icon: 'IconUsers', path: '/fad/hr', subPages: [
     { id: 'staff', label: 'Staff' },
-    { id: 'roster', label: 'Roster' },
     { id: 'time-off', label: 'Time-off' },
     { id: 'stats', label: 'Stats' },
     { id: 'permissions', label: 'Permissions' },

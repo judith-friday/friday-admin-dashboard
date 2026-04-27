@@ -166,7 +166,7 @@ export const RESOURCE_LABEL: Record<Resource, string> = {
   reservations: 'Reservations',
   properties: 'Properties',
   hr_staff: 'HR · Staff',
-  hr_roster: 'HR · Roster',
+  hr_roster: 'Operations · Roster',
   hr_time_off: 'HR · Time-off',
   hr_stats: 'HR · Stats',
   hr_permissions: 'HR · Permissions',

@@ -73,6 +73,7 @@ const STATUS_LABEL: Record<TaskStatus, string> = {
 
 export function OperationsModule({ subPage, onChangeSubPage }: Props) {
   const canSeeApprovals = useCanSee('tasks', 'approve');
+  const canSeeRoster = useCanSee('hr_roster', 'read');
   const canSeeSettings = useCanSee('settings');
 
   const tabs = [
@@ -80,7 +81,7 @@ export function OperationsModule({ subPage, onChangeSubPage }: Props) {
     { id: 'all', label: 'All tasks' },
     { id: 'issues', label: 'Reported issues' },
     canSeeApprovals && { id: 'approvals', label: 'Approvals' },
-    { id: 'roster', label: 'Roster' },
+    canSeeRoster && { id: 'roster', label: 'Roster' },
     { id: 'insights', label: 'Insights' },
     canSeeSettings && { id: 'settings', label: 'Settings' },
   ].filter((t): t is { id: string; label: string } => Boolean(t));
@@ -105,7 +106,7 @@ export function OperationsModule({ subPage, onChangeSubPage }: Props) {
       case 'approvals':
         return canSeeApprovals ? <ApprovalsPage onAfter={bumpRev} /> : null;
       case 'roster':
-        return <RosterPage />;
+        return canSeeRoster ? <RosterPage /> : null;
       case 'insights':
         return <InsightsPage />;
       case 'settings':
