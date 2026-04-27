@@ -1818,19 +1818,24 @@ html.fad-dark .bug-fab:hover { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6); }
   .fad-utilities .fad-util-btn[title="Help"],
   .fad-utilities .fad-util-btn[title="Notifications"] { display: none; }
 
-  /* Module header — compact on mobile */
+  /* Module header — column-stack on mobile so title is always on top, then
+     tabs / actions in clean rows below. Avoids overlap when actions wrap. */
   .fad-module-header {
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: nowrap;
     padding: 10px 14px 0;
-    gap: 6px;
+    gap: 4px;
   }
-  .fad-module-title { font-size: 17px; margin-bottom: 0; }
+  .fad-module-header-main { flex: 0 0 auto; }
+  .fad-module-title { font-size: 16px; margin-bottom: 0; }
   .fad-module-subtitle { display: none; }
   .fad-module-actions {
     padding-bottom: 8px;
-    margin-left: auto;
+    margin-left: 0;
     flex-wrap: wrap;
     gap: 6px;
+    align-items: center;
   }
   .fad-tabs {
     overflow-x: auto;
@@ -5144,6 +5149,45 @@ html.fad-dark .fin-friday-flag-tag { background: rgba(0,0,0,0.25); }
     max-width: calc(100vw - 24px) !important;
     right: 12px !important;
   }
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+   Mobile size pass — tighten typography across FAD surfaces at <768px.
+   Keep this block contained so future mobile tweaks have one home. */
+@media (max-width: 768px) {
+  /* All Tasks card */
+  .fad-task-card-title { font-size: 13px; }
+  .fad-task-card-meta { font-size: 10px; }
+  .fad-task-card-attach { font-size: 10px; }
+  .fad-task-card-risk { font-size: 10px; }
+  .fad-task-card-body { padding: 10px; gap: 5px; }
+
+  /* Inbox row */
+  .row-primary { font-size: 13px; }
+
+  /* Inbox thread header */
+  .inbox-thread-subject { font-size: 14px; line-height: 1.3; }
+  .inbox-thread-meta { font-size: 11px; }
+  .msg-bubble .msg-meta { font-size: 10px; }
+  .msg-bubble .msg-body { font-size: 13px; line-height: 1.45; }
+
+  /* Roster mobile day-pager */
+  .fad-roster-day-row { padding: 6px 4px; }
+  .fad-roster-day-staff { gap: 6px; }
+  .fad-roster-day-staff span:last-child { font-size: 12px; }
+
+  /* Calendar — keep stays/events readable but compact */
+  .cal-stay-band { font-size: 10px; padding: 0 7px; height: 20px; }
+  .cal-stay-prop { font-size: 9px; }
+  .cal-allday-pill { font-size: 10px; padding: 2px 5px; }
+  .cal-allday-label { padding: 4px 6px; font-size: 9px; }
+  .cal-month-day { font-size: 10px; }
+  .cal-month-cell { min-height: 60px; padding: 4px 5px; gap: 2px; }
+  .cal-month-stay { height: 13px; font-size: 8px; padding: 0 4px; }
+  .cal-month-ev { font-size: 9px; padding: 1px 4px; }
+
+  /* General buttons in module bodies */
+  .fad-module-body .btn.sm { font-size: 11px; padding: 4px 8px; }
 }
 
 /* Tabs overflow — modules with >4 tabs get a "More ▾" menu at <768px */
