@@ -11,7 +11,7 @@ import {
   formatStayWindow,
   type Reservation,
 } from '../../_data/reservations';
-import { TASKS, type Task } from '../../_data/tasks';
+import { TASKS, TASK_USER_BY_ID, type Task } from '../../_data/tasks';
 import { useCurrentUserId } from '../usePermissions';
 import { fireToast } from '../Toaster';
 import { FilterBar, FilterChip } from '../FilterBar';
@@ -886,6 +886,13 @@ function MonthView({
 }) {
   void viewDate;
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const [expand, setExpand] = useState<{
+    isoDate: string;
+    events: CalEvent[];
+    stays: Stay[];
+    x: number;
+    y: number;
+  } | null>(null);
   return (
     <div className="cal-month">
       <div className="cal-month-head">
@@ -899,6 +906,9 @@ function MonthView({
         {days.map((d, idx) => {
           const evs = events.filter((e) => e.day === idx);
           const cellStays = stays.filter((s) => s.startIdx <= idx && s.endIdx >= idx);
+          const stayOverflow = Math.max(cellStays.length - 2, 0);
+          const eventOverflow = Math.max(evs.length - 2, 0);
+          const totalOverflow = stayOverflow + eventOverflow;
           return (
             <div
               key={d.isoDate}
@@ -936,11 +946,6 @@ function MonthView({
                   </button>
                 );
               })}
-              {cellStays.length > 2 && (
-                <div style={{ fontSize: 9, color: 'var(--color-text-tertiary)' }}>
-                  +{cellStays.length - 2} stays
-                </div>
-              )}
               {evs.slice(0, 2).map((e, i) => (
                 <div
                   key={i}
@@ -954,15 +959,77 @@ function MonthView({
                   {e.title}
                 </div>
               ))}
-              {evs.length > 2 && (
-                <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>
-                  +{evs.length - 2} more
-                </div>
+              {totalOverflow > 0 && (
+                <button
+                  type="button"
+                  className="cal-month-more"
+                  onClick={(evt) => {
+                    evt.stopPropagation();
+                    const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                    setExpand({
+                      isoDate: d.isoDate,
+                      events: evs,
+                      stays: cellStays,
+                      x: rect.left,
+                      y: rect.bottom + 4,
+                    });
+                  }}
+                >
+                  +{totalOverflow} more
+                </button>
               )}
             </div>
           );
         })}
       </div>
+      {expand && (
+        <>
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 99 }}
+            onClick={() => setExpand(null)}
+          />
+          <div
+            className="fad-dropdown cal-allday-expand"
+            style={{ top: expand.y, left: Math.min(expand.x, window.innerWidth - 320) }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="cal-allday-expand-header">
+              {new Date(expand.isoDate).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+              {' · '}{expand.stays.length + expand.events.length} item{expand.stays.length + expand.events.length === 1 ? '' : 's'}
+            </div>
+            <div className="cal-allday-expand-list">
+              {expand.stays.map((s) => (
+                <button
+                  key={s.rsv.id}
+                  type="button"
+                  className={'cal-allday-pill ' + (s.rsv.status === 'checked_in' ? 'checkin' : 'checkout')}
+                  onClick={(evt) => {
+                    const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                    setExpand(null);
+                    onStayClick(s.rsv, rect.right + 8, rect.top);
+                  }}
+                >
+                  🛏 {s.rsv.guestName} · {s.rsv.propertyCode}
+                </button>
+              ))}
+              {expand.events.map((e, i) => (
+                <button
+                  key={'ev-' + i}
+                  type="button"
+                  className={'cal-allday-pill ' + e.type}
+                  onClick={(evt) => {
+                    const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                    setExpand(null);
+                    onEventClick(e, rect.right + 8, rect.top);
+                  }}
+                >
+                  {e.title}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -978,32 +1045,134 @@ function EventPopover({
   y: number;
   onClose: () => void;
 }) {
+  // Match a task event back to its source record so we can show richer detail.
+  const linkedTask = ev.type === 'task' ? matchTaskFromEventTitle(ev.title) : null;
+  const timeLabel = ev.allDay
+    ? 'All day'
+    : `${String(ev.start).padStart(2, '0')}:00 – ${String(ev.end).padStart(2, '0')}:00`;
   return (
     <>
       <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={onClose} />
       <div
         className="cal-popover"
-        style={{ top: y, left: Math.min(x, window.innerWidth - 280) }}
+        style={{ top: y, left: Math.min(x, window.innerWidth - 320) }}
         onClick={(e) => e.stopPropagation()}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
           <span className={'chip ' + (ev.type === 'maint' ? 'warn' : ev.type === 'checkin' || ev.type === 'checkout' ? 'info' : '')}>
-            {ev.type}
+            {TYPE_LABEL[ev.type]}
           </span>
+          {linkedTask && (
+            <span
+              className="mono"
+              style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}
+            >
+              #{linkedTask.bzId ?? linkedTask.id}
+            </span>
+          )}
           <button className="fad-util-btn" onClick={onClose} style={{ marginLeft: 'auto', width: 22, height: 22 }}>
             <IconClose size={12} />
           </button>
         </div>
-        <div className="cal-popover-title">{ev.title}</div>
-        <div className="cal-popover-meta">
-          {String(ev.start).padStart(2, '0')}:00 – {String(ev.end).padStart(2, '0')}:00
-        </div>
+        <div className="cal-popover-title">{linkedTask?.title ?? ev.title}</div>
+        <div className="cal-popover-meta">{timeLabel}</div>
+        {linkedTask ? (
+          <TaskDetailBlock task={linkedTask} />
+        ) : (
+          <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
+            {ev.type === 'maint'
+              ? 'Maintenance work order — open the source record to assign or reschedule.'
+              : ev.type === 'meeting'
+              ? 'Internal meeting — invitees and notes live in the source record.'
+              : ''}
+          </div>
+        )}
         <div style={{ display: 'flex', gap: 6 }}>
           <button className="btn sm">{eventOpenLabel(ev.type)}</button>
           <button className="btn ghost sm">Edit</button>
         </div>
       </div>
     </>
+  );
+}
+
+function matchTaskFromEventTitle(title: string): Task | null {
+  // Title shape from taskToEvent: "{propertyCode} · {task.title}"
+  const sepIdx = title.indexOf(' · ');
+  if (sepIdx < 0) return null;
+  const propertyCode = title.slice(0, sepIdx);
+  const taskTitle = title.slice(sepIdx + 3);
+  return TASKS.find((t) => t.propertyCode === propertyCode && t.title === taskTitle) ?? null;
+}
+
+function TaskDetailBlock({ task }: { task: Task }) {
+  const assignees = task.assigneeIds
+    .map((id) => TASK_USER_BY_ID[id]?.name.split(' ')[0])
+    .filter(Boolean)
+    .join(', ');
+  return (
+    <div className="cal-popover-finance">
+      <div className="cal-popover-finance-row">
+        <span>Property</span>
+        <span className="mono" style={{ fontWeight: 500 }}>{task.propertyCode}</span>
+      </div>
+      <div className="cal-popover-finance-row">
+        <span>Department</span>
+        <span style={{ color: 'var(--color-text-secondary)' }}>
+          {task.department} · {task.subdepartment.replace(/_/g, ' ')}
+        </span>
+      </div>
+      <div className="cal-popover-finance-row">
+        <span>Status</span>
+        <span style={{ color: 'var(--color-text-secondary)' }}>
+          {task.status.replace(/_/g, ' ')}
+        </span>
+      </div>
+      <div className="cal-popover-finance-row">
+        <span>Priority</span>
+        <span
+          style={{
+            fontSize: 10,
+            padding: '1px 6px',
+            borderRadius: 3,
+            fontWeight: 500,
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+            background:
+              task.priority === 'urgent'
+                ? 'var(--color-bg-danger)'
+                : task.priority === 'high'
+                ? 'var(--color-bg-warning)'
+                : 'var(--color-background-secondary)',
+            color:
+              task.priority === 'urgent'
+                ? 'var(--color-text-danger)'
+                : task.priority === 'high'
+                ? 'var(--color-text-warning)'
+                : 'var(--color-text-secondary)',
+          }}
+        >
+          {task.priority}
+        </span>
+      </div>
+      <div className="cal-popover-finance-row">
+        <span>Due</span>
+        <span style={{ color: 'var(--color-text-secondary)' }}>
+          {task.dueDate}{task.dueTime ? ` · ${task.dueTime}` : ''}
+        </span>
+      </div>
+      {assignees && (
+        <div className="cal-popover-finance-row">
+          <span>Assignees</span>
+          <span style={{ color: 'var(--color-text-secondary)' }}>{assignees}</span>
+        </div>
+      )}
+      {task.riskFlags.length > 0 && (
+        <div style={{ fontSize: 10, color: 'var(--color-text-warning)', marginTop: 4 }}>
+          ⚠ {task.riskFlags.join(', ')}
+        </div>
+      )}
+    </div>
   );
 }
 

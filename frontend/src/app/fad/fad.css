@@ -1239,6 +1239,24 @@ html.fad-dark .send-split-main { color: #0b0d14; }
   text-overflow: ellipsis;
 }
 
+.cal-month-more {
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  padding: 2px 6px;
+  background: transparent;
+  border: 0.5px dashed var(--color-border-tertiary);
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+.cal-month-more:hover {
+  background: var(--color-background-tertiary);
+  color: var(--color-text-primary);
+}
+
 /* DayView in-residence strip */
 .cal-day-stays {
   padding: 8px 12px;
@@ -2576,6 +2594,21 @@ html.fad-dark .cal-popover { box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
 .cal-nav .btn {
   min-width: 28px;
   padding: 4px 8px;
+}
+
+/* Mobile: cal-nav drops "Today" text width, action cluster wraps below tabs. */
+@media (max-width: 768px) {
+  .cal-nav {
+    margin-right: 0;
+  }
+  .cal-nav .btn {
+    min-width: 24px;
+    padding: 3px 6px;
+    font-size: 12px;
+  }
+  /* Force the title+tabs block onto its own row so actions wrap below; keeps
+     all 3 view tabs visible without horizontal scroll. */
+  .fad-module-header-main { flex-basis: 100%; }
 }
 
 /* Month calendar */

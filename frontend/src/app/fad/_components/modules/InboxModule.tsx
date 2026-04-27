@@ -10,6 +10,7 @@ import {
   type StayStatus,
 } from '../../_data/fixtures';
 import { TASK_USERS, TASK_USER_BY_ID } from '../../_data/tasks';
+import { TEAM_CHANNELS, TEAM_DMS } from '../../_data/teamInbox';
 import {
   RESERVATION_BY_ID,
   CHANNEL_LABEL,
@@ -165,6 +166,10 @@ export function InboxModule({ onAskFriday }: Props) {
     { key: 'vendor', label: 'Vendor', count: counts.byEntity.vendor },
   ];
 
+  const teamUnread =
+    TEAM_CHANNELS.reduce((acc, c) => acc + (c.unread ?? 0), 0) +
+    TEAM_DMS.reduce((acc, d) => acc + (d.unread ?? 0), 0);
+
   const chipsRow = (
     <div className="inbox-chips-row">
       {canSeeGuest && externalChips.map((c) => (
@@ -185,7 +190,10 @@ export function InboxModule({ onAskFriday }: Props) {
           onClick={() => setEntityFilter('team')}
           title="Internal team channels and DMs"
         >
-          Team
+          Team{' '}
+          <span className="mono" style={{ fontSize: 10, marginLeft: 4, opacity: 0.8 }}>
+            {teamUnread}
+          </span>
         </button>
       )}
       <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
