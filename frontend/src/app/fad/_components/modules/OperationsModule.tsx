@@ -25,11 +25,11 @@ import { createTask, updateTask } from '../../_data/breezeway';
 import { TaskDetail } from './operations/TaskDetail';
 import { CreateTaskDrawer } from './operations/CreateTaskDrawer';
 import { RosterPage } from './roster/RosterPage';
-import { IconClose, IconExpand, IconPlus, IconSparkle } from '../icons';
+import { IconClose, IconExpand, IconFilter, IconPlus, IconSparkle } from '../icons';
 import { DAILY_BRIEF_POOL, pickDifferent, pickFromPool } from '../../_data/aiFixtures';
 import { useAITelemetry } from '../ai/useAITelemetry';
 import { AIBadge, AIRegenerateButton } from '../ai/AIComponents';
-import { priorityTone, taskSourceTone, toneStyle } from '../palette';
+import { priorityTone, taskSourceTone, taskStatusTone, toneStyle } from '../palette';
 
 interface Props {
   subPage: string;
@@ -341,6 +341,46 @@ interface AllTasksFilters {
   source: TaskSource | 'all';
 }
 
+type TaskSortKey =
+  | 'propertyCode'
+  | 'title'
+  | 'subdepartment'
+  | 'status'
+  | 'priority'
+  | 'dueDate'
+  | 'source';
+
+const STATUS_ORDER: Record<TaskStatus, number> = {
+  todo: 0,
+  in_progress: 1,
+  paused: 2,
+  awaiting_approval: 3,
+  reported: 4,
+  completed: 5,
+  cancelled: 6,
+};
+
+const PRIORITY_ORDER: Record<TaskPriority, number> = {
+  urgent: 0,
+  high: 1,
+  medium: 2,
+  low: 3,
+  lowest: 4,
+};
+
+function compareTasks(a: Task, b: Task, key: TaskSortKey): number {
+  switch (key) {
+    case 'status':
+      return STATUS_ORDER[a.status] - STATUS_ORDER[b.status];
+    case 'priority':
+      return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
+    case 'dueDate':
+      return a.dueDate.localeCompare(b.dueDate);
+    default:
+      return String(a[key]).localeCompare(String(b[key]));
+  }
+}
+
 function AllTasksPage({ onOpenTask, onCreate }: { onOpenTask: (id: string) => void; onCreate: () => void }) {
   const currentUserId = useCurrentUserId();
   const { role } = usePermissions();
@@ -356,6 +396,15 @@ function AllTasksPage({ onOpenTask, onCreate }: { onOpenTask: (id: string) => vo
     source: 'all',
   });
   const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<{ key: TaskSortKey; dir: 'asc' | 'desc' } | null>(null);
+
+  const toggleSort = (key: TaskSortKey) => {
+    setSort((prev) => {
+      if (!prev || prev.key !== key) return { key, dir: 'asc' };
+      if (prev.dir === 'asc') return { key, dir: 'desc' };
+      return null;
+    });
+  };
 
   const visibleTasks = useMemo(() => {
     let tasks = [...TASKS];
@@ -377,104 +426,218 @@ function AllTasksPage({ onOpenTask, onCreate }: { onOpenTask: (id: string) => vo
       const q = search.toLowerCase();
       tasks = tasks.filter((t) => t.title.toLowerCase().includes(q) || t.propertyCode.toLowerCase().includes(q));
     }
+    if (sort) {
+      const sign = sort.dir === 'asc' ? 1 : -1;
+      tasks.sort((a, b) => sign * compareTasks(a, b, sort.key));
+    }
     return tasks;
-  }, [filters, search, role, currentUserId]);
+  }, [filters, search, role, currentUserId, sort]);
+
+  const activeFilterCount =
+    (filters.department !== 'all' ? 1 : 0) +
+    (filters.status !== 'all' ? 1 : 0) +
+    (filters.priority !== 'all' ? 1 : 0) +
+    (filters.property !== 'all' ? 1 : 0) +
+    (filters.assignee !== 'all' ? 1 : 0) +
+    (filters.due !== 'all' ? 1 : 0) +
+    (filters.source !== 'all' ? 1 : 0) +
+    (filters.mine ? 1 : 0);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const clearAllFilters = () =>
+    setFilters({
+      department: 'all',
+      status: 'all',
+      priority: 'all',
+      property: 'all',
+      assignee: 'all',
+      mine: false,
+      due: 'all',
+      source: 'all',
+    });
+
+  const filterChips = (
+    <>
+      <FilterChip
+        value={filters.department}
+        options={[
+          { value: 'all', label: 'All depts' },
+          { value: 'cleaning', label: 'Cleaning' },
+          { value: 'inspection', label: 'Inspection' },
+          { value: 'maintenance', label: 'Maintenance' },
+          { value: 'office', label: 'Office' },
+        ]}
+        onChange={(v) => setFilters({ ...filters, department: v as Department | 'all' })}
+      />
+      <FilterChip
+        value={filters.status}
+        options={[
+          { value: 'all', label: 'All statuses' },
+          { value: 'todo', label: 'To do' },
+          { value: 'in_progress', label: 'In progress' },
+          { value: 'paused', label: 'Paused' },
+          { value: 'awaiting_approval', label: 'Awaiting approval' },
+          { value: 'completed', label: 'Completed' },
+        ]}
+        onChange={(v) => setFilters({ ...filters, status: v as TaskStatus | 'all' })}
+      />
+      <FilterChip
+        value={filters.priority}
+        options={[
+          { value: 'all', label: 'All priorities' },
+          { value: 'urgent', label: 'Urgent' },
+          { value: 'high', label: 'High' },
+          { value: 'medium', label: 'Medium' },
+          { value: 'low', label: 'Low' },
+        ]}
+        onChange={(v) => setFilters({ ...filters, priority: v as TaskPriority | 'all' })}
+      />
+      <FilterChip
+        value={filters.property}
+        options={[
+          { value: 'all', label: 'All properties' },
+          ...TASK_PROPERTIES.map((p) => ({ value: p.code, label: p.code })),
+        ]}
+        onChange={(v) => setFilters({ ...filters, property: v })}
+      />
+      <FilterChip
+        value={filters.assignee}
+        options={[
+          { value: 'all', label: 'All assignees' },
+          ...TASK_USERS.filter((u) => u.role !== 'external').map((u) => ({
+            value: u.id,
+            label: u.name.split(' ')[0],
+          })),
+        ]}
+        onChange={(v) => setFilters({ ...filters, assignee: v })}
+      />
+      <FilterChip
+        value={filters.due}
+        options={[
+          { value: 'all', label: 'Any time' },
+          { value: 'today', label: 'Today' },
+          { value: 'this_week', label: 'This week' },
+          { value: 'overdue', label: 'Overdue' },
+        ]}
+        onChange={(v) => setFilters({ ...filters, due: v as AllTasksFilters['due'] })}
+      />
+      <FilterChip
+        value={filters.source}
+        options={[
+          { value: 'all', label: 'Any source' },
+          { value: 'manual', label: 'Manual' },
+          { value: 'breezeway', label: 'Breezeway' },
+          { value: 'inbox_ai', label: 'Inbox AI' },
+          { value: 'recurring', label: 'Recurring' },
+          { value: 'reservation_trigger', label: 'Reservation' },
+          { value: 'reported_issue', label: 'Issue' },
+          { value: 'group_email', label: 'Email' },
+          { value: 'personal', label: 'Personal' },
+        ]}
+        onChange={(v) => setFilters({ ...filters, source: v as TaskSource | 'all' })}
+      />
+      <button
+        className={'inbox-chip' + (filters.mine ? ' active' : '')}
+        onClick={() => setFilters({ ...filters, mine: !filters.mine })}
+      >
+        Mine only
+      </button>
+    </>
+  );
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
       <div style={{ padding: '12px 20px', borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
-        <input
-          type="search"
-          placeholder="Search tasks…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ width: '100%', padding: 8, fontSize: 13, marginBottom: 10 }}
-        />
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          <FilterChip
-            value={filters.department}
-            options={[
-              { value: 'all', label: 'All depts' },
-              { value: 'cleaning', label: 'Cleaning' },
-              { value: 'inspection', label: 'Inspection' },
-              { value: 'maintenance', label: 'Maintenance' },
-              { value: 'office', label: 'Office' },
-            ]}
-            onChange={(v) => setFilters({ ...filters, department: v as Department | 'all' })}
+        <div className="all-tasks-search-row">
+          <input
+            type="search"
+            placeholder="Search tasks…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ flex: 1, padding: 8, fontSize: 13 }}
           />
-          <FilterChip
-            value={filters.status}
-            options={[
-              { value: 'all', label: 'All statuses' },
-              { value: 'todo', label: 'To do' },
-              { value: 'in_progress', label: 'In progress' },
-              { value: 'paused', label: 'Paused' },
-              { value: 'awaiting_approval', label: 'Awaiting approval' },
-              { value: 'completed', label: 'Completed' },
-            ]}
-            onChange={(v) => setFilters({ ...filters, status: v as TaskStatus | 'all' })}
-          />
-          <FilterChip
-            value={filters.priority}
-            options={[
-              { value: 'all', label: 'All priorities' },
-              { value: 'urgent', label: 'Urgent' },
-              { value: 'high', label: 'High' },
-              { value: 'medium', label: 'Medium' },
-              { value: 'low', label: 'Low' },
-            ]}
-            onChange={(v) => setFilters({ ...filters, priority: v as TaskPriority | 'all' })}
-          />
-          <FilterChip
-            value={filters.property}
-            options={[
-              { value: 'all', label: 'All properties' },
-              ...TASK_PROPERTIES.map((p) => ({ value: p.code, label: p.code })),
-            ]}
-            onChange={(v) => setFilters({ ...filters, property: v })}
-          />
-          <FilterChip
-            value={filters.assignee}
-            options={[
-              { value: 'all', label: 'All assignees' },
-              ...TASK_USERS.filter((u) => u.role !== 'external').map((u) => ({
-                value: u.id,
-                label: u.name.split(' ')[0],
-              })),
-            ]}
-            onChange={(v) => setFilters({ ...filters, assignee: v })}
-          />
-          <FilterChip
-            value={filters.due}
-            options={[
-              { value: 'all', label: 'Any time' },
-              { value: 'today', label: 'Today' },
-              { value: 'this_week', label: 'This week' },
-              { value: 'overdue', label: 'Overdue' },
-            ]}
-            onChange={(v) => setFilters({ ...filters, due: v as AllTasksFilters['due'] })}
-          />
-          <FilterChip
-            value={filters.source}
-            options={[
-              { value: 'all', label: 'Any source' },
-              { value: 'manual', label: 'Manual' },
-              { value: 'breezeway', label: 'Breezeway' },
-              { value: 'inbox_ai', label: 'Inbox AI' },
-              { value: 'recurring', label: 'Recurring' },
-              { value: 'reservation_trigger', label: 'Reservation' },
-              { value: 'reported_issue', label: 'Issue' },
-              { value: 'group_email', label: 'Email' },
-              { value: 'personal', label: 'Personal' },
-            ]}
-            onChange={(v) => setFilters({ ...filters, source: v as TaskSource | 'all' })}
-          />
-          <button
-            className={'inbox-chip' + (filters.mine ? ' active' : '')}
-            onClick={() => setFilters({ ...filters, mine: !filters.mine })}
-          >
-            Mine only
-          </button>
+          <div className="all-tasks-filter-trigger" style={{ position: 'relative' }}>
+            <button
+              type="button"
+              className={'btn ghost sm' + (activeFilterCount > 0 || mobileFiltersOpen ? ' active' : '')}
+              onClick={(e) => {
+                e.stopPropagation();
+                setMobileFiltersOpen(!mobileFiltersOpen);
+              }}
+              aria-haspopup="dialog"
+              aria-expanded={mobileFiltersOpen}
+              style={{
+                background: activeFilterCount > 0 ? 'var(--color-background-tertiary)' : undefined,
+                color: activeFilterCount > 0 ? 'var(--color-brand-accent)' : undefined,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <IconFilter size={14} /> Filters
+              {activeFilterCount > 0 && (
+                <span
+                  className="mono"
+                  style={{
+                    fontSize: 10,
+                    marginLeft: 4,
+                    padding: '0 5px',
+                    borderRadius: 8,
+                    background: 'var(--color-brand-accent)',
+                    color: 'white',
+                  }}
+                >
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+            {mobileFiltersOpen && (
+              <>
+                <div
+                  style={{ position: 'fixed', inset: 0, zIndex: 9 }}
+                  onClick={() => setMobileFiltersOpen(false)}
+                />
+                <div
+                  className="fad-dropdown all-tasks-filter-sheet"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '4px 6px 10px',
+                      borderBottom: '0.5px solid var(--color-border-tertiary)',
+                      marginBottom: 10,
+                    }}
+                  >
+                    <span style={{ fontSize: 12, fontWeight: 500 }}>Filters</span>
+                    {activeFilterCount > 0 && (
+                      <button
+                        type="button"
+                        className="btn ghost sm"
+                        onClick={clearAllFilters}
+                        style={{ fontSize: 11 }}
+                      >
+                        Clear all
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="btn primary sm"
+                      style={{ marginLeft: 'auto' }}
+                      onClick={() => setMobileFiltersOpen(false)}
+                    >
+                      Done
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {filterChips}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+        <div className="all-tasks-filter-bar-desktop" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }}>
+          {filterChips}
         </div>
         <div style={{ marginTop: 10, fontSize: 12, color: 'var(--color-text-tertiary)' }}>
           {visibleTasks.length} of {TASKS.length} tasks
@@ -482,18 +645,18 @@ function AllTasksPage({ onOpenTask, onCreate }: { onOpenTask: (id: string) => vo
       </div>
 
       <div style={{ flex: 1, overflow: 'auto', padding: '0 20px 20px' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <table className="fad-tasks-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr style={{ position: 'sticky', top: 0, background: 'var(--color-background-primary)', zIndex: 1 }}>
               <Th></Th>
-              <Th>Property</Th>
-              <Th>Title</Th>
-              <Th>Dept</Th>
-              <Th>Status</Th>
-              <Th>Priority</Th>
+              <SortableTh sortKey="propertyCode" sort={sort} onToggle={toggleSort}>Property</SortableTh>
+              <SortableTh sortKey="title" sort={sort} onToggle={toggleSort}>Title</SortableTh>
+              <SortableTh sortKey="subdepartment" sort={sort} onToggle={toggleSort}>Dept</SortableTh>
+              <SortableTh sortKey="status" sort={sort} onToggle={toggleSort}>Status</SortableTh>
+              <SortableTh sortKey="priority" sort={sort} onToggle={toggleSort}>Priority</SortableTh>
               <Th>Assignees</Th>
-              <Th>Due</Th>
-              <Th>Source</Th>
+              <SortableTh sortKey="dueDate" sort={sort} onToggle={toggleSort}>Due</SortableTh>
+              <SortableTh sortKey="source" sort={sort} onToggle={toggleSort}>Source</SortableTh>
               <Th></Th>
             </tr>
           </thead>
@@ -503,6 +666,11 @@ function AllTasksPage({ onOpenTask, onCreate }: { onOpenTask: (id: string) => vo
             ))}
           </tbody>
         </table>
+        <div className="fad-tasks-cards">
+          {visibleTasks.map((t) => (
+            <TaskCard key={t.id} task={t} onClick={() => onOpenTask(t.id)} />
+          ))}
+        </div>
         {visibleTasks.length === 0 && <Empty>No tasks match the filters.</Empty>}
       </div>
     </div>
@@ -555,6 +723,55 @@ function Th({ children }: { children?: React.ReactNode }) {
       }}
     >
       {children}
+    </th>
+  );
+}
+
+function SortableTh({
+  sortKey,
+  sort,
+  onToggle,
+  children,
+}: {
+  sortKey: TaskSortKey;
+  sort: { key: TaskSortKey; dir: 'asc' | 'desc' } | null;
+  onToggle: (key: TaskSortKey) => void;
+  children: React.ReactNode;
+}) {
+  const active = sort?.key === sortKey;
+  const indicator = active ? (sort!.dir === 'asc' ? ' ▲' : ' ▼') : '';
+  return (
+    <th
+      style={{
+        textAlign: 'left',
+        padding: 0,
+        fontSize: 10,
+        textTransform: 'uppercase',
+        letterSpacing: '0.06em',
+        color: active ? 'var(--color-brand-accent)' : 'var(--color-text-tertiary)',
+        fontWeight: 500,
+        borderBottom: '0.5px solid var(--color-border-tertiary)',
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => onToggle(sortKey)}
+        style={{
+          width: '100%',
+          textAlign: 'left',
+          padding: '8px 10px',
+          background: 'transparent',
+          border: 0,
+          color: 'inherit',
+          font: 'inherit',
+          textTransform: 'inherit',
+          letterSpacing: 'inherit',
+          cursor: 'pointer',
+        }}
+      >
+        {children}
+        <span aria-hidden="true">{indicator}</span>
+      </button>
     </th>
   );
 }
@@ -643,6 +860,103 @@ function TaskTableRow({ task, onClick }: { task: Task; onClick: () => void }) {
         {task.attachmentCount > 0 && `📎 ${task.attachmentCount}`}
       </td>
     </tr>
+  );
+}
+
+function formatTaskDue(dueDate: string, dueTime?: string): string {
+  if (dueDate === TODAY) return dueTime ? `Due today, ${dueTime}` : 'Due today';
+  const parts = dueDate.split('-').map(Number);
+  const date = new Date(parts[0], parts[1] - 1, parts[2]);
+  const today = new Date(2026, 3, 27);
+  const diff = Math.round((date.getTime() - today.getTime()) / 86_400_000);
+  const fmt = date.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+  if (diff === 1) return dueTime ? `Due tomorrow, ${dueTime}` : 'Due tomorrow';
+  if (diff < 0) return `Overdue · ${fmt}`;
+  return `Due ${fmt}`;
+}
+
+function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
+  const statusSwatch = toneStyle(taskStatusTone(task.status));
+  const prioSwatch = toneStyle(priorityTone(task.priority));
+  const sourceSwatch = toneStyle(taskSourceTone(task.source));
+  const chipBase: React.CSSProperties = {
+    fontSize: 10,
+    padding: '2px 6px',
+    borderRadius: 4,
+    fontWeight: 500,
+    textTransform: 'uppercase',
+    letterSpacing: '0.04em',
+    whiteSpace: 'nowrap',
+  };
+  return (
+    <button type="button" onClick={onClick} className="fad-task-card">
+      <span className="fad-task-card-bar" style={{ background: priorityBarColor(task.priority) }} />
+      <div className="fad-task-card-body">
+        <div className="fad-task-card-row1">
+          <span className="fad-task-card-title">{task.title}</span>
+          {task.attachmentCount > 0 && (
+            <span className="fad-task-card-attach">📎 {task.attachmentCount}</span>
+          )}
+        </div>
+        <div className="fad-task-card-meta">
+          <span className="mono">{task.propertyCode}</span>
+          <span>·</span>
+          <span>{task.subdepartment.replace(/_/g, ' ')}</span>
+          <span>·</span>
+          <span>{formatTaskDue(task.dueDate, task.dueTime)}</span>
+        </div>
+        {task.riskFlags.length > 0 && (
+          <div className="fad-task-card-risk">
+            ⚠ {task.riskFlags.slice(0, 2).join(', ')}
+            {task.riskFlags.length > 2 && ` +${task.riskFlags.length - 2}`}
+          </div>
+        )}
+        <div className="fad-task-card-row2">
+          <div className="fad-task-card-chips">
+            <span style={{ ...chipBase, background: statusSwatch.background, color: statusSwatch.color }}>
+              {STATUS_LABEL[task.status]}
+            </span>
+            <span style={{ ...chipBase, background: prioSwatch.background, color: prioSwatch.color }}>
+              {task.priority}
+            </span>
+            <span style={{ ...chipBase, background: sourceSwatch.background, color: sourceSwatch.color }}>
+              {SOURCE_LABEL[task.source]}
+            </span>
+          </div>
+          <div className="fad-task-card-avatars">
+            {task.assigneeIds.slice(0, 3).map((id, i) => {
+              const u = TASK_USER_BY_ID[id];
+              if (!u) return null;
+              return (
+                <span
+                  key={id}
+                  title={u.name}
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: 11,
+                    background: u.avatarColor,
+                    color: 'white',
+                    fontSize: 9,
+                    fontWeight: 500,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginLeft: i === 0 ? 0 : -6,
+                    border: '1.5px solid var(--color-background-primary)',
+                  }}
+                >
+                  {u.initials}
+                </span>
+              );
+            })}
+            {task.assigneeIds.length === 0 && (
+              <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>—</span>
+            )}
+          </div>
+        </div>
+      </div>
+    </button>
   );
 }
 

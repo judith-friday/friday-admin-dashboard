@@ -86,6 +86,11 @@ export function RosterPage() {
   const [editing, setEditing] = useState<{ userId: string; date: string } | null>(null);
   const [publishOpen, setPublishOpen] = useState(false);
 
+  const todayIdx = dates.findIndex((d) => d === TODAY);
+  const [mobileDayIdx, setMobileDayIdx] = useState(todayIdx >= 0 ? todayIdx : 0);
+  const safeMobileIdx = Math.min(Math.max(mobileDayIdx, 0), Math.max(dates.length - 1, 0));
+  const mobileDate = dates[safeMobileIdx];
+
   const aiDraft = () => {
     runAiDraft(week, visibleUsers);
     bumpRev();
@@ -161,8 +166,8 @@ export function RosterPage() {
           <WorkloadPreview week={week} />
         </div>
 
-        {/* Right pane — roster grid */}
-        <div className="fad-split-detail" style={{ flex: 1, padding: 20, overflowX: 'auto' }}>
+        {/* Right pane — roster grid (desktop full week) */}
+        <div className="fad-split-detail fad-roster-grid-desktop" style={{ flex: 1, padding: 20, overflowX: 'auto' }}>
           <table
             style={{
               borderCollapse: 'separate',
@@ -264,6 +269,100 @@ export function RosterPage() {
             <div style={{ padding: 32, textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
               No staff visible for this role.
             </div>
+          )}
+        </div>
+
+        {/* Right pane — mobile day-pager (single day at a time) */}
+        <div className="fad-split-detail fad-roster-grid-mobile" style={{ flex: 1, padding: 16 }}>
+          <div className="fad-roster-day-pager">
+            <button
+              type="button"
+              className="btn ghost sm"
+              onClick={() => setMobileDayIdx(Math.max(safeMobileIdx - 1, 0))}
+              disabled={safeMobileIdx === 0}
+              aria-label="Previous day"
+            >
+              ‹
+            </button>
+            <div className="fad-roster-day-label">
+              {mobileDate && (
+                <>
+                  <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    {DAY_LABEL[new Date(mobileDate).getDay()]}
+                    {mobileDate === TODAY && ' · today'}
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 500 }}>
+                    {new Date(mobileDate).toLocaleString('en-US', { month: 'short', day: 'numeric' })}
+                  </div>
+                </>
+              )}
+            </div>
+            <button
+              type="button"
+              className="btn ghost sm"
+              onClick={() => setMobileDayIdx(Math.min(safeMobileIdx + 1, dates.length - 1))}
+              disabled={safeMobileIdx >= dates.length - 1}
+              aria-label="Next day"
+            >
+              ›
+            </button>
+          </div>
+
+          {visibleUsers.length === 0 ? (
+            <div style={{ padding: 32, textAlign: 'center', color: 'var(--color-text-tertiary)' }}>
+              No staff visible for this role.
+            </div>
+          ) : (
+            <ul className="fad-roster-day-list">
+              {visibleUsers.map((u) => {
+                const cell = mobileDate ? findCell(u.id, mobileDate) : undefined;
+                const isEditingThis = editing?.userId === u.id && editing?.date === mobileDate;
+                return (
+                  <li key={u.id} className="fad-roster-day-row">
+                    <div className="fad-roster-day-staff">
+                      <span
+                        style={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: 12,
+                          background: u.avatarColor,
+                          color: 'white',
+                          fontSize: 10,
+                          fontWeight: 500,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        {u.initials}
+                      </span>
+                      <span style={{ fontSize: 13 }}>{u.name.split(' ')[0]}</span>
+                    </div>
+                    <div style={{ position: 'relative', flex: '0 0 50%', maxWidth: 180 }}>
+                      {cell ? (
+                        <RosterCell
+                          cell={cell}
+                          editable={editable}
+                          onClick={() => editable && mobileDate && setEditing({ userId: u.id, date: mobileDate })}
+                        />
+                      ) : (
+                        <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>—</span>
+                      )}
+                      {isEditingThis && cell && mobileDate && (
+                        <CellEditPopover
+                          cell={cell}
+                          onSelect={(opt) => {
+                            updateCell(u.id, mobileDate, opt);
+                            setEditing(null);
+                          }}
+                          onClose={() => setEditing(null)}
+                        />
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </div>
       </div>

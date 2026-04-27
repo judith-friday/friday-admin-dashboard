@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MODULES, GROUPS, type ModuleDef } from '../_data/modules';
 import { iconFor, IconExpand, IconSparkle } from './icons';
 import { canSeeModule, useCurrentRole } from './usePermissions';
@@ -40,6 +40,13 @@ export function Sidebar({
     });
     return m;
   }, [role]);
+
+  // Allow re-clicking the active module to collapse its sub-pages.
+  // Resets when the user navigates to a different module.
+  const [collapsedActive, setCollapsedActive] = useState(false);
+  useEffect(() => {
+    setCollapsedActive(false);
+  }, [active]);
 
   return (
     <>
@@ -96,12 +103,16 @@ export function Sidebar({
               {groupMods.map((mod) => {
                 const IconComp = iconFor(mod.icon);
                 const isActive = mod.id === active;
-                const showSubs = isActive && !collapsed && !!mod.subPages?.length;
+                const showSubs = isActive && !collapsed && !!mod.subPages?.length && !collapsedActive;
                 return (
                   <div key={mod.id} className="fad-nav-item-wrap">
                     <button
                       className={'fad-nav-item' + (isActive ? ' active' : '')}
                       onClick={() => {
+                        if (isActive && mod.subPages?.length) {
+                          setCollapsedActive((v) => !v);
+                          return;
+                        }
                         onSelect(mod.id);
                         onMobileClose?.();
                       }}

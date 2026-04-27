@@ -910,7 +910,16 @@ html.fad-dark .send-split-main { color: #0b0d14; }
   padding: 16px 24px;
   border-bottom: 0.5px solid var(--color-border-tertiary);
 }
-.inbox-thread-subject { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+.inbox-thread-subject {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.inbox-thread-details.mobile-hidden { display: none; }
 .inbox-thread-meta { font-size: 12px; color: var(--color-text-tertiary); display: flex; gap: 10px; }
 .inbox-thread-body { flex: 1; overflow-y: auto; padding: 16px 24px; }
 
@@ -1038,6 +1047,318 @@ html.fad-dark .send-split-main { color: #0b0d14; }
 .cal-event.checkout { background: var(--color-brand-accent-soft); color: var(--color-brand-accent); border-color: var(--color-brand-accent); }
 .cal-event.maint { background: var(--color-bg-warning); color: var(--color-text-warning); border-color: var(--color-text-warning); }
 .cal-event.meeting { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-text-tertiary); }
+.cal-event.task { background: var(--color-bg-info); color: var(--color-text-info); border-color: var(--color-text-info); }
+
+.cal-cell-more {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  background: var(--color-background-primary);
+  padding: 0 4px;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+/* Reservation stays lane — bars span the days a guest is in residence */
+.cal-stays-lane {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 0;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  background: var(--color-background-secondary);
+}
+
+.cal-stays-row {
+  display: grid;
+  grid-template-columns: 64px repeat(7, 1fr);
+  align-items: center;
+  min-height: 24px;
+}
+
+.cal-stays-rowlabel {
+  text-align: right;
+  padding: 0 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-tertiary);
+  align-self: center;
+}
+
+.cal-stay-band {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  margin: 0 2px;
+  padding: 0 10px;
+  border: 0.5px solid var(--color-brand-accent);
+  border-radius: 999px;
+  background: var(--color-brand-accent-soft);
+  color: var(--color-brand-accent);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.cal-stay-band:hover {
+  filter: brightness(1.05);
+}
+
+.cal-stay-band.status-checked_in {
+  background: var(--color-bg-success);
+  border-color: var(--color-text-success);
+  color: var(--color-text-success);
+}
+
+.cal-stay-band.status-checked_out {
+  background: var(--color-background-secondary);
+  border-color: var(--color-text-tertiary);
+  color: var(--color-text-tertiary);
+  opacity: 0.7;
+}
+
+.cal-stay-band.status-hold {
+  background: var(--color-bg-warning);
+  border-color: var(--color-text-warning);
+  color: var(--color-text-warning);
+}
+
+.cal-stay-band.clip-left {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 0;
+}
+
+.cal-stay-band.clip-right {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 0;
+}
+
+.cal-stay-end-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.cal-stay-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal-stay-prop {
+  font-size: 10px;
+  opacity: 0.75;
+}
+
+/* MonthView stay segments — share a continuous look across cells via squared edges. */
+.cal-month-stay {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 16px;
+  padding: 0 6px;
+  /* Extend past the cell's left/right padding (8px) plus 0.5px to cover the
+     vertical cell border so adjacent segments read as one continuous bar. */
+  margin: 1px -8.5px;
+  background: var(--color-brand-accent-soft);
+  color: var(--color-brand-accent);
+  border-top: 0.5px solid var(--color-brand-accent);
+  border-bottom: 0.5px solid var(--color-brand-accent);
+  border-left: 0;
+  border-right: 0;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  /* Layer above the cell's border-right so it's not visually cut. */
+  position: relative;
+  z-index: 2;
+}
+
+.cal-month-stay.segment-start {
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
+  border-left: 0.5px solid var(--color-brand-accent);
+  margin-left: 2px;
+  padding-left: 6px;
+}
+
+.cal-month-stay.segment-end {
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+  border-right: 0.5px solid var(--color-brand-accent);
+  margin-right: 2px;
+  padding-right: 6px;
+}
+
+.cal-month-stay.status-checked_in {
+  background: var(--color-bg-success);
+  color: var(--color-text-success);
+  border-color: var(--color-text-success);
+}
+
+.cal-month-stay.status-checked_in.segment-start { border-left-color: var(--color-text-success); }
+.cal-month-stay.status-checked_in.segment-end { border-right-color: var(--color-text-success); }
+
+.cal-month-stay.status-checked_out {
+  background: var(--color-background-secondary);
+  color: var(--color-text-tertiary);
+  border-color: var(--color-text-tertiary);
+  opacity: 0.7;
+}
+
+.cal-month-stay.status-checked_out.segment-start { border-left-color: var(--color-text-tertiary); }
+.cal-month-stay.status-checked_out.segment-end { border-right-color: var(--color-text-tertiary); }
+
+.cal-month-stay.status-hold {
+  background: var(--color-bg-warning);
+  color: var(--color-text-warning);
+  border-color: var(--color-text-warning);
+}
+
+.cal-month-stay-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* DayView in-residence strip */
+.cal-day-stays {
+  padding: 8px 12px;
+  background: var(--color-background-secondary);
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+
+.cal-day-stays-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-tertiary);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.cal-day-stays-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cal-allday-row {
+  display: grid;
+  grid-template-columns: 64px repeat(7, 1fr);
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  background: var(--color-background-secondary);
+}
+
+.cal-allday-label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-tertiary);
+}
+
+.cal-allday-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  border-left: 0.5px solid var(--color-border-tertiary);
+  min-height: 32px;
+}
+
+.cal-allday-pill {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-align: left;
+  border: 0.5px solid;
+  cursor: pointer;
+  font: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal-allday-pill.task { background: var(--color-bg-info); color: var(--color-text-info); border-color: var(--color-text-info); }
+.cal-allday-pill.checkin { background: var(--color-bg-success); color: var(--color-text-success); border-color: var(--color-text-success); }
+.cal-allday-pill.checkout { background: var(--color-brand-accent-soft); color: var(--color-brand-accent); border-color: var(--color-brand-accent); }
+.cal-allday-pill.maint { background: var(--color-bg-warning); color: var(--color-text-warning); border-color: var(--color-text-warning); }
+.cal-allday-pill.meeting { background: var(--color-background-primary); color: var(--color-text-primary); border-color: var(--color-border-tertiary); }
+
+.cal-allday-more {
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  padding: 2px 6px;
+  background: transparent;
+  border: 0.5px dashed var(--color-border-tertiary);
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.cal-allday-more:hover {
+  background: var(--color-background-tertiary);
+  color: var(--color-text-primary);
+}
+
+.cal-allday-expand {
+  position: fixed !important;
+  z-index: 100;
+  min-width: 240px;
+  max-width: 320px;
+  padding: 10px;
+}
+.cal-allday-expand-header {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-tertiary);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.cal-allday-expand-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.cal-mobile-allday {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+
+.cal-mobile-allday-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-tertiary);
+  margin-bottom: 6px;
+}
 .cal-event .ev-time { font-family: var(--font-mono-fad); font-size: 10px; opacity: 0.85; display: block; }
 
 /* ───────────────────── SETTINGS ───────────────────── */
@@ -2207,6 +2528,56 @@ html.fad-dark .cal-popover { box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
 .cal-popover-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
 .cal-popover-meta { color: var(--color-text-tertiary); margin-bottom: 8px; font-family: var(--font-mono-fad); font-size: 11px; }
 
+.cal-popover-finance {
+  border-top: 0.5px solid var(--color-border-tertiary);
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cal-popover-finance-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-tertiary);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.cal-popover-finance-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--color-text-primary);
+}
+
+.cal-popover-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 8px 0 0;
+}
+
+/* Calendar nav buttons (Prev / Today / Next) live in the module header. */
+.cal-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  background: var(--color-background-secondary);
+  margin-right: 4px;
+}
+
+.cal-nav .btn {
+  min-width: 28px;
+  padding: 4px 8px;
+}
+
 /* Month calendar */
 .cal-month {
   background: var(--color-background-primary);
@@ -2239,6 +2610,7 @@ html.fad-dark .cal-popover { box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
   display: flex;
   flex-direction: column;
   gap: 3px;
+  position: relative;
 }
 .cal-month-cell:nth-child(7n) { border-right: 0; }
 .cal-month-cell.other { opacity: 0.35; }
@@ -2259,6 +2631,7 @@ html.fad-dark .cal-popover { box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
 .cal-month-ev.checkout { background: var(--color-brand-accent-soft); color: var(--color-brand-accent); border-color: var(--color-brand-accent); }
 .cal-month-ev.maint { background: var(--color-bg-warning); color: var(--color-text-warning); border-color: var(--color-text-warning); }
 .cal-month-ev.meeting { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-text-tertiary); }
+.cal-month-ev.task { background: var(--color-bg-info); color: var(--color-text-info); border-color: var(--color-text-info); }
 
 /* Modal */
 .fad-modal-overlay {
@@ -4692,4 +5065,305 @@ html.fad-dark .fin-friday-flag-tag { background: rgba(0,0,0,0.25); }
     max-width: calc(100vw - 24px) !important;
     right: 12px !important;
   }
+}
+
+/* Tabs overflow — modules with >4 tabs get a "More ▾" menu at <768px */
+.fad-tabs.fad-tabs-mobile { display: none; }
+
+@media (max-width: 768px) {
+  .fad-tabs.fad-tabs-desktop { display: none; }
+  .fad-tabs.fad-tabs-mobile {
+    display: inline-flex;
+    /* The pinned-tab + More variant never needs to scroll; visible overflow lets
+       the popover escape the parent box (the global `.fad-tabs` rule sets
+       overflow-x:auto for the desktop fallback, which clips both axes). */
+    overflow: visible;
+  }
+  /* Anchor the More-menu dropdown to the button (overrides the global
+     `.fad-dropdown { right: 12px }` rule which targets viewport-anchored menus). */
+  .fad-tabs-mobile .fad-dropdown {
+    right: auto !important;
+    left: 0 !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+}
+
+/* All Tasks — search + (desktop: inline filter chips · mobile: filter button + sheet) */
+.all-tasks-search-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.all-tasks-filter-trigger {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .all-tasks-filter-trigger {
+    display: block;
+  }
+  .all-tasks-filter-bar-desktop {
+    display: none !important;
+  }
+}
+
+.all-tasks-filter-sheet {
+  right: 0 !important;
+  left: auto;
+  min-width: 280px;
+  max-width: calc(100vw - 24px);
+  padding: 14px;
+  z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .all-tasks-filter-sheet {
+    right: 12px !important;
+  }
+}
+
+/* All Tasks — table/card swap. Cards hidden on desktop, table swapped out on mobile. */
+.fad-tasks-cards {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fad-task-card {
+  display: flex;
+  width: 100%;
+  text-align: left;
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 8px;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  font: inherit;
+  color: inherit;
+}
+
+.fad-task-card:hover,
+.fad-task-card:focus-visible {
+  background: var(--color-background-secondary);
+  outline: none;
+}
+
+.fad-task-card-bar {
+  flex: 0 0 4px;
+  align-self: stretch;
+}
+
+.fad-task-card-body {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fad-task-card-row1 {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.fad-task-card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.fad-task-card-attach {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.fad-task-card-meta {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.fad-task-card-risk {
+  font-size: 11px;
+  color: var(--color-text-warning);
+}
+
+.fad-task-card-row2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.fad-task-card-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.fad-task-card-avatars {
+  display: flex;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .fad-tasks-table {
+    display: none;
+  }
+  .fad-tasks-cards {
+    display: flex;
+  }
+}
+
+/* Calendar — Week view swaps to a mobile day-list at <768px */
+.cal-week-mobile { display: none; }
+
+@media (max-width: 768px) {
+  .cal-week-desktop { display: none; }
+  .cal-week-mobile { display: block; }
+}
+
+.cal-mobile-pager {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0 12px;
+}
+
+.cal-mobile-pager .btn {
+  min-width: 36px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.cal-mobile-pager .btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.cal-mobile-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cal-mobile-event {
+  width: 100%;
+  text-align: left;
+  display: grid;
+  grid-template-columns: 56px auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 0.5px solid;
+  font: inherit;
+  cursor: pointer;
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+}
+
+.cal-mobile-event.checkin { background: var(--color-bg-success); color: var(--color-text-success); border-color: var(--color-text-success); }
+.cal-mobile-event.checkout { background: var(--color-brand-accent-soft); color: var(--color-brand-accent); border-color: var(--color-brand-accent); }
+.cal-mobile-event.maint { background: var(--color-bg-warning); color: var(--color-text-warning); border-color: var(--color-text-warning); }
+.cal-mobile-event.meeting { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-tertiary); }
+.cal-mobile-event.task { background: var(--color-bg-info); color: var(--color-text-info); border-color: var(--color-text-info); }
+
+.cal-mobile-event-time {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.cal-mobile-event-type {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.cal-mobile-event-title {
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Roster — desktop full-week table vs mobile day-pager */
+.fad-roster-grid-mobile { display: none; }
+
+@media (max-width: 768px) {
+  .fad-roster-grid-desktop { display: none; }
+  .fad-roster-grid-mobile { display: block; }
+}
+
+.fad-roster-day-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 4px 16px;
+}
+
+.fad-roster-day-pager .btn {
+  min-width: 36px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.fad-roster-day-pager .btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.fad-roster-day-label {
+  text-align: center;
+  flex: 1;
+}
+
+.fad-roster-day-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fad-roster-day-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 4px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+
+.fad-roster-day-row:last-child {
+  border-bottom: 0;
+}
+
+.fad-roster-day-staff {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
 }

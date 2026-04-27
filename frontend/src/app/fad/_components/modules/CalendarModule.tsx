@@ -1,25 +1,242 @@
 'use client';
 
-import { Fragment, useState } from 'react';
-import { CAL_DAYS, CAL_EVENTS, type CalEvent } from '../../_data/fixtures';
+import { Fragment, useMemo, useState } from 'react';
+import { CAL_EVENTS, type CalEvent, type FixedCalEvent } from '../../_data/fixtures';
+import {
+  RESERVATIONS,
+  CHANNEL_LABEL,
+  PAYOUT_LABEL,
+  STATUS_LABEL as RES_STATUS_LABEL,
+  formatMoney,
+  formatStayWindow,
+  type Reservation,
+} from '../../_data/reservations';
+import { TASKS, type Task } from '../../_data/tasks';
+import { useCurrentUserId } from '../usePermissions';
+import { fireToast } from '../Toaster';
 import { FilterBar, FilterChip } from '../FilterBar';
 import { IconClose, IconPlus, IconRefresh } from '../icons';
 import { ModuleHeader } from '../ModuleHeader';
 
-const EVENT_TYPES: { id: CalEvent['type']; label: string; dot: string }[] = [
-  { id: 'checkin', label: 'Check-in', dot: 'green' },
-  { id: 'checkout', label: 'Check-out', dot: 'accent' },
+type CalView = 'day' | 'week' | 'month';
+
+interface ViewDay {
+  isoDate: string;
+  /** Letter abbrev, e.g. "Mon" — for headers. */
+  label: string;
+  /** Day-of-month, e.g. "27" — for headers. */
+  date: string;
+  today: boolean;
+  /** True when this day belongs to the focused month (month view only). */
+  inFocusMonth: boolean;
+}
+
+const TODAY_ISO = '2026-04-27';
+const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const EVENT_TYPES: { id: 'reservation' | 'task' | 'maint' | 'meeting'; label: string; dot: string }[] = [
+  { id: 'reservation', label: 'Reservations', dot: 'accent' },
+  { id: 'task', label: 'Tasks', dot: 'info' },
   { id: 'maint', label: 'Maintenance', dot: 'amber' },
-  { id: 'meeting', label: 'Meeting', dot: 'neutral' },
+  { id: 'meeting', label: 'Meetings', dot: 'neutral' },
 ];
 
+const TYPE_LABEL: Record<CalEvent['type'], string> = {
+  checkin: 'Check-in',
+  checkout: 'Check-out',
+  task: 'Task',
+  maint: 'Maintenance',
+  meeting: 'Meeting',
+};
+
+function eventOpenLabel(type: CalEvent['type']): string {
+  switch (type) {
+    case 'task':
+      return 'Open task';
+    case 'maint':
+      return 'Open work order';
+    case 'meeting':
+      return 'Open meeting';
+    case 'checkin':
+    case 'checkout':
+      return 'Open reservation';
+  }
+}
+
+function isoDay(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function addDays(d: Date, n: number): Date {
+  const next = new Date(d);
+  next.setDate(d.getDate() + n);
+  return next;
+}
+
+function startOfWeek(d: Date): Date {
+  // Mon-anchored week. JS getDay: 0=Sun, 1=Mon, ..., 6=Sat.
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  return addDays(d, diff);
+}
+
+function computeViewDays(viewDate: Date, view: CalView): ViewDay[] {
+  const focusMonth = viewDate.getMonth();
+  const make = (d: Date): ViewDay => ({
+    isoDate: isoDay(d),
+    label: DAY_LABELS[d.getDay()],
+    date: String(d.getDate()).padStart(2, '0'),
+    today: isoDay(d) === TODAY_ISO,
+    inFocusMonth: d.getMonth() === focusMonth,
+  });
+  if (view === 'day') {
+    return [make(viewDate)];
+  }
+  if (view === 'week') {
+    const monday = startOfWeek(viewDate);
+    return Array.from({ length: 7 }, (_, i) => make(addDays(monday, i)));
+  }
+  // month: 5 weeks anchored on Mon-of-week-containing-1st
+  const firstOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+  const monday = startOfWeek(firstOfMonth);
+  return Array.from({ length: 35 }, (_, i) => make(addDays(monday, i)));
+}
+
+function viewSubtitle(viewDate: Date, view: CalView, days: ViewDay[]): string {
+  const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) =>
+    new Date(iso).toLocaleString('en-US', opts);
+  if (view === 'day') {
+    return fmt(days[0].isoDate, { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  if (view === 'week') {
+    const first = days[0].isoDate;
+    const last = days[days.length - 1].isoDate;
+    return `${fmt(first, { month: 'short', day: 'numeric' })} → ${fmt(last, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  }
+  return viewDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+}
+
+function dayIndexFor(iso: string, days: ViewDay[]): number {
+  return days.findIndex((d) => d.isoDate === iso.slice(0, 10));
+}
+
+function reservationToEvents(rsv: Reservation, days: ViewDay[]): CalEvent[] {
+  // Used by mobile day-list and DayView to surface check-in / check-out events at
+  // their precise hour. WeekView renders these as continuous bars instead.
+  const events: CalEvent[] = [];
+  const inIdx = dayIndexFor(rsv.checkIn, days);
+  const outIdx = dayIndexFor(rsv.checkOut, days);
+  if (inIdx >= 0) {
+    const hour = new Date(rsv.checkIn).getHours();
+    events.push({
+      day: inIdx,
+      start: hour,
+      end: hour + 1,
+      type: 'checkin',
+      title: `${rsv.guestName.split(' ').slice(-1)[0]} in · ${rsv.propertyCode}`,
+    });
+  }
+  if (outIdx >= 0) {
+    const hour = new Date(rsv.checkOut).getHours();
+    events.push({
+      day: outIdx,
+      start: hour,
+      end: hour + 1,
+      type: 'checkout',
+      title: `${rsv.guestName.split(' ').slice(-1)[0]} out · ${rsv.propertyCode}`,
+    });
+  }
+  return events;
+}
+
+function fixedToEvent(e: FixedCalEvent, days: ViewDay[]): CalEvent | null {
+  const idx = dayIndexFor(e.isoDate, days);
+  if (idx < 0) return null;
+  return { day: idx, start: e.start, end: e.end, type: e.type, title: e.title };
+}
+
+interface Stay {
+  rsv: Reservation;
+  /** Day index of the band's left edge in the visible window (clipped). */
+  startIdx: number;
+  /** Day index of the band's right edge in the visible window (clipped). */
+  endIdx: number;
+  /** True when check-in falls within the visible window. */
+  startsThisWeek: boolean;
+  /** True when check-out falls within the visible window. */
+  endsThisWeek: boolean;
+}
+
+function computeStaysInWindow(days: ViewDay[]): Stay[] {
+  if (days.length === 0) return [];
+  const firstISO = days[0].isoDate;
+  const lastISO = days[days.length - 1].isoDate;
+  return RESERVATIONS
+    .filter((r) => {
+      if (r.status === 'cancelled') return false;
+      const inISO = r.checkIn.slice(0, 10);
+      const outISO = r.checkOut.slice(0, 10);
+      return outISO >= firstISO && inISO <= lastISO;
+    })
+    .map((r) => {
+      const inIdx = days.findIndex((d) => d.isoDate === r.checkIn.slice(0, 10));
+      const outIdx = days.findIndex((d) => d.isoDate === r.checkOut.slice(0, 10));
+      return {
+        rsv: r,
+        startIdx: inIdx >= 0 ? inIdx : 0,
+        endIdx: outIdx >= 0 ? outIdx : days.length - 1,
+        startsThisWeek: inIdx >= 0,
+        endsThisWeek: outIdx >= 0,
+      };
+    })
+    .sort((a, b) => a.startIdx - b.startIdx || a.endIdx - b.endIdx);
+}
+
+function packStays(stays: Stay[]): Stay[][] {
+  const rows: Stay[][] = [];
+  for (const s of stays) {
+    const row = rows.find((r) => r.every((o) => o.endIdx < s.startIdx || o.startIdx > s.endIdx));
+    if (row) row.push(s);
+    else rows.push([s]);
+  }
+  return rows;
+}
+
+/**
+ * Synthesize a calendar event from a task. Returns:
+ *  - timed event if the task has an explicit dueTime
+ *  - all-day event (start: -1) for untimed tasks — these show in the all-day
+ *    strip / mobile-list "All day" group, not in the timed grid.
+ */
+function taskToEvent(task: Task, days: ViewDay[]): CalEvent | null {
+  const idx = dayIndexFor(task.dueDate, days);
+  if (idx < 0) return null;
+  const title = `${task.propertyCode} · ${task.title}`;
+  if (!task.dueTime) {
+    return { day: idx, start: -1, end: -1, type: 'task', title, allDay: true };
+  }
+  const hour = parseInt(task.dueTime.slice(0, 2), 10) || 9;
+  return { day: idx, start: hour, end: hour + 1, type: 'task', title };
+}
+
+type FilterChipId = 'reservation' | 'task' | 'maint' | 'meeting';
+
 export function CalendarModule() {
-  const [tab, setTab] = useState<'day' | 'week' | 'month'>('week');
-  const [typeFilter, setTypeFilter] = useState<Set<CalEvent['type']>>(
-    new Set(EVENT_TYPES.map((t) => t.id))
+  const currentUserId = useCurrentUserId();
+  const [tab, setTab] = useState<CalView>('week');
+  const [viewDate, setViewDate] = useState<Date>(() => new Date(`${TODAY_ISO}T12:00:00`));
+  const [typeFilter, setTypeFilter] = useState<Set<FilterChipId>>(
+    new Set(EVENT_TYPES.map((t) => t.id)),
   );
+  const [mineOnly, setMineOnly] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<{ ev: CalEvent; x: number; y: number } | null>(
-    null
+    null,
+  );
+  const [selectedStay, setSelectedStay] = useState<{ rsv: Reservation; x: number; y: number } | null>(
+    null,
   );
   const [createOpen, setCreateOpen] = useState(false);
   const tabs = [
@@ -28,9 +245,45 @@ export function CalendarModule() {
     { id: 'month', label: 'Month' },
   ];
 
-  const visibleEvents = CAL_EVENTS.filter((e) => typeFilter.has(e.type));
+  const days = useMemo(() => computeViewDays(viewDate, tab), [viewDate, tab]);
 
-  const toggleType = (t: CalEvent['type']) => {
+  const allEvents = useMemo<CalEvent[]>(() => {
+    const reservationEvents = RESERVATIONS.flatMap((r) => reservationToEvents(r, days));
+    const filteredTasks = mineOnly
+      ? TASKS.filter((t) => t.assigneeIds.includes(currentUserId))
+      : TASKS;
+    const taskEvents = filteredTasks.map((t) => taskToEvent(t, days)).filter((e): e is CalEvent => Boolean(e));
+    const fixedEvents = CAL_EVENTS.map((e) => fixedToEvent(e, days)).filter((e): e is CalEvent => Boolean(e));
+    return [...fixedEvents, ...reservationEvents, ...taskEvents];
+  }, [days, mineOnly, currentUserId]);
+
+  const stays = useMemo(() => packStays(computeStaysInWindow(days)), [days]);
+  const staysVisible = typeFilter.has('reservation');
+
+  // Map "reservation" chip to checkin/checkout event types so the existing per-type filter
+  // (used by mobile day-list etc.) keeps working without a parallel state.
+  const includesType = (t: CalEvent['type']) => {
+    if (t === 'checkin' || t === 'checkout') return typeFilter.has('reservation');
+    return typeFilter.has(t);
+  };
+  const visibleEvents = allEvents.filter((e) => includesType(e.type));
+  // Reservations show up as bands in WeekView's stays lane, not as discrete
+  // events in the time grid — so strip checkin/checkout when feeding the grid.
+  const weekTimedEvents = visibleEvents.filter(
+    (e) => e.type !== 'checkin' && e.type !== 'checkout',
+  );
+
+  const todayIdxInWindow = days.findIndex((d) => d.today);
+  const [mobileDayIdx, setMobileDayIdx] = useState(0);
+  const safeMobileIdx = Math.min(Math.max(mobileDayIdx, 0), days.length - 1);
+
+  // Snap mobile day index to today when it falls inside the visible window after nav.
+  useMemo(() => {
+    if (todayIdxInWindow >= 0) setMobileDayIdx(todayIdxInWindow);
+    else setMobileDayIdx(0);
+  }, [todayIdxInWindow]);
+
+  const toggleType = (t: FilterChipId) => {
     setTypeFilter((prev) => {
       const next = new Set(prev);
       if (next.has(t)) next.delete(t);
@@ -39,16 +292,37 @@ export function CalendarModule() {
     });
   };
 
+  const navStep = (dir: -1 | 1) => {
+    setViewDate((prev) => {
+      if (tab === 'day') return addDays(prev, dir);
+      if (tab === 'week') return addDays(prev, dir * 7);
+      return new Date(prev.getFullYear(), prev.getMonth() + dir, 1);
+    });
+  };
+  const goToday = () => setViewDate(new Date(`${TODAY_ISO}T12:00:00`));
+  const subtitle = viewSubtitle(viewDate, tab, days);
+
   return (
     <>
       <ModuleHeader
         title="Calendar"
-        subtitle="Check-ins, check-outs, maintenance and meetings · Apr 14 – 20"
+        subtitle={subtitle}
         tabs={tabs}
         activeTab={tab}
         onTabChange={(id) => setTab(id as typeof tab)}
         actions={
           <>
+            <div className="cal-nav">
+              <button className="btn ghost sm" onClick={() => navStep(-1)} aria-label="Previous">
+                ‹
+              </button>
+              <button className="btn ghost sm" onClick={goToday}>
+                Today
+              </button>
+              <button className="btn ghost sm" onClick={() => navStep(1)} aria-label="Next">
+                ›
+              </button>
+            </div>
             <button className="btn sm">
               <IconRefresh size={12} /> Sync
             </button>
@@ -70,14 +344,53 @@ export function CalendarModule() {
               {t.label}
             </FilterChip>
           ))}
+          <span style={{ width: 1, height: 18, background: 'var(--color-border-tertiary)', margin: '0 4px' }} />
+          <FilterChip
+            active={mineOnly}
+            onClick={() => setMineOnly((v) => !v)}
+          >
+            Mine only
+          </FilterChip>
         </FilterBar>
 
         {tab === 'month' ? (
-          <MonthView events={visibleEvents} onEventClick={(ev, x, y) => setSelectedEvent({ ev, x, y })} />
+          <MonthView
+            days={days}
+            viewDate={viewDate}
+            events={visibleEvents.filter((e) => e.type !== 'checkin' && e.type !== 'checkout')}
+            stays={staysVisible ? stays.flat() : []}
+            onEventClick={(ev, x, y) => setSelectedEvent({ ev, x, y })}
+            onStayClick={(rsv, x, y) => setSelectedStay({ rsv, x, y })}
+          />
         ) : tab === 'day' ? (
-          <DayView events={visibleEvents} onEventClick={(ev, x, y) => setSelectedEvent({ ev, x, y })} />
+          <DayView
+            days={days}
+            events={visibleEvents.filter((e) => e.type !== 'checkin' && e.type !== 'checkout')}
+            stays={staysVisible ? stays.flat() : []}
+            onEventClick={(ev, x, y) => setSelectedEvent({ ev, x, y })}
+            onStayClick={(rsv, x, y) => setSelectedStay({ rsv, x, y })}
+          />
         ) : (
-          <WeekView events={visibleEvents} onEventClick={(ev, x, y) => setSelectedEvent({ ev, x, y })} />
+          <>
+            <div className="cal-week-desktop">
+              <WeekView
+                days={days}
+                events={weekTimedEvents}
+                stayRows={staysVisible ? stays : []}
+                onEventClick={(ev, x, y) => setSelectedEvent({ ev, x, y })}
+                onStayClick={(rsv, x, y) => setSelectedStay({ rsv, x, y })}
+              />
+            </div>
+            <div className="cal-week-mobile">
+              <MobileDayList
+                days={days}
+                events={visibleEvents}
+                dayIdx={safeMobileIdx}
+                setDayIdx={setMobileDayIdx}
+                onEventClick={(ev, x, y) => setSelectedEvent({ ev, x, y })}
+              />
+            </div>
+          </>
         )}
 
         <div
@@ -107,47 +420,196 @@ export function CalendarModule() {
           onClose={() => setSelectedEvent(null)}
         />
       )}
+      {selectedStay && (
+        <StayPopover
+          rsv={selectedStay.rsv}
+          x={selectedStay.x}
+          y={selectedStay.y}
+          onClose={() => setSelectedStay(null)}
+        />
+      )}
       {createOpen && <NewEventModal onClose={() => setCreateOpen(false)} />}
     </>
   );
 }
 
 function WeekView({
+  days,
   events,
+  stayRows,
   onEventClick,
+  onStayClick,
 }: {
+  days: ViewDay[];
   events: CalEvent[];
+  stayRows: Stay[][];
   onEventClick: (ev: CalEvent, x: number, y: number) => void;
+  onStayClick: (rsv: Reservation, x: number, y: number) => void;
 }) {
   const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+  const allDayByDay: Record<number, CalEvent[]> = {};
+  days.forEach((_, di) => {
+    allDayByDay[di] = events.filter((e) => e.day === di && e.allDay);
+  });
+  const hasAnyAllDay = Object.values(allDayByDay).some((arr) => arr.length > 0);
+  const [allDayExpand, setAllDayExpand] = useState<{
+    dayIdx: number;
+    date: string;
+    x: number;
+    y: number;
+  } | null>(null);
+  const monthLabel = days[0]
+    ? new Date(days[0].isoDate).toLocaleString('en-US', { month: 'short' })
+    : '';
   return (
     <div className="cal-wrap">
       <div className="cal-head">
         <div className="cal-head-cell">
-          <span style={{ fontSize: 10 }}>Apr</span>
+          <span style={{ fontSize: 10 }}>{monthLabel}</span>
         </div>
-        {CAL_DAYS.map((d) => (
-          <div key={d.date} className={'cal-head-cell' + (d.today ? ' today' : '')}>
+        {days.map((d) => (
+          <div key={d.isoDate} className={'cal-head-cell' + (d.today ? ' today' : '')}>
             <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>{d.label}</span>
             <span className="day">{d.date}</span>
           </div>
         ))}
       </div>
+      {stayRows.length > 0 && (
+        <div className="cal-stays-lane">
+          {stayRows.map((row, rowIdx) => (
+            <div key={rowIdx} className="cal-stays-row">
+              <div className="cal-stays-rowlabel">{rowIdx === 0 ? 'Stays' : ''}</div>
+              {row.map((s) => (
+                <button
+                  key={s.rsv.id}
+                  type="button"
+                  className={
+                    'cal-stay-band status-' + s.rsv.status +
+                    (!s.startsThisWeek ? ' clip-left' : '') +
+                    (!s.endsThisWeek ? ' clip-right' : '')
+                  }
+                  style={{
+                    gridColumnStart: 2 + s.startIdx,
+                    gridColumnEnd: 2 + s.endIdx + 1,
+                  }}
+                  onClick={(evt) => {
+                    const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                    onStayClick(s.rsv, rect.right + 8, rect.top);
+                  }}
+                  title={`${s.rsv.guestName} · ${s.rsv.propertyCode} · ${s.rsv.nights} nts`}
+                >
+                  {s.startsThisWeek && <span className="cal-stay-end-dot left" aria-hidden="true" />}
+                  <span className="cal-stay-label">
+                    {s.rsv.guestName} <span className="cal-stay-prop mono">{s.rsv.propertyCode}</span>
+                  </span>
+                  {s.endsThisWeek && <span className="cal-stay-end-dot right" aria-hidden="true" />}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+      {hasAnyAllDay && (
+        <div className="cal-allday-row">
+          <div className="cal-allday-label">All day</div>
+          {days.map((d, di) => {
+            const dayEvents = allDayByDay[di];
+            const overflowCount = Math.max(dayEvents.length - 2, 0);
+            return (
+              <div key={di} className="cal-allday-cell">
+                {dayEvents.slice(0, 2).map((e, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={'cal-allday-pill ' + e.type}
+                    onClick={(evt) => {
+                      const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                      onEventClick(e, rect.right + 8, rect.top);
+                    }}
+                    title={e.title}
+                  >
+                    {e.title}
+                  </button>
+                ))}
+                {overflowCount > 0 && (
+                  <button
+                    type="button"
+                    className="cal-allday-more"
+                    onClick={(evt) => {
+                      evt.stopPropagation();
+                      const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                      setAllDayExpand({
+                        dayIdx: di,
+                        date: d.isoDate,
+                        x: rect.left,
+                        y: rect.bottom + 4,
+                      });
+                    }}
+                  >
+                    +{overflowCount} more
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {allDayExpand && allDayByDay[allDayExpand.dayIdx] && (
+        <>
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 99 }}
+            onClick={() => setAllDayExpand(null)}
+          />
+          <div
+            className="fad-dropdown cal-allday-expand"
+            style={{ top: allDayExpand.y, left: Math.min(allDayExpand.x, window.innerWidth - 280) }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="cal-allday-expand-header">
+              All day · {new Date(allDayExpand.date).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+            </div>
+            <div className="cal-allday-expand-list">
+              {allDayByDay[allDayExpand.dayIdx].map((e, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className={'cal-allday-pill ' + e.type}
+                  onClick={(evt) => {
+                    const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                    setAllDayExpand(null);
+                    onEventClick(e, rect.right + 8, rect.top);
+                  }}
+                >
+                  {e.title}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
       <div className="cal-grid">
         {hours.map((h) => (
           <Fragment key={h}>
             <div className="cal-hour-label">{String(h).padStart(2, '0')}:00</div>
-            {CAL_DAYS.map((d, di) => {
-              const evs = events.filter((e) => e.day === di && e.start === h);
+            {days.map((d, di) => {
+              const evs = events.filter((e) => e.day === di && !e.allDay && e.start === h);
+              const visible = evs.slice(0, 3);
+              const overflow = evs.length - visible.length;
               return (
                 <div key={di} className="cal-cell">
-                  {evs.map((e, i) => {
+                  {visible.map((e, i) => {
                     const span = e.end - e.start;
+                    const widthPct = 100 / visible.length;
                     return (
                       <div
                         key={i}
                         className={'cal-event ' + e.type}
-                        style={{ top: 2, height: `calc(${span * 52}px - 4px)` }}
+                        style={{
+                          top: 2,
+                          height: `calc(${span * 52}px - 4px)`,
+                          left: `${i * widthPct}%`,
+                          width: `calc(${widthPct}% - 2px)`,
+                        }}
                         onClick={(evt) => {
                           evt.stopPropagation();
                           const rect = (evt.target as HTMLElement).getBoundingClientRect();
@@ -161,6 +623,9 @@ function WeekView({
                       </div>
                     );
                   })}
+                  {overflow > 0 && (
+                    <span className="cal-cell-more">+{overflow}</span>
+                  )}
                 </div>
               );
             })}
@@ -171,43 +636,217 @@ function WeekView({
   );
 }
 
-function DayView({
+function MobileDayList({
+  days,
   events,
+  dayIdx,
+  setDayIdx,
   onEventClick,
 }: {
+  days: ViewDay[];
   events: CalEvent[];
+  dayIdx: number;
+  setDayIdx: (n: number) => void;
   onEventClick: (ev: CalEvent, x: number, y: number) => void;
 }) {
+  const day = days[dayIdx];
+  if (!day) return null;
+  const dayEvents = events.filter((e) => e.day === dayIdx);
+  const allDayEvents = dayEvents.filter((e) => e.allDay);
+  const timedEvents = dayEvents.filter((e) => !e.allDay).sort((a, b) => a.start - b.start);
+  return (
+    <div className="cal-mobile">
+      <div className="cal-mobile-pager">
+        <button
+          type="button"
+          className="btn ghost sm"
+          onClick={() => setDayIdx(Math.max(dayIdx - 1, 0))}
+          disabled={dayIdx === 0}
+          aria-label="Previous day"
+        >
+          ‹
+        </button>
+        <div style={{ textAlign: 'center', flex: 1 }}>
+          <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            {day.label}
+            {day.today && ' · today'}
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 500 }}>
+            {new Date(day.isoDate).toLocaleString('en-US', { month: 'short', day: 'numeric' })}
+          </div>
+        </div>
+        <button
+          type="button"
+          className="btn ghost sm"
+          onClick={() => setDayIdx(Math.min(dayIdx + 1, days.length - 1))}
+          disabled={dayIdx >= days.length - 1}
+          aria-label="Next day"
+        >
+          ›
+        </button>
+      </div>
+
+      {dayEvents.length === 0 ? (
+        <div style={{ padding: 32, textAlign: 'center', color: 'var(--color-text-tertiary)', fontSize: 13 }}>
+          Nothing scheduled.
+        </div>
+      ) : (
+        <>
+          {allDayEvents.length > 0 && (
+            <div className="cal-mobile-allday">
+              <div className="cal-mobile-allday-label">All day · {allDayEvents.length}</div>
+              <ul className="cal-mobile-list">
+                {allDayEvents.map((e, i) => (
+                  <li key={i}>
+                    <button
+                      type="button"
+                      className={'cal-mobile-event ' + e.type}
+                      onClick={(evt) => {
+                        const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                        onEventClick(e, rect.left + 16, rect.top + 16);
+                      }}
+                    >
+                      <span className="cal-mobile-event-time mono">—</span>
+                      <span className="cal-mobile-event-type">{TYPE_LABEL[e.type]}</span>
+                      <span className="cal-mobile-event-title">{e.title}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {timedEvents.length > 0 && (
+            <ul className="cal-mobile-list">
+              {timedEvents.map((e, i) => (
+                <li key={i}>
+                  <button
+                    type="button"
+                    className={'cal-mobile-event ' + e.type}
+                    onClick={(evt) => {
+                      const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                      onEventClick(e, rect.left + 16, rect.top + 16);
+                    }}
+                  >
+                    <span className="cal-mobile-event-time mono">
+                      {String(e.start).padStart(2, '0')}:00
+                    </span>
+                    <span className="cal-mobile-event-type">{TYPE_LABEL[e.type]}</span>
+                    <span className="cal-mobile-event-title">{e.title}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function DayView({
+  days,
+  events,
+  stays,
+  onEventClick,
+  onStayClick,
+}: {
+  days: ViewDay[];
+  events: CalEvent[];
+  stays: Stay[];
+  onEventClick: (ev: CalEvent, x: number, y: number) => void;
+  onStayClick: (rsv: Reservation, x: number, y: number) => void;
+}) {
   const hours = Array.from({ length: 14 }, (_, i) => 7 + i);
-  const today = CAL_DAYS.findIndex((d) => d.today);
-  const evs = events.filter((e) => e.day === today);
+  const focusIdx = 0; // day view always shows a single day at index 0
+  const focusDay = days[focusIdx];
+  if (!focusDay) return null;
+  const evs = events.filter((e) => e.day === focusIdx);
+  const allDayEvs = evs.filter((e) => e.allDay);
+  const staysToday = stays.filter((s) => s.startIdx <= focusIdx && s.endIdx >= focusIdx);
+  const monthLabel = new Date(focusDay.isoDate).toLocaleString('en-US', { month: 'short' });
   return (
     <div className="cal-wrap">
       <div className="cal-head" style={{ gridTemplateColumns: '64px 1fr' }}>
         <div className="cal-head-cell">
-          <span style={{ fontSize: 10 }}>Apr</span>
+          <span style={{ fontSize: 10 }}>{monthLabel}</span>
         </div>
-        <div className="cal-head-cell today">
-          <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>
-            {CAL_DAYS[today].label}
-          </span>
-          <span className="day">{CAL_DAYS[today].date}</span>
+        <div className={'cal-head-cell' + (focusDay.today ? ' today' : '')}>
+          <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>{focusDay.label}</span>
+          <span className="day">{focusDay.date}</span>
         </div>
       </div>
+      {staysToday.length > 0 && (
+        <div className="cal-day-stays">
+          <div className="cal-day-stays-label">In residence · {staysToday.length}</div>
+          <div className="cal-day-stays-list">
+            {staysToday.map((s) => {
+              const isArrival = s.startIdx === focusIdx && s.startsThisWeek;
+              const isDeparture = s.endIdx === focusIdx && s.endsThisWeek;
+              const tag = isArrival ? 'Arriving' : isDeparture ? 'Departing' : 'Staying';
+              return (
+                <button
+                  key={s.rsv.id}
+                  type="button"
+                  className={'cal-stay-band status-' + s.rsv.status}
+                  onClick={(evt) => {
+                    const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                    onStayClick(s.rsv, rect.right + 8, rect.top);
+                  }}
+                >
+                  <span className="cal-stay-end-dot" aria-hidden="true" />
+                  <span className="cal-stay-label">
+                    {s.rsv.guestName}{' '}
+                    <span className="cal-stay-prop mono">{s.rsv.propertyCode}</span>
+                  </span>
+                  <span style={{ fontSize: 9, opacity: 0.75, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    {tag}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      {allDayEvs.length > 0 && (
+        <div className="cal-allday-row" style={{ gridTemplateColumns: '64px 1fr' }}>
+          <div className="cal-allday-label">All day</div>
+          <div className="cal-allday-cell" style={{ flexWrap: 'wrap' }}>
+            {allDayEvs.map((e, i) => (
+              <button
+                key={i}
+                type="button"
+                className={'cal-allday-pill ' + e.type}
+                onClick={(evt) => {
+                  const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                  onEventClick(e, rect.right + 8, rect.top);
+                }}
+              >
+                {e.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="cal-grid" style={{ gridTemplateColumns: '64px 1fr' }}>
         {hours.map((h) => {
-          const cellEvs = evs.filter((e) => e.start === h);
+          const cellEvs = evs.filter((e) => !e.allDay && e.start === h);
           return (
             <Fragment key={h}>
               <div className="cal-hour-label">{String(h).padStart(2, '0')}:00</div>
               <div className="cal-cell" style={{ height: 52 }}>
                 {cellEvs.map((e, i) => {
                   const span = e.end - e.start;
+                  const widthPct = 100 / cellEvs.length;
                   return (
                     <div
                       key={i}
                       className={'cal-event ' + e.type}
-                      style={{ top: 2, height: `calc(${span * 52}px - 4px)` }}
+                      style={{
+                        top: 2,
+                        height: `calc(${span * 52}px - 4px)`,
+                        left: `${i * widthPct}%`,
+                        width: `calc(${widthPct}% - 2px)`,
+                      }}
                       onClick={(evt) => {
                         evt.stopPropagation();
                         const rect = (evt.target as HTMLElement).getBoundingClientRect();
@@ -231,17 +870,22 @@ function DayView({
 }
 
 function MonthView({
+  days,
+  viewDate,
   events,
+  stays,
   onEventClick,
+  onStayClick,
 }: {
+  days: ViewDay[];
+  viewDate: Date;
   events: CalEvent[];
+  stays: Stay[];
   onEventClick: (ev: CalEvent, x: number, y: number) => void;
+  onStayClick: (rsv: Reservation, x: number, y: number) => void;
 }) {
+  void viewDate;
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  // Fake 30-day month: 4 rows × 7 days, with Apr 14-20 events from fixtures mapped to row 3
-  const weeks = 5;
-  const monthStart = -2; // offset so day 1 starts in week 0 at position 3 (Thu Apr 1)
-  const todayNum = 17;
   return (
     <div className="cal-month">
       <div className="cal-month-head">
@@ -252,23 +896,52 @@ function MonthView({
         ))}
       </div>
       <div className="cal-month-grid">
-        {Array.from({ length: weeks * 7 }, (_, idx) => {
-          const dayNum = idx + monthStart + 1;
-          const inMonth = dayNum >= 1 && dayNum <= 30;
-          const weekOfApr14 = dayNum >= 14 && dayNum <= 20;
-          const fixtureDay = weekOfApr14 ? dayNum - 14 : -1;
-          const evs = weekOfApr14 ? events.filter((e) => e.day === fixtureDay) : [];
+        {days.map((d, idx) => {
+          const evs = events.filter((e) => e.day === idx);
+          const cellStays = stays.filter((s) => s.startIdx <= idx && s.endIdx >= idx);
           return (
             <div
-              key={idx}
+              key={d.isoDate}
               className={
                 'cal-month-cell' +
-                (!inMonth ? ' other' : '') +
-                (dayNum === todayNum ? ' today' : '')
+                (!d.inFocusMonth ? ' other' : '') +
+                (d.today ? ' today' : '')
               }
             >
-              <div className="cal-month-day">{inMonth ? dayNum : ''}</div>
-              {evs.slice(0, 3).map((e, i) => (
+              <div className="cal-month-day">{Number(d.date)}</div>
+              {cellStays.slice(0, 2).map((s) => {
+                const isStart = s.startIdx === idx && s.startsThisWeek;
+                const isEnd = s.endIdx === idx && s.endsThisWeek;
+                return (
+                  <button
+                    key={s.rsv.id}
+                    type="button"
+                    className={
+                      'cal-month-stay status-' + s.rsv.status +
+                      (isStart ? ' segment-start' : '') +
+                      (isEnd ? ' segment-end' : '') +
+                      (!isStart && !isEnd ? ' segment-middle' : '')
+                    }
+                    onClick={(evt) => {
+                      evt.stopPropagation();
+                      const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                      onStayClick(s.rsv, rect.right + 8, rect.top);
+                    }}
+                    title={`${s.rsv.guestName} · ${s.rsv.propertyCode} · ${s.rsv.nights} nts`}
+                  >
+                    {isStart && <span className="cal-stay-end-dot" aria-hidden="true" />}
+                    <span className="cal-month-stay-label">
+                      {isStart ? `${s.rsv.guestName.split(' ').slice(-1)[0]} · ${s.rsv.propertyCode}` : ''}
+                    </span>
+                  </button>
+                );
+              })}
+              {cellStays.length > 2 && (
+                <div style={{ fontSize: 9, color: 'var(--color-text-tertiary)' }}>
+                  +{cellStays.length - 2} stays
+                </div>
+              )}
+              {evs.slice(0, 2).map((e, i) => (
                 <div
                   key={i}
                   className={'cal-month-ev ' + e.type}
@@ -281,9 +954,9 @@ function MonthView({
                   {e.title}
                 </div>
               ))}
-              {evs.length > 3 && (
+              {evs.length > 2 && (
                 <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}>
-                  +{evs.length - 3} more
+                  +{evs.length - 2} more
                 </div>
               )}
             </div>
@@ -323,12 +996,156 @@ function EventPopover({
         </div>
         <div className="cal-popover-title">{ev.title}</div>
         <div className="cal-popover-meta">
-          {CAL_DAYS[ev.day].label} {CAL_DAYS[ev.day].date} · {String(ev.start).padStart(2, '0')}:00
-          –{String(ev.end).padStart(2, '0')}:00
+          {String(ev.start).padStart(2, '0')}:00 – {String(ev.end).padStart(2, '0')}:00
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
-          <button className="btn sm">Open reservation</button>
+          <button className="btn sm">{eventOpenLabel(ev.type)}</button>
           <button className="btn ghost sm">Edit</button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function StayPopover({
+  rsv,
+  x,
+  y,
+  onClose,
+}: {
+  rsv: Reservation;
+  x: number;
+  y: number;
+  onClose: () => void;
+}) {
+  return (
+    <>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={onClose} />
+      <div
+        className="cal-popover"
+        style={{ top: y, left: Math.min(x, window.innerWidth - 320) }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+          <span className="mono" style={{ fontSize: 11, fontWeight: 500 }}>🛏 {rsv.id}</span>
+          <span
+            style={{
+              fontSize: 10,
+              padding: '2px 6px',
+              borderRadius: 4,
+              background: 'var(--color-brand-accent-soft)',
+              color: 'var(--color-brand-accent)',
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+            }}
+          >
+            {RES_STATUS_LABEL[rsv.status]}
+          </span>
+          <button className="fad-util-btn" onClick={onClose} style={{ marginLeft: 'auto', width: 22, height: 22 }}>
+            <IconClose size={12} />
+          </button>
+        </div>
+        <div className="cal-popover-title">
+          {rsv.guestName} <span style={{ fontWeight: 400, color: 'var(--color-text-secondary)' }}>· {rsv.propertyCode}</span>
+        </div>
+        <div className="cal-popover-meta">{formatStayWindow(rsv)}</div>
+        <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 8 }}>
+          {rsv.partySize.adults} adult{rsv.partySize.adults === 1 ? '' : 's'}
+          {rsv.partySize.children > 0 && ` · ${rsv.partySize.children} child${rsv.partySize.children === 1 ? '' : 'ren'}`}
+          {' · '}{CHANNEL_LABEL[rsv.channel]}
+        </div>
+        <div className="cal-popover-finance">
+          <div className="cal-popover-finance-label">Financials</div>
+          <div className="cal-popover-finance-row">
+            <span>Total</span>
+            <span className="mono" style={{ fontWeight: 500 }}>
+              {formatMoney(rsv.totalAmount, rsv.currency)}
+            </span>
+          </div>
+          <div className="cal-popover-finance-row">
+            <span>Nightly avg</span>
+            <span className="mono" style={{ color: 'var(--color-text-secondary)' }}>
+              {formatMoney(Math.round(rsv.totalAmount / Math.max(rsv.nights, 1)), rsv.currency)}
+            </span>
+          </div>
+          <div className="cal-popover-finance-row">
+            <span>Tourist tax</span>
+            <span className="mono" style={{ color: 'var(--color-text-secondary)' }}>
+              {formatMoney(rsv.touristTax, rsv.currency)}
+            </span>
+          </div>
+          <div className="cal-popover-finance-row">
+            <span>Payout</span>
+            <span
+              style={{
+                fontSize: 10,
+                padding: '1px 6px',
+                borderRadius: 3,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                background:
+                  rsv.payoutStatus === 'pending'
+                    ? 'var(--color-bg-warning)'
+                    : rsv.payoutStatus === 'refunded'
+                    ? 'var(--color-bg-danger)'
+                    : 'var(--color-bg-success)',
+                color:
+                  rsv.payoutStatus === 'pending'
+                    ? 'var(--color-text-warning)'
+                    : rsv.payoutStatus === 'refunded'
+                    ? 'var(--color-text-danger)'
+                    : 'var(--color-text-success)',
+              }}
+            >
+              {PAYOUT_LABEL[rsv.payoutStatus]}
+            </span>
+          </div>
+          {rsv.refundAmount && rsv.refundAmount > 0 && (
+            <div className="cal-popover-finance-row">
+              <span>Refund issued</span>
+              <span className="mono" style={{ color: 'var(--color-text-danger)' }}>
+                −{formatMoney(rsv.refundAmount, rsv.currency)}
+              </span>
+            </div>
+          )}
+        </div>
+        {rsv.notes && (
+          <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontStyle: 'italic', margin: '8px 0' }}>
+            {rsv.notes}
+          </div>
+        )}
+        <div className="cal-popover-actions">
+          <button
+            className="btn ghost sm"
+            onClick={() => fireToast('Note added to reservation · stub for now')}
+            title="Attach an internal note to this stay"
+          >
+            + Note
+          </button>
+          <button
+            className="btn ghost sm"
+            onClick={() =>
+              fireToast(`Task creation · prefilled for ${rsv.guestName} (${rsv.propertyCode}) — stub`)
+            }
+            title="Create a task linked to this reservation"
+          >
+            + Task
+          </button>
+          <button
+            className="btn ghost sm"
+            onClick={() =>
+              fireToast('Adjust check-in/out time — opens form + auto-creates Guesty-update task (next pass)')
+            }
+            title="Change check-in or check-out time"
+          >
+            Adjust times
+          </button>
+        </div>
+        <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+          <button className="btn sm">Open reservation</button>
+          <button className="btn ghost sm">Linked tasks</button>
         </div>
       </div>
     </>
@@ -363,13 +1180,7 @@ function NewEventModal({ onClose }: { onClose: () => void }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div className="fad-field">
               <label>Day</label>
-              <select>
-                {CAL_DAYS.map((d) => (
-                  <option key={d.date}>
-                    {d.label} {d.date}
-                  </option>
-                ))}
-              </select>
+              <input type="date" defaultValue={TODAY_ISO} />
             </div>
             <div className="fad-field">
               <label>Start</label>

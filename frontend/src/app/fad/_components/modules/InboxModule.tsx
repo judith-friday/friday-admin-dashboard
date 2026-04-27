@@ -10,6 +10,13 @@ import {
   type StayStatus,
 } from '../../_data/fixtures';
 import { TASK_USERS, TASK_USER_BY_ID } from '../../_data/tasks';
+import {
+  RESERVATION_BY_ID,
+  CHANNEL_LABEL,
+  STATUS_LABEL as RES_STATUS_LABEL,
+  formatStayWindow,
+  type Reservation,
+} from '../../_data/reservations';
 import { useCurrentUserId } from '../usePermissions';
 import { fireToast } from '../Toaster';
 import { FridayConsult } from '../FridayConsult';
@@ -75,6 +82,7 @@ export function InboxModule({ onAskFriday }: Props) {
   const [aiToolbarExpanded, setAiToolbarExpanded] = useState(false);
   const [summaryCollapsed, setSummaryCollapsed] = useState(false);
   const [composeCollapsed, setComposeCollapsed] = useState(false);
+  const [mobileDetailsOpen, setMobileDetailsOpen] = useState(false);
 
   useEffect(() => {
     setListCollapsed(localStorage.getItem('fad:inbox:list') === '1');
@@ -337,7 +345,21 @@ export function InboxModule({ onAskFriday }: Props) {
             >
               ← Back to inbox
             </button>
-            <div className="inbox-thread-subject">{thread.subject}</div>
+            <div className="inbox-thread-subject">
+              <span style={{ flex: 1, minWidth: 0 }}>{thread.subject}</span>
+              {isMobile && (
+                <button
+                  type="button"
+                  className={'btn ghost sm' + (mobileDetailsOpen ? ' active' : '')}
+                  onClick={() => setMobileDetailsOpen((v) => !v)}
+                  style={{ fontSize: 11, padding: '4px 8px', whiteSpace: 'nowrap' }}
+                  aria-expanded={mobileDetailsOpen}
+                >
+                  {mobileDetailsOpen ? 'Hide details ▴' : 'Details ▾'}
+                </button>
+              )}
+            </div>
+            <div className={'inbox-thread-details' + (isMobile && !mobileDetailsOpen ? ' mobile-hidden' : '')}>
             <div className="inbox-thread-meta" style={{ marginBottom: 8 }}>
               <span>{thread.guest}</span>
               <span className="sep">·</span>
@@ -425,6 +447,10 @@ export function InboxModule({ onAskFriday }: Props) {
                 <IconSparkle size={10} /> Show Friday summary
               </button>
             )}
+            {thread.reservationId && RESERVATION_BY_ID[thread.reservationId] && (
+              <ThreadReservationChip reservation={RESERVATION_BY_ID[thread.reservationId]} />
+            )}
+            </div>
           </div>
           <div className="inbox-thread-body">
             <div className="msg-bubble them">
@@ -484,51 +510,6 @@ export function InboxModule({ onAskFriday }: Props) {
                 ×
               </button>
             )}
-            {/* Compose mode toggle — Reply (visible to guest) vs Internal note (team only) */}
-            <div
-              style={{
-                display: 'flex',
-                gap: 4,
-                padding: '6px 10px',
-                borderBottom: '0.5px solid var(--color-border-tertiary)',
-              }}
-            >
-              <button
-                onClick={() => setComposeMode('reply')}
-                style={{
-                  background: composeMode === 'reply' ? 'var(--color-background-tertiary)' : 'transparent',
-                  border: 0,
-                  padding: '6px 12px',
-                  fontSize: 12,
-                  fontWeight: composeMode === 'reply' ? 500 : 400,
-                  color: 'var(--color-text-primary)',
-                  cursor: 'pointer',
-                  borderRadius: 4,
-                }}
-              >
-                💬 Reply to {thread.entity}
-              </button>
-              <button
-                onClick={() => setComposeMode('note')}
-                style={{
-                  background: composeMode === 'note' ? 'var(--color-bg-warning)' : 'transparent',
-                  color: composeMode === 'note' ? 'var(--color-text-warning)' : 'var(--color-text-secondary)',
-                  border: 0,
-                  padding: '6px 12px',
-                  fontSize: 12,
-                  fontWeight: composeMode === 'note' ? 500 : 400,
-                  cursor: 'pointer',
-                  borderRadius: 4,
-                }}
-                title="Tag teammates privately — guest never sees this"
-              >
-                🔒 Internal note
-              </button>
-              <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
-                {composeMode === 'reply' ? `${thread.channel} · reply-all` : 'team-only · not sent to guest'}
-              </span>
-            </div>
-
             {composeMode === 'reply' ? (
               <>
                 <div className="inbox-compose-toolbar">
@@ -576,6 +557,11 @@ export function InboxModule({ onAskFriday }: Props) {
                     {sendMenuOpen && (
                       <SendByMenu
                         channel={thread.channel}
+                        entity={thread.entity}
+                        onSwitchToNote={() => {
+                          setComposeMode('note');
+                          setSendMenuOpen(false);
+                        }}
                         onClose={() => setSendMenuOpen(false)}
                       />
                     )}
@@ -594,6 +580,8 @@ export function InboxModule({ onAskFriday }: Props) {
                   setNoteMentions([]);
                   setNotesRev((n) => n + 1);
                 }}
+                onSwitchToReply={() => setComposeMode('reply')}
+                replyEntity={thread.entity}
                 authorId={currentUserId}
               />
             )}
@@ -676,6 +664,47 @@ export function InboxModule({ onAskFriday }: Props) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ThreadReservationChip({ reservation }: { reservation: Reservation }) {
+  return (
+    <div
+      style={{
+        marginTop: 8,
+        border: '0.5px solid var(--color-border-tertiary)',
+        borderRadius: 8,
+        padding: '8px 12px',
+        background: 'var(--color-background-secondary)',
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: 8,
+        fontSize: 12,
+      }}
+    >
+      <span className="mono" style={{ fontWeight: 500 }}>🛏 {reservation.id}</span>
+      <span
+        style={{
+          fontSize: 10,
+          padding: '2px 6px',
+          borderRadius: 4,
+          background: 'var(--color-brand-accent-soft)',
+          color: 'var(--color-brand-accent)',
+          fontWeight: 500,
+          textTransform: 'uppercase',
+          letterSpacing: '0.04em',
+        }}
+      >
+        {RES_STATUS_LABEL[reservation.status]}
+      </span>
+      <span style={{ color: 'var(--color-text-secondary)' }}>
+        {reservation.propertyCode} · {formatStayWindow(reservation)}
+      </span>
+      <span style={{ color: 'var(--color-text-tertiary)', marginLeft: 'auto', fontSize: 11 }}>
+        {CHANNEL_LABEL[reservation.channel]}
+      </span>
     </div>
   );
 }
@@ -961,6 +990,8 @@ function InternalNoteCompose({
   setMentions,
   authorId,
   onPosted,
+  onSwitchToReply,
+  replyEntity,
 }: {
   threadId: string;
   draft: string;
@@ -969,6 +1000,8 @@ function InternalNoteCompose({
   setMentions: (v: string[]) => void;
   authorId: string;
   onPosted: () => void;
+  onSwitchToReply: () => void;
+  replyEntity: InboxEntity;
 }) {
   const [mentionPickerOpen, setMentionPickerOpen] = useState(false);
   const candidateMentions = TASK_USERS.filter((u) => u.role !== 'external' && u.active && u.id !== authorId);
@@ -1096,7 +1129,15 @@ function InternalNoteCompose({
           ))}
         </div>
       )}
-      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', alignItems: 'center' }}>
+        <button
+          type="button"
+          className="btn ghost sm"
+          onClick={onSwitchToReply}
+          style={{ marginRight: 'auto', fontSize: 11 }}
+        >
+          ← Switch to reply to {replyEntity}
+        </button>
         <button className="btn ghost sm" onClick={() => setDraft('')}>
           Clear
         </button>
@@ -1146,20 +1187,18 @@ function formatNoteTime(iso: string): string {
   return d.toLocaleDateString('en-GB', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
-function SendByMenu({ channel, onClose }: { channel: string; onClose: () => void }) {
+function SendByMenu({
+  channel,
+  entity,
+  onSwitchToNote,
+  onClose,
+}: {
+  channel: string;
+  entity: InboxEntity;
+  onSwitchToNote: () => void;
+  onClose: () => void;
+}) {
   void channel;
-  const items = [
-    {
-      icon: IconClock,
-      label: 'Schedule send',
-      desc: 'Pick a date + time',
-    },
-    {
-      icon: IconSparkle,
-      label: 'Send when guest is awake',
-      desc: '8am–10pm guest-local time',
-    },
-  ] as const;
   return (
     <>
       <div
@@ -1167,18 +1206,28 @@ function SendByMenu({ channel, onClose }: { channel: string; onClose: () => void
         onClick={onClose}
       />
       <div className="send-split-menu" onClick={(e) => e.stopPropagation()}>
-        {items.map((it, i) => {
-          const I = it.icon;
-          return (
-            <button key={i} className="send-split-item" onClick={onClose}>
-              <I size={14} />
-              <div className="lab">
-                {it.label}
-                <div className="desc">{it.desc}</div>
-              </div>
-            </button>
-          );
-        })}
+        <button className="send-split-item" onClick={onClose}>
+          <IconClock size={14} />
+          <div className="lab">
+            Schedule send
+            <div className="desc">Pick a date + time</div>
+          </div>
+        </button>
+        <button className="send-split-item" onClick={onClose}>
+          <IconSparkle size={14} />
+          <div className="lab">
+            Send when {entity} is awake
+            <div className="desc">8am–10pm local time</div>
+          </div>
+        </button>
+        <div className="send-split-divider" />
+        <button className="send-split-item" onClick={onSwitchToNote}>
+          <span style={{ width: 14, textAlign: 'center', fontSize: 12 }}>🔒</span>
+          <div className="lab">
+            Post as internal note
+            <div className="desc">Team-only · guest never sees this</div>
+          </div>
+        </button>
       </div>
     </>
   );

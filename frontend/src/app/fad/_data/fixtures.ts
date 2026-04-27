@@ -50,6 +50,8 @@ export interface InboxThread {
   triageStatus?: 'unread' | 'review' | 'open' | 'done';
   /** Stay status for guest threads. Owner/vendor threads are 'na'. */
   stayStatus?: StayStatus;
+  /** Linked reservation in `_data/reservations.ts:RESERVATIONS`. */
+  reservationId?: string;
   /** Whether the current user is @mentioned in this thread. */
   mentionsMe?: boolean;
   messages?: InboxMessage[];
@@ -67,6 +69,7 @@ export const INBOX_THREADS: InboxThread[] = [
     channel: 'Airbnb', time: '08:14', property: 'Villa Azur · Bel Ombre',
     language: 'FR',
     triageStatus: 'open', stayStatus: 'booked',
+    reservationId: 'rsv-vaz-marchand',
     summary: 'Guest arriving Thu 15:20 on MK 47 · confirms driver and requests early check-in 14:30 · kids under 5.',
     sentiment: 'neutral',
     messages: [
@@ -80,6 +83,7 @@ export const INBOX_THREADS: InboxThread[] = [
     channel: 'WhatsApp', time: '07:52', property: 'Blue Bay House · Blue Bay',
     language: 'EN',
     triageStatus: 'open', stayStatus: 'currently_staying',
+    reservationId: 'rsv-bbh-linde',
     summary: 'Guest asks whether chef proposes menu or they choose · 6-guest party · dietary shellfish-free.',
     sentiment: 'positive',
     whatsappWindow: { open: true, expiresInMinutes: 222 },
@@ -91,6 +95,7 @@ export const INBOX_THREADS: InboxThread[] = [
     property: 'Sable Noir Retreat · Tamarin',
     language: 'EN',
     triageStatus: 'done', stayStatus: 'checked_out',
+    reservationId: 'rsv-sbn-okonkwo',
     sentiment: 'positive',
   },
   {
@@ -100,6 +105,7 @@ export const INBOX_THREADS: InboxThread[] = [
     property: 'Villa Azur · Bel Ombre',
     language: 'FR',
     triageStatus: 'review', stayStatus: 'booked', mentionsMe: true,
+    reservationId: 'rsv-vaz-beaumont',
     sentiment: 'neutral',
   },
   {
@@ -109,6 +115,7 @@ export const INBOX_THREADS: InboxThread[] = [
     channel: 'WhatsApp', time: '23:18', property: 'Coral Reef Bungalow',
     language: 'EN',
     triageStatus: 'open', stayStatus: 'currently_staying', mentionsMe: true,
+    reservationId: 'rsv-cor-solheim',
     summary: 'AC failure master bedroom · active guest complaint · kids impacted · needs urgent dispatch.',
     sentiment: 'urgent',
     whatsappWindow: { open: true, expiresInMinutes: 38 },
@@ -130,6 +137,7 @@ export const INBOX_THREADS: InboxThread[] = [
     channel: 'Airbnb', time: 'Mon', property: 'Sable Noir Retreat · Tamarin',
     language: 'EN',
     triageStatus: 'review', stayStatus: 'cancelled',
+    reservationId: 'rsv-sbn-sato-cancelled',
     sentiment: 'negative',
   },
   {
@@ -323,28 +331,36 @@ export const OWNERS = [
 ];
 
 export interface CalEvent {
+  /** Day index within the currently-visible window. Assigned at synthesis time. */
   day: number;
+  /** Hour 0-23, or -1 if `allDay` is true (event has no specific time). */
   start: number;
   end: number;
-  type: 'checkin' | 'checkout' | 'maint' | 'meeting';
+  type: 'checkin' | 'checkout' | 'maint' | 'meeting' | 'task';
+  title: string;
+  /** No specific time — render in the all-day strip / "All day" group. */
+  allDay?: boolean;
+}
+
+/** Static maintenance + meeting events keyed by absolute date so they survive
+ *  calendar navigation. Check-in / check-out come from `RESERVATIONS`; task
+ *  events come from `TASKS`. */
+export interface FixedCalEvent {
+  isoDate: string;
+  start: number;
+  end: number;
+  type: 'maint' | 'meeting';
   title: string;
 }
 
-export const CAL_EVENTS: CalEvent[] = [
-  { day: 0, start: 10, end: 12, type: 'checkout', title: 'Dubois checkout · VAZ' },
-  { day: 0, start: 15, end: 17, type: 'checkin', title: 'Marchand in · VAZ' },
-  { day: 0, start: 11, end: 12, type: 'maint', title: 'Pool service · BBH' },
-  { day: 1, start: 9, end: 10, type: 'meeting', title: 'Ops stand-up' },
-  { day: 1, start: 14, end: 16, type: 'checkin', title: 'Linde in · BBH' },
-  { day: 2, start: 10, end: 11, type: 'maint', title: 'Pump parts install · BBH' },
-  { day: 2, start: 13, end: 15, type: 'checkout', title: 'Okonkwo out · SBN' },
-  { day: 2, start: 16, end: 17, type: 'meeting', title: 'Mary handover' },
-  { day: 3, start: 11, end: 13, type: 'checkin', title: 'Beaumont in · SBN' },
-  { day: 3, start: 15, end: 16, type: 'maint', title: 'Gardener · DMT' },
-  { day: 4, start: 10, end: 12, type: 'checkout', title: 'Linde out · BBH' },
-  { day: 4, start: 14, end: 15, type: 'meeting', title: 'Owner call · Nitzana' },
-  { day: 5, start: 12, end: 14, type: 'checkin', title: 'Chen in · LCA' },
-  { day: 6, start: 11, end: 12, type: 'maint', title: 'Deep clean · OCT' },
+export const CAL_EVENTS: FixedCalEvent[] = [
+  { isoDate: '2026-04-27', start: 11, end: 12, type: 'maint', title: 'Pool service · BBH' },
+  { isoDate: '2026-04-28', start: 9, end: 10, type: 'meeting', title: 'Ops stand-up' },
+  { isoDate: '2026-04-29', start: 10, end: 11, type: 'maint', title: 'Pump parts install · BBH' },
+  { isoDate: '2026-04-29', start: 16, end: 17, type: 'meeting', title: 'Mary handover' },
+  { isoDate: '2026-04-30', start: 15, end: 16, type: 'maint', title: 'Gardener · DMT' },
+  { isoDate: '2026-05-01', start: 14, end: 15, type: 'meeting', title: 'Owner call · Nitzana' },
+  { isoDate: '2026-05-03', start: 11, end: 12, type: 'maint', title: 'Deep clean · OCT' },
 ];
 
 /* ───── Reservations ───── */
@@ -497,12 +513,16 @@ export const LEGAL_DOCS = [
   { name: 'Tourism Authority · classification cert.pdf', kind: 'License', size: '480 KB' },
 ];
 
+/**
+ * Calendar week — Mon 2026-04-27 → Sun 2026-05-03. Mon is today.
+ * Indices map to `CalEvent.day` (0 = Mon).
+ */
 export const CAL_DAYS = [
-  { label: 'Mon', date: '14', today: false },
-  { label: 'Tue', date: '15', today: false },
-  { label: 'Wed', date: '16', today: false },
-  { label: 'Thu', date: '17', today: true },
-  { label: 'Fri', date: '18', today: false },
-  { label: 'Sat', date: '19', today: false },
-  { label: 'Sun', date: '20', today: false },
+  { label: 'Mon', date: '27', today: true, isoDate: '2026-04-27' },
+  { label: 'Tue', date: '28', today: false, isoDate: '2026-04-28' },
+  { label: 'Wed', date: '29', today: false, isoDate: '2026-04-29' },
+  { label: 'Thu', date: '30', today: false, isoDate: '2026-04-30' },
+  { label: 'Fri', date: '01', today: false, isoDate: '2026-05-01' },
+  { label: 'Sat', date: '02', today: false, isoDate: '2026-05-02' },
+  { label: 'Sun', date: '03', today: false, isoDate: '2026-05-03' },
 ];

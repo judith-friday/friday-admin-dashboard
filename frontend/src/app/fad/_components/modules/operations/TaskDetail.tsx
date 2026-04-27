@@ -18,6 +18,12 @@ import { useAITelemetry, type AISurface } from '../../ai/useAITelemetry';
 import { AIConfidenceChip } from '../../ai/AIComponents';
 import { RISK_FLAG_EXPLANATIONS, pickFromPool } from '../../../_data/aiFixtures';
 import { priorityTone, taskStatusTone, toneStyle } from '../../palette';
+import {
+  RESERVATION_BY_ID,
+  CHANNEL_LABEL,
+  STATUS_LABEL as RES_STATUS_LABEL,
+  formatStayWindow,
+} from '../../../_data/reservations';
 
 interface DetailProps {
   task: Task;
@@ -225,9 +231,7 @@ function Body({
 
       {task.reservationId && (
         <Section title="Linked reservation">
-          <span className="chip" style={{ fontSize: 11 }}>
-            🛏 {task.reservationId}
-          </span>
+          <ReservationPanel reservationId={task.reservationId} />
         </Section>
       )}
 
@@ -678,6 +682,72 @@ function generateThreadSummary(task: Task): string {
   const lastComment = task.comments[task.comments.length - 1];
   const author = lastComment ? TASK_USER_BY_ID[lastComment.authorId] : undefined;
   return `${task.comments.length} comments · last update from ${author?.name.split(' ')[0] ?? 'someone'}: "${lastComment?.text ?? ''}".`;
+}
+
+function ReservationPanel({ reservationId }: { reservationId: string }) {
+  const rsv = RESERVATION_BY_ID[reservationId];
+  if (!rsv) {
+    return (
+      <span className="chip" style={{ fontSize: 11 }}>
+        🛏 {reservationId}
+      </span>
+    );
+  }
+  return (
+    <div
+      style={{
+        border: '0.5px solid var(--color-border-tertiary)',
+        borderRadius: 8,
+        padding: 12,
+        background: 'var(--color-background-secondary)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 6,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <span className="mono" style={{ fontSize: 12, fontWeight: 500 }}>
+          🛏 {rsv.id}
+        </span>
+        <span
+          style={{
+            fontSize: 10,
+            padding: '2px 6px',
+            borderRadius: 4,
+            background: 'var(--color-brand-accent-soft)',
+            color: 'var(--color-brand-accent)',
+            fontWeight: 500,
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+          }}
+        >
+          {RES_STATUS_LABEL[rsv.status]}
+        </span>
+        <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginLeft: 'auto' }}>
+          {CHANNEL_LABEL[rsv.channel]}
+        </span>
+      </div>
+      <div style={{ fontSize: 13, fontWeight: 500 }}>
+        {rsv.guestName}
+        <span style={{ fontWeight: 400, color: 'var(--color-text-secondary)' }}>
+          {' · '}
+          {rsv.propertyCode}
+        </span>
+      </div>
+      <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
+        {formatStayWindow(rsv)}
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+        {rsv.partySize.adults} adult{rsv.partySize.adults === 1 ? '' : 's'}
+        {rsv.partySize.children > 0 && ` · ${rsv.partySize.children} child${rsv.partySize.children === 1 ? '' : 'ren'}`}
+      </div>
+      {rsv.notes && (
+        <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
+          {rsv.notes}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
