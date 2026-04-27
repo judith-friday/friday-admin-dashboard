@@ -3497,6 +3497,10 @@ html.fad-dark .fad-modal-overlay { background: rgba(0,0,0,0.6); }
   cursor: pointer;
   text-align: left;
   width: 100%;
+  min-width: 0;
+  /* Inside flex-column parents (.fin-approvals-list) rows must not shrink —
+     otherwise their content overflows into the next row on mobile. */
+  flex-shrink: 0;
   transition: background var(--dur-1) var(--ease);
 }
 .fin-approval-row:hover { background: var(--color-background-secondary); }
@@ -3505,19 +3509,29 @@ html.fad-dark .fad-modal-overlay { background: rgba(0,0,0,0.6); }
   border-left: 2px solid var(--color-brand-accent);
 }
 .fin-approval-row-top {
-  display: flex; justify-content: space-between; font-size: 11px;
+  display: flex; justify-content: space-between; gap: 8px;
+  align-items: baseline; flex-wrap: wrap;
+  font-size: 11px;
   color: var(--color-text-tertiary);
+  min-width: 0;
 }
-.fin-approval-amt { color: var(--color-text-primary); font-size: 13px; font-weight: 500; }
+.fin-approval-amt {
+  color: var(--color-text-primary); font-size: 13px; font-weight: 500;
+  white-space: nowrap;
+}
 .fin-approval-vendor {
   font-size: 13px; font-weight: 500; color: var(--color-text-primary);
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .fin-approval-desc {
   font-size: 12px; color: var(--color-text-tertiary);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 100%; min-width: 0;
 }
 .fin-approval-row-bot {
   display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;
+  min-width: 0;
 }
 
 .fin-approvals-detail {
