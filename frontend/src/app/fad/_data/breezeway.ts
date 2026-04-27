@@ -478,6 +478,195 @@ export function postToTeamChannel(
 // Re-export the activity entry type so consumers don't need a second import.
 export type { ActivityEntry } from './tasks';
 
+// ───────────────── Finance reconciliation writes (Mathias additions) ─────────────────
+// Items A + B: applies the corrective Owner Charge / fare-line split when
+// Mathias one-clicks Apply on a flagged discrepancy. Item C below.
+//
+// Imports for FIN_EXPENSES / FinExpense / TEAM_MESSAGES are reused from
+// the existing module-top imports.
+
+import { FIN_ESCALATION_CHAIN } from './finance';
+import {
+  proposeOwnerCharge,
+  proposeFareSplit,
+  type PayoutDiscrepancy,
+} from './financeAnomalies';
+
+function makeExpenseId(): string {
+  return `e-rec-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/** Item A · apply Owner Charge for an Airbnb resolution-centre / BDC
+ *  discount discrepancy. Adds a corrective FinExpense + marks the
+ *  discrepancy resolved. */
+export function applyOwnerCharge(
+  d: PayoutDiscrepancy,
+  actorId: string,
+): { expense: FinExpense; discrepancy: PayoutDiscrepancy } {
+  const proposal = proposeOwnerCharge(d);
+  const id = makeExpenseId();
+  const expense: FinExpense = {
+    id,
+    occurredAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+    enteredAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+    vendorId: '',
+    vendorName: 'Owner Charge — reconciliation',
+    amountMinor: proposal.amountMinor,
+    currency: proposal.currency,
+    categoryCode: proposal.category,
+    billTo: 'owner',
+    propertyCode: proposal.propertyCode,
+    description: proposal.description,
+    status: 'posted',
+    entryMode: 'admin_direct',
+    enteredBy: TASK_USER_BY_ID[actorId]?.name ?? 'Mathias',
+    receipts: 0,
+    periodId: d.periodId,
+    reservationId: d.reservationId,
+  };
+  FIN_EXPENSES.push(expense);
+  d.resolvedExpenseId = expense.id;
+  d.resolvedAt = new Date().toISOString();
+  d.resolvedBy = actorId;
+  fireToast(`Owner Charge posted · ${expense.propertyCode} · ${proposal.amountMinor / 100} ${proposal.currency}`);
+  return { expense, discrepancy: d };
+}
+
+/** Item B · apply fare-line split for a special-offer-collapse
+ *  discrepancy. Phase 1 mutates the discrepancy state only (real fare-line
+ *  rewrite needs Guesty write API · Phase 3). */
+export function applyFareCollapseSplit(
+  d: PayoutDiscrepancy,
+  actorId: string,
+): { split: ReturnType<typeof proposeFareSplit>; discrepancy: PayoutDiscrepancy } {
+  const split = proposeFareSplit(d);
+  d.resolvedAt = new Date().toISOString();
+  d.resolvedBy = actorId;
+  fireToast(`Fare split queued · ${d.propertyCode} · cleaning fee re-instated`);
+  return { split, discrepancy: d };
+}
+
+// ───────────────── Item C — internal approval routing (Slack → FAD Inbox) ─────────────────
+//
+// Replaces the originally-locked Slack-DM-Ishant flow per running decisions
+// log §3.1. Posts to FAD Inbox #finance instead of Slack, and runs a tiered
+// escalation if the tier-1 recipient stays silent.
+
+import type { FinanceEscalationMeta, FinanceEscalationTier } from './teamInbox';
+
+function makeRequestId(): string {
+  return `req-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export interface RequestRefundApprovalInput {
+  reservationId?: string;
+  amountMinor: number;
+  currency: 'MUR' | 'EUR' | 'USD';
+  requestorId: string;
+  reason: string;
+  urgent?: boolean;
+}
+
+/**
+ * Mathias-or-Franny initiates a refund/reconciliation request that exceeds
+ * their authority cap. Posts the tier-1 ask to #finance in FAD Inbox.
+ * Returns the request id so the caller can render a "waiting on Ishant"
+ * inline state.
+ *
+ * If `urgent` is true, the runtime would also schedule the tier-2 phone
+ * escalation after `tier1.silentTimeoutMins`. Phase 1 we just stage the
+ * tier-1 message; the real timer-driven escalation lives in the backend.
+ */
+export function requestRefundApproval(input: RequestRefundApprovalInput): {
+  requestId: string;
+  tier: FinanceEscalationTier;
+  recipientId: string;
+} {
+  const requestId = makeRequestId();
+  const chain = FIN_ESCALATION_CHAIN;
+  const recipientId = chain.tier1.recipientId;
+  const requestor = TASK_USER_BY_ID[input.requestorId];
+  const recipient = TASK_USER_BY_ID[recipientId];
+
+  const meta: FinanceEscalationMeta = {
+    requestId,
+    requestorId: input.requestorId,
+    recipientId,
+    reservationId: input.reservationId,
+    amountMinor: input.amountMinor,
+    currency: input.currency,
+    reason: input.reason,
+    urgent: input.urgent,
+    tier: 't1_inbox',
+  };
+
+  const message = {
+    id: `tm-fin-${Date.now()}`,
+    channelKey: chain.tier1.channelKey,
+    authorId: input.requestorId,
+    text:
+      `${recipient?.name ?? 'Ishant'} — approval needed.\n` +
+      `Amount: ${(input.amountMinor / 100).toLocaleString()} ${input.currency}.\n` +
+      (input.reservationId ? `Reservation: ${input.reservationId}.\n` : '') +
+      `Reason: ${input.reason}.` +
+      (input.urgent ? '\n⚠ Urgent — auto-escalates to phone in 30 min if silent.' : ''),
+    ts: new Date().toISOString(),
+    mentions: [recipientId],
+    kind: 'finance_escalation' as const,
+    financeEscalation: meta,
+  };
+  TEAM_MESSAGES.push(message);
+  fireToast(
+    `Approval request sent to ${recipient?.name ?? 'Ishant'} · #finance` +
+      (input.urgent ? ' · escalates to phone in 30 min' : ''),
+  );
+  return { requestId, tier: 't1_inbox', recipientId };
+}
+
+/** Manually advance a stuck request through the chain (T1 → T2 → T3). Used
+ *  by the backend cron in production; in Phase 1 we expose it for test /
+ *  manual-advance buttons in the SettingsEscalation panel. */
+export function postFinanceEscalation(
+  requestId: string,
+  toTier: FinanceEscalationTier,
+  payload: { reason: string; amountMinor: number; currency: 'MUR' | 'EUR' | 'USD'; requestorId: string },
+): void {
+  const chain = FIN_ESCALATION_CHAIN;
+  let recipientId: string;
+  let body: string;
+  if (toTier === 't2_phone_3cx') {
+    recipientId = chain.tier2.recipientId;
+    body = `📞 Calling ${TASK_USER_BY_ID[recipientId]?.name ?? 'Ishant'} via 3CX · request ${requestId} silent for ${chain.tier1.silentTimeoutMins}m.`;
+  } else if (toTier === 't3_fallback') {
+    const overCap = payload.amountMinor > chain.tier3.fallbackApprovalCapMinor;
+    recipientId = overCap ? chain.tier3.finalFallbackRecipientId : chain.tier3.recipientId;
+    body =
+      overCap
+        ? `Final fallback to ${TASK_USER_BY_ID[recipientId]?.name ?? 'Franny'} — amount exceeds Mathias's Rs ${(chain.tier3.fallbackApprovalCapMinor / 100).toLocaleString()} fallback cap.`
+        : `Fallback to ${TASK_USER_BY_ID[recipientId]?.name ?? 'Mathias'} — Ishant unavailable. Mathias may approve up to Rs ${(chain.tier3.fallbackApprovalCapMinor / 100).toLocaleString()}.`;
+  } else {
+    return;
+  }
+  TEAM_MESSAGES.push({
+    id: `tm-fin-${Date.now()}`,
+    channelKey: 'finance',
+    authorId: payload.requestorId,
+    text: body,
+    ts: new Date().toISOString(),
+    mentions: [recipientId],
+    kind: 'finance_escalation',
+    financeEscalation: {
+      requestId,
+      requestorId: payload.requestorId,
+      recipientId,
+      amountMinor: payload.amountMinor,
+      currency: payload.currency,
+      reason: payload.reason,
+      tier: toTier,
+    },
+  });
+}
+
 // ───────────────── Reservation writes ─────────────────
 
 function makeNoteId(): string {

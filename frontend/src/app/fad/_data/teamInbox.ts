@@ -72,7 +72,26 @@ export const TEAM_DMS: TeamDM[] = [
   { id: 'dm-judith-franny-ishant', participantIds: ['u-judith', 'u-franny', 'u-ishant'], unread: 2 },
 ];
 
-export type TeamMessageKind = 'text' | 'system' | 'call_scheduled' | 'task_link' | 'roster_publish';
+export type TeamMessageKind = 'text' | 'system' | 'call_scheduled' | 'task_link' | 'roster_publish' | 'finance_escalation';
+
+/** Tier of a finance-escalation post. T1 = direct ask in #finance,
+ *  T2 = phone-call escalation if T1 silent, T3 = fallback to Franny. */
+export type FinanceEscalationTier = 't1_inbox' | 't2_phone_3cx' | 't3_fallback';
+
+export interface FinanceEscalationMeta {
+  /** Original requestor (e.g. Mathias). */
+  requestorId: string;
+  /** Who we're asking for approval right now. */
+  recipientId: string;
+  reservationId?: string;
+  amountMinor: number;
+  currency: 'MUR' | 'EUR' | 'USD';
+  reason: string;
+  urgent?: boolean;
+  tier: FinanceEscalationTier;
+  /** Stable id linking T1 → T2 → T3 messages for the same request. */
+  requestId: string;
+}
 
 export interface TeamMessage {
   id: string;
@@ -87,6 +106,8 @@ export interface TeamMessage {
   linkedTaskId?: string;
   /** for kind: 'call_scheduled' — fixture Meet URL */
   callMeta?: TeamCallMeta;
+  /** for kind: 'finance_escalation' — see FinanceEscalationMeta */
+  financeEscalation?: FinanceEscalationMeta;
   attachments?: number;
   threadCount?: number;
 }

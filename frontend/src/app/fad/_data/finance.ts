@@ -799,3 +799,50 @@ export const tierLabel = (t: ApprovalTier): string =>
   t === 'medium' ? 'Owner approval, 24h auto' :
   t === 'urgent_override' ? 'Urgent override' :
   'Owner pre-approval required';
+
+// ───────────────── Internal escalation chain (Mathias additions · Item C) ─────────────────
+//
+// Replaces the originally-locked Slack-DM-Ishant flow per running decisions
+// log §3.1 (Internal team comms live in FAD Inbox, not Slack). The chain
+// runs when a refund / reconciliation request exceeds the requestor's
+// authority cap — it walks the tiers below until someone responds.
+
+export type EscalationRecipient = 'u-ishant' | 'u-mathias' | 'u-franny';
+
+export interface FinEscalationChain {
+  /** Where the request lands first. */
+  tier1: {
+    recipientId: EscalationRecipient;
+    /** Posts to this team channel. Default: '#finance'. */
+    channelKey: 'finance';
+    /** Minutes of silence before escalating to tier 2 (urgent flag only). */
+    silentTimeoutMins: number;
+  };
+  /** Phone-call escalation when tier 1 is silent + urgent. */
+  tier2: {
+    recipientId: EscalationRecipient;
+    /** Stub for now; real impl wires 3CX click-to-dial. */
+    via: '3cx_phone';
+    /** Minutes of further silence before escalating to tier 3. */
+    silentTimeoutMins: number;
+  };
+  /** Final fallback — Mathias can approve up to this MUR cap if tier 1 + 2
+   *  fail. If amount exceeds this cap, the chain escalates to Franny. */
+  tier3: {
+    recipientId: EscalationRecipient;
+    /** Mathias's fallback approval cap when Ishant unavailable, MUR minor. */
+    fallbackApprovalCapMinor: number;
+    /** Last-resort recipient if amount > tier3 cap. */
+    finalFallbackRecipientId: EscalationRecipient;
+  };
+}
+
+export const FIN_ESCALATION_CHAIN: FinEscalationChain = {
+  tier1: { recipientId: 'u-ishant', channelKey: 'finance', silentTimeoutMins: 30 },
+  tier2: { recipientId: 'u-ishant', via: '3cx_phone', silentTimeoutMins: 15 },
+  tier3: {
+    recipientId: 'u-mathias',
+    fallbackApprovalCapMinor: 20_000_00,
+    finalFallbackRecipientId: 'u-franny',
+  },
+};
