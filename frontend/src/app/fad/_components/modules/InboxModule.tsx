@@ -101,6 +101,12 @@ export function InboxModule({ onAskFriday }: Props) {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  // Switching entity (Team ↔ Guest/Owner/Vendor/All) resets the mobile slide-over
+  // so the user lands on the list of the new entity, not deep in a stale thread.
+  useEffect(() => {
+    setMobileThreadOpen(false);
+  }, [entityFilter]);
+
   useEffect(() => {
     if (hydrated) localStorage.setItem('fad:inbox:list', listCollapsed ? '1' : '0');
   }, [listCollapsed, hydrated]);
@@ -204,14 +210,22 @@ export function InboxModule({ onAskFriday }: Props) {
 
   if (onTeam) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+      <div
+        className={isMobile && mobileThreadOpen ? 'inbox-thread-open-mobile' : ''}
+        style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}
+      >
         <ModuleHeader
           title="Inbox"
           subtitle="Team channels · DMs · scheduled calls"
           actions={actions}
         />
         {chipsRow}
-        <TeamInbox mentionsOnly={mentionsOnly} />
+        <TeamInbox
+          mentionsOnly={mentionsOnly}
+          isMobile={isMobile}
+          mobileThreadOpen={mobileThreadOpen}
+          onMobileThreadOpenChange={setMobileThreadOpen}
+        />
       </div>
     );
   }

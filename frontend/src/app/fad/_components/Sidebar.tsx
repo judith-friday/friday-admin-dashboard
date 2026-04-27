@@ -46,7 +46,20 @@ export function Sidebar({
   const [collapsedActive, setCollapsedActive] = useState(false);
   useEffect(() => {
     setCollapsedActive(false);
+    setExpandedModuleId(null);
   }, [active]);
+
+  // On mobile, tapping a module with sub-pages expands those subs in place
+  // (without navigating or closing the sidebar) so the user can pick a sub-page.
+  // null when no module is "preview-expanded".
+  const [expandedModuleId, setExpandedModuleId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   return (
     <>
@@ -103,13 +116,29 @@ export function Sidebar({
               {groupMods.map((mod) => {
                 const IconComp = iconFor(mod.icon);
                 const isActive = mod.id === active;
-                const showSubs = isActive && !collapsed && !!mod.subPages?.length && !collapsedActive;
+                const isExpanded = expandedModuleId === mod.id;
+                const hasSubs = !!mod.subPages?.length;
+                const showSubs =
+                  hasSubs &&
+                  !collapsed &&
+                  ((isActive && !collapsedActive) || isExpanded);
                 return (
                   <div key={mod.id} className="fad-nav-item-wrap">
                     <button
-                      className={'fad-nav-item' + (isActive ? ' active' : '')}
+                      className={
+                        'fad-nav-item' +
+                        (isActive ? ' active' : '') +
+                        (isExpanded ? ' expanded-preview' : '')
+                      }
                       onClick={() => {
-                        if (isActive && mod.subPages?.length) {
+                        // Mobile: tapping an inactive module with subs expands them in
+                        // place rather than navigating + closing the sidebar — so the
+                        // user can see the sub-pages and pick the one they want.
+                        if (isMobile && !isActive && hasSubs) {
+                          setExpandedModuleId((prev) => (prev === mod.id ? null : mod.id));
+                          return;
+                        }
+                        if (isActive && hasSubs) {
                           setCollapsedActive((v) => !v);
                           return;
                         }

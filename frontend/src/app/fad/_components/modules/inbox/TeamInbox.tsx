@@ -29,7 +29,17 @@ const CHANNEL_RESOURCE_BY_KEY: Record<ChannelKey, Resource> = {
   syndic: 'inbox_syndic',
 };
 
-export function TeamInbox({ mentionsOnly = false }: { mentionsOnly?: boolean }) {
+export function TeamInbox({
+  mentionsOnly = false,
+  isMobile = false,
+  mobileThreadOpen = false,
+  onMobileThreadOpenChange,
+}: {
+  mentionsOnly?: boolean;
+  isMobile?: boolean;
+  mobileThreadOpen?: boolean;
+  onMobileThreadOpenChange?: (open: boolean) => void;
+}) {
   const { role, can } = usePermissions();
   const currentUserId = useCurrentUserId();
 
@@ -99,9 +109,17 @@ export function TeamInbox({ mentionsOnly = false }: { mentionsOnly?: boolean }) 
     ? selection.dm.participantIds
     : visibleChannels.find((c) => selection.kind === 'channel' && c.key === selection.channelKey)?.memberIds.slice(0, 4) ?? [];
 
+  const openSelection = (next: Selection) => {
+    setSelection(next);
+    if (isMobile) onMobileThreadOpenChange?.(true);
+  };
+
   return (
     <>
-      <div className="inbox-split" style={{ flex: 1 }}>
+      <div
+        className={'inbox-split' + (mobileThreadOpen ? ' thread-open' : '')}
+        style={{ flex: 1 }}
+      >
         {/* Left rail — channels + DMs */}
         <div className="inbox-list" style={{ minWidth: 220, maxWidth: 280 }}>
           <div
@@ -122,7 +140,7 @@ export function TeamInbox({ mentionsOnly = false }: { mentionsOnly?: boolean }) 
               <button
                 key={c.id}
                 className={'row' + (isSel ? ' selected' : '') + ((c.unread ?? 0) > 0 ? ' unread' : '')}
-                onClick={() => setSelection({ kind: 'channel', channelKey: c.key })}
+                onClick={() => openSelection({ kind: 'channel', channelKey: c.key })}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -185,7 +203,7 @@ export function TeamInbox({ mentionsOnly = false }: { mentionsOnly?: boolean }) 
               <button
                 key={dm.id}
                 className={'row' + (isSel ? ' selected' : '')}
-                onClick={() => setSelection({ kind: 'dm', dm })}
+                onClick={() => openSelection({ kind: 'dm', dm })}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -219,6 +237,13 @@ export function TeamInbox({ mentionsOnly = false }: { mentionsOnly?: boolean }) 
         {/* Right pane — messages + compose */}
         <div className="inbox-thread">
           <div className="inbox-thread-header">
+            <button
+              className="btn ghost sm inbox-mobile-back"
+              onClick={() => onMobileThreadOpenChange?.(false)}
+              style={{ marginBottom: 8 }}
+            >
+              ← Back to channels
+            </button>
             <div className="inbox-thread-subject" style={{ fontSize: 16 }}>
               {targetTitle}
             </div>
