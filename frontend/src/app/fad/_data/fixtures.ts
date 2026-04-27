@@ -313,28 +313,8 @@ export const TASKS: Task[] = [
   { id: 'k9', status: 'todo', urgency: 'neutral', title: 'Review Q1 occupancy report with Mathias', property: '—', assignee: 'Ishant', due: 'Next wk', source: 'Intel' },
 ];
 
-export interface Property {
-  code: string;
-  name: string;
-  area: string;
-  occ: number;
-  adr: number;
-  rating: number;
-}
-
-export const PROPERTIES: Property[] = [
-  { code: 'VAZ', name: 'Villa Azur', area: 'Bel Ombre · South', occ: 0.82, adr: 420, rating: 4.86 },
-  { code: 'SBN', name: 'Sable Noir', area: 'Tamarin · West', occ: 0.78, adr: 385, rating: 4.78 },
-  { code: 'BBH', name: 'Blue Bay House', area: 'Blue Bay · South-East', occ: 0.91, adr: 510, rating: 4.92 },
-  { code: 'LCA', name: 'La Casa Palm', area: 'Grand Baie · North', occ: 0.68, adr: 295, rating: 4.55 },
-  { code: 'DMT', name: 'Domaine Tamassa', area: 'Bel Ombre · South', occ: 0.74, adr: 610, rating: 4.81 },
-  { code: 'COR', name: 'Coral Reef Bungalow', area: 'Trou aux Biches · North', occ: 0.88, adr: 260, rating: 4.72 },
-  { code: 'SRT', name: 'Serenity Point', area: 'Black River · West', occ: 0.81, adr: 450, rating: 4.84 },
-  { code: 'OCT', name: 'Ocean Terrace', area: 'Grand Baie · North', occ: 0.72, adr: 330, rating: 4.61 },
-  { code: 'NIT', name: 'Nitzana Estate', area: 'Bel Ombre · South', occ: 0.45, adr: 890, rating: 4.95 },
-];
-
-export const PROP_TABS = ['All', 'North', 'West', 'Nitzana', 'Owners'];
+// Legacy `Property` / `PROPERTIES` / `PROP_TABS` removed. Canonical Property
+// namespace lives at `_data/properties.ts` (v0.2 LOCKED).
 
 export interface KPI {
   label: string;

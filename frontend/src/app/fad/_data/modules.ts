@@ -36,7 +36,11 @@ export const MODULES: ModuleDef[] = [
     { id: 'settings', label: 'Settings' },
   ] },
   { id: 'calendar', label: 'Calendar', group: 'Today', tier: 'live', ship: 'live', icon: 'IconCal', path: '/gms/calendar' },
-  { id: 'properties', label: 'Properties', group: 'Portfolio', tier: 'preview', ship: "May '26", icon: 'IconProp', path: '/gms/properties' },
+  { id: 'properties', label: 'Properties', group: 'Portfolio', tier: 'live', ship: 'live', icon: 'IconProp', path: '/fad/properties', subPages: [
+    { id: 'overview', label: 'Overview' },
+    { id: 'all', label: 'All properties' },
+    { id: 'onboarding', label: 'Onboarding' },
+  ] },
   { id: 'reservations', label: 'Reservations', group: 'Portfolio', tier: 'live', ship: 'live', icon: 'IconBook', path: '/fad/reservations', subPages: [
     { id: 'overview', label: 'Overview' },
     { id: 'all', label: 'All reservations' },

@@ -31,18 +31,19 @@ export type ApprovalTier = 'routine' | 'medium' | 'urgent_override' | 'major';
 
 // ───────────────── Properties + Owners ─────────────────
 
+// FinProperty + FIN_PROPERTIES retained as back-compat shims.
+// Canonical source moved to `_data/properties.ts` (v0.2 LOCKED). Will be
+// removed in commit 4 of the Properties rebuild — consumers should update
+// imports to read `Property` from `_data/properties.ts` directly.
+import { FIN_PROPERTIES_SHIM } from './properties';
+
 export interface FinProperty {
   code: string;
   name: string;
   ownerId: string;
 }
 
-export const FIN_PROPERTIES: FinProperty[] = [
-  { code: 'VV-47', name: 'Villa Verde 4-7', ownerId: 'o1' },
-  { code: 'BL-12', name: 'Beachfront Loft 12', ownerId: 'o2' },
-  { code: 'PT-3', name: 'Pereybere Townhouse 3', ownerId: 'o3' },
-  { code: 'LC-9', name: 'Le Caudan 9', ownerId: 'o4' },
-];
+export const FIN_PROPERTIES: FinProperty[] = FIN_PROPERTIES_SHIM;
 
 export interface FinOwner {
   id: string;
@@ -56,6 +57,8 @@ export const FIN_OWNERS: FinOwner[] = [
   { id: 'o2', name: 'Marchand SCI', language: 'fr', whatsapp: '+33 6 78 12 44 90' },
   { id: 'o3', name: 'Fonseca Holdings', language: 'en', whatsapp: '+230 5904 1188' },
   { id: 'o4', name: 'Dubois & Associés', language: 'fr', whatsapp: '+33 7 88 22 11 56' },
+  { id: 'o5', name: 'Beaumont Family Trust', language: 'en', whatsapp: '+230 5781 0099' },
+  { id: 'o6', name: 'Mauritius Coastal Ltd', language: 'en', whatsapp: '+230 5722 8801' },
 ];
 
 // ───────────────── Categories + Bill-to defaults ─────────────────

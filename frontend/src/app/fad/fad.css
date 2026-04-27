@@ -5681,3 +5681,73 @@ html.fad-dark .fin-friday-flag-tag { background: rgba(0,0,0,0.25); }
   .fad-rsv-cell:nth-child(7)::before { display: none; }
   .fad-rsv-balance { text-align: left; }
 }
+
+/* ───────────────────────────────────────────────────────────────────────
+   Properties module (v0.2 LOCKED rebuild). */
+
+/* Properties · All — table */
+.prop-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.prop-table thead tr {
+  background: var(--color-background-secondary);
+}
+.prop-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-tertiary);
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  white-space: nowrap;
+}
+.prop-table td {
+  padding: 10px 12px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  vertical-align: middle;
+}
+.prop-row {
+  cursor: pointer;
+  transition: background 80ms;
+}
+.prop-row:hover {
+  background: var(--color-background-secondary);
+}
+.prop-row:last-child td {
+  border-bottom: 0;
+}
+
+/* Properties · Overview — needs-attention row */
+.prop-attn-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  color: var(--color-text-primary);
+  transition: background 80ms;
+}
+.prop-attn-row:hover {
+  background: var(--color-background-secondary);
+}
+
+@media (max-width: 768px) {
+  /* Compact table on narrow screens */
+  .prop-table th, .prop-table td {
+    padding: 8px 8px;
+    font-size: 12px;
+  }
+  .prop-attn-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}

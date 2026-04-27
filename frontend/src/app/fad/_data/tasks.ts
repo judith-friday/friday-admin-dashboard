@@ -213,37 +213,21 @@ export const TASK_USERS: TaskUser[] = [
 
 // ───────────────── Properties ─────────────────
 
-export type PropertyZone = 'north' | 'west' | 'office';
+// PropertyZone + TaskProperty + TASK_PROPERTIES retained as back-compat shims.
+// Canonical source moved to `_data/properties.ts` (v0.2 LOCKED). Will be
+// removed in commit 4 of the Properties rebuild — consumers should update
+// imports to read `Property` from `_data/properties.ts` directly.
+import { TASK_PROPERTIES_SHIM } from './properties';
+export type { PropertyZone } from './properties';
 
 export interface TaskProperty {
   code: string;
   name: string;
-  zone: PropertyZone;
+  zone: import('./properties').PropertyZone;
   tier: 'small' | 'medium' | 'big';
 }
 
-export const TASK_PROPERTIES: TaskProperty[] = [
-  { code: 'VV-47', name: 'Villa Verde 4-7', zone: 'west', tier: 'medium' },
-  { code: 'BL-12', name: 'Beachfront Loft 12', zone: 'north', tier: 'big' },
-  { code: 'PT-3', name: 'Pereybere Townhouse 3', zone: 'north', tier: 'small' },
-  { code: 'LC-9', name: 'Le Caudan 9', zone: 'west', tier: 'medium' },
-  { code: 'RC-15', name: 'Residence Camélia 15', zone: 'west', tier: 'medium' },
-  { code: 'GBH-C8', name: 'Grand Baie Heights C8', zone: 'north', tier: 'small' },
-  { code: 'GBH-C3', name: 'Grand Baie Heights C3', zone: 'north', tier: 'small' },
-  { code: 'KS-5', name: 'Kestrel Sands 5', zone: 'west', tier: 'medium' },
-  { code: 'SD-10', name: 'Sapphire Dunes 10', zone: 'west', tier: 'big' },
-  { code: 'LB-2', name: 'Lagon Bleu 2', zone: 'west', tier: 'big' },
-  { code: 'LV-10', name: 'La Verdure 10', zone: 'west', tier: 'medium' },
-  { code: 'BCN-A', name: 'Beacon A', zone: 'north', tier: 'small' },
-  { code: 'BS-1', name: 'Bay Studio 1', zone: 'west', tier: 'small' },
-  // Legacy property codes inherited from old reservation fixture (still
-  // referenced by `_data/reservations.ts` rows + Inbox threads).
-  { code: 'VAZ', name: 'Villa Azur · Bel Ombre', zone: 'west', tier: 'big' },
-  { code: 'BBH', name: 'Blue Bay House · Blue Bay', zone: 'west', tier: 'medium' },
-  { code: 'SBN', name: 'Sable Noir Retreat · Tamarin', zone: 'west', tier: 'medium' },
-  { code: 'COR', name: 'Coral Reef Bungalow', zone: 'west', tier: 'small' },
-  { code: 'OFFICE', name: 'Office / Store / Admin', zone: 'office', tier: 'small' },
-];
+export const TASK_PROPERTIES: TaskProperty[] = TASK_PROPERTIES_SHIM;
 
 // ───────────────── Constants ─────────────────
 

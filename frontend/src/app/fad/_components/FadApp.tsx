@@ -13,9 +13,9 @@ import { SettingsModule } from './modules/SettingsModule';
 import {
   LegalModule,
   OwnersModule,
-  PropertiesModule,
   TeaseModule,
 } from './modules/StubModules';
+import { PropertiesModule } from './modules/PropertiesModule';
 import { OperationsModule } from './modules/OperationsModule';
 import { FinanceModule } from './modules/FinanceModule';
 import { lockedFinanceSubsFor, type FinRole } from '../_data/financeRoles';
@@ -331,7 +331,7 @@ function renderModuleInner(
     case 'legal':
       return <LegalModule />;
     case 'properties':
-      return <PropertiesModule />;
+      return <PropertiesModule subPage={subPage || 'overview'} onChangeSubPage={ctx.setSubPage} />;
     case 'owners':
       return <OwnersModule />;
     case 'reviews':

@@ -37,22 +37,11 @@ export const CHANNEL_LABEL: Record<ReviewChannel, string> = {
   direct: 'Direct',
 };
 
-/** Property → cohort mapping. Flat — just lift this when Properties module ships. */
-export const PROPERTY_COHORT: Record<string, Cohort> = {
-  'VV-47': 'flic_en_flac',
-  'BL-12': 'grand_baie',
-  'PT-3': 'pereybere',
-  'LC-9': 'flic_en_flac',
-  'RC-15': 'flic_en_flac',
-  'GBH-C8': 'grand_baie',
-  'GBH-C3': 'grand_baie',
-  'KS-5': 'flic_en_flac',
-  'SD-10': 'bel_ombre',
-  'LB-2': 'bel_ombre',
-  'LV-10': 'flic_en_flac',
-  'BCN-A': 'pereybere',
-  'BS-1': 'flic_en_flac',
-};
+/** Property → cohort mapping. Now back-compat shim — canonical `Property.region`
+ *  lives in `_data/properties.ts`. This export will be removed in commit 4 of
+ *  the Properties rebuild. */
+import { PROPERTY_COHORT_SHIM } from './properties';
+export const PROPERTY_COHORT: Record<string, Cohort> = PROPERTY_COHORT_SHIM;
 
 export interface SubRatings {
   accuracy: number;
