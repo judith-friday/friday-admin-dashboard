@@ -212,6 +212,47 @@ export const RESERVATION_BY_ID: Record<string, Reservation> = Object.fromEntries
   RESERVATIONS.map((r) => [r.id, r]),
 );
 
+/** Internal note attached to a reservation. Only visible to the team —
+ *  guests never see these. Mirrors the InternalNote shape used by Inbox.
+ *  Append-only via `breezeway.ts:addReservationNote`. */
+export interface ReservationNote {
+  id: string;
+  reservationId: string;
+  authorId: string;
+  authorName: string;
+  body: string;
+  /** TaskUser ids @mentioned in the note. */
+  mentions: string[];
+  createdAt: string;
+}
+
+export const RESERVATION_NOTES: ReservationNote[] = [
+  {
+    id: 'rnote-001',
+    reservationId: 'rsv-rc15-thomas',
+    authorId: 'u-franny',
+    authorName: 'Franny Henri',
+    body: 'Welcome basket needs the chocolates Alex flagged — handed off to Catherine for tomorrow morning.',
+    mentions: ['u-catherine'],
+    createdAt: '2026-04-26T09:14:00',
+  },
+  {
+    id: 'rnote-002',
+    reservationId: 'rsv-cor-solheim',
+    authorId: 'u-bryan',
+    authorName: 'Bryan Henri',
+    body: 'AC parts ETA 14:00 from Coolbreeze. Will swap during their pool break.',
+    mentions: [],
+    createdAt: '2026-04-26T08:30:00',
+  },
+];
+
+export function notesForReservation(reservationId: string): ReservationNote[] {
+  return RESERVATION_NOTES.filter((n) => n.reservationId === reservationId).sort(
+    (a, b) => b.createdAt.localeCompare(a.createdAt),
+  );
+}
+
 export const CHANNEL_LABEL: Record<ReservationChannel, string> = {
   airbnb: 'Airbnb',
   booking: 'Booking.com',

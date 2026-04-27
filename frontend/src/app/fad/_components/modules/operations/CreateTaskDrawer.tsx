@@ -20,7 +20,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onCreated: (task: Task) => void;
-  /** Optional pre-fill from inbox AI / group email AI flow. */
+  /** Optional pre-fill from inbox AI / group email AI / reservation flow. */
   prefill?: Partial<{
     title: string;
     description: string;
@@ -31,6 +31,7 @@ interface Props {
     assigneeIds: string[];
     inboxThreadId: string;
     groupEmailId: string;
+    reservationId: string;
     source: TaskSource;
   }>;
 }
@@ -111,6 +112,7 @@ export function CreateTaskDrawer({ open, onClose, onCreated, prefill }: Props) {
       dueDate,
       inboxThreadId: prefill?.inboxThreadId,
       groupEmailId: prefill?.groupEmailId,
+      reservationId: prefill?.reservationId,
     });
     onCreated(task);
     fireToast('Task created · would push to Breezeway');

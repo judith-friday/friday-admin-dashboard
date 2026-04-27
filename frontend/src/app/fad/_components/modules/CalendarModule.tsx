@@ -9,14 +9,18 @@ import {
   STATUS_LABEL as RES_STATUS_LABEL,
   formatMoney,
   formatStayWindow,
+  notesForReservation,
   type Reservation,
+  type ReservationNote,
 } from '../../_data/reservations';
-import { TASKS, TASK_USER_BY_ID, type Task } from '../../_data/tasks';
+import { TASKS, TASK_USERS, TASK_USER_BY_ID, type Task } from '../../_data/tasks';
+import { addReservationNote, updateReservationTimes } from '../../_data/breezeway';
 import { useCurrentUserId } from '../usePermissions';
 import { fireToast } from '../Toaster';
 import { FilterBar, FilterChip } from '../FilterBar';
 import { IconClose, IconPlus, IconRefresh } from '../icons';
 import { ModuleHeader } from '../ModuleHeader';
+import { CreateTaskDrawer } from './operations/CreateTaskDrawer';
 
 type CalView = 'day' | 'week' | 'month';
 
@@ -239,6 +243,13 @@ export function CalendarModule() {
     null,
   );
   const [createOpen, setCreateOpen] = useState(false);
+  /** When set, render a CreateTaskDrawer prefilled for this reservation
+   *  (triggered from StayPopover's `+ Task` button). */
+  const [taskFromRsv, setTaskFromRsv] = useState<Reservation | null>(null);
+  /** Bumped after fixture mutations (note add, time adjust) so memoized
+   *  derivations like `stays`/`allEvents` re-run. */
+  const [rev, setRev] = useState(0);
+  const bumpRev = () => setRev((n) => n + 1);
   const tabs = [
     { id: 'day', label: 'Day' },
     { id: 'week', label: 'Week' },
@@ -255,9 +266,9 @@ export function CalendarModule() {
     const taskEvents = filteredTasks.map((t) => taskToEvent(t, days)).filter((e): e is CalEvent => Boolean(e));
     const fixedEvents = CAL_EVENTS.map((e) => fixedToEvent(e, days)).filter((e): e is CalEvent => Boolean(e));
     return [...fixedEvents, ...reservationEvents, ...taskEvents];
-  }, [days, mineOnly, currentUserId]);
+  }, [days, mineOnly, currentUserId, rev]);
 
-  const stays = useMemo(() => packStays(computeStaysInWindow(days)), [days]);
+  const stays = useMemo(() => packStays(computeStaysInWindow(days)), [days, rev]);
   const staysVisible = typeFilter.has('reservation');
 
   // Map "reservation" chip to checkin/checkout event types so the existing per-type filter
@@ -441,10 +452,36 @@ export function CalendarModule() {
           rsv={selectedStay.rsv}
           x={selectedStay.x}
           y={selectedStay.y}
+          authorId={currentUserId}
           onClose={() => setSelectedStay(null)}
+          onCreateTask={(rsv) => {
+            setSelectedStay(null);
+            setTaskFromRsv(rsv);
+          }}
+          onMutated={bumpRev}
         />
       )}
       {createOpen && <NewEventModal onClose={() => setCreateOpen(false)} />}
+      {/* `key` forces a remount each time the prefilled reservation changes,
+          so CreateTaskDrawer's useState picks up the new prefill values
+          instead of persisting state from the previous open. */}
+      {taskFromRsv && (
+        <CreateTaskDrawer
+          key={taskFromRsv.id}
+          open={true}
+          onClose={() => setTaskFromRsv(null)}
+          onCreated={() => {
+            setTaskFromRsv(null);
+            bumpRev();
+          }}
+          prefill={{
+            title: `Follow up with ${taskFromRsv.guestName}`,
+            propertyCode: taskFromRsv.propertyCode,
+            reservationId: taskFromRsv.id,
+            source: 'manual',
+          }}
+        />
+      )}
     </>
   );
 }
@@ -1192,23 +1229,96 @@ function TaskDetailBlock({ task }: { task: Task }) {
   );
 }
 
+type StayPanel = 'none' | 'note' | 'times';
+
 function StayPopover({
   rsv,
   x,
   y,
+  authorId,
   onClose,
+  onCreateTask,
+  onMutated,
 }: {
   rsv: Reservation;
   x: number;
   y: number;
+  authorId: string;
   onClose: () => void;
+  onCreateTask: (rsv: Reservation) => void;
+  onMutated: () => void;
 }) {
+  const [panel, setPanel] = useState<StayPanel>('none');
+  const [noteDraft, setNoteDraft] = useState('');
+  const [noteMentions, setNoteMentions] = useState<string[]>([]);
+  const [mentionPickerOpen, setMentionPickerOpen] = useState(false);
+  const [checkInDraft, setCheckInDraft] = useState(rsv.checkIn.slice(0, 16));
+  const [checkOutDraft, setCheckOutDraft] = useState(rsv.checkOut.slice(0, 16));
+  const notes = notesForReservation(rsv.id);
+  const mentionCandidates = TASK_USERS.filter((u) => u.role !== 'external' && u.active && u.id !== authorId);
+
+  const insertMention = (userId: string) => {
+    const u = TASK_USER_BY_ID[userId];
+    if (!u) return;
+    setNoteDraft(noteDraft + (noteDraft.endsWith(' ') || noteDraft.length === 0 ? '' : ' ') + `@${u.name} `);
+    if (!noteMentions.includes(userId)) setNoteMentions([...noteMentions, userId]);
+    setMentionPickerOpen(false);
+  };
+
+  const postNote = () => {
+    const text = noteDraft.trim();
+    if (!text) return;
+    addReservationNote({
+      reservationId: rsv.id,
+      authorId,
+      body: text,
+      mentions: noteMentions,
+    });
+    setNoteDraft('');
+    setNoteMentions([]);
+    setPanel('none');
+    fireToast(
+      noteMentions.length > 0
+        ? `Note added · ${noteMentions.length} teammate${noteMentions.length === 1 ? '' : 's'} notified`
+        : 'Note added to reservation',
+    );
+    onMutated();
+  };
+
+  const saveTimes = async () => {
+    const inIso = checkInDraft.includes(':') ? checkInDraft + ':00' : checkInDraft;
+    const outIso = checkOutDraft.includes(':') ? checkOutDraft + ':00' : checkOutDraft;
+    if (inIso === rsv.checkIn && outIso === rsv.checkOut) {
+      fireToast('No time changes to save');
+      setPanel('none');
+      return;
+    }
+    await updateReservationTimes({
+      reservationId: rsv.id,
+      checkIn: inIso !== rsv.checkIn ? inIso : undefined,
+      checkOut: outIso !== rsv.checkOut ? outIso : undefined,
+      actorId: authorId,
+    });
+    setPanel('none');
+    fireToast('Reservation updated · Guesty sync task queued');
+    onMutated();
+    onClose();
+  };
+
   return (
     <>
       <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={onClose} />
       <div
         className="cal-popover"
-        style={{ top: y, left: Math.min(x, window.innerWidth - 320) }}
+        style={{
+          // Clamp `top` so the popover (which can grow tall when the note
+          // composer or time form is open) never spills below the viewport.
+          // Worst-case content is ~640px; reserve 16px breathing room.
+          top: Math.max(8, Math.min(y, window.innerHeight - 640 - 16)),
+          left: Math.min(x, window.innerWidth - 320),
+          maxHeight: '90vh',
+          overflowY: 'auto',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
@@ -1301,40 +1411,224 @@ function StayPopover({
             {rsv.notes}
           </div>
         )}
-        <div className="cal-popover-actions">
-          <button
-            className="btn ghost sm"
-            onClick={() => fireToast('Note added to reservation · stub for now')}
-            title="Attach an internal note to this stay"
-          >
-            + Note
-          </button>
-          <button
-            className="btn ghost sm"
-            onClick={() =>
-              fireToast(`Task creation · prefilled for ${rsv.guestName} (${rsv.propertyCode}) — stub`)
-            }
-            title="Create a task linked to this reservation"
-          >
-            + Task
-          </button>
-          <button
-            className="btn ghost sm"
-            onClick={() =>
-              fireToast('Adjust check-in/out time — opens form + auto-creates Guesty-update task (next pass)')
-            }
-            title="Change check-in or check-out time"
-          >
-            Adjust times
-          </button>
-        </div>
-        <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-          <button className="btn sm">Open reservation</button>
-          <button className="btn ghost sm">Linked tasks</button>
-        </div>
+        {/* Existing notes — collapsed list above any open composer. */}
+        {notes.length > 0 && panel !== 'note' && (
+          <div className="cal-popover-note-list">
+            {notes.slice(0, 3).map((n) => (
+              <ReservationNoteItem key={n.id} note={n} />
+            ))}
+          </div>
+        )}
+
+        {panel === 'note' && (
+          <div className="cal-popover-note-compose">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, position: 'relative' }}>
+              <span style={{ fontSize: 10, color: 'var(--color-text-warning)', fontWeight: 500 }}>
+                🔒 Internal note · only your team can see this
+              </span>
+              <button
+                type="button"
+                className="btn ghost sm"
+                style={{ marginLeft: 'auto', fontSize: 10, padding: '2px 6px' }}
+                onClick={() => setMentionPickerOpen((v) => !v)}
+                title="Tag a teammate"
+              >
+                @ Mention
+              </button>
+              {mentionPickerOpen && (
+                <>
+                  <div
+                    style={{ position: 'fixed', inset: 0, zIndex: 9 }}
+                    onClick={() => setMentionPickerOpen(false)}
+                  />
+                  <div
+                    className="fad-dropdown"
+                    style={{
+                      position: 'absolute',
+                      top: '100%',
+                      right: 0,
+                      marginTop: 4,
+                      minWidth: 180,
+                      maxHeight: 220,
+                      overflowY: 'auto',
+                      zIndex: 10,
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {mentionCandidates.map((u) => (
+                      <button
+                        key={u.id}
+                        className="fad-dropdown-item"
+                        onClick={() => insertMention(u.id)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}
+                      >
+                        <span
+                          style={{
+                            width: 18,
+                            height: 18,
+                            borderRadius: 9,
+                            background: u.avatarColor,
+                            color: 'white',
+                            fontSize: 9,
+                            textAlign: 'center',
+                            lineHeight: '18px',
+                          }}
+                        >
+                          {u.initials}
+                        </span>
+                        {u.name}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            <textarea
+              value={noteDraft}
+              onChange={(e) => setNoteDraft(e.target.value)}
+              placeholder="What does the team need to know?"
+              style={{ width: '100%', minHeight: 60, fontSize: 12, fontFamily: 'inherit', padding: 6 }}
+              autoFocus
+            />
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
+              <button
+                className="btn ghost sm"
+                onClick={() => {
+                  setPanel('none');
+                  setNoteDraft('');
+                  setNoteMentions([]);
+                }}
+              >
+                Cancel
+              </button>
+              <button className="btn primary sm" onClick={postNote} disabled={!noteDraft.trim()}>
+                Post note
+              </button>
+            </div>
+          </div>
+        )}
+
+        {panel === 'times' && (
+          <div className="cal-popover-time-form">
+            <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
+              Adjust check-in / check-out
+            </div>
+            <label style={{ display: 'block', fontSize: 11, marginBottom: 4 }}>
+              Check-in
+              <input
+                type="datetime-local"
+                value={checkInDraft}
+                onChange={(e) => setCheckInDraft(e.target.value)}
+                style={{ display: 'block', width: '100%', marginTop: 2, padding: 4, fontSize: 12 }}
+              />
+            </label>
+            <label style={{ display: 'block', fontSize: 11, marginBottom: 4 }}>
+              Check-out
+              <input
+                type="datetime-local"
+                value={checkOutDraft}
+                onChange={(e) => setCheckOutDraft(e.target.value)}
+                style={{ display: 'block', width: '100%', marginTop: 2, padding: 4, fontSize: 12 }}
+              />
+            </label>
+            <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginTop: 4, marginBottom: 6 }}>
+              Saving queues a high-priority Guesty-sync task for the ops manager until the integration lands.
+            </div>
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+              <button
+                className="btn ghost sm"
+                onClick={() => {
+                  setPanel('none');
+                  setCheckInDraft(rsv.checkIn.slice(0, 16));
+                  setCheckOutDraft(rsv.checkOut.slice(0, 16));
+                }}
+              >
+                Cancel
+              </button>
+              <button className="btn primary sm" onClick={saveTimes}>
+                Save
+              </button>
+            </div>
+          </div>
+        )}
+
+        {panel === 'none' && (
+          <>
+            <div className="cal-popover-actions">
+              <button
+                className="btn ghost sm"
+                onClick={() => setPanel('note')}
+                title="Attach an internal note to this stay"
+              >
+                + Note
+              </button>
+              <button
+                className="btn ghost sm"
+                onClick={() => onCreateTask(rsv)}
+                title="Create a task linked to this reservation"
+              >
+                + Task
+              </button>
+              <button
+                className="btn ghost sm"
+                onClick={() => setPanel('times')}
+                title="Change check-in or check-out time"
+              >
+                Adjust times
+              </button>
+            </div>
+            <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+              <button className="btn sm">Open reservation</button>
+              <button className="btn ghost sm">Linked tasks</button>
+            </div>
+          </>
+        )}
       </div>
     </>
   );
+}
+
+function ReservationNoteItem({ note }: { note: ReservationNote }) {
+  const author = TASK_USER_BY_ID[note.authorId];
+  return (
+    <div className="cal-popover-note-item">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+        {author && (
+          <span
+            style={{
+              display: 'inline-block',
+              width: 14,
+              height: 14,
+              borderRadius: 7,
+              background: author.avatarColor,
+              color: 'white',
+              fontSize: 8,
+              textAlign: 'center',
+              lineHeight: '14px',
+              fontWeight: 500,
+            }}
+          >
+            {author.initials}
+          </span>
+        )}
+        <span style={{ fontSize: 11, fontWeight: 500 }}>{note.authorName}</span>
+        <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginLeft: 'auto' }}>
+          {formatNoteTs(note.createdAt)}
+        </span>
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', whiteSpace: 'pre-wrap' }}>
+        {note.body}
+      </div>
+    </div>
+  );
+}
+
+function formatNoteTs(iso: string): string {
+  const d = new Date(iso);
+  const today = new Date('2026-04-27T12:00:00');
+  const sameDay = d.toDateString() === today.toDateString();
+  if (sameDay) return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
 }
 
 function NewEventModal({ onClose }: { onClose: () => void }) {

@@ -2584,6 +2584,42 @@ html.fad-dark .cal-popover { box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
   padding: 8px 0 0;
 }
 
+/* Note list shown above the popover actions (most recent 3 notes). */
+.cal-popover-note-list {
+  margin-top: 8px;
+  padding: 6px;
+  background: var(--color-background-secondary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cal-popover-note-item {
+  padding: 4px 6px;
+  border-left: 2px solid var(--color-brand-accent);
+  background: var(--color-background-primary);
+  border-radius: 3px;
+}
+
+/* Inline note composer — appears in place of the action buttons. */
+.cal-popover-note-compose {
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--color-bg-warning);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-text-warning);
+  position: relative;
+}
+
+/* Datetime form for Adjust times — same slot as the note composer. */
+.cal-popover-time-form {
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--color-background-secondary);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-brand-accent);
+}
+
 /* Calendar nav buttons (Prev / Today / Next) live in the module header. */
 .cal-nav {
   display: inline-flex;

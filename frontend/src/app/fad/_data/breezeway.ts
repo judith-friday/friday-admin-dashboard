@@ -4,10 +4,16 @@
 //
 // Every write goes through this shim. Modules MUST NOT mutate fixture arrays directly.
 
-import { TASKS, TASK_USERS, type Task, type TaskComment, type TaskUser, type ActivityEntry } from './tasks';
+import { TASKS, TASK_USERS, TASK_USER_BY_ID, type Task, type TaskComment, type TaskUser, type ActivityEntry } from './tasks';
 import { TIME_OFF_REQUESTS, type TimeOffRequest } from './timeOff';
 import { ROSTER_LAST_WEEK, ROSTER_NEXT_WEEK, ROSTER_THIS_WEEK } from './roster';
 import { TEAM_MESSAGES, type ChannelKey, type TeamMessage } from './teamInbox';
+import {
+  RESERVATION_BY_ID,
+  RESERVATION_NOTES,
+  type Reservation,
+  type ReservationNote,
+} from './reservations';
 
 type ToastEmitter = (message: string) => void;
 
@@ -471,3 +477,95 @@ export function postToTeamChannel(
 
 // Re-export the activity entry type so consumers don't need a second import.
 export type { ActivityEntry } from './tasks';
+
+// ───────────────── Reservation writes ─────────────────
+
+function makeNoteId(): string {
+  return `rnote-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function addReservationNote(input: {
+  reservationId: string;
+  authorId: string;
+  body: string;
+  mentions: string[];
+}): ReservationNote {
+  const author = TASK_USER_BY_ID[input.authorId];
+  const note: ReservationNote = {
+    id: makeNoteId(),
+    reservationId: input.reservationId,
+    authorId: input.authorId,
+    authorName: author?.name ?? 'Unknown',
+    body: input.body,
+    mentions: input.mentions,
+    createdAt: new Date().toISOString(),
+  };
+  RESERVATION_NOTES.push(note);
+  return note;
+}
+
+/**
+ * Mutate a reservation's check-in / check-out time and queue a Guesty-sync
+ * task so the ops manager can manually push the change upstream until we
+ * have a real Guesty integration. Returns { reservation, syncTask } so the
+ * caller can re-render and toast.
+ */
+export async function updateReservationTimes(input: {
+  reservationId: string;
+  checkIn?: string;
+  checkOut?: string;
+  actorId: string;
+}): Promise<{ reservation: Reservation; syncTask: Task }> {
+  const rsv = RESERVATION_BY_ID[input.reservationId];
+  if (!rsv) throw new Error(`Reservation ${input.reservationId} not found`);
+
+  const changes: string[] = [];
+  if (input.checkIn && input.checkIn !== rsv.checkIn) {
+    changes.push(`check-in ${formatDt(rsv.checkIn)} → ${formatDt(input.checkIn)}`);
+    rsv.checkIn = input.checkIn;
+  }
+  if (input.checkOut && input.checkOut !== rsv.checkOut) {
+    changes.push(`check-out ${formatDt(rsv.checkOut)} → ${formatDt(input.checkOut)}`);
+    rsv.checkOut = input.checkOut;
+  }
+  // Recompute nights from the (possibly updated) window.
+  rsv.nights = Math.max(
+    1,
+    Math.round(
+      (new Date(rsv.checkOut).getTime() - new Date(rsv.checkIn).getTime()) /
+        (24 * 60 * 60 * 1000),
+    ),
+  );
+
+  // Find the ops_manager(s) — typically one user (Franny). If none in the
+  // fixture, fall back to assigning the actor so the task isn't orphaned.
+  const opsManagers = TASK_USERS.filter((u) => u.role === 'ops_manager' && u.active).map(
+    (u) => u.id,
+  );
+  const assigneeIds = opsManagers.length > 0 ? opsManagers : [input.actorId];
+
+  const syncTask = await createTask({
+    title: `Update Guesty: ${rsv.guestName} ${changes.join(', ')}`,
+    description: `Reservation ${rsv.id} (${rsv.propertyCode}) was updated in FAD. Push the new time(s) to Guesty so the channel partners see the same window.`,
+    propertyCode: rsv.propertyCode,
+    department: 'office',
+    subdepartment: 'admin',
+    priority: 'high',
+    source: 'manual',
+    assigneeIds,
+    requesterId: input.actorId,
+    dueDate: new Date().toISOString().slice(0, 10),
+    reservationId: rsv.id,
+  });
+
+  return { reservation: rsv, syncTask };
+}
+
+function formatDt(iso: string): string {
+  const d = new Date(iso);
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mm = String(d.getMinutes()).padStart(2, '0');
+  return `${m}/${day} ${hh}:${mm}`;
+}
