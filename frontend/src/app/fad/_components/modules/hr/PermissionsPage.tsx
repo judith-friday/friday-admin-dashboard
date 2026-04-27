@@ -211,60 +211,62 @@ export function PermissionsPage() {
           </div>
         )}
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-          <thead>
-            <tr style={{ background: 'var(--color-background-secondary)' }}>
-              <th
-                style={{
-                  textAlign: 'left',
-                  padding: '8px 12px',
-                  fontSize: 10,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.06em',
-                  color: 'var(--color-text-tertiary)',
-                  fontWeight: 500,
-                }}
-              >
-                Resource
-              </th>
-              {ALL_ACTIONS.map((a) => (
+        <div className="fad-permissions-matrix-scroll" style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', minWidth: 720, borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ background: 'var(--color-background-secondary)' }}>
                 <th
-                  key={a}
                   style={{
+                    textAlign: 'left',
                     padding: '8px 12px',
                     fontSize: 10,
                     textTransform: 'uppercase',
                     letterSpacing: '0.06em',
                     color: 'var(--color-text-tertiary)',
                     fontWeight: 500,
-                    width: 140,
-                    textAlign: 'left',
                   }}
                 >
-                  {a}
+                  Resource
                 </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {ALL_RESOURCES.map((r) => (
-              <tr key={r} style={{ borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
-                <td style={{ padding: '8px 12px', fontWeight: 500 }}>{RESOURCE_LABEL[r]}</td>
                 {ALL_ACTIONS.map((a) => (
-                  <td key={a} style={{ padding: '6px 12px' }}>
-                    <CellEditor
-                      role={selectedRole}
-                      resource={r}
-                      action={a}
-                      onChange={(scope) => setCell(r, a, scope)}
-                      locked={isDirector}
-                    />
-                  </td>
+                  <th
+                    key={a}
+                    style={{
+                      padding: '8px 12px',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      color: 'var(--color-text-tertiary)',
+                      fontWeight: 500,
+                      width: 140,
+                      textAlign: 'left',
+                    }}
+                  >
+                    {a}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {ALL_RESOURCES.map((r) => (
+                <tr key={r} style={{ borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
+                  <td style={{ padding: '8px 12px', fontWeight: 500 }}>{RESOURCE_LABEL[r]}</td>
+                  {ALL_ACTIONS.map((a) => (
+                    <td key={a} style={{ padding: '6px 12px' }}>
+                      <CellEditor
+                        role={selectedRole}
+                        resource={r}
+                        action={a}
+                        onChange={(scope) => setCell(r, a, scope)}
+                        locked={isDirector}
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <div style={{ marginTop: 20, fontSize: 11, color: 'var(--color-text-tertiary)' }}>
           {lastModified ? (
