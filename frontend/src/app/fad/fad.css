@@ -2671,7 +2671,10 @@ html.fad-dark .cal-popover { box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
 }
 .cal-month-head {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  /* minmax(0, 1fr) so columns can shrink below their content's max-content
+     — without it, wide stay-bands / event labels blow the cell out and
+     force the row to overflow horizontally on narrow screens. */
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   background: var(--color-background-secondary);
   border-bottom: 0.5px solid var(--color-border-tertiary);
 }
@@ -2684,7 +2687,7 @@ html.fad-dark .cal-popover { box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
 }
 .cal-month-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 .cal-month-cell {
   min-height: 88px;
@@ -5096,18 +5099,46 @@ html.fad-dark .fin-friday-flag-tag { background: rgba(0,0,0,0.25); }
   .fad-split-pane {
     flex-direction: column;
   }
-  .fad-split-pane > .fad-split-list {
+  /* Mobile slide-over: show the list OR the detail full-screen, never both.
+     Toggle by adding `.detail-open` to the parent when an item is picked.
+     Desktop is unchanged — list stays on the left, detail on the right. */
+  .fad-split-pane > .fad-split-list,
+  .fad-split-pane > .fad-split-detail {
     width: 100% !important;
     max-width: 100% !important;
     border-right: 0 !important;
-    border-bottom: 0.5px solid var(--color-border-tertiary);
-    max-height: 45vh;
-    overflow-y: auto;
-  }
-  .fad-split-pane > .fad-split-detail {
     flex: 1;
     overflow-y: auto;
   }
+  /* !important is needed because the consumer components set
+     `style={{ display: 'flex' }}` inline on the panes; CSS without
+     !important loses to inline styles. */
+  .fad-split-pane:not(.detail-open) > .fad-split-detail { display: none !important; }
+  .fad-split-pane.detail-open > .fad-split-list { display: none !important; }
+
+  /* Hidden by default; consumers render it inside `.fad-split-detail` and
+     it appears only on mobile so the user can return to the list. */
+  .fad-split-back {
+    display: none;
+  }
+}
+@media (max-width: 768px) {
+  .fad-split-back {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+    margin-bottom: 8px !important;
+  }
+}
+.fad-split-back { display: none; }
+
+/* Roster: workload preview is desktop-only context; mobile gets the
+   day-pager full-screen so it's actually usable. */
+@media (max-width: 768px) {
+  .fad-roster-pane > .fad-split-list { display: none !important; }
+  .fad-split-pane > .fad-roster-grid-desktop { display: none; }
 }
 
 /* Drawer sizing on mobile — use full viewport width */

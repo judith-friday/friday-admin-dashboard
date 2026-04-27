@@ -966,6 +966,7 @@ function ReportedIssuesPage({ onCreated }: { onCreated: (t: Task) => void }) {
   const [statusFilter, setStatusFilter] = useState<ReportedIssue['status'] | 'all'>('new');
   const [sourceFilter, setSourceFilter] = useState<ReportedIssue['source'] | 'all'>('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const visible = useMemo(() => {
     let issues = [...REPORTED_ISSUES];
@@ -977,7 +978,7 @@ function ReportedIssuesPage({ onCreated }: { onCreated: (t: Task) => void }) {
   const selected = REPORTED_ISSUES.find((i) => i.id === selectedId) ?? visible[0];
 
   return (
-    <div className="fad-split-pane">
+    <div className={'fad-split-pane' + (detailOpen ? ' detail-open' : '')}>
       <div className="fad-split-list" style={{ width: 380, borderRight: '0.5px solid var(--color-border-tertiary)', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: 12, borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 6 }}>
@@ -1010,7 +1011,7 @@ function ReportedIssuesPage({ onCreated }: { onCreated: (t: Task) => void }) {
             return (
               <button
                 key={i.id}
-                onClick={() => setSelectedId(i.id)}
+                onClick={() => { setSelectedId(i.id); setDetailOpen(true); }}
                 style={{
                   display: 'block',
                   width: '100%',
@@ -1039,6 +1040,13 @@ function ReportedIssuesPage({ onCreated }: { onCreated: (t: Task) => void }) {
       </div>
 
       <div className="fad-split-detail" style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
+        <button
+          type="button"
+          className="btn ghost sm fad-split-back"
+          onClick={() => setDetailOpen(false)}
+        >
+          ← Back to issues
+        </button>
         {selected ? (
           <IssueDetail issue={selected} onCreated={onCreated} />
         ) : (
@@ -1158,6 +1166,7 @@ function IssueDetail({ issue, onCreated }: { issue: ReportedIssue; onCreated: (t
 // ───────────────── Approvals ─────────────────
 
 function ApprovalsPage({ onAfter }: { onAfter: () => void }) {
+  const [detailOpen, setDetailOpen] = useState(false);
   const currentUserId = useCurrentUserId();
   const [statusFilter, setStatusFilter] = useState<ApprovalRequest['status'] | 'all'>('pending');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -1181,7 +1190,7 @@ function ApprovalsPage({ onAfter }: { onAfter: () => void }) {
   };
 
   return (
-    <div className="fad-split-pane">
+    <div className={'fad-split-pane' + (detailOpen ? ' detail-open' : '')}>
       <div className="fad-split-list" style={{ width: 380, borderRight: '0.5px solid var(--color-border-tertiary)', display: 'flex', flexDirection: 'column' }}>
         <div
           style={{
@@ -1216,7 +1225,7 @@ function ApprovalsPage({ onAfter }: { onAfter: () => void }) {
             return (
               <button
                 key={r.id}
-                onClick={() => setSelectedId(r.id)}
+                onClick={() => { setSelectedId(r.id); setDetailOpen(true); }}
                 style={{
                   display: 'block',
                   width: '100%',
@@ -1248,6 +1257,13 @@ function ApprovalsPage({ onAfter }: { onAfter: () => void }) {
       </div>
 
       <div className="fad-split-detail" style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
+        <button
+          type="button"
+          className="btn ghost sm fad-split-back"
+          onClick={() => setDetailOpen(false)}
+        >
+          ← Back to approvals
+        </button>
         {selected ? <ApprovalDetail req={selected} onDecide={decide} /> : <Empty>Select a request.</Empty>}
       </div>
     </div>

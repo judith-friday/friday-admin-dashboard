@@ -22,6 +22,7 @@ export function TimeOffPage() {
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('pending');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [requestDrawer, setRequestDrawer] = useState<{ kind: 'new' } | { kind: 'detail'; id: string } | null>(null);
   const [, setRev] = useState(0);
   const bumpRev = () => setRev((n) => n + 1);
@@ -43,7 +44,7 @@ export function TimeOffPage() {
   const selected = TIME_OFF_REQUESTS.find((r) => r.id === selectedId) ?? visible[0];
 
   return (
-    <div className="fad-split-pane">
+    <div className={'fad-split-pane' + (detailOpen ? ' detail-open' : '')}>
       {/* Left list */}
       <div className="fad-split-list" style={{ width: 380, borderRight: '0.5px solid var(--color-border-tertiary)', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: 12, borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
@@ -73,7 +74,7 @@ export function TimeOffPage() {
             return (
               <button
                 key={r.id}
-                onClick={() => setSelectedId(r.id)}
+                onClick={() => { setSelectedId(r.id); setDetailOpen(true); }}
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
@@ -153,6 +154,13 @@ export function TimeOffPage() {
 
       {/* Right detail */}
       <div className="fad-split-detail" style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
+        <button
+          type="button"
+          className="btn ghost sm fad-split-back"
+          onClick={() => setDetailOpen(false)}
+        >
+          ← Back to time-off
+        </button>
         {selected ? (
           <TimeOffDetail
             req={selected}

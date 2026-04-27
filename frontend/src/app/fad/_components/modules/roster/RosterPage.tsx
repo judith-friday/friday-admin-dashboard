@@ -151,7 +151,7 @@ export function RosterPage() {
         </span>
       </div>
 
-      <div className="fad-split-pane" style={{ overflow: 'auto' }}>
+      <div className="fad-split-pane fad-roster-pane" style={{ overflow: 'auto' }}>
         {/* Left pane — workload preview */}
         <div
           className="fad-split-list"

@@ -36,6 +36,7 @@ export function StaffPage() {
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('all');
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<{ kind: 'create' } | { kind: 'edit'; userId: string } | null>(null);
   const [, setRev] = useState(0);
   const bumpRev = () => setRev((n) => n + 1);
@@ -66,7 +67,7 @@ export function StaffPage() {
   const selected = TASK_USERS.find((u) => u.id === selectedId) ?? visibleStaff[0];
 
   return (
-    <div className="fad-split-pane">
+    <div className={'fad-split-pane' + (detailOpen ? ' detail-open' : '')}>
       {/* Left list */}
       <div className="fad-split-list" style={{ width: 360, borderRight: '0.5px solid var(--color-border-tertiary)', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: 12, borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
@@ -111,7 +112,7 @@ export function StaffPage() {
             return (
               <button
                 key={u.id}
-                onClick={() => setSelectedId(u.id)}
+                onClick={() => { setSelectedId(u.id); setDetailOpen(true); }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -187,6 +188,13 @@ export function StaffPage() {
 
       {/* Right detail */}
       <div className="fad-split-detail" style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
+        <button
+          type="button"
+          className="btn ghost sm fad-split-back"
+          onClick={() => setDetailOpen(false)}
+        >
+          ← Back to staff
+        </button>
         {selected ? (
           <StaffDetail
             user={selected}

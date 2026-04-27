@@ -44,6 +44,7 @@ export function PermissionsPage() {
   const { realRole } = usePermissions();
   const currentUserId = useCurrentUserId();
   const [selectedRole, setSelectedRole] = useState<Role>('field');
+  const [detailOpen, setDetailOpen] = useState(false);
   const [, setRev] = useState(0);
   const bumpRev = () => setRev((n) => n + 1);
   const [lastModified, setLastModified] = useState<{ at: string; by: string; role: Role } | null>(null);
@@ -107,7 +108,7 @@ export function PermissionsPage() {
   const isDirector = selectedRole === 'director';
 
   return (
-    <div className="fad-split-pane">
+    <div className={'fad-split-pane' + (detailOpen ? ' detail-open' : '')}>
       {/* Left: role selector */}
       <div
         className="fad-split-list"
@@ -126,7 +127,7 @@ export function PermissionsPage() {
           return (
             <button
               key={r}
-              onClick={() => setSelectedRole(r)}
+              onClick={() => { setSelectedRole(r); setDetailOpen(true); }}
               style={{
                 display: 'flex',
                 width: '100%',
@@ -171,6 +172,13 @@ export function PermissionsPage() {
 
       {/* Right: matrix */}
       <div className="fad-split-detail" style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
+        <button
+          type="button"
+          className="btn ghost sm fad-split-back"
+          onClick={() => setDetailOpen(false)}
+        >
+          ← Back to roles
+        </button>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16, gap: 12 }}>
           <h2 style={{ margin: 0, fontSize: 18, fontWeight: 500 }}>
             Permissions for {ROLE_LABEL[selectedRole]}
