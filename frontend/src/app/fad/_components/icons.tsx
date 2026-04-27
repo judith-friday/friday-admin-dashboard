@@ -1,6 +1,6 @@
-import type { SVGProps } from 'react';
+import type { SVGProps, ReactElement } from 'react';
 
-type IconProps = SVGProps<SVGSVGElement> & { size?: number; stroke?: number };
+type IconProps = Omit<SVGProps<SVGSVGElement>, 'stroke'> & { size?: number; stroke?: number };
 
 const Icon = ({ children, size = 16, stroke = 1.5, ...rest }: IconProps & { children: React.ReactNode }) => (
   <svg
@@ -68,7 +68,7 @@ export const IconDownload = (p: IconProps) => <Icon {...p}><path d="M8 2v9M4 8l4
 export const IconClock = (p: IconProps) => <Icon {...p}><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 2"/></Icon>;
 export const IconGlobe = (p: IconProps) => <Icon {...p}><circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c2 2 2 10 0 12M8 2c-2 2-2 10 0 12"/></Icon>;
 
-export const ICON_MAP: Record<string, (p: IconProps) => JSX.Element> = {
+export const ICON_MAP: Record<string, (p: IconProps) => ReactElement> = {
   IconInbox, IconTasks, IconCal, IconReviews, IconProp, IconOps,
   IconFinance, IconLegal, IconGuests, IconOwners, IconMkt, IconLeads,
   IconIntel, IconSyndic, IconInterior, IconAgency, IconSettings,

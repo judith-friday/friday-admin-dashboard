@@ -400,10 +400,7 @@ function FinanceOverview({ onResumeClose }: { onResumeClose: () => void }) {
             </div>
             <button
               className="btn ghost sm"
-              onClick={() =>
-                window.history.pushState(null, '', '/fad?m=finance&sub=approvals') ||
-                window.location.assign('/fad?m=finance&sub=approvals')
-              }
+              onClick={() => window.location.assign('/fad?m=finance&sub=approvals')}
             >
               Open inbox <IconArrow size={10} />
             </button>
@@ -681,10 +678,10 @@ function FinanceApprovals() {
   });
 
   const selected = filtered.find((e) => e.id === selectedId) || filtered[0];
-  const approval = selected ? FIN_APPROVALS.find((a) => a.expenseId === selected.id) : null;
+  const approval = selected ? FIN_APPROVALS.find((a) => a.expenseId === selected.id) : undefined;
   const owner = selected?.propertyCode
     ? FIN_OWNERS.find((o) => o.id === FIN_PROPERTIES.find((p) => p.code === selected.propertyCode)?.ownerId)
-    : null;
+    : undefined;
 
   return (
     <div className="fin-approvals-split">
