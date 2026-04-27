@@ -746,6 +746,13 @@ function ReservationPanel({ reservationId }: { reservationId: string }) {
           {rsv.notes}
         </div>
       )}
+      <button
+        className="btn ghost sm"
+        style={{ alignSelf: 'flex-start', marginTop: 4 }}
+        onClick={() => window.location.assign(`/fad?m=reservations&sub=overview&rsv=${rsv.id}`)}
+      >
+        Open reservation →
+      </button>
     </div>
   );
 }

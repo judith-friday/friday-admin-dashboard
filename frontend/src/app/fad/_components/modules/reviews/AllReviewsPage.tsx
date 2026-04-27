@@ -318,14 +318,28 @@ function ReviewDetail({
 
       {/* Reservation chip */}
       {reservation && (
-        <div className="card" style={{ padding: 10, marginBottom: 12 }}>
+        <button
+          type="button"
+          className="card"
+          onClick={() => window.location.assign(`/fad?m=reservations&sub=overview&rsv=${reservation.id}`)}
+          title="Open reservation detail"
+          style={{
+            padding: 10,
+            marginBottom: 12,
+            width: '100%',
+            textAlign: 'left',
+            cursor: 'pointer',
+            font: 'inherit',
+            color: 'inherit',
+          }}
+        >
           <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
             Linked stay
           </div>
           <div style={{ fontSize: 12 }}>
             🛏 <span className="mono">{reservation.id}</span> · {reservation.guestName} · {reservation.nights} nts
           </div>
-        </div>
+        </button>
       )}
 
       {/* Staff attribution */}

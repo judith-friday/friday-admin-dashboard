@@ -1578,8 +1578,20 @@ function StayPopover({
               </button>
             </div>
             <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-              <button className="btn sm">Open reservation</button>
-              <button className="btn ghost sm">Linked tasks</button>
+              <button
+                className="btn sm"
+                onClick={() => window.location.assign(`/fad?m=reservations&sub=overview&rsv=${rsv.id}`)}
+              >
+                Open reservation
+              </button>
+              <button
+                className="btn ghost sm"
+                onClick={() =>
+                  window.location.assign(`/fad?m=operations&sub=all&rsv=${rsv.id}`)
+                }
+              >
+                Linked tasks
+              </button>
             </div>
           </>
         )}

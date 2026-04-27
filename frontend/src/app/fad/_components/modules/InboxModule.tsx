@@ -692,7 +692,12 @@ export function InboxModule({ onAskFriday }: Props) {
 
 function ThreadReservationChip({ reservation }: { reservation: Reservation }) {
   return (
-    <div
+    <button
+      type="button"
+      onClick={() =>
+        window.location.assign(`/fad?m=reservations&sub=overview&rsv=${reservation.id}`)
+      }
+      title="Open reservation detail"
       style={{
         marginTop: 8,
         border: '0.5px solid var(--color-border-tertiary)',
@@ -704,6 +709,11 @@ function ThreadReservationChip({ reservation }: { reservation: Reservation }) {
         alignItems: 'center',
         gap: 8,
         fontSize: 12,
+        width: '100%',
+        textAlign: 'left',
+        cursor: 'pointer',
+        font: 'inherit',
+        color: 'inherit',
       }}
     >
       <span className="mono" style={{ fontWeight: 500 }}>🛏 {reservation.id}</span>
@@ -727,7 +737,7 @@ function ThreadReservationChip({ reservation }: { reservation: Reservation }) {
       <span style={{ color: 'var(--color-text-tertiary)', marginLeft: 'auto', fontSize: 11 }}>
         {CHANNEL_LABEL[reservation.channel]}
       </span>
-    </div>
+    </button>
   );
 }
 
