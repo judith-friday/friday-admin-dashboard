@@ -238,19 +238,23 @@ export function pendingFinanceApprovals(role: Role): PendingCount {
 
 const ROSTER_ACK_KEY = 'fad:roster-ack';
 
-export function rosterAckedWeek(weekId: string): boolean {
+/** Roster ack stores the publishedAt that was acknowledged. A re-publish bumps
+ *  publishedAt and the badge re-surfaces until the user visits again. */
+export function rosterAckedFor(weekId: string, publishedAt: string | undefined): boolean {
   if (typeof window === 'undefined') return true;
+  if (!publishedAt) return false;
   try {
-    return window.localStorage.getItem(`${ROSTER_ACK_KEY}:${weekId}`) === '1';
+    const stored = window.localStorage.getItem(`${ROSTER_ACK_KEY}:${weekId}`);
+    return stored === publishedAt;
   } catch {
     return false;
   }
 }
 
-export function ackRosterWeek(weekId: string): void {
-  if (typeof window === 'undefined') return;
+export function ackRosterWeek(weekId: string, publishedAt: string | undefined): void {
+  if (typeof window === 'undefined' || !publishedAt) return;
   try {
-    window.localStorage.setItem(`${ROSTER_ACK_KEY}:${weekId}`, '1');
+    window.localStorage.setItem(`${ROSTER_ACK_KEY}:${weekId}`, publishedAt);
   } catch {
     // ignore
   }
@@ -260,7 +264,7 @@ export function pendingRoster(role: Role, _userId: string): PendingCount {
   if (role === 'external') return ZERO;
   const thisWeek = ROSTERS.find((r) => (r as any).status === 'published' && (r as any).weekStart <= TODAY && (r as any).weekEnd >= TODAY);
   if (!thisWeek) return ZERO;
-  if (rosterAckedWeek((thisWeek as any).id ?? 'this')) return ZERO;
+  if (rosterAckedFor((thisWeek as any).id ?? 'this', (thisWeek as any).publishedAt)) return ZERO;
   return { total: 1, tone: 'normal' };
 }
 

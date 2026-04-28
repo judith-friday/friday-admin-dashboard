@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ModuleHeader } from '../ModuleHeader';
 import { useCurrentRole } from '../usePermissions';
+import { SavedRepliesImport } from './properties/SavedRepliesImport';
 
 interface Props {
   theme: 'light' | 'dark';
@@ -147,12 +148,25 @@ function Team() {
 }
 
 function Integrations() {
+  const [importOpen, setImportOpen] = useState(false);
   return (
     <div className="card settings-section">
       <h3 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 500 }}>Integrations</h3>
       <p style={{ margin: '0 0 16px', color: 'var(--color-text-tertiary)', fontSize: 13 }}>
         Connected services. Google is per-user — each teammate links their own account.
       </p>
+
+      <div className="settings-row" style={{ alignItems: 'flex-start', flexDirection: 'column', gap: 8, paddingBottom: 16, borderBottom: '0.5px solid var(--color-border-tertiary)', marginBottom: 12 }}>
+        <div>
+          <h5>Guesty saved replies → Property Cards</h5>
+          <p>One-time portfolio-wide migration · imports every per-listing + cross-listing reply as a Property Card. Per-property imports also live in each property's Operational tab.</p>
+        </div>
+        <button className="btn ghost sm" onClick={() => setImportOpen(true)}>
+          ↓ Run portfolio import
+        </button>
+      </div>
+      {importOpen && <SavedRepliesImport onClose={() => setImportOpen(false)} />}
+
       {[
         { name: 'Google (Gmail · Drive · Calendar)', status: 'Connected · Ishant', meta: 'Per-user · attribution preserved' },
         { name: 'Guesty', status: 'Connected', meta: 'Channel manager · reservations + threads' },

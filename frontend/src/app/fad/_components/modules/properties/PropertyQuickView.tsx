@@ -22,17 +22,28 @@ interface ChipProps {
 
 /** Click target that opens an inline PropertyQuickView popover. Use anywhere
  *  a property cross-reference appears (Reservation detail / Operations
- *  TaskDetail / Reviews row / etc.). The popover anchors near the trigger. */
+ *  TaskDetail / Reviews row / etc.). The popover anchors near the trigger
+ *  on desktop, becomes a centered modal on mobile. */
 export function PropertyChip({ code, children, className, style }: ChipProps) {
   const [open, setOpen] = useState(false);
   const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const ref = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const check = () => setIsMobile(typeof window !== 'undefined' && window.innerWidth <= 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (ref.current) {
+    if (ref.current && !isMobile) {
       const r = ref.current.getBoundingClientRect();
       setAnchor({ x: r.left, y: r.bottom + 4 });
+    } else {
+      setAnchor(null);
     }
     setOpen(true);
   };
@@ -57,8 +68,79 @@ export function PropertyChip({ code, children, className, style }: ChipProps) {
       >
         {children ?? <span className="mono">{code}</span>}
       </button>
-      {open && anchor && <PropertyQuickView code={code} x={anchor.x} y={anchor.y} onClose={() => setOpen(false)} />}
+      {open && (
+        anchor
+          ? <PropertyQuickView code={code} x={anchor.x} y={anchor.y} onClose={() => setOpen(false)} />
+          : <PropertyQuickViewModal code={code} onClose={() => setOpen(false)} />
+      )}
     </>
+  );
+}
+
+/** Centered-modal variant for mobile (no x/y anchor — viewport-centered). */
+function PropertyQuickViewModal({ code, onClose }: { code: string; onClose: () => void }) {
+  const property = PROPERTY_BY_CODE[code];
+
+  if (!property) {
+    return (
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+        <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: 320, padding: 16 }}>
+          Property <span className="mono">{code}</span> not found.
+        </div>
+      </div>
+    );
+  }
+
+  const badge = lifecycleBadge(property);
+  const ownerName = FIN_OWNERS.find((o) => o.id === property.primaryOwnerId)?.name ?? property.primaryOwnerId;
+  const openFull = () => { window.location.href = `/fad?m=properties&sub=overview&p=${property.code}`; };
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: 360, maxWidth: '95vw',
+          background: 'var(--color-background-primary)',
+          borderRadius: 'var(--radius-md)',
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{
+          aspectRatio: '16 / 6',
+          background: 'radial-gradient(ellipse at 30% 30%, rgba(86,128,202,0.3), transparent 60%), linear-gradient(135deg, var(--color-brand-navy), #1a2855)',
+          position: 'relative',
+        }}>
+          <span className="mono" style={{ position: 'absolute', top: 8, left: 10, fontSize: 10, color: 'rgba(255,255,255,0.7)' }}>{property.code}</span>
+          <span className={`chip sm ${badge.tone === 'success' ? 'info' : badge.tone === 'warning' ? 'warn' : ''}`}
+            style={{ position: 'absolute', top: 6, right: 6, fontSize: 9 }}>
+            {badge.label}
+          </span>
+        </div>
+        <div style={{ padding: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, marginBottom: 2 }}>{property.name}</div>
+          <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 12 }}>
+            {COHORT_LABEL[property.region]} · {ownerName}
+          </div>
+          <div style={{ display: 'flex', gap: 14, fontSize: 11, marginBottom: 12, flexWrap: 'wrap' }}>
+            <Stat label="Occ 90d" value={property.occupancy90d > 0 ? `${Math.round(property.occupancy90d * 100)}%` : '—'} />
+            <Stat label="ADR" value={property.adr > 0 ? `€${property.adr}` : '—'} />
+            {property.rating > 0 && <Stat label="Rating" value={`★ ${property.rating.toFixed(2)}`} />}
+            <Stat label="Beds" value={property.bedrooms === 0 ? 'Studio' : property.bedrooms.toString()} />
+          </div>
+          <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+            <button className="btn ghost sm" onClick={onClose}>Close</button>
+            <button className="btn primary sm" onClick={openFull}>Open full →</button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 

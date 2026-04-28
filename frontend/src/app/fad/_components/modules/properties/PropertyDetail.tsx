@@ -26,6 +26,7 @@ import { PhotoGallery } from './PhotoGallery';
 import { AmenityMatrix } from './AmenityMatrix';
 import { ListingPushFlow } from './ListingPushFlow';
 import { PropertyTasksTab } from './PropertyTasksTab';
+import { SavedRepliesImport } from './SavedRepliesImport';
 import { setBaseDescription, setChannelDescription, listingRecommendations, type ListingChannel } from '../../../_data/properties';
 
 interface Props {
@@ -123,7 +124,7 @@ function PropertyDetailHeader({ property, onClose }: { property: Property; onClo
   return (
     <div style={{ padding: 20, borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-        <button className="btn ghost sm" onClick={onClose}>← Close</button>
+        <button className="btn ghost sm" onClick={onClose}>← Back</button>
         <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>
           Last activity: {property.lastActivityAt}
         </span>
@@ -404,6 +405,9 @@ function OwnerTab({ property, role }: { property: Property; role: string }) {
 // ───────────────── Tab: Operational ─────────────────
 
 function OperationalTab({ property, role }: { property: Property; role: string }) {
+  const [, setRev] = useState(0);
+  const bump = () => setRev((n) => n + 1);
+  const [importOpen, setImportOpen] = useState(false);
   const cards = useMemo(() => cardsForProperty(property.id, { includeGlobal: true }), [property.id]);
   const cardsByCategory = useMemo(() => {
     const map: Partial<Record<PropertyCardCategory, PropertyCard[]>> = {};
@@ -417,10 +421,28 @@ function OperationalTab({ property, role }: { property: Property; role: string }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <Section title="Property Cards · AI-knowledge surface">
-        <p style={{ margin: '0 0 12px', fontSize: 12, color: 'var(--color-text-tertiary)' }}>
-          {cards.length} card{cards.length === 1 ? '' : 's'} · 8 categories · consumed by Ask Friday for guest / cleaner / team queries.
-        </p>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}>
+          <p style={{ margin: 0, fontSize: 12, color: 'var(--color-text-tertiary)', flex: 1 }}>
+            {cards.length} card{cards.length === 1 ? '' : 's'} · 8 categories · consumed by Ask Friday for guest / cleaner / team queries.
+          </p>
+          {role !== 'field' && (
+            <button
+              className="btn ghost sm"
+              onClick={() => setImportOpen(true)}
+              title={`Import this property's Guesty saved replies as Property Cards`}
+              style={{ flexShrink: 0 }}
+            >
+              ↓ Import Guesty replies
+            </button>
+          )}
+        </div>
         <AiCardSuggestion property={property} />
+        {importOpen && (
+          <SavedRepliesImport
+            propertyCode={property.code}
+            onClose={() => { setImportOpen(false); bump(); }}
+          />
+        )}
 
         {Object.entries(PROPERTY_CARD_CATEGORY_LABEL).map(([cat, catLabel]) => {
           const items = cardsByCategory[cat as PropertyCardCategory] ?? [];

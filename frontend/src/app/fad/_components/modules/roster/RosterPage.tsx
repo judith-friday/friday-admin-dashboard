@@ -59,11 +59,12 @@ export function RosterPage() {
   const editable = canEdit && !isPublished && !isPast;
 
   // Acknowledge the current-week roster on mount so the sidebar pending dot
-  // disappears once the user has actually looked at it.
+  // disappears once the user has actually looked at it. Ack is keyed to the
+  // publishedAt — a re-publish re-surfaces the badge.
   useEffect(() => {
     const thisWeek = ROSTERS.find((r) => r.status === 'published' && r.weekStart <= TODAY && r.weekEnd >= TODAY);
     if (thisWeek) {
-      ackRosterWeek(thisWeek.id);
+      ackRosterWeek(thisWeek.id, thisWeek.publishedAt);
       bumpPendingRev();
     }
   }, []);
