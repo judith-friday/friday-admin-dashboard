@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import {
   artifactsForProperty,
-  ONBOARDING_REQUIRED,
-  ONBOARDING_LABEL,
   type Property,
   type OnboardingArtifact,
   type GapAnalysisArtifact,
@@ -310,18 +308,41 @@ function ListingSetupDetail({ artifact }: { artifact: ListingSetupArtifact }) {
   );
 }
 
-/** Small read-only checklist roll-up — used elsewhere if needed. */
+/** Compact 11-row roll-up matching the expanded view 1:1. Reads each
+ *  artifact's status from the fixture (falls back to checklist map). The
+ *  3 listing-related checklist items (listing_airbnb / listing_friday_mu /
+ *  base_price) fold into the Listing Setup artifact row to match the
+ *  expanded artifact list. */
 export function ChecklistRollup({ property }: { property: Property }) {
+  const artifacts = artifactsForProperty(property.id);
+  const byType = new Map(artifacts.map((a) => [a.type, a]));
+
+  const statusFor = (type: OnboardingArtifact['type']): ChecklistItemStatus => {
+    const a = byType.get(type);
+    if (a?.status) return a.status;
+    // Listing Setup folds 3 checklist gates
+    if (type === 'listing_setup') {
+      const keys: (keyof typeof property.onboardingChecklist)[] = ['listing_airbnb', 'listing_friday_mu', 'base_price'];
+      const statuses = keys.map((k) => property.onboardingChecklist[k] ?? 'not_started');
+      if (statuses.every((s) => s === 'complete')) return 'complete';
+      if (statuses.some((s) => s === 'in_progress' || s === 'complete')) return 'in_progress';
+      return 'not_started';
+    }
+    // Otherwise read from same-named checklist key
+    const key = type as keyof typeof property.onboardingChecklist;
+    return property.onboardingChecklist[key] ?? 'not_started';
+  };
+
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 6, fontSize: 11 }}>
-      {ONBOARDING_REQUIRED.map((k) => {
-        const status = property.onboardingChecklist[k] ?? 'not_started';
+      {ARTIFACT_ORDER.map((type) => {
+        const status = statusFor(type);
         const symbol = status === 'complete' ? '✓' : status === 'in_progress' ? '◐' : '○';
         const color = status === 'complete' ? 'var(--color-text-success)' : status === 'in_progress' ? 'var(--color-brand-accent)' : 'var(--color-text-tertiary)';
         return (
-          <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 5, color }}>
+          <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 5, color }}>
             <span>{symbol}</span>
-            <span style={{ color: 'var(--color-text-secondary)' }}>{ONBOARDING_LABEL[k]}</span>
+            <span style={{ color: 'var(--color-text-secondary)' }}>{ARTIFACT_LABELS[type]}</span>
           </div>
         );
       })}
