@@ -1,6 +1,6 @@
 'use client';
 
-import type { MouseEvent } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import {
   IconBell,
   IconBook,
@@ -16,9 +16,19 @@ import {
   IconTool,
 } from './icons';
 import { RoleSwitcher } from './PermissionGate';
-import { usePermissions } from './usePermissions';
+import { usePermissions, useCurrentUserId } from './usePermissions';
 import { TASK_USER_BY_ID } from '../_data/tasks';
 import { ROLE_LABEL } from '../_data/permissions';
+import {
+  topNotifications,
+  unreadCount,
+  isRead,
+  markRead,
+  markAllRead,
+  allNotifications,
+  subscribeNotifications,
+  type Notification,
+} from '../_data/notifications';
 
 interface Props {
   onOpenPalette: () => void;
@@ -51,8 +61,16 @@ export function Header({
   onOpenAvatar,
   avatarOpen,
 }: Props) {
-  const { currentUserId } = usePermissions();
+  const { currentUserId, role } = usePermissions();
   const currentUser = TASK_USER_BY_ID[currentUserId];
+
+  // Subscribe to notifications-rev so the bell dot updates reactively
+  const [, setNotifRev] = useState(0);
+  useEffect(() => subscribeNotifications(setNotifRev), []);
+
+  const counts = unreadCount(role, currentUserId);
+  const dotTone = counts.urgent > 0 ? 'urgent' : counts.total > 0 ? 'unread' : 'none';
+
   return (
     <header className="fad-header">
       <div className="fad-brand">
@@ -107,12 +125,19 @@ export function Header({
           <button
             className={'fad-util-btn' + (bellOpen ? ' active' : '')}
             onClick={onOpenBell}
-            title="Notifications"
+            title={counts.total > 0 ? `Notifications · ${counts.total} unread${counts.urgent > 0 ? ` · ${counts.urgent} urgent` : ''}` : 'Notifications'}
           >
             <IconBell />
-            <span className="fad-util-dot" />
+            {dotTone !== 'none' && (
+              <span className={'fad-util-dot' + (dotTone === 'urgent' ? ' urgent' : ' unread')} />
+            )}
+            {counts.total > 0 && (
+              <span className={'fad-bell-count' + (counts.urgent > 0 ? ' urgent' : '')}>
+                {counts.total > 99 ? '99+' : counts.total}
+              </span>
+            )}
           </button>
-          {bellOpen && <NotificationsDropdown />}
+          {bellOpen && <NotificationsDropdown role={role} userId={currentUserId} />}
         </div>
         <div style={{ position: 'relative' }}>
           <button
@@ -147,27 +172,138 @@ export function Header({
   );
 }
 
-function NotificationsDropdown() {
-  const items = [
-    { t: 'Thibault Marchand replied', s: 'Villa Azur — transfer confirmation', time: '08:14' },
-    { t: 'Payout settled', s: 'Airbnb batch · €48,220', time: '07:30' },
-    { t: 'Breezeway invoice due', s: 'Apr cleaner run · €4,320', time: 'Wed' },
-    { t: 'Owner agreement renewal', s: 'Harrington · Blue Bay House', time: 'Tue' },
-  ];
+type NotifFilter = 'all' | 'unread' | 'mentions';
+
+function NotificationsDropdown({ role, userId }: { role: ReturnType<typeof usePermissions>['role']; userId: string }) {
+  const [filter, setFilter] = useState<NotifFilter>('unread');
+  const [aiSort, setAiSort] = useState(true);
+  const [, setRev] = useState(0);
+  useEffect(() => subscribeNotifications(setRev), []);
+
+  const all = allNotifications(role, userId);
+  const filtered = all.filter((n) => {
+    if (filter === 'unread') return !isRead(n.id);
+    if (filter === 'mentions') return n.isMention;
+    return true;
+  });
+
+  const visible = aiSort
+    ? [...filtered].sort((a, b) => (b.aiPriority ?? 0) - (a.aiPriority ?? 0))
+    : [...filtered].sort((a, b) => (a.ts < b.ts ? 1 : -1));
+
+  const top = visible.slice(0, 8);
+
+  const handleMarkAllRead = (e: MouseEvent) => {
+    e.stopPropagation();
+    markAllRead(all);
+  };
+
   return (
-    <div className="fad-dropdown" style={{ width: 320 }}>
-      <div className="fad-dropdown-header">Notifications</div>
-      {items.map((it, i) => (
-        <button className="fad-dropdown-item" key={i}>
-          <span className="dot accent" />
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 500 }}>{it.t}</div>
-            <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>{it.s}</div>
-          </span>
-          <span className="meta">{it.time}</span>
+    <div className="fad-dropdown fad-notif-dropdown" style={{ width: 380 }}>
+      <div className="fad-dropdown-header" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ flex: 1 }}>Notifications</span>
+        <button
+          className="fad-notif-action"
+          onClick={() => setAiSort(!aiSort)}
+          title={aiSort ? 'Switch to chronological' : 'Switch to AI priority'}
+        >
+          {aiSort ? '✨ AI' : 'Recent'}
         </button>
-      ))}
+        <button className="fad-notif-action" onClick={handleMarkAllRead}>Mark all read</button>
+      </div>
+
+      {/* Filter chips */}
+      <div className="fad-notif-filters">
+        <FilterChip label="All" count={all.length} active={filter === 'all'} onClick={() => setFilter('all')} />
+        <FilterChip label="Unread" count={all.filter((n) => !isRead(n.id)).length} active={filter === 'unread'} onClick={() => setFilter('unread')} />
+        <FilterChip label="@mentions" count={all.filter((n) => n.isMention).length} active={filter === 'mentions'} onClick={() => setFilter('mentions')} />
+      </div>
+
+      {/* List */}
+      <div className="fad-notif-list">
+        {top.length === 0 ? (
+          <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-text-tertiary)', fontSize: 12 }}>
+            {filter === 'unread' ? 'All caught up · no unread.' : 'No notifications.'}
+          </div>
+        ) : (
+          top.map((n) => <NotifRow key={n.id} notif={n} aiSort={aiSort} />)
+        )}
+      </div>
+
+      {/* Footer */}
+      {filtered.length > top.length && (
+        <button className="fad-notif-viewall" onClick={() => alert('Full-screen view ships next session — N-3.')}>
+          View all {filtered.length} →
+        </button>
+      )}
     </div>
+  );
+}
+
+function FilterChip({ label, count, active, onClick }: { label: string; count: number; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={'fad-notif-filter' + (active ? ' active' : '')}
+    >
+      {label} <span style={{ opacity: 0.7 }}>{count}</span>
+    </button>
+  );
+}
+
+function NotifRow({ notif, aiSort }: { notif: Notification; aiSort: boolean }) {
+  const read = isRead(notif.id);
+  const handleClick = () => {
+    markRead(notif.id);
+    if (notif.href) {
+      window.location.href = notif.href;
+    }
+  };
+  const handleToggleRead = (e: MouseEvent) => {
+    e.stopPropagation();
+    if (read) {
+      // Re-mark as unread
+      const set = new Set([...JSON.parse(localStorage.getItem('fad:notif-read') || '[]')]);
+      set.delete(notif.id);
+      localStorage.setItem('fad:notif-read', JSON.stringify([...set]));
+      window.dispatchEvent(new Event('storage'));
+    } else {
+      markRead(notif.id);
+    }
+  };
+
+  const tone = notif.severity === 'urgent' ? 'urgent' : notif.severity === 'warn' ? 'warn' : '';
+
+  return (
+    <button
+      className={'fad-notif-row' + (read ? ' read' : '') + ` ${tone}`}
+      onClick={handleClick}
+      title={aiSort && notif.aiReason ? `Ranked: ${notif.aiReason}` : notif.title}
+    >
+      <span className={'fad-notif-dot ' + tone} />
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+          {notif.isMention && <span className="fad-notif-mention">@</span>}
+          {aiSort && notif.aiPriority && notif.aiPriority > 0.7 && <span style={{ fontSize: 10, color: 'var(--color-brand-accent)' }}>✨</span>}
+          <span style={{ fontWeight: read ? 400 : 500, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {notif.title}
+          </span>
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {notif.body}
+        </div>
+        <div style={{ fontSize: 9, color: 'var(--color-text-tertiary)', marginTop: 3, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          {notif.module} · {notif.ts.slice(5, 16).replace('T', ' ')}
+        </div>
+      </span>
+      <button
+        onClick={handleToggleRead}
+        className="fad-notif-toggle"
+        title={read ? 'Mark unread' : 'Mark read'}
+      >
+        {read ? '○' : '●'}
+      </button>
+    </button>
   );
 }
 
