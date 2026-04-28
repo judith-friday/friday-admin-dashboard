@@ -93,7 +93,87 @@ export interface ListingRecord {
   status: 'active' | 'paused' | 'unavailable' | 'pending';
   /** Per-channel commission % override (read-only Phase 1). */
   commissionPct?: number;
+  /** Per-channel description override. Empty = use property base description. */
+  description?: string;
+  /** Last successful push to this channel — Phase 2 write-through tracking. */
+  lastPushedAt?: string;
 }
+
+// ───────────────── Amenities (Phase 2 — per-property matrix) ─────────────────
+
+export type Amenity =
+  | 'wifi' | 'ac' | 'pool' | 'pool_heated' | 'jacuzzi' | 'sauna'
+  | 'kitchen' | 'dishwasher' | 'washer' | 'dryer' | 'oven' | 'microwave' | 'coffee_machine'
+  | 'tv' | 'sound_system'
+  | 'parking_free' | 'parking_paid' | 'ev_charger'
+  | 'beachfront' | 'sea_view' | 'garden' | 'bbq' | 'outdoor_dining'
+  | 'family_friendly' | 'baby_cot' | 'high_chair' | 'pet_friendly'
+  | 'workspace' | 'gym' | 'concierge' | 'security' | 'elevator';
+
+export const AMENITY_GROUPS: { label: string; items: { key: Amenity; label: string }[] }[] = [
+  {
+    label: 'Essentials',
+    items: [
+      { key: 'wifi', label: 'Wifi' },
+      { key: 'ac', label: 'Air conditioning' },
+      { key: 'kitchen', label: 'Kitchen' },
+      { key: 'workspace', label: 'Workspace' },
+    ],
+  },
+  {
+    label: 'Pool & Outdoor',
+    items: [
+      { key: 'pool', label: 'Pool' },
+      { key: 'pool_heated', label: 'Heated pool' },
+      { key: 'jacuzzi', label: 'Jacuzzi' },
+      { key: 'sauna', label: 'Sauna' },
+      { key: 'beachfront', label: 'Beachfront' },
+      { key: 'sea_view', label: 'Sea view' },
+      { key: 'garden', label: 'Garden' },
+      { key: 'bbq', label: 'BBQ' },
+      { key: 'outdoor_dining', label: 'Outdoor dining' },
+    ],
+  },
+  {
+    label: 'Kitchen & Laundry',
+    items: [
+      { key: 'dishwasher', label: 'Dishwasher' },
+      { key: 'washer', label: 'Washer' },
+      { key: 'dryer', label: 'Dryer' },
+      { key: 'oven', label: 'Oven' },
+      { key: 'microwave', label: 'Microwave' },
+      { key: 'coffee_machine', label: 'Coffee machine' },
+    ],
+  },
+  {
+    label: 'Entertainment',
+    items: [
+      { key: 'tv', label: 'TV' },
+      { key: 'sound_system', label: 'Sound system' },
+    ],
+  },
+  {
+    label: 'Family & Pets',
+    items: [
+      { key: 'family_friendly', label: 'Family-friendly' },
+      { key: 'baby_cot', label: 'Baby cot' },
+      { key: 'high_chair', label: 'High chair' },
+      { key: 'pet_friendly', label: 'Pet-friendly' },
+    ],
+  },
+  {
+    label: 'Building',
+    items: [
+      { key: 'parking_free', label: 'Free parking' },
+      { key: 'parking_paid', label: 'Paid parking' },
+      { key: 'ev_charger', label: 'EV charger' },
+      { key: 'gym', label: 'Gym' },
+      { key: 'concierge', label: 'Concierge' },
+      { key: 'security', label: '24/7 security' },
+      { key: 'elevator', label: 'Elevator' },
+    ],
+  },
+];
 
 // ───────────────── Property type ─────────────────
 
@@ -172,6 +252,10 @@ export interface Property {
 
   // Tags + filters
   tags: string[];
+  /** Per-property amenity set. Phase 1 derived from common defaults; Phase 2 editable. */
+  amenities?: Amenity[];
+  /** Base property description (channel descriptions live on ListingRecord). */
+  description?: string;
 
   // Syndic relationship
   /** True if Friday acts as the syndicate (e.g. Grand Beehive). */
@@ -981,6 +1065,69 @@ export function removePhoto(propertyId: string, photoId: string): void {
   const idx = PROPERTY_PHOTOS.findIndex((ph) => ph.id === photoId);
   if (idx >= 0) PROPERTY_PHOTOS.splice(idx, 1);
   delete PHOTO_BY_ID[photoId];
+}
+
+// ───────────────── Description + amenity + listing-push helpers (Phase 2) ─────────────────
+
+export function setBaseDescription(propertyId: string, description: string): void {
+  const p = PROPERTY_BY_ID[propertyId];
+  if (!p) return;
+  p.description = description;
+}
+
+export function setChannelDescription(propertyId: string, channel: ListingChannel, description: string): void {
+  const p = PROPERTY_BY_ID[propertyId];
+  if (!p) return;
+  const listing = p.listings.find((l) => l.channel === channel);
+  if (!listing) return;
+  listing.description = description;
+}
+
+export function toggleAmenity(propertyId: string, amenity: Amenity): void {
+  const p = PROPERTY_BY_ID[propertyId];
+  if (!p) return;
+  const set = new Set(p.amenities ?? []);
+  if (set.has(amenity)) set.delete(amenity); else set.add(amenity);
+  p.amenities = Array.from(set);
+}
+
+/** Mock listing push — simulates write-through to Guesty/channel. Phase 2
+ *  swaps the toast for real Guesty API call. */
+export function pushListingToChannel(propertyId: string, channel: ListingChannel): { ok: boolean; message: string } {
+  const p = PROPERTY_BY_ID[propertyId];
+  if (!p) return { ok: false, message: 'Property not found' };
+
+  const existing = p.listings.find((l) => l.channel === channel);
+  const ts = new Date().toISOString();
+
+  if (existing) {
+    existing.status = 'active';
+    existing.lastPushedAt = ts;
+    return { ok: true, message: `Updated ${LISTING_CHANNEL_LABEL[channel]} listing · ${existing.externalId}` };
+  }
+
+  // Create-new path (Phase 2 write-through · listing-create per pack §13)
+  const newId = `${channel}-${p.code.toLowerCase()}-${Math.floor(Math.random() * 999)}`;
+  p.listings.push({
+    channel,
+    externalId: newId,
+    status: 'active',
+    description: p.description,
+    lastPushedAt: ts,
+  });
+  return { ok: true, message: `Created ${LISTING_CHANNEL_LABEL[channel]} listing · ${newId}` };
+}
+
+/** Returns preflight issues that would block a successful push. Empty = ready. */
+export function preflightChannelPush(p: Property, channel: ListingChannel): string[] {
+  const issues: string[] = [];
+  if (p.lifecycleStatus === 'off_boarded') issues.push('Property is off-boarded.');
+  if (p.lifecycleStatus === 'paused') issues.push('Property is paused — unpause before pushing.');
+  if (p.photoIds.length === 0) issues.push('No photos uploaded — channels require ≥ 1 photo.');
+  if (!p.heroPhotoId) issues.push('No hero photo selected.');
+  if (p.baseRateMUR === 0) issues.push('Base price not set.');
+  if (channel === 'booking' && !isOnboardingComplete(p)) issues.push('Booking.com pushes require complete onboarding (3-5 reviews strategy).');
+  return issues;
 }
 
 // ───────────────── Property Cards (sample fixtures) ─────────────────

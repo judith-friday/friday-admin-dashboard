@@ -23,6 +23,9 @@ import { RESERVATIONS } from '../../../_data/reservations';
 import { useCurrentRole } from '../../usePermissions';
 import { fireToast } from '../../Toaster';
 import { PhotoGallery } from './PhotoGallery';
+import { AmenityMatrix } from './AmenityMatrix';
+import { ListingPushFlow } from './ListingPushFlow';
+import { setBaseDescription, setChannelDescription, type ListingChannel } from '../../../_data/properties';
 
 interface Props {
   propertyCode: string;
@@ -268,6 +271,10 @@ function IdentityTab({ property }: { property: Property }) {
           )}
         </Section>
       )}
+
+      <Section title="Amenities">
+        <AmenityMatrix property={property} />
+      </Section>
     </div>
   );
 }
@@ -559,36 +566,80 @@ function TxRow({ desc, amount, date }: { desc: string; amount: string; date: str
 // ───────────────── Tab: Listings ─────────────────
 
 function ListingsTab({ property }: { property: Property }) {
-  if (property.listings.length === 0) {
-    return (
-      <p style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
-        No active listings. Listings push during onboarding (Listing Setup artifact).
-      </p>
-    );
-  }
+  const [, setRev] = useState(0);
+  const bump = () => setRev((n) => n + 1);
+  const [pushing, setPushing] = useState<{ channel: ListingChannel; isCreateNew: boolean } | null>(null);
+
+  const allChannels: ListingChannel[] = ['airbnb', 'booking', 'vrbo', 'friday_mu'];
+  const connectedChannels = new Set(property.listings.map((l) => l.channel));
+  const unconnected = allChannels.filter((c) => !connectedChannels.has(c));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <Section title="Base description">
+        <DescriptionEditor
+          value={property.description ?? ''}
+          placeholder="A short master description for this property — 2-3 paragraphs · channel descriptions inherit unless overridden."
+          onSave={(v) => { setBaseDescription(property.id, v); bump(); fireToast('Description saved'); }}
+        />
+      </Section>
+
       <Section title="Per-channel listings">
         <p style={{ margin: '0 0 12px', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
-          Read-only Phase 1 · Phase 2 enables write-through to Guesty.
+          Phase 2 write-through to Guesty · push button simulates the API call.
         </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {property.listings.map((l) => (
-            <div key={l.channel + l.externalId} className="card" style={{ padding: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                <strong style={{ fontSize: 13 }}>{LISTING_CHANNEL_LABEL[l.channel]}</strong>
-                <span className={`chip sm ${l.status === 'active' ? 'info' : l.status === 'paused' ? 'warn' : ''}`}>{l.status}</span>
+        {property.listings.length === 0 ? (
+          <p style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>No active listings yet.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {property.listings.map((l) => (
+              <div key={l.channel + l.externalId} className="card" style={{ padding: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <strong style={{ fontSize: 13 }}>{LISTING_CHANNEL_LABEL[l.channel]}</strong>
+                  <span className={`chip sm ${l.status === 'active' ? 'info' : l.status === 'paused' ? 'warn' : ''}`}>{l.status}</span>
+                  <span className="mono" style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginLeft: 8 }}>{l.externalId}</span>
+                  {l.commissionPct !== undefined && <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>· {l.commissionPct}% commission</span>}
+                  <span style={{ flex: 1 }} />
+                  <button
+                    className="btn ghost sm"
+                    onClick={() => setPushing({ channel: l.channel, isCreateNew: false })}
+                  >
+                    Push update ↑
+                  </button>
+                </div>
+                <DescriptionEditor
+                  value={l.description ?? ''}
+                  placeholder={`${LISTING_CHANNEL_LABEL[l.channel]}-specific description (leave blank to inherit base description)`}
+                  onSave={(v) => { setChannelDescription(property.id, l.channel, v); bump(); fireToast(`${LISTING_CHANNEL_LABEL[l.channel]} description saved`); }}
+                />
+                {l.lastPushedAt && (
+                  <p style={{ margin: '8px 0 0', fontSize: 10, color: 'var(--color-text-tertiary)' }}>
+                    Last pushed: {l.lastPushedAt.slice(0, 16).replace('T', ' ')}
+                  </p>
+                )}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 6, fontSize: 12 }}>
-                <Label>Listing ID</Label><div className="mono" style={{ fontSize: 11 }}>{l.externalId}</div>
-                {l.commissionPct !== undefined && <><Label>Commission</Label><div>{l.commissionPct}%</div></>}
-                <Label>Description</Label><div style={{ color: 'var(--color-text-tertiary)' }}>· read from Guesty Phase 1 ·</div>
-                <Label>Photo subset</Label><div style={{ color: 'var(--color-text-tertiary)' }}>· {property.photoIds.length} eligible · channel filter Phase 2 ·</div>
-              </div>
+            ))}
+          </div>
+        )}
+
+        {unconnected.length > 0 && (
+          <div style={{ marginTop: 14 }}>
+            <p style={{ margin: '0 0 8px', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+              Not yet listed on:
+            </p>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {unconnected.map((ch) => (
+                <button
+                  key={ch}
+                  className="btn ghost sm"
+                  onClick={() => setPushing({ channel: ch, isCreateNew: true })}
+                >
+                  + Push to {LISTING_CHANNEL_LABEL[ch]}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </Section>
 
       <Section title="Base price">
@@ -605,6 +656,59 @@ function ListingsTab({ property }: { property: Property }) {
           Read-from Guesty · Phase 2 surfaces dimension assignments here.
         </p>
       </Section>
+
+      {pushing && (
+        <ListingPushFlow
+          property={property}
+          channel={pushing.channel}
+          isCreateNew={pushing.isCreateNew}
+          onClose={() => setPushing(null)}
+          onSuccess={() => { bump(); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function DescriptionEditor({
+  value, placeholder, onSave,
+}: {
+  value: string;
+  placeholder: string;
+  onSave: (v: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+
+  if (!editing) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+        <div style={{ flex: 1, fontSize: 12, color: value ? 'var(--color-text-secondary)' : 'var(--color-text-tertiary)', whiteSpace: 'pre-wrap' }}>
+          {value || <em>{placeholder}</em>}
+        </div>
+        <button className="btn ghost sm" onClick={() => { setDraft(value); setEditing(true); }}>Edit</button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <textarea
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        rows={4}
+        placeholder={placeholder}
+        style={{
+          width: '100%', padding: '8px 10px', fontSize: 12,
+          border: '0.5px solid var(--color-border-tertiary)', borderRadius: 'var(--radius-sm)',
+          background: 'var(--color-background-primary)', color: 'var(--color-text-primary)',
+          resize: 'vertical', fontFamily: 'inherit',
+        }}
+      />
+      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
+        <button className="btn ghost sm" onClick={() => setEditing(false)}>Cancel</button>
+        <button className="btn primary sm" onClick={() => { onSave(draft); setEditing(false); }}>Save</button>
+      </div>
     </div>
   );
 }
