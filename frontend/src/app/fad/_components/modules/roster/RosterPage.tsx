@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { ackRosterWeek, bumpPendingRev } from '../../../_data/pendingCounts';
 import {
   AVAILABILITY_LABEL,
   AVAILABILITY_COLOR,
@@ -56,6 +57,16 @@ export function RosterPage() {
   const isPublished = week.status === 'published';
   const isPast = week.weekEnd < TODAY;
   const editable = canEdit && !isPublished && !isPast;
+
+  // Acknowledge the current-week roster on mount so the sidebar pending dot
+  // disappears once the user has actually looked at it.
+  useEffect(() => {
+    const thisWeek = ROSTERS.find((r) => r.status === 'published' && r.weekStart <= TODAY && r.weekEnd >= TODAY);
+    if (thisWeek) {
+      ackRosterWeek(thisWeek.id);
+      bumpPendingRev();
+    }
+  }, []);
 
   const visibleUsers: TaskUser[] = useMemo(() => {
     const all = ROSTER_USERS_ORDER

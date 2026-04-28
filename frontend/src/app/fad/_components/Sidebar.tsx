@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { MODULES, GROUPS, type ModuleDef } from '../_data/modules';
 import { iconFor, IconExpand, IconSparkle } from './icons';
-import { canSeeModule, useCurrentRole } from './usePermissions';
+import { canSeeModule, useCurrentRole, useCurrentUserId } from './usePermissions';
+import { pendingCountFor, pendingCountForSubpage, subscribePendingRev, type PendingCount } from '../_data/pendingCounts';
 
 interface Props {
   active: string;
@@ -32,6 +33,12 @@ export function Sidebar({
   onMobileClose,
 }: Props) {
   const role = useCurrentRole();
+  const userId = useCurrentUserId();
+
+  // Subscribe to fixture-mutation bumps so badges re-compute reactively
+  const [pendingRev, setPendingRev] = useState(0);
+  useEffect(() => subscribePendingRev(setPendingRev), []);
+
   const byGroup = useMemo(() => {
     const m: Record<string, ModuleDef[]> = {};
     MODULES.forEach((mod) => {
@@ -122,6 +129,8 @@ export function Sidebar({
                   hasSubs &&
                   !collapsed &&
                   ((isActive && !collapsedActive) || isExpanded);
+                const moduleCount = pendingCountFor(role, userId, mod.id);
+                void pendingRev; // keep dependency live for re-render
                 return (
                   <div key={mod.id} className="fad-nav-item-wrap">
                     <button
@@ -145,17 +154,19 @@ export function Sidebar({
                         onSelect(mod.id);
                         onMobileClose?.();
                       }}
-                      title={mod.label}
+                      title={moduleCount.total > 0 ? `${mod.label} · ${moduleCount.total} pending` : mod.label}
                     >
                       <span className="fad-nav-icon">
                         <IconComp />
                       </span>
                       <span className="fad-nav-label">{mod.label}</span>
+                      {moduleCount.total > 0 && <PendingChip count={moduleCount} collapsed={collapsed} />}
                     </button>
                     {showSubs && (
                       <div className="fad-nav-subs">
                         {mod.subPages!.map((sp) => {
                           const isLocked = lockedSubs?.[mod.id]?.has(sp.id);
+                          const subCount = pendingCountForSubpage(role, userId, mod.id, sp.id);
                           return (
                             <button
                               key={sp.id}
@@ -169,6 +180,7 @@ export function Sidebar({
                               title={isLocked ? `${sp.label} · admin only` : sp.label}
                             >
                               <span className="fad-nav-sub-label">{sp.label}</span>
+                              {subCount.total > 0 && <PendingChip count={subCount} collapsed={false} />}
                               {isLocked && <span className="fad-nav-sub-lock" aria-hidden="true">🔒</span>}
                             </button>
                           );
@@ -184,5 +196,25 @@ export function Sidebar({
       </div>
     </aside>
     </>
+  );
+}
+
+function PendingChip({ count, collapsed }: { count: PendingCount; collapsed: boolean }) {
+  const display = count.total > 99 ? '99+' : String(count.total);
+  if (collapsed) {
+    return (
+      <span
+        className={'fad-pending-dot' + (count.tone === 'urgent' ? ' urgent' : '')}
+        aria-label={`${count.total} pending`}
+      />
+    );
+  }
+  return (
+    <span
+      className={'fad-pending-chip' + (count.tone === 'urgent' ? ' urgent' : '')}
+      aria-label={`${count.total} pending`}
+    >
+      {display}
+    </span>
   );
 }
