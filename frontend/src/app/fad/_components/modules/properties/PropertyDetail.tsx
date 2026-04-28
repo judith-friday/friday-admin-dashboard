@@ -21,6 +21,7 @@ import { COHORT_LABEL } from '../../../_data/reviews';
 import { FIN_OWNERS } from '../../../_data/finance';
 import { RESERVATIONS } from '../../../_data/reservations';
 import { useCurrentRole } from '../../usePermissions';
+import { fireToast } from '../../Toaster';
 
 interface Props {
   propertyCode: string;
@@ -390,6 +391,8 @@ function OperationalTab({ property, role }: { property: Property; role: string }
         <p style={{ margin: '0 0 12px', fontSize: 12, color: 'var(--color-text-tertiary)' }}>
           {cards.length} card{cards.length === 1 ? '' : 's'} · 8 categories · consumed by Ask Friday for guest / cleaner / team queries.
         </p>
+        <AiCardSuggestion property={property} />
+
         {Object.entries(PROPERTY_CARD_CATEGORY_LABEL).map(([cat, catLabel]) => {
           const items = cardsByCategory[cat as PropertyCardCategory] ?? [];
           if (items.length === 0) return null;
@@ -438,6 +441,41 @@ function OperationalTab({ property, role }: { property: Property; role: string }
     </div>
   );
 }
+
+/** Phase 1 visual placeholder for the AI extraction loop (pack §8). Hardcoded
+ *  fixture for the demo; Phase 2 wires real Inbox + task-comment scanning. */
+function AiCardSuggestion({ property }: { property: Property }) {
+  const [dismissed, setDismissed] = useState(false);
+  // Pick a property-specific suggestion to make the demo land. Defaults
+  // gracefully when none is configured.
+  const suggestion = AI_SUGGESTIONS_BY_CODE[property.code];
+  if (!suggestion || dismissed) return null;
+  return (
+    <div
+      style={{
+        marginBottom: 14, padding: '10px 12px',
+        background: 'rgba(var(--color-brand-accent-rgb, 86, 128, 202), 0.08)',
+        border: '0.5px solid var(--color-brand-accent)',
+        borderRadius: 'var(--radius-sm)',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+        <span style={{ fontSize: 13 }}>✨</span>
+        <div style={{ flex: 1, fontSize: 12, lineHeight: 1.5 }}>
+          <strong>AI noticed</strong> · {suggestion.message}
+        </div>
+        <button className="btn primary sm" onClick={() => { fireToast('Property Card draft would open · Phase 2 AI extraction loop'); setDismissed(true); }}>Add</button>
+        <button className="btn ghost sm" onClick={() => setDismissed(true)}>Dismiss</button>
+      </div>
+    </div>
+  );
+}
+
+const AI_SUGGESTIONS_BY_CODE: Record<string, { message: string }> = {
+  'BS-1': { message: 'BS-1 doesn\'t have a Card entry for water shutoff — Mathias mentioned it in thread #1234. Add to Property Cards?' },
+  'VV-47': { message: 'Two recent guest threads asked about pool heating. Add a Pool / Outdoor Card to capture the answer once?' },
+  'BL-12': { message: 'Maintenance task t-006 referenced an A/C compressor model — propose adding it to the Wifi & Tech / Utilities Card?' },
+};
 
 function CardRow({ card, accessTimeGated }: { card: PropertyCard; accessTimeGated: boolean }) {
   const [open, setOpen] = useState(false);
