@@ -56,7 +56,14 @@
       "name": "Roster",
       "short_name": "Roster",
       "description": "Weekly roster — workload + grid + publish",
-      "url": "/fad?m=hr&sub=roster",
+      "url": "/fad?m=operations&sub=roster",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Notifications",
+      "short_name": "Alerts",
+      "description": "All notifications across modules with AI prioritisation",
+      "url": "/fad?m=notifications",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
