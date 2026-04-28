@@ -18,6 +18,7 @@ import { RESERVATION_BY_ID } from '../../../_data/reservations';
 import { CreateTaskDrawer } from '../operations/CreateTaskDrawer';
 import { fireToast } from '../../Toaster';
 import { IconPlus } from '../../icons';
+import { PropertyChip } from '../properties/PropertyQuickView';
 
 interface Props {
   onMutated: () => void;
@@ -272,13 +273,9 @@ function ReviewDetail({
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 16, fontWeight: 500, marginBottom: 2 }}>{rv.guestName}</div>
           <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <button
-              onClick={(e) => { e.stopPropagation(); window.location.href = `/fad?m=properties&sub=overview&p=${rv.propertyCode}`; }}
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-brand-accent)', textDecoration: 'underline', font: 'inherit' }}
-              title="Open property"
-            >
+            <PropertyChip code={rv.propertyCode}>
               {property?.name ?? rv.propertyCode} · {rv.propertyCode}
-            </button>
+            </PropertyChip>
             <span>·</span>
             <span>{COHORT_LABEL[rv.cohort]}</span>
             <span>·</span>

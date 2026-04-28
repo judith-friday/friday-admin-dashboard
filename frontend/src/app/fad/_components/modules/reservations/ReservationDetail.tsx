@@ -34,6 +34,7 @@ import { addReservationNote, updateReservationTimes } from '../../../_data/breez
 import { useCurrentRole, useCurrentUserId } from '../../usePermissions';
 import { fireToast } from '../../Toaster';
 import { IconClose } from '../../icons';
+import { PropertyChip } from '../properties/PropertyQuickView';
 
 interface Props {
   reservationId: string;
@@ -129,14 +130,7 @@ export function ReservationDetail({ reservationId, onClose, onCreateTask }: Prop
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div className="mono" style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 4 }}>
-                {r.confirmationCode} ·{' '}
-                <button
-                  onClick={() => { window.location.href = `/fad?m=properties&sub=overview&p=${r.propertyCode}`; }}
-                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-brand-accent)', textDecoration: 'underline', font: 'inherit' }}
-                  title="Open property"
-                >
-                  {r.propertyCode}
-                </button>
+                {r.confirmationCode} · <PropertyChip code={r.propertyCode} />
               </div>
               <div style={{ fontSize: 16, fontWeight: 500, marginBottom: 4 }}>{r.guestName}</div>
               <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginBottom: 8 }}>

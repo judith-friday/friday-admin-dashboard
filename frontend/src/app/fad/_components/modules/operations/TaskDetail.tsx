@@ -18,6 +18,7 @@ import { useAITelemetry, type AISurface } from '../../ai/useAITelemetry';
 import { AIConfidenceChip } from '../../ai/AIComponents';
 import { RISK_FLAG_EXPLANATIONS, pickFromPool } from '../../../_data/aiFixtures';
 import { priorityTone, taskStatusTone, toneStyle } from '../../palette';
+import { PropertyChip } from '../properties/PropertyQuickView';
 import {
   RESERVATION_BY_ID,
   CHANNEL_LABEL,
@@ -137,14 +138,13 @@ function Header({
             #{task.bzId}
           </span>
         )}
-        <button
+        <PropertyChip
+          code={task.propertyCode}
           className="chip"
-          style={{ fontSize: 11, cursor: 'pointer', border: 'none' }}
-          onClick={() => { window.location.href = `/fad?m=properties&sub=overview&p=${task.propertyCode}`; }}
-          title="Open property"
+          style={{ fontSize: 11 }}
         >
           {task.propertyCode}
-        </button>
+        </PropertyChip>
         <span className="chip" style={{ fontSize: 11 }}>
           {task.department} · {task.subdepartment.replace('_', ' ')}
         </span>
