@@ -10,6 +10,7 @@ import {
 } from '../../../_data/properties';
 import { COHORT_LABEL, type Cohort } from '../../../_data/reviews';
 import { FIN_OWNERS } from '../../../_data/finance';
+import { BulkEditDrawer } from './BulkEditDrawer';
 
 interface Props {
   onOpen: (code: string) => void;
@@ -23,6 +24,10 @@ export function AllPropertiesPage({ onOpen }: Props) {
   const [lifecycle, setLifecycle] = useState<LifecycleFilter>('all_active');
   const [region, setRegion] = useState<'all' | Cohort>('all');
   const [sort, setSort] = useState<{ key: SortKey; dir: 'asc' | 'desc' }>({ key: 'lastActivity', dir: 'desc' });
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [, setRev] = useState(0);
+  const bump = () => setRev((n) => n + 1);
 
   const ownerName = (id: string) => FIN_OWNERS.find((o) => o.id === id)?.name ?? id;
 
@@ -67,6 +72,26 @@ export function AllPropertiesPage({ onOpen }: Props) {
     setSort((s) => s.key === key ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' });
   };
 
+  const toggleRow = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const allVisibleSelected = filtered.length > 0 && filtered.every((p) => selectedIds.has(p.id));
+  const toggleAllVisible = () => {
+    setSelectedIds((prev) => {
+      if (allVisibleSelected) return new Set();
+      const next = new Set(prev);
+      filtered.forEach((p) => next.add(p.id));
+      return next;
+    });
+  };
+
+  const selectedArray = Array.from(selectedIds);
+
   return (
     <div className="fad-module-body" style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {/* Filter bar */}
@@ -94,11 +119,34 @@ export function AllPropertiesPage({ onOpen }: Props) {
         </span>
       </div>
 
+      {/* Bulk-action toolbar (shown when ≥ 1 selected) */}
+      {selectedIds.size > 0 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12, padding: '8px 14px', marginBottom: 8,
+          background: 'rgba(var(--color-brand-accent-rgb, 86, 128, 202), 0.10)',
+          border: '0.5px solid var(--color-brand-accent)',
+          borderRadius: 'var(--radius-sm)',
+        }}>
+          <span style={{ fontSize: 13, fontWeight: 500 }}>{selectedIds.size} selected</span>
+          <button className="btn primary sm" onClick={() => setBulkOpen(true)}>Bulk edit…</button>
+          <span style={{ flex: 1 }} />
+          <button className="btn ghost sm" onClick={() => setSelectedIds(new Set())}>Clear</button>
+        </div>
+      )}
+
       {/* Table */}
       <div className="card prop-table-wrap" style={{ flex: 1, overflow: 'auto', padding: 0 }}>
         <table className="prop-table">
           <thead>
             <tr>
+              <th style={{ width: 32 }}>
+                <input
+                  type="checkbox"
+                  checked={allVisibleSelected}
+                  onChange={toggleAllVisible}
+                  title={allVisibleSelected ? 'Deselect all' : 'Select all visible'}
+                />
+              </th>
               <SortHeader k="code" sort={sort} onToggle={toggleSort}>Code</SortHeader>
               <SortHeader k="name" sort={sort} onToggle={toggleSort}>Name</SortHeader>
               <SortHeader k="lifecycle" sort={sort} onToggle={toggleSort}>Status</SortHeader>
@@ -118,6 +166,14 @@ export function AllPropertiesPage({ onOpen }: Props) {
               const channels = p.listings.map((l) => l.channel).join(', ') || '—';
               return (
                 <tr key={p.code} className="prop-row" onClick={() => onOpen(p.code)}>
+                  <td onClick={(e) => { e.stopPropagation(); toggleRow(p.id); }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(p.id)}
+                      onChange={() => toggleRow(p.id)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </td>
                   <td className="mono">{p.code}{p.isCombo && <span className="chip sm" style={{ marginLeft: 6 }}>combo</span>}{p.parentPropertyId && <span className="chip sm" style={{ marginLeft: 6 }}>unit</span>}</td>
                   <td><strong>{p.name}</strong>{p.buildingName && <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>{p.buildingName}</div>}</td>
                   <td><span className={`chip sm ${badge.tone === 'success' ? 'info' : badge.tone === 'warning' ? 'warn' : ''}`}>{badge.label}</span></td>
@@ -133,11 +189,19 @@ export function AllPropertiesPage({ onOpen }: Props) {
               );
             })}
             {filtered.length === 0 && (
-              <tr><td colSpan={11} style={{ textAlign: 'center', padding: 32, color: 'var(--color-text-tertiary)' }}>No properties match.</td></tr>
+              <tr><td colSpan={12} style={{ textAlign: 'center', padding: 32, color: 'var(--color-text-tertiary)' }}>No properties match.</td></tr>
             )}
           </tbody>
         </table>
       </div>
+
+      {bulkOpen && (
+        <BulkEditDrawer
+          selectedIds={selectedArray}
+          onClose={() => setBulkOpen(false)}
+          onApplied={() => { setSelectedIds(new Set()); bump(); }}
+        />
+      )}
     </div>
   );
 }

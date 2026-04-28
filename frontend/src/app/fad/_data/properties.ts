@@ -1067,6 +1067,54 @@ export function removePhoto(propertyId: string, photoId: string): void {
   delete PHOTO_BY_ID[photoId];
 }
 
+// ───────────────── Bulk-operation helpers (Phase 2) ─────────────────
+
+export function bulkSetLifecycle(propertyIds: string[], status: LifecycleStatus, reason?: string): number {
+  let n = 0;
+  propertyIds.forEach((id) => {
+    const p = PROPERTY_BY_ID[id];
+    if (!p) return;
+    p.lifecycleStatus = status;
+    if (status === 'paused' && reason) p.pausedReason = reason;
+    if (status === 'live') { p.pausedReason = undefined; p.pauseReturnBy = undefined; }
+    n++;
+  });
+  return n;
+}
+
+export function bulkAddTag(propertyIds: string[], tag: string): number {
+  let n = 0;
+  propertyIds.forEach((id) => {
+    const p = PROPERTY_BY_ID[id];
+    if (!p) return;
+    if (!p.tags.includes(tag)) {
+      p.tags = [...p.tags, tag];
+      n++;
+    }
+  });
+  return n;
+}
+
+export function bulkRemoveTag(propertyIds: string[], tag: string): number {
+  let n = 0;
+  propertyIds.forEach((id) => {
+    const p = PROPERTY_BY_ID[id];
+    if (!p) return;
+    if (p.tags.includes(tag)) {
+      p.tags = p.tags.filter((t) => t !== tag);
+      n++;
+    }
+  });
+  return n;
+}
+
+/** All distinct tags across the portfolio — for the bulk-edit autocomplete. */
+export function allTags(): string[] {
+  const set = new Set<string>();
+  PROPERTIES.forEach((p) => p.tags.forEach((t) => set.add(t)));
+  return Array.from(set).sort();
+}
+
 // ───────────────── Description + amenity + listing-push helpers (Phase 2) ─────────────────
 
 export function setBaseDescription(propertyId: string, description: string): void {
