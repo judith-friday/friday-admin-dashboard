@@ -137,9 +137,14 @@ function Header({
             #{task.bzId}
           </span>
         )}
-        <span className="chip" style={{ fontSize: 11 }}>
+        <button
+          className="chip"
+          style={{ fontSize: 11, cursor: 'pointer', border: 'none' }}
+          onClick={() => { window.location.href = `/fad?m=properties&sub=overview&p=${task.propertyCode}`; }}
+          title="Open property"
+        >
           {task.propertyCode}
-        </span>
+        </button>
         <span className="chip" style={{ fontSize: 11 }}>
           {task.department} · {task.subdepartment.replace('_', ' ')}
         </span>

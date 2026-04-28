@@ -272,7 +272,13 @@ function ReviewDetail({
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 16, fontWeight: 500, marginBottom: 2 }}>{rv.guestName}</div>
           <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <span>{property?.name ?? rv.propertyCode} · {rv.propertyCode}</span>
+            <button
+              onClick={(e) => { e.stopPropagation(); window.location.href = `/fad?m=properties&sub=overview&p=${rv.propertyCode}`; }}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--color-brand-accent)', textDecoration: 'underline', font: 'inherit' }}
+              title="Open property"
+            >
+              {property?.name ?? rv.propertyCode} · {rv.propertyCode}
+            </button>
             <span>·</span>
             <span>{COHORT_LABEL[rv.cohort]}</span>
             <span>·</span>
