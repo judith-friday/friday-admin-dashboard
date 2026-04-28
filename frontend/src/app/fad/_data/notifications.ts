@@ -45,6 +45,69 @@ export interface Notification {
 
 type Role = TaskUser['role'];
 
+// ───────────────── User context: notes, snooze, waiting-on, forward ─────────────────
+
+export interface UserContext {
+  /** ISO timestamp; until then the notification is deprioritised. */
+  snoozedUntil?: string;
+  /** Free-form note from the user. Surfaces as 💬 chip in the list. */
+  note?: string;
+  /** Person the user is waiting on (free-form). Pins until cleared. */
+  waitingOn?: string;
+  /** UserId the notification was forwarded to. Hides from my feed. */
+  forwardedTo?: string;
+}
+
+const CONTEXT_KEY = 'fad:notif-context';
+
+function readContextMap(): Record<string, UserContext> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.localStorage.getItem(CONTEXT_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeContextMap(m: Record<string, UserContext>): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(CONTEXT_KEY, JSON.stringify(m));
+  } catch {
+    // ignore
+  }
+}
+
+export function getContext(id: string): UserContext {
+  return readContextMap()[id] ?? {};
+}
+
+export function setContext(id: string, patch: Partial<UserContext>): void {
+  const m = readContextMap();
+  m[id] = { ...(m[id] ?? {}), ...patch };
+  writeContextMap(m);
+  bumpNotificationsRev();
+}
+
+export function clearContext(id: string, keys: (keyof UserContext)[]): void {
+  const m = readContextMap();
+  if (!m[id]) return;
+  keys.forEach((k) => delete m[id][k]);
+  if (Object.keys(m[id]).length === 0) delete m[id];
+  writeContextMap(m);
+  bumpNotificationsRev();
+}
+
+export function snoozeNotification(id: string, until: Date): void {
+  setContext(id, { snoozedUntil: until.toISOString() });
+}
+
+export function isSnoozedNow(ctx: UserContext): boolean {
+  if (!ctx.snoozedUntil) return false;
+  return new Date(ctx.snoozedUntil).getTime() > Date.now();
+}
+
 // ───────────────── Read-state (localStorage Phase 1) ─────────────────
 
 const READ_KEY = 'fad:notif-read';
@@ -300,14 +363,20 @@ const SEEDED_NOTIFICATIONS: Notification[] = [
 export function allNotifications(role: Role, userId: string): Notification[] {
   if (role === 'external') return [];
   const merged = [...SEEDED_NOTIFICATIONS, ...moduleNotifications(role, userId)];
-  // Dedupe by id (in case any module accidentally produces a clash)
+  // Dedupe by id
   const seen = new Set<string>();
   const unique = merged.filter((n) => {
     if (seen.has(n.id)) return false;
     seen.add(n.id);
     return true;
   });
-  return rankNotifications(unique);
+  // Filter out items I forwarded (still show in the destination user's feed)
+  const visible = unique.filter((n) => {
+    const ctx = getContext(n.id);
+    if (ctx.forwardedTo && ctx.forwardedTo !== userId) return false;
+    return true;
+  });
+  return rankNotifications(visible);
 }
 
 /** Heuristic AI ranking. Higher = more important. Phase 2 swap = LLM ranker. */
@@ -315,6 +384,7 @@ export function rankNotifications(items: Notification[]): Notification[] {
   return items.map((n) => {
     let score = 0;
     const reasons: string[] = [];
+    const ctx = getContext(n.id);
 
     // Severity
     if (n.severity === 'urgent') { score += 0.45; reasons.push('high severity'); }
@@ -333,9 +403,23 @@ export function rankNotifications(items: Notification[]): Notification[] {
     // Unread bonus
     if (!isRead(n.id)) { score += 0.05; }
 
+    // User-context modifiers (your context teaches the ranker)
+    if (isSnoozedNow(ctx)) {
+      score *= 0.20; // big drop while snoozed
+      reasons.push(`snoozed until ${ctx.snoozedUntil?.slice(0, 16).replace('T', ' ')}`);
+    }
+    if (ctx.waitingOn) {
+      score += 0.15;
+      reasons.push(`waiting on ${ctx.waitingOn}`);
+    }
+    if (ctx.note) {
+      score += 0.05;
+      reasons.push('you noted this');
+    }
+
     return {
       ...n,
-      aiPriority: Math.min(1, score),
+      aiPriority: Math.min(1, Math.max(0, score)),
       aiReason: reasons.join(' · '),
     };
   });
@@ -343,7 +427,11 @@ export function rankNotifications(items: Notification[]): Notification[] {
 
 export function unreadCount(role: Role, userId: string): { total: number; urgent: number } {
   const all = allNotifications(role, userId);
-  const unread = all.filter((n) => !isRead(n.id));
+  const unread = all.filter((n) => {
+    if (isRead(n.id)) return false;
+    if (isSnoozedNow(getContext(n.id))) return false;
+    return true;
+  });
   const urgent = unread.filter((n) => n.severity === 'urgent').length;
   return { total: unread.length, urgent };
 }
