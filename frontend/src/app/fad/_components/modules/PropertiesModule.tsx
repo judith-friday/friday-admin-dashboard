@@ -8,6 +8,7 @@ import { OnboardingPage } from './properties/OnboardingPage';
 import { InsightsPage } from './properties/InsightsPage';
 import { PropertyDetail } from './properties/PropertyDetail';
 import { CreatePropertyDrawer } from './properties/CreatePropertyDrawer';
+import { SavedRepliesImport } from './properties/SavedRepliesImport';
 import { portfolioInsights } from '../../_data/properties';
 import { IconPlus } from '../icons';
 
@@ -28,6 +29,7 @@ export function PropertiesModule({ subPage, onChangeSubPage }: Props) {
   const active = tabs.find((t) => t.id === subPage)?.id ?? 'overview';
   const [openCode, setOpenCode] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
 
   // Cross-link target: ?p=<code> opens detail directly. Strip the param after
   // reading so closing the drawer + navigating away then back doesn't re-open
@@ -54,9 +56,14 @@ export function PropertiesModule({ subPage, onChangeSubPage }: Props) {
         activeTab={active}
         onTabChange={onChangeSubPage}
         actions={
-          <button className="btn primary sm" onClick={() => setCreateOpen(true)}>
-            <IconPlus size={12} /> New property
-          </button>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button className="btn ghost sm" onClick={() => setImportOpen(true)} title="Import Guesty saved replies as Property Cards (one-time admin action)">
+              ↓ Import replies
+            </button>
+            <button className="btn primary sm" onClick={() => setCreateOpen(true)}>
+              <IconPlus size={12} /> New property
+            </button>
+          </div>
         }
       />
       <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
@@ -79,6 +86,7 @@ export function PropertiesModule({ subPage, onChangeSubPage }: Props) {
           setOpenCode(p.code);
         }}
       />
+      {importOpen && <SavedRepliesImport onClose={() => setImportOpen(false)} />}
     </div>
   );
 }
