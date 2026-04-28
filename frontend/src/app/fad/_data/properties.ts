@@ -862,6 +862,127 @@ export function propertiesOfOwner(ownerId: string): Property[] {
   return PROPERTIES.filter((p) => ids.has(p.id));
 }
 
+// ───────────────── Property photos (Phase 2 — gallery editor) ─────────────────
+
+export type PhotoRoomTag =
+  | 'exterior'
+  | 'living'
+  | 'kitchen'
+  | 'bedroom'
+  | 'bathroom'
+  | 'pool'
+  | 'view'
+  | 'amenity'
+  | 'lifestyle'
+  | 'other';
+
+export const PHOTO_ROOM_LABEL: Record<PhotoRoomTag, string> = {
+  exterior: 'Exterior',
+  living: 'Living',
+  kitchen: 'Kitchen',
+  bedroom: 'Bedroom',
+  bathroom: 'Bathroom',
+  pool: 'Pool',
+  view: 'View',
+  amenity: 'Amenity',
+  lifestyle: 'Lifestyle',
+  other: 'Other',
+};
+
+export interface PropertyPhoto {
+  id: string;
+  propertyId: string;
+  /** Mock URL — Phase 2 backend bridges to real storage. */
+  url?: string;
+  caption?: string;
+  roomTag: PhotoRoomTag;
+  /** Channels this photo is published to. Empty = published to all. */
+  channelSubsets: ListingChannel[];
+  /** Hex hue for the gradient placeholder so different photos look different. */
+  hue?: number;
+}
+
+/** Build a minimal photo record from a photoId in `Property.photoIds`. Phase 2
+ *  swaps to real storage; this lets the gallery editor work today over the
+ *  existing photoIds array without breaking the schema. */
+function makePhoto(propertyId: string, id: string, idx: number): PropertyPhoto {
+  // Heuristic room tag rotation so the gallery shows variety.
+  const tags: PhotoRoomTag[] = ['exterior', 'living', 'bedroom', 'kitchen', 'bathroom', 'pool', 'view', 'amenity'];
+  return {
+    id,
+    propertyId,
+    roomTag: tags[idx % tags.length],
+    channelSubsets: [],
+    hue: (idx * 47) % 360,
+  };
+}
+
+export const PROPERTY_PHOTOS: PropertyPhoto[] = PROPERTIES.flatMap((p) =>
+  p.photoIds.map((id, idx) => makePhoto(p.id, id, idx)),
+);
+
+const PHOTO_BY_ID: Record<string, PropertyPhoto> = PROPERTY_PHOTOS.reduce(
+  (acc, ph) => ({ ...acc, [ph.id]: ph }),
+  {} as Record<string, PropertyPhoto>,
+);
+
+export function photosForProperty(propertyId: string): PropertyPhoto[] {
+  const property = PROPERTY_BY_ID[propertyId];
+  if (!property) return [];
+  // Order matches Property.photoIds[]
+  return property.photoIds
+    .map((id) => PHOTO_BY_ID[id])
+    .filter((p): p is PropertyPhoto => Boolean(p));
+}
+
+/** Mutate-in-place reorder. Returns the new order. */
+export function reorderPhotos(propertyId: string, newOrder: string[]): void {
+  const property = PROPERTY_BY_ID[propertyId];
+  if (!property) return;
+  property.photoIds = newOrder;
+}
+
+export function setHeroPhoto(propertyId: string, photoId: string): void {
+  const property = PROPERTY_BY_ID[propertyId];
+  if (!property) return;
+  property.heroPhotoId = photoId;
+}
+
+export function updatePhoto(photoId: string, patch: Partial<Pick<PropertyPhoto, 'caption' | 'roomTag' | 'channelSubsets'>>): void {
+  const photo = PHOTO_BY_ID[photoId];
+  if (!photo) return;
+  Object.assign(photo, patch);
+}
+
+export function addPhoto(propertyId: string, opts?: { roomTag?: PhotoRoomTag; caption?: string }): PropertyPhoto | null {
+  const property = PROPERTY_BY_ID[propertyId];
+  if (!property) return null;
+  const id = `ph-${propertyId.slice(2)}-${Date.now()}`;
+  const photo: PropertyPhoto = {
+    id,
+    propertyId,
+    roomTag: opts?.roomTag ?? 'other',
+    caption: opts?.caption,
+    channelSubsets: [],
+    hue: Math.floor(Math.random() * 360),
+  };
+  PROPERTY_PHOTOS.push(photo);
+  PHOTO_BY_ID[id] = photo;
+  property.photoIds = [...property.photoIds, id];
+  if (!property.heroPhotoId) property.heroPhotoId = id;
+  return photo;
+}
+
+export function removePhoto(propertyId: string, photoId: string): void {
+  const property = PROPERTY_BY_ID[propertyId];
+  if (!property) return;
+  property.photoIds = property.photoIds.filter((id) => id !== photoId);
+  if (property.heroPhotoId === photoId) property.heroPhotoId = property.photoIds[0];
+  const idx = PROPERTY_PHOTOS.findIndex((ph) => ph.id === photoId);
+  if (idx >= 0) PROPERTY_PHOTOS.splice(idx, 1);
+  delete PHOTO_BY_ID[photoId];
+}
+
 // ───────────────── Property Cards (sample fixtures) ─────────────────
 
 export const PROPERTY_CARDS: PropertyCard[] = [

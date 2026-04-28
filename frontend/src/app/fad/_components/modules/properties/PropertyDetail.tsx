@@ -22,6 +22,7 @@ import { FIN_OWNERS } from '../../../_data/finance';
 import { RESERVATIONS } from '../../../_data/reservations';
 import { useCurrentRole } from '../../usePermissions';
 import { fireToast } from '../../Toaster';
+import { PhotoGallery } from './PhotoGallery';
 
 interface Props {
   propertyCode: string;
@@ -57,16 +58,21 @@ export function PropertyDetail({ propertyCode, onClose }: Props) {
 
   if (!property) {
     return (
-      <aside className="task-detail-pane open" style={{ width: 720, maxWidth: '95vw' }}>
-        <div style={{ padding: 24 }}>
-          <button className="btn ghost sm" onClick={onClose}>← Close</button>
-          <p style={{ marginTop: 16, color: 'var(--color-text-tertiary)' }}>Property <span className="mono">{propertyCode}</span> not found.</p>
-        </div>
-      </aside>
+      <>
+        <div onClick={onClose} style={overlayStyle} />
+        <aside className="task-detail-pane open" style={{ width: 720, maxWidth: '95vw' }}>
+          <div style={{ padding: 24 }}>
+            <button className="btn ghost sm" onClick={onClose}>← Close</button>
+            <p style={{ marginTop: 16, color: 'var(--color-text-tertiary)' }}>Property <span className="mono">{propertyCode}</span> not found.</p>
+          </div>
+        </aside>
+      </>
     );
   }
 
   return (
+    <>
+    <div onClick={onClose} style={overlayStyle} />
     <aside className="task-detail-pane open" style={{ width: 760, maxWidth: '95vw' }}>
       <PropertyDetailHeader property={property} onClose={onClose} />
       <div className="fad-tabs" style={{ padding: '0 20px', borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
@@ -91,8 +97,16 @@ export function PropertyDetail({ propertyCode, onClose }: Props) {
         {tab === 'activity' && <ActivityTab property={property} />}
       </div>
     </aside>
+    </>
   );
 }
+
+const overlayStyle: React.CSSProperties = {
+  position: 'fixed',
+  inset: '48px 0 0 0',
+  background: 'rgba(15, 24, 54, 0.12)',
+  zIndex: 44,
+};
 
 function PropertyDetailHeader({ property, onClose }: { property: Property; onClose: () => void }) {
   const badge = lifecycleBadge(property);
@@ -206,34 +220,10 @@ function OverviewTab({ property }: { property: Property }) {
 // ───────────────── Tab: Identity & Layout ─────────────────
 
 function IdentityTab({ property }: { property: Property }) {
-  const photoIds = property.photoIds.length > 0 ? property.photoIds : Array(4).fill(null).map((_, i) => `placeholder-${i}`);
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <Section title="Photo gallery">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
-          {photoIds.map((pid, i) => {
-            const isHero = property.heroPhotoId === pid;
-            return (
-              <div
-                key={pid}
-                style={{
-                  aspectRatio: '4 / 3',
-                  background: 'radial-gradient(ellipse at 40% 40%, rgba(86,128,202,0.25), transparent 60%), linear-gradient(135deg, var(--color-brand-navy), #1a2855)',
-                  borderRadius: 'var(--radius-sm)',
-                  position: 'relative',
-                  border: isHero ? '1.5px solid var(--color-brand-accent)' : '0.5px solid var(--color-border-tertiary)',
-                }}
-              >
-                {isHero && <span className="chip info" style={{ position: 'absolute', top: 6, left: 6, fontSize: 10 }}>Hero</span>}
-                <span className="mono" style={{ position: 'absolute', bottom: 6, right: 6, fontSize: 9, color: 'rgba(255,255,255,0.5)' }}>#{i + 1}</span>
-              </div>
-            );
-          })}
-        </div>
-        <p style={{ margin: '8px 0 0', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
-          {property.photoIds.length === 0 ? 'No photos uploaded yet.' : `${property.photoIds.length} photo${property.photoIds.length === 1 ? '' : 's'} · drag to reorder · hero badged.`}
-        </p>
+        <PhotoGallery property={property} />
       </Section>
 
       <Section title="Layout">
