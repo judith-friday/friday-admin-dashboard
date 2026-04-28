@@ -25,6 +25,7 @@ import { fireToast } from '../../Toaster';
 import { PhotoGallery } from './PhotoGallery';
 import { AmenityMatrix } from './AmenityMatrix';
 import { ListingPushFlow } from './ListingPushFlow';
+import { PropertyTasksTab } from './PropertyTasksTab';
 import { setBaseDescription, setChannelDescription, listingRecommendations, type ListingChannel } from '../../../_data/properties';
 
 interface Props {
@@ -40,13 +41,14 @@ const TABS = [
   { id: 'financial', label: 'Financial' },
   { id: 'listings', label: 'Listings' },
   { id: 'reservations', label: 'Reservations' },
+  { id: 'tasks', label: 'Tasks' },
   { id: 'activity', label: 'Activity' },
 ];
 
 /** Role-based tab gating per scoping pack §6. */
 function visibleTabsFor(role: string): string[] {
   if (role === 'field') {
-    return ['overview', 'identity', 'operational', 'reservations', 'activity'];
+    return ['overview', 'identity', 'operational', 'reservations', 'tasks', 'activity'];
   }
   return TABS.map((t) => t.id);
 }
@@ -97,6 +99,7 @@ export function PropertyDetail({ propertyCode, onClose }: Props) {
         {tab === 'financial' && <FinancialTab property={property} role={role} />}
         {tab === 'listings' && <ListingsTab property={property} />}
         {tab === 'reservations' && <ReservationsTab property={property} />}
+        {tab === 'tasks' && <PropertyTasksTab property={property} />}
         {tab === 'activity' && <ActivityTab property={property} />}
       </div>
     </aside>
