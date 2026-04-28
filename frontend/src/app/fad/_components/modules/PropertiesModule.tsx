@@ -7,7 +7,9 @@ import { AllPropertiesPage } from './properties/AllPropertiesPage';
 import { OnboardingPage } from './properties/OnboardingPage';
 import { AiCardsPage } from './properties/AiCardsPage';
 import { PropertyDetail } from './properties/PropertyDetail';
+import { CreatePropertyDrawer } from './properties/CreatePropertyDrawer';
 import { pendingAiSuggestions } from '../../_data/properties';
+import { IconPlus } from '../icons';
 
 interface Props {
   subPage: string;
@@ -25,6 +27,7 @@ export function PropertiesModule({ subPage, onChangeSubPage }: Props) {
 
   const active = tabs.find((t) => t.id === subPage)?.id ?? 'overview';
   const [openCode, setOpenCode] = useState<string | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
 
   // Cross-link target: ?p=<code> opens detail directly. Strip the param after
   // reading so closing the drawer + navigating away then back doesn't re-open
@@ -50,6 +53,11 @@ export function PropertiesModule({ subPage, onChangeSubPage }: Props) {
         tabs={tabs}
         activeTab={active}
         onTabChange={onChangeSubPage}
+        actions={
+          <button className="btn primary sm" onClick={() => setCreateOpen(true)}>
+            <IconPlus size={12} /> New property
+          </button>
+        }
       />
       <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
         {active === 'overview' && <OverviewPage onOpen={setOpenCode} />}
@@ -63,6 +71,14 @@ export function PropertiesModule({ subPage, onChangeSubPage }: Props) {
           onClose={() => setOpenCode(null)}
         />
       )}
+      <CreatePropertyDrawer
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={(p) => {
+          setCreateOpen(false);
+          setOpenCode(p.code);
+        }}
+      />
     </div>
   );
 }

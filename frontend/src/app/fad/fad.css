@@ -5751,3 +5751,20 @@ html.fad-dark .fin-friday-flag-tag { background: rgba(0,0,0,0.25); }
     gap: 6px;
   }
 }
+
+/* Generic form input — used by CreatePropertyDrawer + future drawers */
+.fad-input {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--radius-sm);
+  outline: none;
+  color: var(--color-text-primary);
+  font-family: inherit;
+}
+.fad-input:focus {
+  border-color: var(--color-brand-accent);
+  outline: 2px solid var(--color-brand-accent-soft);
+}
