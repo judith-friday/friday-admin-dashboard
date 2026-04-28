@@ -231,11 +231,9 @@ function NotificationsDropdown({ role, userId }: { role: ReturnType<typeof usePe
       </div>
 
       {/* Footer */}
-      {filtered.length > top.length && (
-        <button className="fad-notif-viewall" onClick={() => alert('Full-screen view ships next session — N-3.')}>
-          View all {filtered.length} →
-        </button>
-      )}
+      <button className="fad-notif-viewall" onClick={() => { window.location.href = '/fad?m=notifications'; }}>
+        View all {all.length} →
+      </button>
     </div>
   );
 }

@@ -30,6 +30,7 @@ import { BugReportFab } from './BugReport';
 import { AnalyticsModule } from './modules/AnalyticsModule';
 import { ReservationsModule } from './modules/ReservationsModule';
 import { TrainingModule } from './modules/TrainingModule';
+import { NotificationsModule } from './modules/NotificationsModule';
 import { HRModule } from './modules/HRModule';
 import { MODULE_RESOURCE, PermissionsProvider } from './usePermissions';
 import { PermissionGate } from './PermissionGate';
@@ -346,6 +347,8 @@ function renderModuleInner(
       return <IntelligenceModule />;
     case 'analytics':
       return <AnalyticsModule />;
+    case 'notifications':
+      return <NotificationsModule />;
     case 'syndic':
     case 'interior':
     case 'agency':

@@ -81,6 +81,7 @@ export const MODULES: ModuleDef[] = [
   { id: 'syndic', label: 'Syndic', group: 'Units', tier: 'tease', ship: "Q1 '27", icon: 'IconSyndic', path: '/gms/syndic' },
   { id: 'interior', label: 'Interior', group: 'Units', tier: 'tease', ship: "Q2 '27", icon: 'IconInterior', path: '/gms/interior' },
   { id: 'agency', label: 'Agency', group: 'Units', tier: 'tease', ship: 'TBD', icon: 'IconAgency', path: '/gms/agency' },
+  { id: 'notifications', label: 'Notifications', group: 'System', tier: 'live', ship: 'live', icon: 'IconBell', path: '/fad/notifications' },
   { id: 'training', label: 'Training', group: 'System', tier: 'preview', ship: "May '26", icon: 'IconAI', path: '/gms/training' },
   { id: 'settings', label: 'Settings', group: 'System', tier: 'live', ship: 'live', icon: 'IconSettings', path: '/gms/settings' },
 ];
