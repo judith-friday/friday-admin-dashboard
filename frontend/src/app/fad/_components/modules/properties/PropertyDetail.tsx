@@ -25,7 +25,7 @@ import { fireToast } from '../../Toaster';
 import { PhotoGallery } from './PhotoGallery';
 import { AmenityMatrix } from './AmenityMatrix';
 import { ListingPushFlow } from './ListingPushFlow';
-import { setBaseDescription, setChannelDescription, type ListingChannel } from '../../../_data/properties';
+import { setBaseDescription, setChannelDescription, listingRecommendations, type ListingChannel } from '../../../_data/properties';
 
 interface Props {
   propertyCode: string;
@@ -163,8 +163,37 @@ function PropertyDetailHeader({ property, onClose }: { property: Property; onClo
 // ───────────────── Tab: Overview ─────────────────
 
 function OverviewTab({ property }: { property: Property }) {
+  const recs = listingRecommendations(property);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {recs.length > 0 && (
+        <Section title="Recommendations">
+          <p style={{ margin: '0 0 8px', fontSize: 11, color: 'var(--color-text-tertiary)' }}>
+            AI-flagged listing-quality signals · Phase 2 augments with photo analysis + LLM description scoring.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {recs.map((rec) => (
+              <div
+                key={rec.id}
+                style={{
+                  display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 10px',
+                  background: rec.severity === 'high' ? 'rgba(220, 80, 80, 0.08)' : rec.severity === 'medium' ? 'rgba(220, 160, 60, 0.08)' : 'var(--color-background-secondary)',
+                  border: `0.5px solid ${rec.severity === 'high' ? 'rgba(220, 80, 80, 0.4)' : rec.severity === 'medium' ? 'rgba(220, 160, 60, 0.4)' : 'var(--color-border-tertiary)'}`,
+                  borderRadius: 'var(--radius-sm)',
+                }}
+              >
+                <span style={{ fontSize: 11, marginTop: 1 }}>
+                  {rec.severity === 'high' ? '🔴' : rec.severity === 'medium' ? '🟡' : '⚪'}
+                </span>
+                <span style={{ flex: 1, fontSize: 12 }}>{rec.message}</span>
+                {rec.actionLabel && (
+                  <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>· {rec.actionLabel}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
       <Section title="Quick stats">
         <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
           <Stat label="Occupancy YTD" value={property.occupancyYTD > 0 ? `${Math.round(property.occupancyYTD * 100)}%` : '—'} />

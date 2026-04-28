@@ -5,7 +5,9 @@ import { ModuleHeader } from '../ModuleHeader';
 import { OverviewPage } from './properties/OverviewPage';
 import { AllPropertiesPage } from './properties/AllPropertiesPage';
 import { OnboardingPage } from './properties/OnboardingPage';
+import { AiCardsPage } from './properties/AiCardsPage';
 import { PropertyDetail } from './properties/PropertyDetail';
+import { pendingAiSuggestions } from '../../_data/properties';
 
 interface Props {
   subPage: string;
@@ -13,10 +15,12 @@ interface Props {
 }
 
 export function PropertiesModule({ subPage, onChangeSubPage }: Props) {
+  const aiCount = pendingAiSuggestions().length;
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'all', label: 'All properties' },
     { id: 'onboarding', label: 'Onboarding' },
+    { id: 'ai-cards', label: aiCount > 0 ? `AI Cards · ${aiCount}` : 'AI Cards' },
   ];
 
   const active = tabs.find((t) => t.id === subPage)?.id ?? 'overview';
@@ -51,6 +55,7 @@ export function PropertiesModule({ subPage, onChangeSubPage }: Props) {
         {active === 'overview' && <OverviewPage onOpen={setOpenCode} />}
         {active === 'all' && <AllPropertiesPage onOpen={setOpenCode} />}
         {active === 'onboarding' && <OnboardingPage onOpen={setOpenCode} />}
+        {active === 'ai-cards' && <AiCardsPage onOpen={setOpenCode} />}
       </div>
       {openCode && (
         <PropertyDetail

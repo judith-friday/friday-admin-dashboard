@@ -1067,6 +1067,176 @@ export function removePhoto(propertyId: string, photoId: string): void {
   delete PHOTO_BY_ID[photoId];
 }
 
+// ───────────────── AI Card suggestions (Phase 2) ─────────────────
+//
+// Queue of pending Property Card suggestions surfaced by the AI extraction
+// loop. Phase 1 fixture; Phase 2 swaps to live LLM scanning of Inbox threads
+// + task comments per pack §8.
+
+export interface AiCardSuggestion {
+  id: string;
+  propertyId: string;
+  /** Source thread / task / comment that surfaced the suggestion. */
+  sourceLabel: string;
+  category: PropertyCardCategory;
+  proposedTitle: string;
+  proposedBody: string;
+  confidence: number;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: string;
+}
+
+export const AI_CARD_SUGGESTIONS: AiCardSuggestion[] = [
+  {
+    id: 'ai-1', propertyId: 'p-bs1',
+    sourceLabel: 'Inbox · thread #1234 (Mathias)',
+    category: 'utilities', proposedTitle: 'Water shutoff valve',
+    proposedBody: 'Main water shutoff is in the utility closet behind the kitchen, lower-right corner. Counter-clockwise to close. Mathias mentioned it after the Apr 12 leak incident.',
+    confidence: 0.91, status: 'pending', createdAt: '2026-04-26T11:30:00Z',
+  },
+  {
+    id: 'ai-2', propertyId: 'p-vv47',
+    sourceLabel: 'Inbox · 2 guest threads (Marchand · Beaumont)',
+    category: 'pool_outdoor', proposedTitle: 'Pool heating',
+    proposedBody: 'Pool is heated to ~28°C April-October; off-season requires 24h notice to enable. Solar-only; no electric backup.',
+    confidence: 0.86, status: 'pending', createdAt: '2026-04-25T14:00:00Z',
+  },
+  {
+    id: 'ai-3', propertyId: 'p-bl12',
+    sourceLabel: 'Operations · task t-006 comments',
+    category: 'wifi_tech', proposedTitle: 'A/C compressor model',
+    proposedBody: 'Master bedroom A/C: Daikin FTXM50 · serial DK-22-44188 · installed 2025-06. Refer to Mathias for service.',
+    confidence: 0.78, status: 'pending', createdAt: '2026-04-24T09:00:00Z',
+  },
+  {
+    id: 'ai-4', propertyId: 'p-pt3',
+    sourceLabel: 'Inbox · thread #4502 (cleaner)',
+    category: 'access', proposedTitle: 'Side gate code',
+    proposedBody: 'Side gate code is 7421 (rotates quarterly). Used for cleaner + maintenance access — separate from main door lockbox.',
+    confidence: 0.83, status: 'pending', createdAt: '2026-04-23T16:00:00Z',
+  },
+  {
+    id: 'ai-5', propertyId: 'p-cor',
+    sourceLabel: 'Reviews · 3 reviews mentioning',
+    category: 'local_context', proposedTitle: 'Best snorkeling spots',
+    proposedBody: 'Trou aux Biches reef · 200m offshore from main beach · best at high tide. Recommended in 3 recent guest reviews — adding to Local context.',
+    confidence: 0.74, status: 'pending', createdAt: '2026-04-22T10:00:00Z',
+  },
+];
+
+const AI_BY_ID: Record<string, AiCardSuggestion> = AI_CARD_SUGGESTIONS.reduce(
+  (acc, s) => ({ ...acc, [s.id]: s }),
+  {} as Record<string, AiCardSuggestion>,
+);
+
+export function pendingAiSuggestions(): AiCardSuggestion[] {
+  return AI_CARD_SUGGESTIONS.filter((s) => s.status === 'pending');
+}
+
+export function pendingAiSuggestionsForProperty(propertyId: string): AiCardSuggestion[] {
+  return AI_CARD_SUGGESTIONS.filter((s) => s.propertyId === propertyId && s.status === 'pending');
+}
+
+export function acceptAiSuggestion(id: string): PropertyCard | null {
+  const s = AI_BY_ID[id];
+  if (!s || s.status !== 'pending') return null;
+  s.status = 'accepted';
+  const card: PropertyCard = {
+    id: `pc-${s.propertyId.slice(2)}-ai-${s.id.slice(3)}`,
+    propertyId: s.propertyId,
+    category: s.category,
+    title: s.proposedTitle,
+    body: s.proposedBody,
+    surface: 'both',
+    source: 'ai_extracted',
+    aiExtractionMetadata: { threadId: s.sourceLabel, confidence: s.confidence },
+    lastUpdated: new Date().toISOString(),
+    lastUpdatedByUserId: 'ai',
+  };
+  PROPERTY_CARDS.push(card);
+  return card;
+}
+
+export function rejectAiSuggestion(id: string): void {
+  const s = AI_BY_ID[id];
+  if (s) s.status = 'rejected';
+}
+
+// ───────────────── Listing-quality recommendations (Phase 2) ─────────────────
+//
+// Heuristic recommendations surfaced per-property. Phase 1 = computed from
+// property state; Phase 2 = augmented by photo analysis + LLM description
+// scoring + occupancy trend signals.
+
+export interface ListingRecommendation {
+  id: string;
+  severity: 'low' | 'medium' | 'high';
+  message: string;
+  actionLabel?: string;
+}
+
+export function listingRecommendations(p: Property): ListingRecommendation[] {
+  const recs: ListingRecommendation[] = [];
+
+  if (p.lifecycleStatus === 'live') {
+    if (p.photoIds.length < 6) {
+      recs.push({
+        id: 'photos_low',
+        severity: p.photoIds.length === 0 ? 'high' : 'medium',
+        message: `Photo count is low (${p.photoIds.length} / 10 recommended). Channels weight listings with rich galleries.`,
+        actionLabel: 'Open gallery',
+      });
+    }
+    if (!p.description || p.description.length < 60) {
+      recs.push({
+        id: 'desc_short',
+        severity: 'medium',
+        message: `Base description is ${p.description ? p.description.length + ' chars' : 'empty'} — channels expect 200+ chars for SEO weighting.`,
+        actionLabel: 'Edit description',
+      });
+    }
+    if ((p.amenities ?? []).length < 8) {
+      recs.push({
+        id: 'amenities_thin',
+        severity: 'low',
+        message: `Only ${(p.amenities ?? []).length} amenities tagged. Filling out the matrix improves channel filterability.`,
+        actionLabel: 'Open amenity matrix',
+      });
+    }
+    // Occupancy trend (mock signal — Phase 2 wires real Analytics)
+    if (p.occupancy90d < p.occupancyYTD - 0.10 && p.occupancyYTD > 0.4) {
+      recs.push({
+        id: 'occ_dropping',
+        severity: 'high',
+        message: `Occupancy dropping — 90d ${Math.round(p.occupancy90d * 100)}% vs YTD ${Math.round(p.occupancyYTD * 100)}%. Consider campaign or pricing review.`,
+        actionLabel: 'Review pricing',
+      });
+    }
+    if (p.listings.length < 2) {
+      recs.push({
+        id: 'channels_thin',
+        severity: 'medium',
+        message: `Only listed on ${p.listings.length} channel${p.listings.length === 1 ? '' : 's'}. Multi-channel exposure typically lifts occupancy 12-18%.`,
+        actionLabel: 'Push to more channels',
+      });
+    }
+  }
+
+  if (p.lifecycleStatus === 'paused' && p.pauseReturnBy) {
+    const returnDate = new Date(p.pauseReturnBy);
+    const daysUntil = Math.ceil((returnDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    if (daysUntil > 0 && daysUntil < 14) {
+      recs.push({
+        id: 'unpause_due',
+        severity: 'medium',
+        message: `Pause return-by is in ${daysUntil} days. Confirm renovation completion + plan re-listing.`,
+      });
+    }
+  }
+
+  return recs;
+}
+
 // ───────────────── Bulk-operation helpers (Phase 2) ─────────────────
 
 export function bulkSetLifecycle(propertyIds: string[], status: LifecycleStatus, reason?: string): number {
