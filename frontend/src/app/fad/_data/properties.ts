@@ -1067,11 +1067,15 @@ export function removePhoto(propertyId: string, photoId: string): void {
   delete PHOTO_BY_ID[photoId];
 }
 
-// ───────────────── AI Card suggestions (Phase 2) ─────────────────
+// ───────────────── AI Card suggestions (Training-bound) ─────────────────
 //
 // Queue of pending Property Card suggestions surfaced by the AI extraction
-// loop. Phase 1 fixture; Phase 2 swaps to live LLM scanning of Inbox threads
-// + task comments per pack §8.
+// loop. Originally surfaced as a Properties sub-page; reframed as a Training
+// concern (knowledge-extraction loop = "teaching the system") — moves to
+// Training module when it scopes. Stays in this fixture for now so the
+// inline per-property AI banner in the Operational tab keeps working;
+// Properties · Insights surfaces a separate concern (improvement opportunities,
+// not new knowledge).
 
 export interface AiCardSuggestion {
   id: string;
@@ -1235,6 +1239,129 @@ export function listingRecommendations(p: Property): ListingRecommendation[] {
   }
 
   return recs;
+}
+
+// ───────────────── Portfolio-level insights (Phase 2) ─────────────────
+//
+// Cross-property pattern detection — feeds the Insights sub-page.
+// Phase 1 = heuristic; Phase 2 augments with real Analytics data + LLM
+// pattern extraction across reviews / occupancy / pricing.
+
+export interface PortfolioInsight {
+  id: string;
+  severity: 'low' | 'medium' | 'high';
+  /** Properties impacted — code list. */
+  propertyCodes: string[];
+  title: string;
+  message: string;
+  /** Suggested follow-up action — narrative for now. */
+  actionLabel?: string;
+  /** Group-by axis (region / cohort / type). */
+  axis?: 'region' | 'type' | 'multi-unit' | 'syndic';
+}
+
+export function portfolioInsights(): PortfolioInsight[] {
+  const insights: PortfolioInsight[] = [];
+
+  // Group occupancy slumps by region
+  const byRegion: Record<string, Property[]> = {};
+  PROPERTIES.forEach((p) => {
+    if (p.lifecycleStatus !== 'live') return;
+    (byRegion[p.region] = byRegion[p.region] || []).push(p);
+  });
+  Object.entries(byRegion).forEach(([region, props]) => {
+    if (props.length < 2) return;
+    const ytdAvg = props.reduce((acc, p) => acc + p.occupancyYTD, 0) / props.length;
+    const recent = props.reduce((acc, p) => acc + p.occupancy90d, 0) / props.length;
+    if (ytdAvg > 0.4 && recent < ytdAvg - 0.05) {
+      insights.push({
+        id: `region_drop_${region}`,
+        severity: ytdAvg - recent > 0.10 ? 'high' : 'medium',
+        propertyCodes: props.map((p) => p.code),
+        title: `${region.replace(/_/g, ' ')} occupancy slipping`,
+        message: `${props.length} live properties in this region · 90-day avg ${Math.round(recent * 100)}% vs YTD ${Math.round(ytdAvg * 100)}%. Pattern across the cohort, not isolated.`,
+        actionLabel: 'Review pricing + campaign options',
+        axis: 'region',
+      });
+    }
+  });
+
+  // Photo-thin properties
+  const photoLow = PROPERTIES.filter((p) => p.lifecycleStatus === 'live' && p.photoIds.length < 4);
+  if (photoLow.length >= 3) {
+    insights.push({
+      id: 'photos_thin_portfolio',
+      severity: 'medium',
+      propertyCodes: photoLow.map((p) => p.code),
+      title: 'Photo gallery sweep needed',
+      message: `${photoLow.length} live properties have fewer than 4 photos. Channel algorithms penalise listings with thin galleries.`,
+      actionLabel: 'Schedule photoshoot batch',
+    });
+  }
+
+  // Description coverage
+  const descMissing = PROPERTIES.filter((p) => p.lifecycleStatus === 'live' && (!p.description || p.description.length < 60));
+  if (descMissing.length >= 3) {
+    insights.push({
+      id: 'desc_coverage',
+      severity: 'medium',
+      propertyCodes: descMissing.map((p) => p.code),
+      title: 'Description coverage low',
+      message: `${descMissing.length} live properties have empty or short base descriptions. Channels weight SEO based on description length + freshness.`,
+      actionLabel: 'Generate descriptions with AI assistant',
+    });
+  }
+
+  // Multi-unit combo under-utilization
+  const combos = PROPERTIES.filter((p) => p.isCombo);
+  combos.forEach((combo) => {
+    if (combo.occupancy90d < 0.4 && combo.componentPropertyIds) {
+      const components = combo.componentPropertyIds.map((id) => PROPERTY_BY_ID[id]).filter(Boolean) as Property[];
+      const componentAvg = components.reduce((acc, p) => acc + p.occupancy90d, 0) / Math.max(components.length, 1);
+      insights.push({
+        id: `combo_under_${combo.code}`,
+        severity: 'low',
+        propertyCodes: [combo.code, ...components.map((p) => p.code)],
+        title: `${combo.code} combo under-booked`,
+        message: `Combo property ${combo.code} (${combo.name}) at ${Math.round(combo.occupancy90d * 100)}% 90d occ vs component avg ${Math.round(componentAvg * 100)}%. Consider Smart Calendar Rule tuning or pricing review.`,
+        actionLabel: 'Review combo strategy',
+        axis: 'multi-unit',
+      });
+    }
+  });
+
+  // Channel coverage thin
+  const oneChannel = PROPERTIES.filter((p) => p.lifecycleStatus === 'live' && p.listings.length === 1);
+  if (oneChannel.length >= 3) {
+    insights.push({
+      id: 'channel_coverage_thin',
+      severity: 'low',
+      propertyCodes: oneChannel.map((p) => p.code),
+      title: 'Single-channel exposure',
+      message: `${oneChannel.length} live properties are listed on only one channel. Multi-channel typically lifts occupancy 12-18%.`,
+      actionLabel: 'Push to additional channels',
+    });
+  }
+
+  // Onboarding stuck
+  const onboardingStuck = PROPERTIES.filter((p) => {
+    if (p.lifecycleStatus !== 'onboarding') return false;
+    const lastDate = new Date(p.lastActivityAt);
+    const days = (Date.now() - lastDate.getTime()) / (1000 * 60 * 60 * 24);
+    return days > 7;
+  });
+  if (onboardingStuck.length >= 1) {
+    insights.push({
+      id: 'onboarding_stuck',
+      severity: 'high',
+      propertyCodes: onboardingStuck.map((p) => p.code),
+      title: 'Onboarding stalled',
+      message: `${onboardingStuck.length} ${onboardingStuck.length === 1 ? 'property' : 'properties'} stuck > 7 days without activity. Escalate to Mathias.`,
+      actionLabel: 'Review onboarding queue',
+    });
+  }
+
+  return insights;
 }
 
 // ───────────────── Bulk-operation helpers (Phase 2) ─────────────────

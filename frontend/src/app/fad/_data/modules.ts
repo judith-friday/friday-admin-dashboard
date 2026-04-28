@@ -40,7 +40,7 @@ export const MODULES: ModuleDef[] = [
     { id: 'overview', label: 'Overview' },
     { id: 'all', label: 'All properties' },
     { id: 'onboarding', label: 'Onboarding' },
-    { id: 'ai-cards', label: 'AI Cards' },
+    { id: 'insights', label: 'Insights' },
   ] },
   { id: 'reservations', label: 'Reservations', group: 'Portfolio', tier: 'live', ship: 'live', icon: 'IconBook', path: '/fad/reservations', subPages: [
     { id: 'overview', label: 'Overview' },

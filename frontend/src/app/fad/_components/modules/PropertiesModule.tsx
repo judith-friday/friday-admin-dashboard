@@ -5,10 +5,10 @@ import { ModuleHeader } from '../ModuleHeader';
 import { OverviewPage } from './properties/OverviewPage';
 import { AllPropertiesPage } from './properties/AllPropertiesPage';
 import { OnboardingPage } from './properties/OnboardingPage';
-import { AiCardsPage } from './properties/AiCardsPage';
+import { InsightsPage } from './properties/InsightsPage';
 import { PropertyDetail } from './properties/PropertyDetail';
 import { CreatePropertyDrawer } from './properties/CreatePropertyDrawer';
-import { pendingAiSuggestions } from '../../_data/properties';
+import { portfolioInsights } from '../../_data/properties';
 import { IconPlus } from '../icons';
 
 interface Props {
@@ -17,12 +17,12 @@ interface Props {
 }
 
 export function PropertiesModule({ subPage, onChangeSubPage }: Props) {
-  const aiCount = pendingAiSuggestions().length;
+  const insightsCount = portfolioInsights().filter((i) => i.severity === 'high').length;
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'all', label: 'All properties' },
     { id: 'onboarding', label: 'Onboarding' },
-    { id: 'ai-cards', label: aiCount > 0 ? `AI Cards · ${aiCount}` : 'AI Cards' },
+    { id: 'insights', label: insightsCount > 0 ? `Insights · ${insightsCount}` : 'Insights' },
   ];
 
   const active = tabs.find((t) => t.id === subPage)?.id ?? 'overview';
@@ -63,7 +63,7 @@ export function PropertiesModule({ subPage, onChangeSubPage }: Props) {
         {active === 'overview' && <OverviewPage onOpen={setOpenCode} />}
         {active === 'all' && <AllPropertiesPage onOpen={setOpenCode} />}
         {active === 'onboarding' && <OnboardingPage onOpen={setOpenCode} />}
-        {active === 'ai-cards' && <AiCardsPage onOpen={setOpenCode} />}
+        {active === 'insights' && <InsightsPage onOpen={setOpenCode} />}
       </div>
       {openCode && (
         <PropertyDetail
