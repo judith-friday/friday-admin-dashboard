@@ -899,7 +899,7 @@ function IntelDigest() {
     <div className="card">
       <div className="card-header">
         <div className="card-title">This morning&apos;s digest</div>
-        <div className="card-subtitle">Friday · cached 06:00 · 3 things worth knowing</div>
+        <div className="card-subtitle">Friday · cached 06:00 · {INTEL_DIGEST.length} things worth knowing</div>
       </div>
       {INTEL_DIGEST.map((d, i) => (
         <div

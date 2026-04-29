@@ -119,13 +119,7 @@ function OverviewTab() {
             subtitle="Click a metric to drill"
           />
           <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {[
-              { label: 'Occupancy trending up', detail: '+3pp vs last year', dir: 'up' as const },
-              { label: 'Direct-book share recovering', detail: '+2pp QoQ, goal 25% by Oct', dir: 'up' as const },
-              { label: 'Sable Noir rating slipping', detail: '4.2 avg · −0.2 vs prev', dir: 'down' as const },
-              { label: 'Nitzana soft-launch', detail: '45% occ · full calendar May', dir: 'flat' as const },
-              { label: 'First-draft acceptance below target', detail: '79% · target 85%', dir: 'down' as const },
-            ].map((i, idx) => (
+            {([] as { label: string; detail: string; dir: 'up' | 'down' | 'flat' }[]).map((i, idx) => (
               <div
                 key={idx}
                 style={{

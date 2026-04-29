@@ -194,41 +194,7 @@ const sl = (
   reviewId: string, staffId: string, role: StaffRole, breezewayTaskId: string, cleaningDate: string,
 ): StaffReviewLink => ({ reviewId, staffId, role, breezewayTaskId, cleaningDate });
 
-export const STAFF_REVIEW_LINKS: StaffReviewLink[] = [
-  sl('rv-001', 'u-catherine', 'cleaner', 'bzw-tk-rc15-426', '2026-04-26'),
-  sl('rv-002', 'u-alex', 'cleaner', 'bzw-tk-lc9-424', '2026-04-24'),
-  sl('rv-003', 'u-catherine', 'cleaner', 'bzw-tk-gbh8-422', '2026-04-22'),
-  sl('rv-003', 'u-franny', 'inspector', 'bzw-tk-gbh8-i422', '2026-04-22'),
-  sl('rv-004', 'u-mary', 'cleaner', 'bzw-tk-bs1-421', '2026-04-21'),
-  sl('rv-005', 'u-catherine', 'cleaner', 'bzw-tk-bl12-420', '2026-04-20'),
-  sl('rv-005', 'u-alex', 'inspector', 'bzw-tk-bl12-i420', '2026-04-20'),
-  sl('rv-006', 'u-mary', 'cleaner', 'bzw-tk-vv47-418', '2026-04-18'),
-  sl('rv-007', 'u-mary', 'cleaner', 'bzw-tk-sd10-417', '2026-04-17'),
-  sl('rv-008', 'u-alex', 'cleaner', 'bzw-tk-gbh3-416', '2026-04-16'),
-  sl('rv-009', 'u-catherine', 'cleaner', 'bzw-tk-vv47-415', '2026-04-15'),
-  sl('rv-010', 'u-alex', 'cleaner', 'bzw-tk-pt3-414', '2026-04-14'),
-  sl('rv-011', 'u-mary', 'cleaner', 'bzw-tk-lc9-413', '2026-04-13'),
-  sl('rv-012', 'u-catherine', 'cleaner', 'bzw-tk-ks5-412', '2026-04-12'),
-  sl('rv-012', 'u-franny', 'inspector', 'bzw-tk-ks5-i412', '2026-04-12'),
-  sl('rv-013', 'u-mary', 'cleaner', 'bzw-tk-lb2-411', '2026-04-11'),
-  sl('rv-014', 'u-catherine', 'cleaner', 'bzw-tk-bl12-410', '2026-04-10'),
-  sl('rv-015', 'u-alex', 'cleaner', 'bzw-tk-bcna-409', '2026-04-09'),
-  sl('rv-016', 'u-catherine', 'cleaner', 'bzw-tk-gbh8-408', '2026-04-08'),
-  sl('rv-017', 'u-mary', 'cleaner', 'bzw-tk-rc15-407', '2026-04-07'),
-  sl('rv-018', 'u-alex', 'cleaner', 'bzw-tk-sd10-406', '2026-04-06'),
-  sl('rv-019', 'u-mary', 'cleaner', 'bzw-tk-pt3-405', '2026-04-05'),
-  sl('rv-020', 'u-catherine', 'cleaner', 'bzw-tk-vv47-403', '2026-04-03'),
-  sl('rv-021', 'u-alex', 'cleaner', 'bzw-tk-lv10-401', '2026-04-01'),
-  sl('rv-022', 'u-catherine', 'cleaner', 'bzw-tk-gbh3-323', '2026-03-23'),
-  sl('rv-023', 'u-mary', 'cleaner', 'bzw-tk-bs1-320', '2026-03-20'),
-  sl('rv-024', 'u-catherine', 'cleaner', 'bzw-tk-ks5-316', '2026-03-16'),
-  sl('rv-025', 'u-alex', 'cleaner', 'bzw-tk-lb2-312', '2026-03-12'),
-  sl('rv-026', 'u-mary', 'cleaner', 'bzw-tk-vv47-308', '2026-03-08'),
-  sl('rv-027', 'u-catherine', 'cleaner', 'bzw-tk-bl12-303', '2026-03-03'),
-  sl('rv-028', 'u-alex', 'cleaner', 'bzw-tk-gbh8-220', '2026-02-20'),
-  sl('rv-029', 'u-mary', 'cleaner', 'bzw-tk-pt3-213', '2026-02-13'),
-  sl('rv-030', 'u-catherine', 'cleaner', 'bzw-tk-sd10-201', '2026-02-01'),
-];
+export const STAFF_REVIEW_LINKS: StaffReviewLink[] = [];
 
 export function staffLinksForReview(reviewId: string): StaffReviewLink[] {
   return STAFF_REVIEW_LINKS.filter((l) => l.reviewId === reviewId);
@@ -358,14 +324,10 @@ export function unrepliedReviews(): Review[] {
 /** AI-derived cohort narratives — Phase 1 hand-crafted, Phase 2 will pull
  *  from a real LLM call. Shape stays the same so swap is local. */
 export const COHORT_NARRATIVES: Record<Cohort, string> = {
-  flic_en_flac:
-    "In the last 90 days Flic en Flac is the highest-volume cohort by a wide margin (12 reviews) and the most consistent — average rating 4.6, no review under 3 stars. Welcome-touches and Communication dominate the positive tag mix; the only repeat negative pattern is FF&E (Tomás's coffee machine, Sofia's curtains) which suggests a portfolio-wide hardware refresh would lift scores another notch.",
-  grand_baie:
-    "Grand Baie is small but elite: 6 reviews, 4.8 average, no negative tags in the last 60 days. Beach access and Spotless are the standout positive signals. Worth flagging that GBH-C8 has produced two five-star reviews in three weeks — Catherine has cleaned both. Keep her on that property.",
-  pereybere:
-    "Pereybere swung in the last 30 days. BCN-A's drain-smell incident dragged the cohort average down to 3.5 (Lukas's 2-star). PT-3 is steady at 4.0 across three reviews but Hot water and Welcome-basket-completeness keep recurring as small misses. Plumbing-then-checklist pass would close this gap.",
-  bel_ombre:
-    "Bel Ombre is split: SD-10 produces consistent 5-star stays (Nina, Ines), LB-2 shows mixed results with two recent 3-star reviews around AC, Wifi and Linen. Both properties use the same maintenance vendor — worth checking whether LB-2 is on a different cleaner rotation.",
+  flic_en_flac: '',
+  grand_baie: '',
+  pereybere: '',
+  bel_ombre: '',
 };
 
 /** AI Suggested Actions — review → suggested Operations task. Phase 1
@@ -381,36 +343,7 @@ export interface SuggestedAction {
   reasoning: string;
 }
 
-export const SUGGESTED_ACTIONS: SuggestedAction[] = [
-  {
-    id: 'sa-001', reviewId: 'rv-002',
-    taskTitle: 'AC unit replacement at LC-9 master bedroom',
-    taskDescription: 'Henrik flagged AC outage on day 2 of stay; parts took 36h. Replace unit now to prevent repeat with incoming guest.',
-    department: 'maintenance', subdepartment: 'aircon', priority: 'high',
-    reasoning: 'AC issues tag + 3-star rating + complaint about parts ETA',
-  },
-  {
-    id: 'sa-002', reviewId: 'rv-015',
-    taskTitle: 'BCN-A drain trap replacement (kitchen)',
-    taskDescription: 'Lukas left a day early due to persistent kitchen drain smell. Replace drain trap before next booking on May 3.',
-    department: 'maintenance', subdepartment: 'plumbing', priority: 'urgent',
-    reasoning: 'Smell tag + 2-star rating + early-departure flag',
-  },
-  {
-    id: 'sa-003', reviewId: 'rv-021',
-    taskTitle: 'Tighten LV-10 pool service interval to 7 days',
-    taskDescription: "Olivia found algae on day 1. Confirm interval is 7d not 9d, brief the vendor.",
-    department: 'maintenance', subdepartment: 'pool', priority: 'medium',
-    reasoning: 'Pool maintenance tag + 3-star rating',
-  },
-  {
-    id: 'sa-004', reviewId: 'rv-017',
-    taskTitle: 'Descale RC-15 coffee machine',
-    taskDescription: 'Tomás flagged descaling overdue. 15-min job, do before Saturday turnover.',
-    department: 'cleaning', subdepartment: 'amenities', priority: 'low',
-    reasoning: 'Coffee machine tag + at-this-price-it-stands-out sentiment',
-  },
-];
+export const SUGGESTED_ACTIONS: SuggestedAction[] = [];
 
 /** Anomaly callouts shown above OverviewPage. Phase 1 hand-crafted, Phase 2
  *  pattern-detected from rolling sub-rating means. */
@@ -421,20 +354,4 @@ export interface Anomaly {
   severity: 'info' | 'warn' | 'danger';
 }
 
-export const REVIEW_ANOMALIES: Anomaly[] = [
-  {
-    id: 'an-001', severity: 'warn',
-    title: 'Cleanliness rating dropped 0.3 vs last month',
-    body: "Last 30 days: 4.4 avg cleanliness. Prior 30 days: 4.7. Drag is concentrated at LB-2 and BCN-A — both north-zone, both Mary-cleaned. Worth a 1:1 before Mary's last day on May 25.",
-  },
-  {
-    id: 'an-002', severity: 'info',
-    title: 'Welcome-touches mentions doubled in 30 days',
-    body: 'From 4 mentions in March to 9 mentions in April. Catherine\'s welcome-basket protocol seems to be the driver. Codify into the standard pre-arrival checklist.',
-  },
-  {
-    id: 'an-003', severity: 'danger',
-    title: 'BCN-A on watch — 2 reviews in 60 days, 3.0 avg',
-    body: 'Drain-smell incident plus a previous Wifi complaint. Property is at risk of slipping into Reva\'s low-activity threshold AND a low-rating cluster simultaneously. Schedule a full property pass.',
-  },
-];
+export const REVIEW_ANOMALIES: Anomaly[] = [];

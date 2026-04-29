@@ -1429,7 +1429,7 @@ export function TeaseModule({ mod }: { mod: ModuleDef }) {
               </>
             )}
           </h2>
-          <p className="tease-desc">Coming later.</p>
+          <p className="tease-desc">Coming soon.</p>
         </div>
       </div>
     );

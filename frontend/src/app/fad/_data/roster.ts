@@ -67,15 +67,7 @@ export interface RosterWeek {
   days: RosterDay[];
 }
 
-export const ROSTER_USERS_ORDER = [
-  'u-ishant',
-  'u-mathias',
-  'u-mary',
-  'u-bryan',
-  'u-franny',
-  'u-alex',
-  'u-catherine',
-];
+export const ROSTER_USERS_ORDER: string[] = [];
 
 // ───── Cell builder helpers ─────
 
@@ -177,12 +169,8 @@ export const ROSTER_THIS_WEEK: RosterWeek = buildWeek(
     status: 'draft',
     aiSuggested: true,
     aiSuggestedAt: '2026-04-26T18:00:00',
-    aiNotes:
-      'Suggested based on: 12 cleaning tasks Mon-Wed (5 north, 4 west, 3 admin), 4 maintenance jobs at LB-2 + LV-10 (west zone, Mathias has both), Catherine off Tue (PTO request approved Apr 23). Bryan kept on north zone — has 7 tasks at GBH-* + PT-3 this week. Mary off Wed (childcare day per recurring pattern).',
-    aiConstraintWarnings: [
-      'Bryan only has 1 standby day (Wed) — within 5+1+1 spec.',
-      'West zone gap on Sat: Alex on standby, no other west body. Consider on-call protocol.',
-    ],
+    aiNotes: '',
+    aiConstraintWarnings: [],
   },
   THIS_WEEK_DATES,
   thisWeekMatrix,
@@ -253,28 +241,12 @@ export interface WorkloadPreview {
 export const WORKLOAD_THIS_WEEK: WorkloadPreview = {
   weekStart: '2026-04-27',
   weekEnd: '2026-05-03',
-  byZoneDept: [
-    { zone: 'north', department: 'cleaning', count: 12 },
-    { zone: 'north', department: 'inspection', count: 3 },
-    { zone: 'north', department: 'maintenance', count: 2 },
-    { zone: 'west', department: 'cleaning', count: 8 },
-    { zone: 'west', department: 'inspection', count: 4 },
-    { zone: 'west', department: 'maintenance', count: 5 },
-    { zone: 'office', department: 'office', count: 10 },
-  ],
-  byDay: [
-    { date: '2026-04-27', totalTasks: 7 },
-    { date: '2026-04-28', totalTasks: 6 },
-    { date: '2026-04-29', totalTasks: 9 },
-    { date: '2026-04-30', totalTasks: 6 },
-    { date: '2026-05-01', totalTasks: 5 },
-    { date: '2026-05-02', totalTasks: 3 },
-    { date: '2026-05-03', totalTasks: 2 },
-  ],
-  heaviestDay: '2026-04-29',
-  heaviestCount: 9,
-  lightestDay: '2026-05-03',
-  lightestCount: 2,
+  byZoneDept: [],
+  byDay: [],
+  heaviestDay: '',
+  heaviestCount: 0,
+  lightestDay: '',
+  lightestCount: 0,
 };
 
 // ───────────────── User Schedule (live hour grid, used by Tasks > Schedule page if ever) ─────────────────

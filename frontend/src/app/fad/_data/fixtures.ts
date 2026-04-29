@@ -110,52 +110,17 @@ export interface KPI {
   dir: 'up' | 'down' | null;
 }
 
-export const FIN_KPIS: KPI[] = [
-  { label: 'Revenue MTD', value: '€ 184,220', sub: '+12% vs Apr LM', dir: 'up' },
-  { label: 'Outstanding payouts', value: '€ 42,960', sub: '6 owners', dir: null },
-  { label: 'Tourist tax owed', value: '€ 3,140', sub: 'Apr filing due May 7', dir: null },
-  { label: 'Refunds processed', value: '€ 1,880', sub: '3 this month', dir: null },
-];
+export const FIN_KPIS: KPI[] = [];
 
-export const FIN_TX = [
-  { desc: 'Airbnb payout — Mar batch 2', meta: 'settled Apr 18 · ref AXB-8821', amount: '+€ 48,220' },
-  { desc: 'Booking.com payout — Apr wk 2', meta: 'settled Apr 17 · ref BKG-2210', amount: '+€ 31,504' },
-  { desc: 'Refund — Fonseca tourist tax overcharge', meta: 'processed Apr 16 · Mary', amount: '−€ 180' },
-  { desc: 'Breezeway — April cleaner run', meta: 'due Apr 25 · invoice 4421', amount: '−€ 4,320' },
-  { desc: 'Owner statement — Nitzana Estate', meta: 'pending release May 3', amount: '−€ 28,440' },
-  { desc: 'Direct booking — Marchand (Thu)', meta: 'captured Apr 15 · VAZ', amount: '+€ 2,850' },
-];
+export const FIN_TX: { desc: string; meta: string; amount: string }[] = [];
 
-export const OPS_CLEANS = [
-  { prop: 'Villa Azur', time: '10:00', status: 'in-progress', cleaner: 'Priya · Breezeway' },
-  { prop: 'Blue Bay House', time: '11:30', status: 'scheduled', cleaner: 'Renuka · Breezeway' },
-  { prop: 'Sable Noir', time: '12:00', status: 'scheduled', cleaner: 'Vimla · Breezeway' },
-  { prop: 'La Casa Palm', time: '14:00', status: 'scheduled', cleaner: 'Priya · Breezeway' },
-  { prop: 'Coral Reef Bungalow', time: '15:30', status: 'scheduled', cleaner: 'TBD' },
-];
+export const OPS_CLEANS: { prop: string; time: string; status: string; cleaner: string }[] = [];
 
-export const OPS_TICKETS = [
-  { prop: 'Blue Bay House', title: 'Pool pump intermittent — parts arriving Wed', urgency: 'red' as const },
-  { prop: 'Villa Azur', title: 'Guest reports AC noisy in master bedroom', urgency: 'amber' as const },
-  { prop: 'Serenity Point', title: 'Replace entry mat — worn', urgency: 'neutral' as const },
-  { prop: 'Domaine Tamassa', title: 'Schedule gardener — monthly', urgency: 'neutral' as const },
-];
+export const OPS_TICKETS: { prop: string; title: string; urgency: 'red' | 'amber' | 'neutral' }[] = [];
 
-export const LEGAL_CONTRACTS = [
-  { kind: 'Owner agreement', party: 'Nitzana Holdings SA', status: 'active', ends: 'Mar 2028' },
-  { kind: 'Owner agreement', party: 'Beaumont Family Trust', status: 'active', ends: 'Nov 2026' },
-  { kind: 'Property management', party: 'Blue Bay House · Harrington', status: 'renewal due', ends: 'May 2026' },
-  { kind: 'Vendor — Breezeway', party: 'Breezeway Housekeeping Ltd', status: 'active', ends: 'Dec 2026' },
-  { kind: 'Vendor — PM Grocery', party: 'Plein Sud Épicerie', status: 'draft', ends: '—' },
-];
+export const LEGAL_CONTRACTS: { kind: string; party: string; status: string; ends: string }[] = [];
 
-export const OWNERS = [
-  { name: 'Nitzana Holdings SA', props: 1, ytd: '€ 142,500', next: 'May 3', status: 'current' },
-  { name: 'Beaumont Family Trust', props: 2, ytd: '€ 88,200', next: 'May 3', status: 'current' },
-  { name: 'Harrington, D.', props: 1, ytd: '€ 51,600', next: 'May 3', status: 'renewal' },
-  { name: 'Chen, Y.', props: 1, ytd: '€ 34,100', next: 'May 3', status: 'current' },
-  { name: 'Mauritius Coastal Ltd', props: 2, ytd: '€ 77,900', next: 'May 3', status: 'current' },
-];
+export const OWNERS: { name: string; props: number; ytd: string; next: string; status: string }[] = [];
 
 export interface CalEvent {
   /** Day index within the currently-visible window. Assigned at synthesis time. */

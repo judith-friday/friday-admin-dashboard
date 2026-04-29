@@ -320,33 +320,34 @@ function renderModuleInner(
     case 'settings':
       return <SettingsModule theme={ctx.theme} onToggleTheme={ctx.toggleTheme} />;
     case 'training':
-      return <ComingSoonModule label="Training" />;
+      return <TrainingModule />;
     case 'operations':
       return <OperationsModule subPage={subPage || 'overview'} onChangeSubPage={ctx.setSubPage} />;
     case 'hr':
-      return <ComingSoonModule label="HR" />;
+      return <HRModule subPage={subPage || 'staff'} onChangeSubPage={ctx.setSubPage} />;
     case 'reservations':
       return <ReservationsModule subPage={subPage || 'overview'} onChangeSubPage={ctx.setSubPage} />;
     case 'finance':
       return <FinanceModule subPage={subPage || 'overview'} role={ctx.finRole} onRoleChange={ctx.setFinRole} onAskFriday={ctx.openFriday} />;
     case 'legal':
-      return <ComingSoonModule label="Legal & Admin" />;
+      return <LegalModule />;
     case 'properties':
       return <PropertiesModule subPage={subPage || 'overview'} onChangeSubPage={ctx.setSubPage} />;
     case 'owners':
+      // Per Ishant: Owners stays as Coming Soon until built.
       return <ComingSoonModule label="Owners" />;
     case 'reviews':
-      return <ComingSoonModule label="Reviews" />;
+      return <ReviewsModule subPage={subPage || 'overview'} onChangeSubPage={ctx.setSubPage} />;
     case 'guests':
-      return <ComingSoonModule label="Guests" />;
+      return <GuestsModule />;
     case 'marketing':
-      return <ComingSoonModule label="Marketing" />;
+      return <MarketingModule />;
     case 'leads':
-      return <ComingSoonModule label="Leads" />;
+      return <LeadsModule />;
     case 'intelligence':
-      return <ComingSoonModule label="Intelligence" />;
+      return <IntelligenceModule />;
     case 'analytics':
-      return <ComingSoonModule label="Analytics" />;
+      return <AnalyticsModule />;
     case 'notifications':
       return <NotificationsModule />;
     case 'syndic':
