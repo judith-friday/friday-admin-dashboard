@@ -294,31 +294,4 @@ export interface ScheduleBlock {
   status: 'todo' | 'in_progress' | 'paused' | 'completed';
 }
 
-export const SCHEDULE_BLOCKS: ScheduleBlock[] = [
-  // Alex — pre-arrival inspection + runner
-  { id: 'sb-1', userId: 'u-alex', taskId: 't-003', date: '2026-04-27', startTime: '10:00', endTime: '11:30', title: 'Pre-arrival inspection', propertyCode: 'RC-15', department: 'inspection', status: 'in_progress' },
-  { id: 'sb-2', userId: 'u-alex', taskId: 't-011', date: '2026-04-27', startTime: '12:00', endTime: '12:45', title: 'Runner — store→VV-47→SD-10', propertyCode: 'OFFICE', department: 'office', status: 'todo' },
-  { id: 'sb-3', userId: 'u-alex', taskId: 't-007', date: '2026-04-27', startTime: '13:00', endTime: '15:00', title: 'Replace table glass', propertyCode: 'LB-2', department: 'maintenance', status: 'todo' },
-
-  // Bryan — turnover at GBH-C8 + amenities at VV-47
-  { id: 'sb-4', userId: 'u-bryan', taskId: 't-004', date: '2026-04-27', startTime: '11:00', endTime: '14:00', title: 'Standard clean — turnover', propertyCode: 'GBH-C8', department: 'cleaning', status: 'todo' },
-  { id: 'sb-5', userId: 'u-bryan', taskId: 't-012', date: '2026-04-27', startTime: '14:30', endTime: '15:30', title: 'Buy missing amenities', propertyCode: 'VV-47', department: 'cleaning', status: 'in_progress' },
-  { id: 'sb-6', userId: 'u-bryan', taskId: 't-013', date: '2026-04-27', startTime: '16:00', endTime: '16:30', title: 'Collect Rs 38,000 from Li Da', propertyCode: 'GBH-C3', department: 'office', status: 'in_progress' },
-
-  // Mathias — A/C urgent + admin
-  { id: 'sb-7', userId: 'u-mathias', taskId: 't-006', date: '2026-04-27', startTime: '08:30', endTime: '10:00', title: 'A/C — site visit', propertyCode: 'LB-2', department: 'maintenance', status: 'in_progress' },
-  { id: 'sb-8', userId: 'u-mathias', taskId: 't-006', date: '2026-04-27', startTime: '14:00', endTime: '16:30', title: 'A/C — install + test', propertyCode: 'LB-2', department: 'maintenance', status: 'todo' },
-
-  // Mary — admin + linen
-  { id: 'sb-9', userId: 'u-mary', taskId: 't-016', date: '2026-04-27', startTime: '09:00', endTime: '12:00', title: 'Setup Linen Service Area', propertyCode: 'OFFICE', department: 'office', status: 'todo' },
-
-  // Franny — coordination
-  { id: 'sb-10', userId: 'u-franny', taskId: 't-002', date: '2026-04-27', startTime: '08:30', endTime: '09:15', title: 'Plan Linen Service', propertyCode: 'OFFICE', department: 'office', status: 'todo' },
-  { id: 'sb-11', userId: 'u-franny', taskId: 't-013', date: '2026-04-27', startTime: '10:00', endTime: '10:30', title: 'Collect Rs 38,000 — coordinate', propertyCode: 'GBH-C3', department: 'office', status: 'in_progress' },
-
-  // Ishant — admin
-  { id: 'sb-12', userId: 'u-ishant', taskId: 't-001', date: '2026-04-27', startTime: '09:00', endTime: '10:00', title: 'Get Prices', propertyCode: 'OFFICE', department: 'office', status: 'paused' },
-
-  // Catherine — north zone (off Tue, on Mon — already up at PT-3)
-  { id: 'sb-13', userId: 'u-catherine', taskId: 't-021', date: '2026-04-27', startTime: '08:00', endTime: '08:45', title: 'Post-clean inspection follow-up', propertyCode: 'PT-3', department: 'inspection', status: 'completed' },
-];
+export const SCHEDULE_BLOCKS: ScheduleBlock[] = [];

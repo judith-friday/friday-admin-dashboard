@@ -311,56 +311,7 @@ function moduleNotifications(_role: Role, _userId: string): Notification[] {
 // kinds of events the user would actually see (mentions, AI updates, etc.).
 // Phase 2 these come from real event sources.
 
-const SEEDED_NOTIFICATIONS: Notification[] = [
-  {
-    id: 'seed-mention-1',
-    title: 'Bryan mentioned you in t-006',
-    body: '@Ishant Ayadassen — please confirm Daikin compressor replacement is OK to proceed at LB-2',
-    ts: '2026-04-27T08:42:00',
-    severity: 'warn',
-    module: 'operations',
-    sourceId: 't-006',
-    href: '/fad?m=operations&task=t-006',
-    isMention: true,
-  },
-  {
-    id: 'seed-mention-2',
-    title: 'Franny mentioned you in #ops',
-    body: 'Roster questions for next week — quick chat when free?',
-    ts: '2026-04-27T07:15:00',
-    severity: 'info',
-    module: 'inbox',
-    isMention: true,
-    href: '/fad?m=inbox',
-  },
-  {
-    id: 'seed-friday-1',
-    title: 'Friday flagged 2 reservations needing attention',
-    body: 'KS-5 missing access info · BL-12 balance due tomorrow. Friday auto-drafted reminders — review before sending.',
-    ts: '2026-04-27T06:30:00',
-    severity: 'info',
-    module: 'friday',
-    href: '/fad',
-  },
-  {
-    id: 'seed-payout-1',
-    title: 'Payout settled · Airbnb · Apr batch',
-    body: '€48,220 cleared MCB-828 · 11 reservations · ref AXB-8821',
-    ts: '2026-04-26T18:14:00',
-    severity: 'info',
-    module: 'finance',
-    href: '/fad?m=finance&sub=transactions',
-  },
-  {
-    id: 'seed-renewal-1',
-    title: 'Owner agreement renewal due',
-    body: 'Harrington · Blue Bay House · ends May 2026 (28 days)',
-    ts: '2026-04-26T10:00:00',
-    severity: 'warn',
-    module: 'properties',
-    href: '/fad?m=properties&sub=overview&p=BBH',
-  },
-];
+const SEEDED_NOTIFICATIONS: Notification[] = [];
 
 // ───────────────── Aggregator + ranking ─────────────────
 

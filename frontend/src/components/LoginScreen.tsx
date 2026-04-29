@@ -17,57 +17,21 @@ type Theme = 'light' | 'dark'
 
 // ─────────────────────────────── Team roster ───────────────────────────────
 // Drives the chip selector. Edit when team membership changes.
-const TEAM = [
-  { firstName: 'Ishant',    email: 'ishant@friday.mu' },
-  { firstName: 'Mathias',   email: 'mathias@friday.mu' },
-  { firstName: 'Franny',    email: 'franny@friday.mu' },
-  { firstName: 'Mary',      email: 'mary@friday.mu' },
-  { firstName: 'Bryan',     email: 'bryan@friday.mu' },
-  { firstName: 'Alexandra', email: 'alexandra@friday.mu' },
-  { firstName: 'Catherine', email: 'catherine@friday.mu' },
-] as const
+const TEAM: Array<{ firstName: string; email: string }> = []
 
 // ─────────────────────────────── Greetings ─────────────────────────────────
 // One pulled at random per page load. Friday's voice trends curious + dry.
 // @demo:ui — Tag: PROD-UI-2 — see frontend/DEMO_CRUFT.md
 // Optional keep: drop for a conventional production login, or keep if
 // Friday's voice on a real login screen is still playful.
-const FUNNY_GREETINGS = [
-  "Wait a second… who are you? 0.0",
-  "Hark, traveler. Identify thyself.",
-  "Friday squints. Who goes there?",
-  "🤨 Suspicious. Name?",
-  "Beep boop. Authentication required.",
-  "Knock knock. Who's there?",
-  "Hello hello. Which one of you is it?",
-  "Halt! Whomst arrives?",
-  "*peers over glasses* And you are?",
-  "Ahem. Speak, mortal.",
-  "Friday wakes up. Mumbles. Who's this?",
-  "Identify yourself or the AI gets it.",
-  "Right then. Which one of you scallywags is it?",
-  "Knockety knock. State your business.",
-]
+const FUNNY_GREETINGS: string[] = ['Sign in to continue.']
 
 // ─────────────────────────────── Tip pool ──────────────────────────────────
 // One shown below the form, in tertiary text. Random per page load.
 // 'admin' = FAD product knowledge (✦), 'str' = hospitality stats (💡).
 // @demo:ui — Tag: PROD-UI-3 — see frontend/DEMO_CRUFT.md
 // Optional keep: could become GET /api/login-tips, or drop entirely.
-const TIPS = [
-  { kind: 'admin', text: "Cmd+K opens the command palette anywhere in the FAD." },
-  { kind: 'admin', text: "Sub-pages keep their filter state when you deep-link." },
-  { kind: 'admin', text: "Sidebar badges are role-aware — what you see is what's actionable for you." },
-  { kind: 'admin', text: "Bell icon → AI priority toggle reorders by what'll bite next." },
-  { kind: 'admin', text: "Notifications can be snoozed per-item — 1h / 4h / Tomorrow." },
-  { kind: 'admin', text: "Property chips are clickable everywhere — quick-view popover, no nav reset." },
-  { kind: 'str',   text: "First-reply under 1 hour lifts review scores ~0.3 stars." },
-  { kind: 'str',   text: "Listings with 30+ reviews convert ~2× better than fewer." },
-  { kind: 'str',   text: "Cleaning-fee transparency cuts booking abandonment by ~8%." },
-  { kind: 'str',   text: "Saturday check-ins outperform on stays longer than 5 nights." },
-  { kind: 'str',   text: "Video tours raise click-through ~10%." },
-  { kind: 'str',   text: "Same-day bookings tend to be your highest-margin segment." },
-] as const
+const TIPS: Array<{ kind: string; text: string }> = []
 
 // ─────────────────────────────── Design tokens ─────────────────────────────
 // Mirrors src/app/fad/fad.css :root + html.fad-dark blocks. Inlined here
@@ -331,15 +295,12 @@ export default function LoginScreen({ onLogin: _onLogin }: { onLogin: (token: st
 
   // ─────────────────────── Default: sign-in screen ───────────────────────
 
-  const tipIcon = tip.kind === 'admin' ? '✦' : '💡'
+  const tipIcon = tip?.kind === 'admin' ? '✦' : '💡'
 
   return (
     <div data-testid="container-login-screen" style={pageStyle}>
       <div style={cardStyle}>
-        {/* @demo:ui — Tag: PROD-UI-1 — see frontend/DEMO_CRUFT.md
-            Remove when real auth lands. Indicates demo mode at a glance. */}
-        <span style={demoPillStyle}>Simulated · Demo</span>
-        <h1 style={titleStyle}>Friday Admin</h1>
+                <h1 style={titleStyle}>Friday Admin</h1>
         <p style={subtitleStyle}>{greeting}</p>
 
         <div style={chipsRowStyle}>
@@ -393,10 +354,12 @@ export default function LoginScreen({ onLogin: _onLogin }: { onLogin: (token: st
           </button>
         </form>
 
-        <p style={tipStyle}>
-          <span aria-hidden="true" style={{ color: t.brandAccent, fontSize: 11, lineHeight: '18px' }}>{tipIcon}</span>
-          <span>{tip.text}</span>
-        </p>
+        {tip && (
+          <p style={tipStyle}>
+            <span aria-hidden="true" style={{ color: t.brandAccent, fontSize: 11, lineHeight: '18px' }}>{tipIcon}</span>
+            <span>{tip.text}</span>
+          </p>
+        )}
       </div>
     </div>
   )

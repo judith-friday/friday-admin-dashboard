@@ -148,7 +148,7 @@ export function FridayDrawer({ open, onClose, scope, onNavigate, onExpand }: Pro
   const [input, setInput] = useState('');
   const endRef = useRef<HTMLDivElement>(null);
   const currentUserId = useCurrentUserId();
-  const greetName = TASK_USER_BY_ID[currentUserId]?.name.split(' ')[0] ?? 'there';
+  const greetName = (TASK_USER_BY_ID[currentUserId]?.name?.split(' ')[0] ?? 'there') ?? 'there';
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });

@@ -909,8 +909,8 @@ function statementExport(label: string, body: string) {
 
 function FinanceOwnerStatements() {
   const { openConfirm, openFriday } = useFinCtx();
-  const [selectedCode, setSelectedCode] = useState<string>(FIN_OWNER_STATEMENTS[0].propertyCode);
-  const selected = FIN_OWNER_STATEMENTS.find((s) => s.propertyCode === selectedCode) || FIN_OWNER_STATEMENTS[0];
+  const [selectedCode, setSelectedCode] = useState<string>(FIN_OWNER_STATEMENTS[0]?.propertyCode ?? '');
+  const selected = FIN_OWNER_STATEMENTS.find((s) => s.propertyCode === selectedCode) || FIN_OWNER_STATEMENTS[0] || null;
   const owner = FIN_OWNERS.find((o) => o.id === selected.ownerId);
   const property = FIN_PROPERTIES.find((p) => p.code === selected.propertyCode);
 
@@ -1249,14 +1249,14 @@ function FinanceTouristTax() {
           </div>
           <div style={{ padding: '14px 16px' }}>
             <div className="fin-tt-summary">
-              <div><div className="fin-row-sub">Net owed</div><div className="fin-row-amount">€ {FIN_TOURIST_TAX[0].netOwedEur.toLocaleString()}</div></div>
-              <div><div className="fin-row-sub">Refunded this period</div><div className="fin-row-amount">€ {FIN_TOURIST_TAX[0].refundedEur.toLocaleString()}</div></div>
+              <div><div className="fin-row-sub">Net owed</div><div className="fin-row-amount">€ {(FIN_TOURIST_TAX[0]?.netOwedEur ?? 0).toLocaleString()}</div></div>
+              <div><div className="fin-row-sub">Refunded this period</div><div className="fin-row-amount">€ {(FIN_TOURIST_TAX[0]?.refundedEur ?? 0).toLocaleString()}</div></div>
               <div><div className="fin-row-sub">Reservations included</div><div className="fin-row-amount">14</div></div>
             </div>
             <div className="fin-capture-actions" style={{ marginTop: 14, justifyContent: 'flex-start' }}>
               <button className="btn ghost sm" onClick={() => openConfirm({
                 title: `MRA submission CSV — ${CURRENT_PERIOD.label}`,
-                body: <p>Generates an MRA-spec CSV of €{FIN_TOURIST_TAX[0].netOwedEur.toLocaleString()} across 14 reservations. Manual remittance in v1; auto-push to MRA portal lands Phase 2.</p>,
+                body: <p>Generates an MRA-spec CSV of €{(FIN_TOURIST_TAX[0]?.netOwedEur ?? 0).toLocaleString()} across 14 reservations. Manual remittance in v1; auto-push to MRA portal lands Phase 2.</p>,
                 primaryLabel: 'Download CSV',
               })}>Generate MRA submission CSV</button>
               <button className="btn primary sm" onClick={() => openConfirm({
@@ -1373,54 +1373,7 @@ interface PnLLine { label: string; period: number; ytd: number; vsPrev?: string;
 // @demo:data — Tag: PROD-DATA-16 — see frontend/DEMO_CRUFT.md
 // Inline P&L data with hardcoded MUR figures across FR/FI/S/all entities.
 // Replace with: GET /api/finance/pnl?entity=:entity&period=:period.
-const PNL_BY_ENTITY: Record<PnLEntity, PnLLine[]> = {
-  FR: [
-    { label: 'Revenue', period: 0, ytd: 0, section: 'revenue' },
-    { label: '  PMC Commission (after VAT)', period: 412_600, ytd: 1_547_200, vsPrev: '+8%', sub: true },
-    { label: '  Linen Fee (June onwards)', period: 0, ytd: 0, vsPrev: '—', sub: true },
-    { label: '  Direct booking 13% fee', period: 23_500, ytd: 88_200, vsPrev: '—', sub: true },
-    { label: 'Total revenue', period: 436_100, ytd: 1_635_400, vsPrev: '+8%', section: 'subtotal' },
-    { label: 'Cleaning Fee pass-through (net)', period: 0, ytd: 0, section: 'passthrough' },
-    { label: '  Cleaning Fee inflow', period: 187_400, ytd: 692_800, vsPrev: '+12%', sub: true },
-    { label: '  Housekeeping (Oracle, etc.)', period: -98_400, ytd: -366_100, vsPrev: '+5%', sub: true },
-    { label: '  SRL & welcome packs', period: -48_200, ytd: -178_400, vsPrev: '+11%', sub: true },
-    { label: 'Pass-through net', period: 40_800, ytd: 148_300, section: 'subtotal' },
-    { label: 'Operating costs', period: 0, ytd: 0, section: 'opex' },
-    { label: '  Team logistics & fuel', period: -32_100, ytd: -124_800, vsPrev: '+3%', sub: true },
-    { label: '  Office & tools', period: -18_700, ytd: -67_200, vsPrev: '−2%', sub: true },
-    { label: '  Subscriptions & software', period: -42_800, ytd: -168_200, vsPrev: '+1%', sub: true },
-    { label: '  Office rent (director apt)', period: -25_000, ytd: -100_000, vsPrev: '—', sub: true },
-    { label: '  Professional services', period: -15_000, ytd: -52_000, vsPrev: '—', sub: true },
-    { label: 'Total operating costs', period: -133_600, ytd: -512_200, vsPrev: '+1%', section: 'subtotal' },
-    { label: 'Operating margin', period: 343_300, ytd: 1_271_500, vsPrev: '+11%', section: 'total' },
-  ],
-  FI: [
-    { label: 'Revenue', period: 0, ytd: 0, section: 'revenue' },
-    { label: '  Interior project fees', period: 0, ytd: 0, vsPrev: '—', sub: true },
-    { label: 'Total revenue', period: 0, ytd: 0, section: 'subtotal' },
-    { label: 'Operating costs', period: 0, ytd: 0, section: 'opex' },
-    { label: '  Vendor pass-through', period: 0, ytd: 0, vsPrev: '—', sub: true },
-    { label: 'Operating margin', period: 0, ytd: 0, section: 'total' },
-  ],
-  S: [
-    { label: 'Revenue', period: 0, ytd: 0, section: 'revenue' },
-    { label: '  Syndic fees', period: 8_200, ytd: 28_700, vsPrev: '—', sub: true },
-    { label: 'Total revenue', period: 8_200, ytd: 28_700, section: 'subtotal' },
-    { label: 'Operating costs', period: 0, ytd: 0, section: 'opex' },
-    { label: '  Vendor coordination', period: -1_500, ytd: -5_200, vsPrev: '—', sub: true },
-    { label: 'Operating margin', period: 6_700, ytd: 23_500, section: 'total' },
-  ],
-  all: [
-    { label: 'Revenue', period: 0, ytd: 0, section: 'revenue' },
-    { label: '  PMC Commission', period: 412_600, ytd: 1_547_200, vsPrev: '+8%', sub: true },
-    { label: '  Direct booking 13% fee', period: 23_500, ytd: 88_200, vsPrev: '—', sub: true },
-    { label: '  Syndic fees', period: 8_200, ytd: 28_700, vsPrev: '—', sub: true },
-    { label: 'Total revenue', period: 444_300, ytd: 1_664_100, vsPrev: '+8%', section: 'subtotal' },
-    { label: 'Pass-through net', period: 40_800, ytd: 148_300, section: 'subtotal' },
-    { label: 'Operating costs', period: -135_100, ytd: -517_400, vsPrev: '+1%', section: 'subtotal' },
-    { label: 'Operating margin', period: 350_000, ytd: 1_295_000, vsPrev: '+11%', section: 'total' },
-  ],
-};
+const PNL_BY_ENTITY: Record<PnLEntity, PnLLine[]> = { FR: [], FI: [], S: [], all: [] };
 
 function FinancePnL() {
   const { openConfirm, openFriday } = useFinCtx();
@@ -1529,8 +1482,8 @@ function FinancePnL() {
 
 function FinanceFloatLedger() {
   const { openConfirm } = useFinCtx();
-  const [selectedAcct, setSelectedAcct] = useState<string>(FIN_FLOAT_ACCOUNTS[0].accountId);
-  const account = FIN_FLOAT_ACCOUNTS.find((a) => a.accountId === selectedAcct) || FIN_FLOAT_ACCOUNTS[0];
+  const [selectedAcct, setSelectedAcct] = useState<string>(FIN_FLOAT_ACCOUNTS[0]?.accountId ?? '');
+  const account = FIN_FLOAT_ACCOUNTS.find((a) => a.accountId === selectedAcct) || FIN_FLOAT_ACCOUNTS[0] || null;
   const accountMeta = FIN_ACCOUNTS.find((a) => a.id === account.accountId);
 
   const variancePct = account.targetFloatMinor
@@ -2624,7 +2577,7 @@ function PCStage3() {
     FIN_BANK_LINES.forEach((b) => { (m[b.accountId] = m[b.accountId] || []).push(b); });
     return m;
   }, []);
-  const [selectedId, setSelectedId] = useState<string>(FIN_BANK_LINES[0].id);
+  const [selectedId, setSelectedId] = useState<string>(FIN_BANK_LINES[0]?.id ?? '');
   const selected = FIN_BANK_LINES.find((b) => b.id === selectedId);
 
   return (
@@ -2951,7 +2904,7 @@ function BankUploadDrawer({
 }: { accountId?: string; payoutPlatform?: string; onClose: () => void }) {
   const isPayout = !!payoutPlatform;
   const [stage, setStage] = useState<'pick' | 'parsing' | 'preview' | 'committed'>('pick');
-  const [selectedAccount, setSelectedAccount] = useState<string>(accountId || FIN_ACCOUNTS[0].id);
+  const [selectedAccount, setSelectedAccount] = useState<string>(accountId || FIN_ACCOUNTS[0]?.id || '');
   const [selectedPlatform, setSelectedPlatform] = useState<string>(payoutPlatform || 'airbnb');
   const [fileName, setFileName] = useState<string>('');
 

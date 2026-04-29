@@ -136,7 +136,7 @@ export function InboxModule({ onAskFriday }: Props) {
     return true;
   });
 
-  const thread = filtered.find((t) => t.id === selected) || filtered[0] || INBOX_THREADS[0];
+  const thread = filtered.find((t) => t.id === selected) || filtered[0] || INBOX_THREADS[0] || null;
   const unread = INBOX_THREADS.filter((t) => t.unread).length;
 
   const activeFilterCount =

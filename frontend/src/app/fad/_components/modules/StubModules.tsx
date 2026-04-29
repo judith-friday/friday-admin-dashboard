@@ -26,7 +26,7 @@ import { useState } from 'react';
 // @demo:auth — Tag: PROD-AUTH-5 — see frontend/DEMO_CRUFT.md
 // Hardcoded current user. Replace with: useCurrentUser() hook reading
 // from auth context (JWT/session) instead of constant.
-const CURRENT_USER = 'Ishant';
+const CURRENT_USER: string = '';
 const TASK_SOURCES = ['Inbox', 'Finance', 'Breezeway', 'Ops', 'CRM', 'Intel'];
 
 type TaskView = 'list' | 'board' | 'today' | 'calendar' | 'property' | 'assignee';
@@ -1339,73 +1339,7 @@ interface PitchSpec {
 // "Coming soon" pitch narratives for pre-launch modules. References
 // specific guests/owners (Nitzana, etc.). Replace with: GET /api/cms/pitches
 // (or remove module-stub UI entirely once each module ships).
-const PITCH_SPECS: Record<string, PitchSpec> = {
-  reviews: {
-    icon: 'IconReviews',
-    title: 'Guest reviews',
-    ship: 'soon',
-    tagline:
-      'Reviews scattered across Airbnb, Booking and direct — no unified view, slow SLA. One inbox, AI-drafted replies in brand voice, sentiment per property.',
-    features: [
-      { icon: 'IconMail', title: 'Unified inbox', desc: 'All channels — Airbnb, Booking, Google, direct — in one stream with keyboard-first triage.' },
-      { icon: 'IconAI', title: 'AI-drafted replies', desc: 'Friday drafts replies honoring your tone and property-specific talking points. You review and send.' },
-      { icon: 'IconChart', title: 'Sentiment per property', desc: 'Trend lines per listing so you spot soft spots before they cost stars.' },
-      { icon: 'IconBell', title: 'SLA alerts', desc: 'Low-score or negative reviews ping you within minutes — inside Inbox, not buried in tabs.' },
-    ],
-  },
-  guests: {
-    icon: 'IconGuests',
-    title: 'Guests',
-    ship: "Jul '26",
-    tagline:
-      'A proper guest profile — every stay, every conversation, every preference — so Friday can personalize and your team never re-asks.',
-    features: [
-      { icon: 'IconBook', title: 'Unified guest profile', desc: 'Consolidated across OTAs by name, email, phone — stays, spend, preferences, language.' },
-      { icon: 'IconChat', title: 'Conversation history', desc: 'Every thread ever exchanged with a guest, across any property and any channel.' },
-      { icon: 'IconPin', title: 'Preferences memory', desc: "Notes, allergies, kids' ages, early check-in tendencies — Friday recalls on the next booking." },
-      { icon: 'IconUsers', title: 'Returning guest flags', desc: 'See at a glance which inquiries are from past guests so you can prioritize accordingly.' },
-    ],
-  },
-  marketing: {
-    icon: 'IconMkt',
-    title: 'Marketing',
-    ship: "Aug '26",
-    tagline:
-      'Channel mix, campaign attribution and direct-booking growth — the activities Nitzana expects of a premium partner.',
-    features: [
-      { icon: 'IconSpark', title: 'Campaigns', desc: 'Seasonal offers and packages scheduled across email, social and the direct site — one place.' },
-      { icon: 'IconChart', title: 'Channel attribution', desc: 'See which sources actually convert to stays, not just clicks. Spend allocation follows.' },
-      { icon: 'IconMail', title: 'Lifecycle emails', desc: 'Welcome, mid-stay, review-ask, winback — templated and triggered on real reservation events.' },
-      { icon: 'IconPin', title: 'Direct-booking growth', desc: 'Landing pages, discount codes and tracking so direct stays grow past 22%.' },
-    ],
-  },
-  leads: {
-    icon: 'IconLeads',
-    title: 'Leads / CRM-lite',
-    ship: 'soon',
-    tagline:
-      "Nitzana's urgent ask: a pipeline for inbound property inquiries — owners, co-investors, B2B — without adopting a heavy CRM.",
-    features: [
-      { icon: 'IconUsers', title: 'Pipeline stages', desc: 'Inquiry → qualifying → meeting → proposal → won/lost. Drag cards across, or keyboard-triage.' },
-      { icon: 'IconMail', title: 'Conversation sync', desc: 'Phase 2 unifies Inbox: lead threads live next to guest threads, polymorphic contact_ref.' },
-      { icon: 'IconBook', title: 'Notes + follow-ups', desc: 'Structured notes, next-step dates, owners. Friday nudges what went quiet.' },
-      { icon: 'IconChart', title: 'Pipeline metrics', desc: 'Throughput, stage dwell time, win-rate by source. Quiet reports, nothing ambient.' },
-    ],
-  },
-  intelligence: {
-    icon: 'IconIntel',
-    title: 'Intelligence',
-    ship: "Aug '26",
-    tagline:
-      'Operational telemetry and portfolio reports — the "question Friday can answer" surface. Quiet by default, depth on request.',
-    features: [
-      { icon: 'IconChart', title: 'Portfolio health', desc: 'Occupancy, ADR, RevPAR, guest-sat trend per property. A single glance, not a dashboard to maintain.' },
-      { icon: 'IconSpark', title: 'Question-first', desc: 'Ask Friday any ops question — Friday tool-calls the data layer and renders a scoped view.' },
-      { icon: 'IconMail', title: 'Morning digest', desc: 'One cached call per user per morning — the three things worth knowing. Never ambient polling.' },
-      { icon: 'IconBook', title: 'Exportable reports', desc: 'PDF and CSV at month-end for owner reviews and board packs.' },
-    ],
-  },
-};
+const PITCH_SPECS: Record<string, PitchSpec> = {};
 
 export function PitchModule({ mod }: { mod: ModuleDef }) {
   const spec = PITCH_SPECS[mod.id];
@@ -1473,55 +1407,7 @@ interface TeaseSpec {
 // "Coming soon" tease blurbs for unreleased modules. Hardcoded user
 // references ("Ishant only", "Ishant + Franny internal", "until 2028").
 // Replace with: GET /api/cms/teases (or remove module-tease UI when shipped).
-const TEASE_SPECS: Record<string, TeaseSpec> = {
-  syndic: {
-    tagline: 'Shared-building management for co-owned properties',
-    description:
-      'Assemblies, dues, votes, vendor coordination. The funnel upstream of Owner: we sign a building as syndic, then pitch individual unit owners into Friday-managed rentals.',
-    entities: [
-      { name: 'Buildings', desc: 'physical assets under syndic' },
-      { name: 'Units', desc: 'individual apartments, owner-mapped' },
-      { name: 'Assemblies', desc: 'general meetings · minutes · attendance' },
-      { name: 'Dues ledger', desc: 'monthly fees · arrears · collections' },
-      { name: 'Votes', desc: 'motions · quorum · results' },
-    ],
-    tabs: ['Buildings', 'Dues', 'Assemblies', 'Owner directory'],
-    users: 'Friday staff first. Phase 2: unit owners get read-only portal (building-scoped).',
-    integration:
-      'Unit owners reuse the contacts table. Building-tagged Inbox threads. "Managed units" conversion tracker (Syndic → Owner → Managed funnel).',
-  },
-  interior: {
-    tagline: 'Interior design + furnishing services productized',
-    description:
-      'The Ohana House-style work as a repeatable business unit. Starts with Friday-managed owners — mood-board a refresh, project-manage the fit-out, track spend vs budget — and expands to third-party clients in Phase 2.',
-    entities: [
-      { name: 'Projects', desc: 'briefs · timelines · budgets' },
-      { name: 'Mood boards', desc: 'visual direction · client sign-off' },
-      { name: 'Vendors', desc: 'carpenters · textiles · lighting · imports' },
-      { name: 'Fit-out milestones', desc: 'gantt · dependencies · status' },
-      { name: 'Financials', desc: 'spend vs budget · invoicing · margin' },
-    ],
-    tabs: ['Active projects', 'Vendor directory', 'Past projects', 'Financials'],
-    users:
-      'Ishant + Franny internal. Per-project client-view link for owner (read-only: brief, mood board, milestone status, spend vs budget).',
-    integration:
-      'Project ↔ Property. Owner = Owner contact. Auto-create Operations tasks on managed-property projects.',
-  },
-  agency: {
-    tagline: 'Real estate agency arm — listings + transactions',
-    description:
-      'Listings, showings, comparables, offers. Thin scaffold until 2028 — Ishant-only, Notion-depth. Scope dependent on 2027 strategic review.',
-    entities: [
-      { name: 'Listings', desc: 'properties for sale · asking · days on market' },
-      { name: 'Interested parties', desc: 'buyers · tenants · investors' },
-      { name: 'Comparables', desc: 'market data · sqm pricing · trend' },
-    ],
-    tabs: ['Active listings', 'Past transactions', 'Market comps'],
-    users: 'Ishant only until 2028.',
-    integration:
-      'Listings ↔ Properties (or external-property records). Interested parties = contacts table. Notion-scratchpad-thin for 2026.',
-  },
-};
+const TEASE_SPECS: Record<string, TeaseSpec> = {};
 
 export function TeaseModule({ mod }: { mod: ModuleDef }) {
   const I = iconFor(mod.icon);

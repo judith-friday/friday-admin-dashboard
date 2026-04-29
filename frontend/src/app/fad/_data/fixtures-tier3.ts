@@ -18,44 +18,7 @@ export interface Review {
   reply: string | null;
 }
 
-export const REVIEWS: Review[] = [
-  { id: 'r1', guest: 'Thibault Marchand', initials: 'TM', rating: 5.0, channel: 'Airbnb', property: 'Villa Azur', date: 'Apr 14', stay: '7 nights', status: 'replied', sentiment: 'positive',
-    title: 'Exceptional stay, family loved it',
-    body: "Our third time with Friday and they just keep getting better. Villa Azur was spotless, Priya's welcome note was such a nice touch, and the driver at the airport made traveling with two toddlers actually relaxing. Will be back in December.",
-    reply: "Thibault — so lovely to host you again. December is noted. Priya sends her regards." },
-  { id: 'r2', guest: 'Isabella Fonseca', initials: 'IF', rating: 3.0, channel: 'Booking', property: 'Sable Noir', date: 'Apr 13', stay: '4 nights', status: 'needs-reply', sentiment: 'mixed', urgent: true,
-    title: 'Beautiful house, hot water issue',
-    body: "The location and design are stunning but the hot water went out on our second morning and wasn't fully fixed until the last day. Maintenance was responsive but it soured what would otherwise have been perfect.",
-    reply: null },
-  { id: 'r3', guest: 'Linde Okonkwo', initials: 'LO', rating: 5.0, channel: 'Direct', property: 'Blue Bay House', date: 'Apr 12', stay: '10 nights', status: 'replied', sentiment: 'positive',
-    title: 'Worth every franc',
-    body: "The chef evening was the highlight of our trip. Private dining on the terrace, the kids were fed early and happy, and the pool setup for them the next day was perfect. Ten out of ten.",
-    reply: "Linde — thank you. Chef Aarav was thrilled you enjoyed the tasting menu. See you next year." },
-  { id: 'r4', guest: 'Henrik Solheim', initials: 'HS', rating: 4.0, channel: 'Airbnb', property: 'Coral Reef', date: 'Apr 11', stay: '5 nights', status: 'needs-reply', sentiment: 'mixed',
-    title: 'Good experience overall',
-    body: "Great property, friendly staff. A few small things: the wifi dropped a couple times and the coffee machine needed descaling. Nothing deal-breaking but noticeable at this price point.",
-    reply: null },
-  { id: 'r5', guest: 'Amélie Dubois', initials: 'AD', rating: 5.0, channel: 'Airbnb', property: 'Nitzana · Orchidée', date: 'Apr 10', stay: '3 nights', status: 'replied', sentiment: 'positive',
-    title: 'Magical long weekend',
-    body: "Came for a quick escape and didn't want to leave. Every detail was considered — the welcome basket with local rum, the beach chairs already set up, the handwritten dinner recs. Bravo.",
-    reply: "Amélie — happy you found us. The rum is from our friends at Chamarel. Come back soon." },
-  { id: 'r6', guest: 'Julien Bernard', initials: 'JB', rating: 2.0, channel: 'Booking', property: 'Sable Noir', date: 'Apr 08', stay: '2 nights', status: 'responded', sentiment: 'negative', urgent: true,
-    title: 'Disappointing check-in experience',
-    body: "Arrived at 14:30 as agreed, property wasn't ready until 16:10. No apology, no offer of compensation. For this price range I expect better coordination.",
-    reply: "Julien — you're right, that's not our standard. We've refunded a night's stay and the cleaner's schedule has been reviewed. Hope you'll give us another chance." },
-  { id: 'r7', guest: 'Priya Iyer', initials: 'PI', rating: 5.0, channel: 'Google', property: 'Villa Azur', date: 'Apr 07', stay: '6 nights', status: 'replied', sentiment: 'positive',
-    title: 'Our new favorite',
-    body: "Been coming to Mauritius for a decade — this is the first house I'd actively recommend to friends. The team anticipates everything before you think to ask.",
-    reply: "Priya — we noticed. See you in November." },
-  { id: 'r8', guest: 'Marco Ricci', initials: 'MR', rating: 5.0, channel: 'Airbnb', property: 'Ocean Terrace', date: 'Apr 05', stay: '8 nights', status: 'needs-reply', sentiment: 'positive',
-    title: 'Stunning, period',
-    body: "No notes. Will be back.",
-    reply: null },
-  { id: 'r9', guest: 'Sofia Mendes', initials: 'SM', rating: 4.0, channel: 'Direct', property: 'Nitzana · Jacaranda', date: 'Apr 03', stay: '5 nights', status: 'replied', sentiment: 'positive',
-    title: 'Lovely property, minor nit',
-    body: "The new Nitzana villas are gorgeous. One suggestion — the blackout curtains in the master bedroom don't fully seal.",
-    reply: "Sofia — noted and already in the maintenance queue. Thank you for the signal." },
-];
+export const REVIEWS: Review[] = [];
 
 export const REVIEWS_KPI = [
   { label: 'Avg rating', value: '4.6', sub: '+0.1 vs Mar', warn: false },
@@ -87,18 +50,7 @@ export interface Guest {
   notes: string;
 }
 
-export const GUESTS: Guest[] = [
-  { id: 'g1', name: 'Thibault Marchand', initials: 'TM', country: 'FR', stays: 3, lifetime: '€ 18,420', last: 'Apr 17', lang: 'FR', props: ['Villa Azur'], tier: 'returning', notes: 'Family of 4 · toddlers · prefers Villa Azur · requests early check-in' },
-  { id: 'g2', name: 'Priya Iyer', initials: 'PI', country: 'IN', stays: 5, lifetime: '€ 31,200', last: 'Apr 07', lang: 'EN', props: ['Villa Azur','Ocean Terrace'], tier: 'vip', notes: 'Couple · annual November trip · gluten-free · champagne on arrival' },
-  { id: 'g3', name: 'Linde Okonkwo', initials: 'LO', country: 'NL', stays: 2, lifetime: '€ 14,800', last: 'Apr 12', lang: 'EN', props: ['Blue Bay House'], tier: 'returning', notes: 'Family of 6 · chef evenings always · late dinner seating for kids' },
-  { id: 'g4', name: 'Isabella Fonseca', initials: 'IF', country: 'PT', stays: 1, lifetime: '€ 3,680', last: 'Apr 13', lang: 'PT', props: ['Sable Noir'], tier: 'new', notes: 'Young couple · 4 nights · refund issued for hot water incident' },
-  { id: 'g5', name: 'Henrik Solheim', initials: 'HS', country: 'NO', stays: 1, lifetime: '€ 5,950', last: 'Apr 11', lang: 'EN', props: ['Coral Reef'], tier: 'new', notes: 'Couple · 5 nights · wifi complaint noted' },
-  { id: 'g6', name: 'Amélie Dubois', initials: 'AD', country: 'FR', stays: 4, lifetime: '€ 22,100', last: 'Apr 10', lang: 'FR', props: ['Nitzana · Orchidée','Sable Noir'], tier: 'vip', notes: 'Solo traveler · writer · long stays · always requests second-floor rooms' },
-  { id: 'g7', name: 'Marco Ricci', initials: 'MR', country: 'IT', stays: 2, lifetime: '€ 16,340', last: 'Apr 05', lang: 'EN', props: ['Ocean Terrace'], tier: 'returning', notes: 'Two couples traveling together · boat charters · no restrictions' },
-  { id: 'g8', name: 'Sofia Mendes', initials: 'SM', country: 'BR', stays: 1, lifetime: '€ 8,420', last: 'Apr 03', lang: 'EN', props: ['Nitzana · Jacaranda'], tier: 'new', notes: 'First stay at Nitzana · blackout curtain feedback · interested in longer future stay' },
-  { id: 'g9', name: 'Julien Bernard', initials: 'JB', country: 'FR', stays: 1, lifetime: '€ 1,840', last: 'Apr 08', lang: 'FR', props: ['Sable Noir'], tier: 'new', notes: 'Check-in delay · refunded · watch for future booking' },
-  { id: 'g10', name: 'Kristina Leary', initials: 'KL', country: 'US', stays: 3, lifetime: '€ 27,800', last: 'Mar 28', lang: 'EN', props: ['Blue Bay House','Villa Azur'], tier: 'vip', notes: 'Multi-generational family · accessibility requests · always books 10+ nights' },
-];
+export const GUESTS: Guest[] = [];
 
 export const GUESTS_KPI = [
   { label: 'Active guests', value: '184', sub: 'past 90 days' },
@@ -107,13 +59,7 @@ export const GUESTS_KPI = [
   { label: 'VIP guests', value: '21', sub: '11% of active' },
 ];
 
-export const CAMPAIGNS = [
-  { id: 'c1', name: 'Winter escape · November', channel: 'Email + social', status: 'live', starts: 'Oct 15', ends: 'Dec 20', sent: 4200, opens: '38%', bookings: 14, revenue: '€ 58,400' },
-  { id: 'c2', name: 'Direct-book 15% off', channel: 'Site + retarget', status: 'live', starts: 'Apr 01', ends: 'May 31', sent: 2180, opens: '41%', bookings: 7, revenue: '€ 21,800' },
-  { id: 'c3', name: 'Nitzana launch', channel: 'Press + influencer', status: 'scheduled', starts: 'May 12', ends: 'Jun 30', sent: 0, opens: '—', bookings: 0, revenue: '—' },
-  { id: 'c4', name: 'Repeat-guest package', channel: 'Email', status: 'draft', starts: '—', ends: '—', sent: 0, opens: '—', bookings: 0, revenue: '—' },
-  { id: 'c5', name: 'Chef evening upsell', channel: 'In-stay SMS', status: 'live', starts: 'Feb 01', ends: 'ongoing', sent: 890, opens: '62%', bookings: 31, revenue: '€ 9,420' },
-];
+export const CAMPAIGNS: any[] = [];
 
 export const CHANNEL_MIX = [
   { channel: 'Airbnb', share: 0.44, revenue: 'YTD €184k', color: '#2B4A93' },
@@ -130,13 +76,7 @@ export const MKT_KPI = [
   { label: 'Cost per acq.', value: '€ 142', sub: '−€18 vs Mar' },
 ];
 
-export const LIFECYCLE_EMAILS = [
-  { trigger: 'Booking confirmed', days: 'Day 0', send: 'Auto', openRate: '74%', status: 'live' },
-  { trigger: 'Pre-arrival (concierge menu)', days: 'T-7', send: 'Auto', openRate: '68%', status: 'live' },
-  { trigger: 'Mid-stay check', days: 'Day 3', send: 'Auto', openRate: '52%', status: 'live' },
-  { trigger: 'Review ask', days: 'T+1', send: 'Auto', openRate: '44%', status: 'live' },
-  { trigger: 'Winback · 90-day', days: 'T+90', send: 'Manual approval', openRate: '—', status: 'draft' },
-];
+export const LIFECYCLE_EMAILS: any[] = [];
 
 export type LeadPipeline = 'guest' | 'owner' | 'syndic' | 'interior' | 'agency';
 
@@ -154,32 +94,7 @@ export interface Lead {
   age: string;
 }
 
-export const LEADS: Lead[] = [
-  // Guest inquiry pipeline (booking enquiries that haven't converted yet)
-  { id: 'g1', name: 'Aisha Patel', source: 'Airbnb inquiry', contact: 'ap@patel.family', type: 'Guest · 3-bedroom · June', value: 'est. € 4,800 stay', stage: 'qualifying', pipeline: 'guest', nextStep: 'Confirm dates before Thu', owner: 'Mathias', age: '1d' },
-  { id: 'g2', name: 'Lars & Mia Bergström', source: 'Direct website', contact: 'lars.b@gmail.com', type: 'Guest · repeat · July', value: 'est. € 12,400 stay', stage: 'proposal', pipeline: 'guest', nextStep: 'Quote sent · awaiting deposit', owner: 'Mathias', age: '3d' },
-  { id: 'g3', name: 'Pereira family', source: 'Booking inquiry', contact: 'via Booking.com', type: 'Guest · 8 people · August', value: 'est. € 9,600 stay', stage: 'inquiry', pipeline: 'guest', nextStep: 'Auto-qualifying · no property fit yet', owner: 'Friday auto', age: '6h' },
-  { id: 'g4', name: 'Corporate retreat — Oliveira AG', source: 'Referral · ex-guest', contact: 'events@oliveira.ch', type: 'Guest · group · Oct (8 nights)', value: 'est. € 24,000 stay + add-ons', stage: 'meeting', pipeline: 'guest', nextStep: 'Chef + driver spec call', owner: 'Mathias', age: '4d' },
-  // Owner pipeline
-  { id: 'l1', name: 'Raj Chandiramani', source: 'Referral · Mathias', contact: 'raj@chandiramani.co', type: 'Owner · 1 villa · Tamarin', value: 'est. €280k/yr', stage: 'qualifying', pipeline: 'owner', nextStep: 'Property tour Fri', owner: 'Ishant', age: '2d' },
-  { id: 'l2', name: 'Nitzana Group — Phase 2', source: 'Existing partner', contact: 'mathias@nitzana.com', type: 'Owner · 6 villas', value: 'est. €1.8M/yr', stage: 'proposal', pipeline: 'owner', nextStep: 'Contract redline', owner: 'Ishant', age: '5d' },
-  { id: 'l4', name: 'Maxime & Claire Dubois', source: 'Past guest', contact: 'maxime.d@gmail.com', type: 'Owner · 1 villa', value: 'est. €120k/yr', stage: 'inquiry', pipeline: 'owner', nextStep: 'Send intro deck', owner: 'Mary', age: '1d' },
-  { id: 'l5', name: 'Hoang Minh Capital', source: 'LinkedIn', contact: 'hm@hoangminh.vn', type: 'Co-invest · 2 villas', value: 'est. €300k/yr', stage: 'qualifying', pipeline: 'owner', nextStep: 'Waiting on NDA', owner: 'Ishant', age: '4d' },
-  { id: 'l7', name: 'Kwame & Adjoa Mensah', source: 'Referral · Linde O.', contact: 'kmensah@gmail.com', type: 'Owner · 1 villa', value: 'est. €180k/yr', stage: 'meeting', pipeline: 'owner', nextStep: 'Legal review of land title', owner: 'Ishant', age: '11d' },
-  { id: 'l8', name: 'Sunset Retreats Ltd', source: 'Event · SMP Dubai', contact: 'h.alzahrani@sunsetretreats.ae', type: 'Owner · B2B mgmt block', value: 'est. €600k/yr', stage: 'won', pipeline: 'owner', nextStep: 'Kickoff Apr 28', owner: 'Ishant', age: 'won 2d' },
-  { id: 'l9', name: 'Heritage Isle Partners', source: 'Referral · lawyer', contact: 'partners@heritageisle.mu', type: 'Owner · 3 villas', value: 'est. €540k/yr', stage: 'lost', pipeline: 'owner', nextStep: 'Chose competitor', owner: 'Ishant', age: 'lost 14d' },
-  // Syndic pipeline
-  { id: 's1', name: 'Résidence Grande Baie (8 units)', source: 'Inbound · HOA contact', contact: 'president@rgb.mu', type: 'Syndic · 8 units · Grand Baie', value: 'est. €46k/yr + managed-unit funnel', stage: 'meeting', pipeline: 'syndic', nextStep: 'General assembly Apr 28', owner: 'Franny', age: '9d' },
-  { id: 's2', name: 'Les Jardins de Flic en Flac', source: 'Cold inbound', contact: 'board@flicenflac.mu', type: 'Syndic · 14 units', value: 'est. €82k/yr', stage: 'qualifying', pipeline: 'syndic', nextStep: 'Discovery call Apr 26', owner: 'Franny', age: '3d' },
-  { id: 's3', name: 'Coral Cove Condominium', source: 'Referral · agent', contact: 'hoa@coralcove.mu', type: 'Syndic · 6 units', value: 'est. €34k/yr', stage: 'inquiry', pipeline: 'syndic', nextStep: 'Qualify · send proposal format', owner: 'Franny', age: '1d' },
-  // Interior pipeline
-  { id: 'i1', name: 'Beaumont · Villa Azur refresh', source: 'Friday-managed owner', contact: 'owner@beaumont.fr', type: 'Interior · partial refresh · VAZ', value: '€ 85,000 one-off', stage: 'proposal', pipeline: 'interior', nextStep: 'Mood-board review Apr 23', owner: 'Ishant', age: '7d' },
-  { id: 'i2', name: 'Nitzana · Villa 04 fit-out', source: 'Friday-managed owner', contact: 'david@nitzana.co', type: 'Interior · full fit-out · NIT-04', value: '€ 240,000 one-off', stage: 'meeting', pipeline: 'interior', nextStep: 'Vendor quotes gathering', owner: 'Ishant', age: '14d' },
-  { id: 'i3', name: 'Harrington · BBH restyle', source: 'Friday-managed owner', contact: 'anouk.h@harrington.co.uk', type: 'Interior · partial refresh · BBH', value: 'est. € 40,000', stage: 'inquiry', pipeline: 'interior', nextStep: 'Scope call', owner: 'Ishant', age: '2d' },
-  // Agency pipeline
-  { id: 'a1', name: 'Ocean Terrace · listing', source: 'Owner-initiated', contact: 'ochen@gmail.com', type: 'Agency · exclusive sale mandate', value: 'est. € 2.4M asking', stage: 'qualifying', pipeline: 'agency', nextStep: 'Comparables + CMA', owner: 'Ishant', age: '8d' },
-  { id: 'a2', name: 'Buyer — Philippe Lefèvre', source: 'Past guest', contact: 'philippe.l@email.fr', type: 'Agency · buyer · €1–1.8M range', value: 'commission 3% of sale', stage: 'meeting', pipeline: 'agency', nextStep: 'Second viewing scheduled', owner: 'Ishant', age: '6d' },
-];
+export const LEADS: Lead[] = [];
 
 export const LEAD_STAGES = [
   { id: 'inquiry', label: 'Inquiry', description: 'Fresh, not yet qualified' },

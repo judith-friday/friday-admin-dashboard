@@ -109,14 +109,14 @@ function Account() {
           <h5>Name</h5>
           <p>Shown on messages and threads.</p>
         </div>
-        <span className="settings-value">Ishant Sagoo</span>
+        <span className="settings-value">—</span>
       </div>
       <div className="settings-row">
         <div>
           <h5>Email</h5>
           <p>Login + notifications.</p>
         </div>
-        <span className="settings-value">ishant@friday.mu</span>
+        <span className="settings-value">—</span>
       </div>
       <div className="settings-row">
         <div>
@@ -136,14 +136,7 @@ function Team() {
       <p style={{ margin: '0 0 16px', color: 'var(--color-text-tertiary)', fontSize: 13 }}>
         Role-scoped visibility, multi-team membership.
       </p>
-      {[
-        { name: 'Ishant Sagoo', role: 'Admin', teams: ['all'] },
-        { name: 'Franny Reyes', role: 'Manager', teams: ['ops', 'gs'] },
-        { name: 'Mathias Chen', role: 'Manager', teams: ['gs', 'ops'] },
-        { name: 'Mary Nunes', role: 'Manager · until May', teams: ['admin'] },
-        { name: 'Bryan Patel', role: 'Contributor', teams: ['ops'] },
-        { name: 'Alex Rivera', role: 'Contributor', teams: ['ops'] },
-      ].map((p, i) => (
+      {([] as any[]).map((p, i) => (
         <div key={i} className="settings-row">
           <div>
             <h5>{p.name}</h5>
@@ -176,17 +169,7 @@ function Integrations() {
       </div>
       {importOpen && <SavedRepliesImport onClose={() => setImportOpen(false)} />}
 
-      {[
-        { name: 'Google (Gmail · Drive · Calendar)', status: 'Connected · Ishant', meta: 'Per-user · attribution preserved' },
-        { name: 'Guesty', status: 'Connected', meta: 'Channel manager · reservations + threads' },
-        { name: 'Breezeway', status: 'Connected', meta: 'Housekeeping + maintenance · two-way task sync' },
-        { name: 'WhatsApp Business API', status: 'Blocked', meta: 'Waiting on Guesty MFA + Meta BM admin access' },
-        { name: 'Stripe', status: 'Connected', meta: 'Direct bookings · refund automation' },
-        { name: 'Xero', status: 'Not connected', meta: 'Ships with Finance Apr' },
-        { name: 'Slack', status: 'Connected', meta: 'Bidirectional approvals · ops channel' },
-        { name: 'Airbnb (direct)', status: 'Via Guesty', meta: 'Direct integration later' },
-        { name: 'Twilio (SMS fallback)', status: 'Not connected', meta: 'Low priority — WhatsApp covers' },
-      ].map((it, i) => (
+      {([] as any[]).map((it, i) => (
         <div key={i} className="settings-row">
           <div>
             <h5>{it.name}</h5>
@@ -213,11 +196,7 @@ function BugReports() {
       <p style={{ margin: '0 0 16px', color: 'var(--color-text-tertiary)', fontSize: 13 }}>
         Admin-only view. Team-submitted bugs via the header ? menu land here.
       </p>
-      {[
-        { title: 'Calendar event popover clips off-screen on narrow viewports', reporter: 'Mathias', date: 'Apr 17', status: 'open' },
-        { title: 'Task drawer backdrop blocks sidebar clicks', reporter: 'Franny', date: 'Apr 14', status: 'open' },
-        { title: 'Dark mode toggle persists across reload — verified', reporter: 'Ishant', date: 'Apr 12', status: 'fixed' },
-      ].map((b, i) => (
+      {([] as any[]).map((b, i) => (
         <div key={i} className="settings-row">
           <div>
             <h5>{b.title}</h5>
