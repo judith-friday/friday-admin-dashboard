@@ -64,6 +64,11 @@ If you write something demo-only or fake-backend, add a `// @demo:*` comment in 
 | PROD-DATA-22 | `frontend/src/app/fad/_data/finance.ts` (~line 84) `FIN_CATEGORIES` | Hardcoded expense categories | `GET /api/finance/categories` (likely tenant-configurable) |
 | PROD-DATA-23 | `frontend/src/app/fad/_data/finance.ts` (~line 110) `FIN_VENDORS` | Hardcoded vendor records | `GET /api/finance/vendors` |
 | PROD-DATA-24 | `frontend/src/app/fad/_data/finance.ts` (~line 178) `FIN_PERIODS` | Hardcoded fiscal periods (April 2026, etc.) | `GET /api/finance/periods` |
+| PROD-DATA-25 | `frontend/src/app/fad/_components/modules/TrainingModule.tsx` (entire file) | Training module — Sources, Performance, Brand voice sub-pages all render inline demo JSX | Real Training UI when shipped, OR `<ComingSoon />` placeholder until then |
+| PROD-DATA-26 | `frontend/src/app/fad/_components/modules/HRModule.tsx` (entire file) | HR module — Staff names, time-off, stats, permissions all inline demo JSX | Wire to `GET /api/hr/staff`, `/api/hr/time-off`, `/api/hr/permissions` |
+| PROD-DATA-27 | `frontend/src/app/fad/_components/modules/ReviewsModule.tsx` (entire file) | Reviews — anomaly callouts, suggested actions, trends, staff perf names all inline | Wire to `GET /api/reviews`, `/api/reviews/anomalies`, `/api/reviews/suggested-actions` |
+| PROD-DATA-28 | `frontend/src/app/fad/_components/modules/AnalyticsModule.tsx` (entire file) | Analytics — Overview, Revenue, Occupancy, Channels, Reviews, Team, Margin sub-pages all inline charts/cards with mock numbers | Wire to `GET /api/analytics/*` per sub-page |
+| PROD-DATA-29 | `frontend/src/app/fad/_components/modules/Tier3Modules.tsx` (entire file) | Guests, Marketing, Leads, Intelligence — all four modules are inline demo JSX (top-card stats, channel mix, direct booking funnel, morning digest, weekly pulse, etc.) | Wire each to its own backend endpoints OR keep as `<ComingSoon />` until shipped |
 
 **Static config (intentionally NOT tagged, ships as-is):**
 - `_data/modules.ts` — FAD module definitions (sidebar nav)

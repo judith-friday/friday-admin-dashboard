@@ -1,5 +1,11 @@
 'use client';
 
+// @demo:data — Tag: PROD-DATA-28 — see frontend/DEMO_CRUFT.md
+// Analytics (Overview, Revenue, Occupancy, Channels, Reviews, Team, Margin)
+// Entire module is inline demo JSX content (cards, tables, charts with
+// hardcoded mock data). Replace with real backend-driven content when
+// the module ships, or render a 'Coming soon' placeholder until then.
+
 import { useState } from 'react';
 import {
   ANALYTICS_OVERVIEW_KPI,
