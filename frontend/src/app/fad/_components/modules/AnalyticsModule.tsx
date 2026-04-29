@@ -125,6 +125,7 @@ function OverviewTab() {
             subtitle="Click a metric to drill"
           />
           <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* @demo:data — Tag: PROD-DATA-43 — see frontend/DEMO_CRUFT.md */}
             {[
               { label: 'Occupancy trending up', detail: '+3pp vs last year', dir: 'up' as const },
               { label: 'Direct-book share recovering', detail: '+2pp QoQ, goal 25% by Oct', dir: 'up' as const },

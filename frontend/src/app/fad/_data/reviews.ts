@@ -579,6 +579,9 @@ const sl = (
   reviewId: string, staffId: string, role: StaffRole, breezewayTaskId: string, cleaningDate: string,
 ): StaffReviewLink => ({ reviewId, staffId, role, breezewayTaskId, cleaningDate });
 
+// @demo:data — Tag: PROD-DATA-42 — see frontend/DEMO_CRUFT.md
+//   covers STAFF_REVIEW_LINKS + COHORT_NARRATIVES + SUGGESTED_ACTIONS + REVIEW_ANOMALIES
+//   (all four named-staff/property-coded surfaces in this file)
 export const STAFF_REVIEW_LINKS: StaffReviewLink[] = [
   sl('rv-001', 'u-catherine', 'cleaner', 'bzw-tk-rc15-426', '2026-04-26'),
   sl('rv-002', 'u-alex', 'cleaner', 'bzw-tk-lc9-424', '2026-04-24'),

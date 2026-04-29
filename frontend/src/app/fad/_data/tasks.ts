@@ -97,6 +97,7 @@ export interface TaskUser {
   avatarColor: string;
 }
 
+// @demo:data — Tag: PROD-DATA-38 — see frontend/DEMO_CRUFT.md
 export const TASK_USERS: TaskUser[] = [
   {
     id: 'u-judith',

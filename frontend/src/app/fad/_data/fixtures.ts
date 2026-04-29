@@ -326,6 +326,11 @@ export interface KPI {
   dir: 'up' | 'down' | null;
 }
 
+// @demo:data — Tag: PROD-DATA-44 — see frontend/DEMO_CRUFT.md
+//   Legacy demo cluster: FIN_KPIS / FIN_TX / OPS_CLEANS / OPS_TICKETS /
+//   LEGAL_CONTRACTS / OWNERS — all consumed only by StubModules.tsx (the
+//   pre-Coming-Soon stub modules). Replace each with its respective real API
+//   when those modules ship.
 export const FIN_KPIS: KPI[] = [
   { label: 'Revenue MTD', value: '€ 184,220', sub: '+12% vs Apr LM', dir: 'up' },
   { label: 'Outstanding payouts', value: '€ 42,960', sub: '6 owners', dir: null },

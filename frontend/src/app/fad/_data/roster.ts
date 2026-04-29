@@ -67,6 +67,7 @@ export interface RosterWeek {
   days: RosterDay[];
 }
 
+// @demo:data — Tag: PROD-DATA-39 — see frontend/DEMO_CRUFT.md
 export const ROSTER_USERS_ORDER = [
   'u-ishant',
   'u-mathias',
@@ -250,6 +251,7 @@ export interface WorkloadPreview {
   lightestCount: number;
 }
 
+// @demo:data — Tag: PROD-DATA-40 — see frontend/DEMO_CRUFT.md
 export const WORKLOAD_THIS_WEEK: WorkloadPreview = {
   weekStart: '2026-04-27',
   weekEnd: '2026-05-03',

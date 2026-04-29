@@ -19,6 +19,7 @@ export interface TimeOffRequest {
   createdAt: string;
 }
 
+// @demo:data — Tag: PROD-DATA-37 — see frontend/DEMO_CRUFT.md
 export const TIME_OFF_REQUESTS: TimeOffRequest[] = [
   {
     id: 'to-001',

@@ -76,13 +76,21 @@ If you write something demo-only or fake-backend, add a `// @demo:*` comment in 
 | PROD-DATA-34 | `frontend/src/app/fad/_data/finance.ts:520` `FIN_TOURIST_TOTALS.ownerOverRefundDueEur/Count` | Hardcoded illustrative roll-up for tourist-tax over-refund hero block (1294 EUR / 23 reservations) | `GET /api/finance/tourist-tax/totals` returning roll-up across all months |
 | PROD-DATA-35 | `frontend/src/app/fad/_components/modules/FinanceModule.tsx:1255` "Reservations included 14" | Hardcoded reservation count in tourist-tax filing summary | Compute from `FIN_TOURIST_TAX[period].reservationsIncluded` once that field exists, OR derive from a future `GET /api/finance/tourist-tax/period/:id` |
 | PROD-DATA-36 | `frontend/src/app/fad/_components/modules/OperationsModule.tsx:1511` `SettingsPage` | Inline JSX listing 5 Breezeway templates (Standard cleaning, Post-clean inspection, etc.), 2 workflow rules, 5 recurring rules — all hardcoded | `GET /api/integrations/breezeway/templates`, `/api/integrations/breezeway/workflows`, `/api/integrations/breezeway/recurring-rules` (read-only mirror until Phase 3) |
+| PROD-DATA-37 | `frontend/src/app/fad/_data/timeOff.ts:23` `TIME_OFF_REQUESTS` | 6 hardcoded leave requests with named staff (Mary, Bryan, Catherine etc.). The request data is demo; the type/status labels in this file remain config | `GET /api/hr/time-off-requests` |
+| PROD-DATA-38 | `frontend/src/app/fad/_data/tasks.ts:101` `TASK_USERS` | 9 hardcoded staff records (Judith, Ishant, Mathias, Franny, Mary, Bryan, Alex, Catherine + Oracle Cleaning Co). Drives HR Staff, role-switcher, mentions, assignee picker, FridayDrawer greeting | `GET /api/users/team`. Role-switcher (PROD-AUTH-3) goes away when real auth lands; `useCurrentUser()` reads from JWT |
+| PROD-DATA-39 | `frontend/src/app/fad/_data/roster.ts:71` `ROSTER_USERS_ORDER` | Hardcoded 7-user list driving Roster grid rows | Replace with the result of `GET /api/users/team` filtered to non-external roles, sorted by display order |
+| PROD-DATA-40 | `frontend/src/app/fad/_data/roster.ts:255` `WORKLOAD_THIS_WEEK` + `ROSTER_THIS_WEEK.aiNotes`/`aiConstraintWarnings` | Pre-aggregated workload preview (by zone × department, by day) plus AI-generated notes referencing Bryan / Mary / Catherine / specific properties | `GET /api/operations/roster/:weekId/workload-preview` (computed server-side); `aiNotes` produced by the LLM at suggest time |
+| PROD-DATA-41 | `frontend/src/app/fad/_data/reservations.ts:628` `INQUIRIES` | 5 inquiry records with named guests (Elena Rossi, James Thompson, Sofía Mendez, etc.) and quote amounts in EUR | `GET /api/reservations/inquiries` |
+| PROD-DATA-42 | `frontend/src/app/fad/_data/reviews.ts:584` `STAFF_REVIEW_LINKS` + `COHORT_NARRATIVES` (~745) + `SUGGESTED_ACTIONS` (~769) + `REVIEW_ANOMALIES` (~809) | All four populated with staff + property names + AI-style narrative bodies referencing Mary, Catherine, BCN-A, LB-2, etc. | `GET /api/reviews/staff-links`, `/api/reviews/cohort-narratives`, `/api/reviews/suggested-actions`, `/api/reviews/anomalies` |
+| PROD-DATA-43 | `frontend/src/app/fad/_components/modules/AnalyticsModule.tsx:128` Portfolio-health bullets | 5 inline JSX bullets with named properties (Sable Noir rating slipping, Nitzana soft-launch, etc.) | `GET /api/analytics/portfolio-health` returning a list of `{ label, detail, direction }` |
+| PROD-DATA-44 | `frontend/src/app/fad/_data/fixtures.ts:333` Legacy demo cluster (`FIN_KPIS` / `FIN_TX` / `OPS_CLEANS` / `OPS_TICKETS` / `LEGAL_CONTRACTS` / `OWNERS`) | Pre-rebuild stub-module data with hardcoded amounts, owner names, contract parties (Nitzana, Beaumont, Harrington, Breezeway, etc.). Consumed only by `StubModules.tsx` | Wire each consumer to its real backend when the relevant module ships, OR remove this cluster entirely once `StubModules.tsx` is decommissioned |
 
 **Static config (intentionally NOT tagged, ships as-is):**
 - `_data/modules.ts` — FAD module definitions (sidebar nav)
 - `_data/permissions.ts` — role × resource matrix (could move to backend later, fine static for v1)
-- `_data/financeAnomalies.ts` — anomaly detection rule config
+- `_data/financeAnomalies.ts` — anomaly detection rule config (`DISCREPANCY_KIND_LABEL`, helpers)
 - `_data/financeRoles.ts` — approval tier config
-- `_data/timeOff.ts` — leave-type definitions
+- `_data/timeOff.ts` — type + status label maps only (the request data itself is now PROD-DATA-37)
 
 ---
 

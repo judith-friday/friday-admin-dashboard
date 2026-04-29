@@ -624,6 +624,7 @@ export interface Inquiry {
   updatedAt: string;
 }
 
+// @demo:data — Tag: PROD-DATA-41 — see frontend/DEMO_CRUFT.md
 export const INQUIRIES: Inquiry[] = [
   {
     id: 'inq-elena-jul',
