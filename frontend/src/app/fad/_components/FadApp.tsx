@@ -320,33 +320,33 @@ function renderModuleInner(
     case 'settings':
       return <SettingsModule theme={ctx.theme} onToggleTheme={ctx.toggleTheme} />;
     case 'training':
-      return <TrainingModule />;
+      return <ComingSoonModule label="Training" />;
     case 'operations':
       return <OperationsModule subPage={subPage || 'overview'} onChangeSubPage={ctx.setSubPage} />;
     case 'hr':
-      return <HRModule subPage={subPage || 'staff'} onChangeSubPage={ctx.setSubPage} />;
+      return <ComingSoonModule label="HR" />;
     case 'reservations':
       return <ReservationsModule subPage={subPage || 'overview'} onChangeSubPage={ctx.setSubPage} />;
     case 'finance':
       return <FinanceModule subPage={subPage || 'overview'} role={ctx.finRole} onRoleChange={ctx.setFinRole} onAskFriday={ctx.openFriday} />;
     case 'legal':
-      return <LegalModule />;
+      return <ComingSoonModule label="Legal & Admin" />;
     case 'properties':
       return <PropertiesModule subPage={subPage || 'overview'} onChangeSubPage={ctx.setSubPage} />;
     case 'owners':
-      return <OwnersModule />;
+      return <ComingSoonModule label="Owners" />;
     case 'reviews':
-      return <ReviewsModule subPage={subPage || 'overview'} onChangeSubPage={ctx.setSubPage} />;
+      return <ComingSoonModule label="Reviews" />;
     case 'guests':
-      return <GuestsModule />;
+      return <ComingSoonModule label="Guests" />;
     case 'marketing':
-      return <MarketingModule />;
+      return <ComingSoonModule label="Marketing" />;
     case 'leads':
-      return <LeadsModule />;
+      return <ComingSoonModule label="Leads" />;
     case 'intelligence':
-      return <IntelligenceModule />;
+      return <ComingSoonModule label="Intelligence" />;
     case 'analytics':
-      return <AnalyticsModule />;
+      return <ComingSoonModule label="Analytics" />;
     case 'notifications':
       return <NotificationsModule />;
     case 'syndic':
@@ -356,4 +356,22 @@ function renderModuleInner(
     default:
       return <div className="fad-module-body">Module not found.</div>;
   }
+}
+
+// PREVIEW: ComingSoon placeholder used by demo-removed-preview branch
+// to replace stub modules whose inline JSX content shouldn't appear.
+function ComingSoonModule({ label }: { label: string }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+      <div className="fad-module-header">
+        <div className="fad-module-header-main">
+          <h1 className="fad-module-title">{label}</h1>
+          <p className="fad-module-subtitle">Coming soon — wired Phase 2</p>
+        </div>
+      </div>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-tertiary)', fontSize: 14 }}>
+        Coming soon.
+      </div>
+    </div>
+  );
 }
