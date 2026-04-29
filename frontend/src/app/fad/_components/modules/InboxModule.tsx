@@ -358,6 +358,14 @@ export function InboxModule({ onAskFriday }: Props) {
           ))}
         </div>
 
+        {!thread ? (
+          <div className="inbox-thread" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-tertiary)', fontSize: 13, padding: 40, textAlign: 'center' }}>
+            <div>
+              No guest, owner, or vendor threads yet.<br />
+              <span style={{ fontSize: 12 }}>Use the Team chip above to switch to internal team channels.</span>
+            </div>
+          </div>
+        ) : (
         <div className="inbox-thread">
           <div className="inbox-thread-header">
             <button
@@ -609,6 +617,7 @@ export function InboxModule({ onAskFriday }: Props) {
             )}
           </div>
         </div>
+        )}
 
         <div className={'inbox-right' + (rightCollapsed ? ' collapsed' : '')}>
           <button

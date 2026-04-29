@@ -92,6 +92,8 @@ const TEAM = [ ... ]
 
 **When you write new code** that's demo-only or fakes a backend behavior, **always tag it**. Add a row to `frontend/DEMO_CRUFT.md` with the tag ID, type, path, current behavior, and the backend action needed. One source of truth.
 
+**No untagged demo data, ever.** The contract: any new fixture, hardcoded value masquerading as data, or inline JSX that fakes a backend response gets its `@demo:*` tag IN THE SAME COMMIT as the code, plus a row in `DEMO_CRUFT.md`. If you find yourself writing `const FOO = [ {...}, {...} ]` for the UI to render, it needs a tag before it ships.
+
 **Before merging any backend wiring** — grep for `// @demo:` in the diff, cross-reference against `DEMO_CRUFT.md`, and confirm each tagged line either gets replaced or has its tag removed deliberately.
 
 ## Gotchas
