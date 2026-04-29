@@ -1,0 +1,1707 @@
+'use client';
+
+import { Fragment, useMemo, useState } from 'react';
+import { CAL_EVENTS, type CalEvent, type FixedCalEvent } from '../../_data/fixtures';
+import {
+  RESERVATIONS,
+  CHANNEL_LABEL,
+  PAYOUT_LABEL,
+  STATUS_LABEL as RES_STATUS_LABEL,
+  formatMoney,
+  formatStayWindow,
+  notesForReservation,
+  type Reservation,
+  type ReservationNote,
+} from '../../_data/reservations';
+import { TASKS, TASK_USERS, TASK_USER_BY_ID, type Task } from '../../_data/tasks';
+import { addReservationNote, updateReservationTimes } from '../../_data/breezeway';
+import { useCurrentUserId } from '../usePermissions';
+import { fireToast } from '../Toaster';
+import { FilterBar, FilterChip } from '../FilterBar';
+import { IconClose, IconPlus, IconRefresh } from '../icons';
+import { ModuleHeader } from '../ModuleHeader';
+import { CreateTaskDrawer } from './operations/CreateTaskDrawer';
+
+type CalView = 'day' | 'week' | 'month';
+
+interface ViewDay {
+  isoDate: string;
+  /** Letter abbrev, e.g. "Mon" — for headers. */
+  label: string;
+  /** Day-of-month, e.g. "27" — for headers. */
+  date: string;
+  today: boolean;
+  /** True when this day belongs to the focused month (month view only). */
+  inFocusMonth: boolean;
+}
+
+// @demo:logic — Tag: PROD-LOGIC-9 — see frontend/DEMO_CRUFT.md
+// Hardcoded demo date. Replace with new Date() (server-aware).
+const TODAY_ISO = '2026-04-27';
+const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const EVENT_TYPES: { id: 'reservation' | 'task' | 'maint' | 'meeting'; label: string; dot: string }[] = [
+  { id: 'reservation', label: 'Reservations', dot: 'accent' },
+  { id: 'task', label: 'Tasks', dot: 'info' },
+  { id: 'maint', label: 'Maintenance', dot: 'amber' },
+  { id: 'meeting', label: 'Meetings', dot: 'neutral' },
+];
+
+const TYPE_LABEL: Record<CalEvent['type'], string> = {
+  checkin: 'Check-in',
+  checkout: 'Check-out',
+  task: 'Task',
+  maint: 'Maintenance',
+  meeting: 'Meeting',
+};
+
+function eventOpenLabel(type: CalEvent['type']): string {
+  switch (type) {
+    case 'task':
+      return 'Open task';
+    case 'maint':
+      return 'Open work order';
+    case 'meeting':
+      return 'Open meeting';
+    case 'checkin':
+    case 'checkout':
+      return 'Open reservation';
+  }
+}
+
+function isoDay(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function addDays(d: Date, n: number): Date {
+  const next = new Date(d);
+  next.setDate(d.getDate() + n);
+  return next;
+}
+
+function startOfWeek(d: Date): Date {
+  // Mon-anchored week. JS getDay: 0=Sun, 1=Mon, ..., 6=Sat.
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  return addDays(d, diff);
+}
+
+function computeViewDays(viewDate: Date, view: CalView): ViewDay[] {
+  const focusMonth = viewDate.getMonth();
+  const make = (d: Date): ViewDay => ({
+    isoDate: isoDay(d),
+    label: DAY_LABELS[d.getDay()],
+    date: String(d.getDate()).padStart(2, '0'),
+    today: isoDay(d) === TODAY_ISO,
+    inFocusMonth: d.getMonth() === focusMonth,
+  });
+  if (view === 'day') {
+    return [make(viewDate)];
+  }
+  if (view === 'week') {
+    const monday = startOfWeek(viewDate);
+    return Array.from({ length: 7 }, (_, i) => make(addDays(monday, i)));
+  }
+  // month: 5 weeks anchored on Mon-of-week-containing-1st
+  const firstOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+  const monday = startOfWeek(firstOfMonth);
+  return Array.from({ length: 35 }, (_, i) => make(addDays(monday, i)));
+}
+
+function viewSubtitle(viewDate: Date, view: CalView, days: ViewDay[]): string {
+  const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) =>
+    new Date(iso).toLocaleString('en-US', opts);
+  if (view === 'day') {
+    return fmt(days[0].isoDate, { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  if (view === 'week') {
+    const first = days[0].isoDate;
+    const last = days[days.length - 1].isoDate;
+    return `${fmt(first, { month: 'short', day: 'numeric' })} → ${fmt(last, { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  }
+  return viewDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+}
+
+function dayIndexFor(iso: string, days: ViewDay[]): number {
+  return days.findIndex((d) => d.isoDate === iso.slice(0, 10));
+}
+
+function reservationToEvents(rsv: Reservation, days: ViewDay[]): CalEvent[] {
+  // Used by mobile day-list and DayView to surface check-in / check-out events at
+  // their precise hour. WeekView renders these as continuous bars instead.
+  const events: CalEvent[] = [];
+  const inIdx = dayIndexFor(rsv.checkIn, days);
+  const outIdx = dayIndexFor(rsv.checkOut, days);
+  if (inIdx >= 0) {
+    const hour = new Date(rsv.checkIn).getHours();
+    events.push({
+      day: inIdx,
+      start: hour,
+      end: hour + 1,
+      type: 'checkin',
+      title: `${rsv.guestName.split(' ').slice(-1)[0]} in · ${rsv.propertyCode}`,
+    });
+  }
+  if (outIdx >= 0) {
+    const hour = new Date(rsv.checkOut).getHours();
+    events.push({
+      day: outIdx,
+      start: hour,
+      end: hour + 1,
+      type: 'checkout',
+      title: `${rsv.guestName.split(' ').slice(-1)[0]} out · ${rsv.propertyCode}`,
+    });
+  }
+  return events;
+}
+
+function fixedToEvent(e: FixedCalEvent, days: ViewDay[]): CalEvent | null {
+  const idx = dayIndexFor(e.isoDate, days);
+  if (idx < 0) return null;
+  return { day: idx, start: e.start, end: e.end, type: e.type, title: e.title };
+}
+
+interface Stay {
+  rsv: Reservation;
+  /** Day index of the band's left edge in the visible window (clipped). */
+  startIdx: number;
+  /** Day index of the band's right edge in the visible window (clipped). */
+  endIdx: number;
+  /** True when check-in falls within the visible window. */
+  startsThisWeek: boolean;
+  /** True when check-out falls within the visible window. */
+  endsThisWeek: boolean;
+}
+
+function computeStaysInWindow(days: ViewDay[]): Stay[] {
+  if (days.length === 0) return [];
+  const firstISO = days[0].isoDate;
+  const lastISO = days[days.length - 1].isoDate;
+  return RESERVATIONS
+    .filter((r) => {
+      if (r.status === 'cancelled') return false;
+      const inISO = r.checkIn.slice(0, 10);
+      const outISO = r.checkOut.slice(0, 10);
+      return outISO >= firstISO && inISO <= lastISO;
+    })
+    .map((r) => {
+      const inIdx = days.findIndex((d) => d.isoDate === r.checkIn.slice(0, 10));
+      const outIdx = days.findIndex((d) => d.isoDate === r.checkOut.slice(0, 10));
+      return {
+        rsv: r,
+        startIdx: inIdx >= 0 ? inIdx : 0,
+        endIdx: outIdx >= 0 ? outIdx : days.length - 1,
+        startsThisWeek: inIdx >= 0,
+        endsThisWeek: outIdx >= 0,
+      };
+    })
+    .sort((a, b) => a.startIdx - b.startIdx || a.endIdx - b.endIdx);
+}
+
+function packStays(stays: Stay[]): Stay[][] {
+  const rows: Stay[][] = [];
+  for (const s of stays) {
+    const row = rows.find((r) => r.every((o) => o.endIdx < s.startIdx || o.startIdx > s.endIdx));
+    if (row) row.push(s);
+    else rows.push([s]);
+  }
+  return rows;
+}
+
+/**
+ * Synthesize a calendar event from a task. Returns:
+ *  - timed event if the task has an explicit dueTime
+ *  - all-day event (start: -1) for untimed tasks — these show in the all-day
+ *    strip / mobile-list "All day" group, not in the timed grid.
+ */
+function taskToEvent(task: Task, days: ViewDay[]): CalEvent | null {
+  const idx = dayIndexFor(task.dueDate, days);
+  if (idx < 0) return null;
+  const title = `${task.propertyCode} · ${task.title}`;
+  if (!task.dueTime) {
+    return { day: idx, start: -1, end: -1, type: 'task', title, allDay: true };
+  }
+  const hour = parseInt(task.dueTime.slice(0, 2), 10) || 9;
+  return { day: idx, start: hour, end: hour + 1, type: 'task', title };
+}
+
+type FilterChipId = 'reservation' | 'task' | 'maint' | 'meeting';
+
+export function CalendarModule() {
+  const currentUserId = useCurrentUserId();
+  const [tab, setTab] = useState<CalView>('week');
+  const [viewDate, setViewDate] = useState<Date>(() => new Date(`${TODAY_ISO}T12:00:00`));
+  const [typeFilter, setTypeFilter] = useState<Set<FilterChipId>>(
+    new Set(EVENT_TYPES.map((t) => t.id)),
+  );
+  const [mineOnly, setMineOnly] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<{ ev: CalEvent; x: number; y: number } | null>(
+    null,
+  );
+  const [selectedStay, setSelectedStay] = useState<{ rsv: Reservation; x: number; y: number } | null>(
+    null,
+  );
+  const [createOpen, setCreateOpen] = useState(false);
+  /** When set, render a CreateTaskDrawer prefilled for this reservation
+   *  (triggered from StayPopover's `+ Task` button). */
+  const [taskFromRsv, setTaskFromRsv] = useState<Reservation | null>(null);
+  /** Bumped after fixture mutations (note add, time adjust) so memoized
+   *  derivations like `stays`/`allEvents` re-run. */
+  const [rev, setRev] = useState(0);
+  const bumpRev = () => setRev((n) => n + 1);
+  const tabs = [
+    { id: 'day', label: 'Day' },
+    { id: 'week', label: 'Week' },
+    { id: 'month', label: 'Month' },
+  ];
+
+  const days = useMemo(() => computeViewDays(viewDate, tab), [viewDate, tab]);
+
+  const allEvents = useMemo<CalEvent[]>(() => {
+    const reservationEvents = RESERVATIONS.flatMap((r) => reservationToEvents(r, days));
+    const filteredTasks = mineOnly
+      ? TASKS.filter((t) => t.assigneeIds.includes(currentUserId))
+      : TASKS;
+    const taskEvents = filteredTasks.map((t) => taskToEvent(t, days)).filter((e): e is CalEvent => Boolean(e));
+    const fixedEvents = CAL_EVENTS.map((e) => fixedToEvent(e, days)).filter((e): e is CalEvent => Boolean(e));
+    return [...fixedEvents, ...reservationEvents, ...taskEvents];
+  }, [days, mineOnly, currentUserId, rev]);
+
+  const stays = useMemo(() => packStays(computeStaysInWindow(days)), [days, rev]);
+  const staysVisible = typeFilter.has('reservation');
+
+  // Map "reservation" chip to checkin/checkout event types so the existing per-type filter
+  // (used by mobile day-list etc.) keeps working without a parallel state.
+  const includesType = (t: CalEvent['type']) => {
+    if (t === 'checkin' || t === 'checkout') return typeFilter.has('reservation');
+    return typeFilter.has(t);
+  };
+  const visibleEvents = allEvents.filter((e) => includesType(e.type));
+  // Reservations show up as bands in WeekView's stays lane, not as discrete
+  // events in the time grid — so strip checkin/checkout when feeding the grid.
+  const weekTimedEvents = visibleEvents.filter(
+    (e) => e.type !== 'checkin' && e.type !== 'checkout',
+  );
+
+  const todayIdxInWindow = days.findIndex((d) => d.today);
+  const [mobileDayIdx, setMobileDayIdx] = useState(0);
+  const safeMobileIdx = Math.min(Math.max(mobileDayIdx, 0), days.length - 1);
+
+  // Snap mobile day index to today when it falls inside the visible window after nav.
+  useMemo(() => {
+    if (todayIdxInWindow >= 0) setMobileDayIdx(todayIdxInWindow);
+    else setMobileDayIdx(0);
+  }, [todayIdxInWindow]);
+
+  const toggleType = (t: FilterChipId) => {
+    setTypeFilter((prev) => {
+      const next = new Set(prev);
+      if (next.has(t)) next.delete(t);
+      else next.add(t);
+      return next;
+    });
+  };
+
+  const navStep = (dir: -1 | 1) => {
+    setViewDate((prev) => {
+      if (tab === 'day') return addDays(prev, dir);
+      if (tab === 'week') return addDays(prev, dir * 7);
+      return new Date(prev.getFullYear(), prev.getMonth() + dir, 1);
+    });
+  };
+  const goToday = () => setViewDate(new Date(`${TODAY_ISO}T12:00:00`));
+  const subtitle = viewSubtitle(viewDate, tab, days);
+
+  return (
+    <>
+      <ModuleHeader
+        title="Calendar"
+        subtitle={subtitle}
+        tabs={tabs}
+        activeTab={tab}
+        onTabChange={(id) => setTab(id as typeof tab)}
+        actions={
+          <>
+            <select
+              className="cal-view-switcher"
+              value={tab}
+              onChange={(e) => setTab(e.target.value as CalView)}
+              aria-label="Calendar view"
+            >
+              <option value="day">Day</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+            </select>
+            <div className="cal-nav">
+              <button className="btn ghost sm" onClick={() => navStep(-1)} aria-label="Previous">
+                ‹
+              </button>
+              <button className="btn ghost sm" onClick={goToday}>
+                Today
+              </button>
+              <button className="btn ghost sm" onClick={() => navStep(1)} aria-label="Next">
+                ›
+              </button>
+            </div>
+            <button
+              className="btn sm cal-action-sync"
+              onClick={() =>
+                fireToast('Sync · stub — will pull/push reservations + tasks to Guesty when integration lands')
+              }
+              title="Sync with Guesty (pending integration)"
+            >
+              <IconRefresh size={12} /> Sync
+            </button>
+            <button className="btn primary sm" onClick={() => setCreateOpen(true)}>
+              <IconPlus size={12} /> Event
+            </button>
+          </>
+        }
+      />
+      <div className="fad-module-body">
+        <FilterBar>
+          {EVENT_TYPES.map((t) => (
+            <FilterChip
+              key={t.id}
+              active={typeFilter.has(t.id)}
+              dot={t.dot}
+              onClick={() => toggleType(t.id)}
+            >
+              {t.label}
+            </FilterChip>
+          ))}
+          <span style={{ width: 1, height: 18, background: 'var(--color-border-tertiary)', margin: '0 4px' }} />
+          <FilterChip
+            active={mineOnly}
+            onClick={() => setMineOnly((v) => !v)}
+          >
+            Mine only
+          </FilterChip>
+        </FilterBar>
+
+        {tab === 'month' ? (
+          <MonthView
+            days={days}
+            viewDate={viewDate}
+            events={visibleEvents.filter((e) => e.type !== 'checkin' && e.type !== 'checkout')}
+            stays={staysVisible ? stays.flat() : []}
+            onEventClick={(ev, x, y) => setSelectedEvent({ ev, x, y })}
+            onStayClick={(rsv, x, y) => setSelectedStay({ rsv, x, y })}
+          />
+        ) : tab === 'day' ? (
+          <DayView
+            days={days}
+            events={visibleEvents.filter((e) => e.type !== 'checkin' && e.type !== 'checkout')}
+            stays={staysVisible ? stays.flat() : []}
+            onEventClick={(ev, x, y) => setSelectedEvent({ ev, x, y })}
+            onStayClick={(rsv, x, y) => setSelectedStay({ rsv, x, y })}
+          />
+        ) : (
+          <>
+            <div className="cal-week-desktop">
+              <WeekView
+                days={days}
+                events={weekTimedEvents}
+                stayRows={staysVisible ? stays : []}
+                onEventClick={(ev, x, y) => setSelectedEvent({ ev, x, y })}
+                onStayClick={(rsv, x, y) => setSelectedStay({ rsv, x, y })}
+              />
+            </div>
+            <div className="cal-week-mobile">
+              <MobileDayList
+                days={days}
+                events={visibleEvents}
+                dayIdx={safeMobileIdx}
+                setDayIdx={setMobileDayIdx}
+                onEventClick={(ev, x, y) => setSelectedEvent({ ev, x, y })}
+              />
+            </div>
+          </>
+        )}
+
+        <div
+          style={{
+            display: 'flex',
+            gap: 16,
+            marginTop: 16,
+            fontSize: 12,
+            color: 'var(--color-text-tertiary)',
+            flexWrap: 'wrap',
+          }}
+        >
+          {EVENT_TYPES.map((t) => (
+            <span key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span className={'dot ' + t.dot} />
+              {t.label}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {selectedEvent && (
+        <EventPopover
+          ev={selectedEvent.ev}
+          x={selectedEvent.x}
+          y={selectedEvent.y}
+          onClose={() => setSelectedEvent(null)}
+        />
+      )}
+      {selectedStay && (
+        <StayPopover
+          rsv={selectedStay.rsv}
+          x={selectedStay.x}
+          y={selectedStay.y}
+          authorId={currentUserId}
+          onClose={() => setSelectedStay(null)}
+          onCreateTask={(rsv) => {
+            setSelectedStay(null);
+            setTaskFromRsv(rsv);
+          }}
+          onMutated={bumpRev}
+        />
+      )}
+      {createOpen && <NewEventModal onClose={() => setCreateOpen(false)} />}
+      {/* `key` forces a remount each time the prefilled reservation changes,
+          so CreateTaskDrawer's useState picks up the new prefill values
+          instead of persisting state from the previous open. */}
+      {taskFromRsv && (
+        <CreateTaskDrawer
+          key={taskFromRsv.id}
+          open={true}
+          onClose={() => setTaskFromRsv(null)}
+          onCreated={() => {
+            setTaskFromRsv(null);
+            bumpRev();
+          }}
+          prefill={{
+            title: `Follow up with ${taskFromRsv.guestName}`,
+            propertyCode: taskFromRsv.propertyCode,
+            reservationId: taskFromRsv.id,
+            source: 'manual',
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+function WeekView({
+  days,
+  events,
+  stayRows,
+  onEventClick,
+  onStayClick,
+}: {
+  days: ViewDay[];
+  events: CalEvent[];
+  stayRows: Stay[][];
+  onEventClick: (ev: CalEvent, x: number, y: number) => void;
+  onStayClick: (rsv: Reservation, x: number, y: number) => void;
+}) {
+  const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+  const allDayByDay: Record<number, CalEvent[]> = {};
+  days.forEach((_, di) => {
+    allDayByDay[di] = events.filter((e) => e.day === di && e.allDay);
+  });
+  const hasAnyAllDay = Object.values(allDayByDay).some((arr) => arr.length > 0);
+  const [allDayExpand, setAllDayExpand] = useState<{
+    dayIdx: number;
+    date: string;
+    x: number;
+    y: number;
+  } | null>(null);
+  const monthLabel = days[0]
+    ? new Date(days[0].isoDate).toLocaleString('en-US', { month: 'short' })
+    : '';
+  return (
+    <div className="cal-wrap">
+      <div className="cal-head">
+        <div className="cal-head-cell">
+          <span style={{ fontSize: 10 }}>{monthLabel}</span>
+        </div>
+        {days.map((d) => (
+          <div key={d.isoDate} className={'cal-head-cell' + (d.today ? ' today' : '')}>
+            <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>{d.label}</span>
+            <span className="day">{d.date}</span>
+          </div>
+        ))}
+      </div>
+      {stayRows.length > 0 && (
+        <div className="cal-stays-lane">
+          {stayRows.map((row, rowIdx) => (
+            <div key={rowIdx} className="cal-stays-row">
+              <div className="cal-stays-rowlabel">{rowIdx === 0 ? 'Stays' : ''}</div>
+              {row.map((s) => (
+                <button
+                  key={s.rsv.id}
+                  type="button"
+                  className={
+                    'cal-stay-band status-' + s.rsv.status +
+                    (!s.startsThisWeek ? ' clip-left' : '') +
+                    (!s.endsThisWeek ? ' clip-right' : '')
+                  }
+                  style={{
+                    gridColumnStart: 2 + s.startIdx,
+                    gridColumnEnd: 2 + s.endIdx + 1,
+                  }}
+                  onClick={(evt) => {
+                    const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                    onStayClick(s.rsv, rect.right + 8, rect.top);
+                  }}
+                  title={`${s.rsv.guestName} · ${s.rsv.propertyCode} · ${s.rsv.nights} nts`}
+                >
+                  {s.startsThisWeek && <span className="cal-stay-end-dot left" aria-hidden="true" />}
+                  <span className="cal-stay-label">
+                    {s.rsv.guestName} <span className="cal-stay-prop mono">{s.rsv.propertyCode}</span>
+                  </span>
+                  {s.endsThisWeek && <span className="cal-stay-end-dot right" aria-hidden="true" />}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+      {hasAnyAllDay && (
+        <div className="cal-allday-row">
+          <div className="cal-allday-label">All day</div>
+          {days.map((d, di) => {
+            const dayEvents = allDayByDay[di];
+            const overflowCount = Math.max(dayEvents.length - 2, 0);
+            return (
+              <div key={di} className="cal-allday-cell">
+                {dayEvents.slice(0, 2).map((e, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={'cal-allday-pill ' + e.type}
+                    onClick={(evt) => {
+                      const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                      onEventClick(e, rect.right + 8, rect.top);
+                    }}
+                    title={e.title}
+                  >
+                    {e.title}
+                  </button>
+                ))}
+                {overflowCount > 0 && (
+                  <button
+                    type="button"
+                    className="cal-allday-more"
+                    onClick={(evt) => {
+                      evt.stopPropagation();
+                      const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                      setAllDayExpand({
+                        dayIdx: di,
+                        date: d.isoDate,
+                        x: rect.left,
+                        y: rect.bottom + 4,
+                      });
+                    }}
+                  >
+                    +{overflowCount} more
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {allDayExpand && allDayByDay[allDayExpand.dayIdx] && (
+        <>
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 99 }}
+            onClick={() => setAllDayExpand(null)}
+          />
+          <div
+            className="fad-dropdown cal-allday-expand"
+            style={{ top: allDayExpand.y, left: Math.min(allDayExpand.x, window.innerWidth - 280) }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="cal-allday-expand-header">
+              All day · {new Date(allDayExpand.date).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+            </div>
+            <div className="cal-allday-expand-list">
+              {allDayByDay[allDayExpand.dayIdx].map((e, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className={'cal-allday-pill ' + e.type}
+                  onClick={(evt) => {
+                    const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                    setAllDayExpand(null);
+                    onEventClick(e, rect.right + 8, rect.top);
+                  }}
+                >
+                  {e.title}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+      <div className="cal-grid">
+        {hours.map((h) => (
+          <Fragment key={h}>
+            <div className="cal-hour-label">{String(h).padStart(2, '0')}:00</div>
+            {days.map((d, di) => {
+              const evs = events.filter((e) => e.day === di && !e.allDay && e.start === h);
+              const visible = evs.slice(0, 3);
+              const overflow = evs.length - visible.length;
+              return (
+                <div key={di} className="cal-cell">
+                  {visible.map((e, i) => {
+                    const span = e.end - e.start;
+                    const widthPct = 100 / visible.length;
+                    return (
+                      <div
+                        key={i}
+                        className={'cal-event ' + e.type}
+                        style={{
+                          top: 2,
+                          height: `calc(${span * 52}px - 4px)`,
+                          left: `${i * widthPct}%`,
+                          width: `calc(${widthPct}% - 2px)`,
+                        }}
+                        onClick={(evt) => {
+                          evt.stopPropagation();
+                          const rect = (evt.target as HTMLElement).getBoundingClientRect();
+                          onEventClick(e, rect.right + 8, rect.top);
+                        }}
+                      >
+                        <span className="ev-time mono">
+                          {String(e.start).padStart(2, '0')}:00
+                        </span>
+                        {e.title}
+                      </div>
+                    );
+                  })}
+                  {overflow > 0 && (
+                    <span className="cal-cell-more">+{overflow}</span>
+                  )}
+                </div>
+              );
+            })}
+          </Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MobileDayList({
+  days,
+  events,
+  dayIdx,
+  setDayIdx,
+  onEventClick,
+}: {
+  days: ViewDay[];
+  events: CalEvent[];
+  dayIdx: number;
+  setDayIdx: (n: number) => void;
+  onEventClick: (ev: CalEvent, x: number, y: number) => void;
+}) {
+  const day = days[dayIdx];
+  if (!day) return null;
+  const dayEvents = events.filter((e) => e.day === dayIdx);
+  const allDayEvents = dayEvents.filter((e) => e.allDay);
+  const timedEvents = dayEvents.filter((e) => !e.allDay).sort((a, b) => a.start - b.start);
+  return (
+    <div className="cal-mobile">
+      <div className="cal-mobile-pager">
+        <button
+          type="button"
+          className="btn ghost sm"
+          onClick={() => setDayIdx(Math.max(dayIdx - 1, 0))}
+          disabled={dayIdx === 0}
+          aria-label="Previous day"
+        >
+          ‹
+        </button>
+        <div style={{ textAlign: 'center', flex: 1 }}>
+          <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            {day.label}
+            {day.today && ' · today'}
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 500 }}>
+            {new Date(day.isoDate).toLocaleString('en-US', { month: 'short', day: 'numeric' })}
+          </div>
+        </div>
+        <button
+          type="button"
+          className="btn ghost sm"
+          onClick={() => setDayIdx(Math.min(dayIdx + 1, days.length - 1))}
+          disabled={dayIdx >= days.length - 1}
+          aria-label="Next day"
+        >
+          ›
+        </button>
+      </div>
+
+      {dayEvents.length === 0 ? (
+        <div style={{ padding: 32, textAlign: 'center', color: 'var(--color-text-tertiary)', fontSize: 13 }}>
+          Nothing scheduled.
+        </div>
+      ) : (
+        <>
+          {allDayEvents.length > 0 && (
+            <div className="cal-mobile-allday">
+              <div className="cal-mobile-allday-label">All day · {allDayEvents.length}</div>
+              <ul className="cal-mobile-list">
+                {allDayEvents.map((e, i) => (
+                  <li key={i}>
+                    <button
+                      type="button"
+                      className={'cal-mobile-event ' + e.type}
+                      onClick={(evt) => {
+                        const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                        onEventClick(e, rect.left + 16, rect.top + 16);
+                      }}
+                    >
+                      <span className="cal-mobile-event-time mono">—</span>
+                      <span className="cal-mobile-event-type">{TYPE_LABEL[e.type]}</span>
+                      <span className="cal-mobile-event-title">{e.title}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {timedEvents.length > 0 && (
+            <ul className="cal-mobile-list">
+              {timedEvents.map((e, i) => (
+                <li key={i}>
+                  <button
+                    type="button"
+                    className={'cal-mobile-event ' + e.type}
+                    onClick={(evt) => {
+                      const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                      onEventClick(e, rect.left + 16, rect.top + 16);
+                    }}
+                  >
+                    <span className="cal-mobile-event-time mono">
+                      {String(e.start).padStart(2, '0')}:00
+                    </span>
+                    <span className="cal-mobile-event-type">{TYPE_LABEL[e.type]}</span>
+                    <span className="cal-mobile-event-title">{e.title}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function DayView({
+  days,
+  events,
+  stays,
+  onEventClick,
+  onStayClick,
+}: {
+  days: ViewDay[];
+  events: CalEvent[];
+  stays: Stay[];
+  onEventClick: (ev: CalEvent, x: number, y: number) => void;
+  onStayClick: (rsv: Reservation, x: number, y: number) => void;
+}) {
+  const hours = Array.from({ length: 14 }, (_, i) => 7 + i);
+  const focusIdx = 0; // day view always shows a single day at index 0
+  const focusDay = days[focusIdx];
+  if (!focusDay) return null;
+  const evs = events.filter((e) => e.day === focusIdx);
+  const allDayEvs = evs.filter((e) => e.allDay);
+  const staysToday = stays.filter((s) => s.startIdx <= focusIdx && s.endIdx >= focusIdx);
+  const monthLabel = new Date(focusDay.isoDate).toLocaleString('en-US', { month: 'short' });
+  return (
+    <div className="cal-wrap">
+      <div className="cal-head" style={{ gridTemplateColumns: '64px 1fr' }}>
+        <div className="cal-head-cell">
+          <span style={{ fontSize: 10 }}>{monthLabel}</span>
+        </div>
+        <div className={'cal-head-cell' + (focusDay.today ? ' today' : '')}>
+          <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)' }}>{focusDay.label}</span>
+          <span className="day">{focusDay.date}</span>
+        </div>
+      </div>
+      {staysToday.length > 0 && (
+        <div className="cal-day-stays">
+          <div className="cal-day-stays-label">In residence · {staysToday.length}</div>
+          <div className="cal-day-stays-list">
+            {staysToday.map((s) => {
+              const isArrival = s.startIdx === focusIdx && s.startsThisWeek;
+              const isDeparture = s.endIdx === focusIdx && s.endsThisWeek;
+              const tag = isArrival ? 'Arriving' : isDeparture ? 'Departing' : 'Staying';
+              return (
+                <button
+                  key={s.rsv.id}
+                  type="button"
+                  className={'cal-stay-band status-' + s.rsv.status}
+                  onClick={(evt) => {
+                    const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                    onStayClick(s.rsv, rect.right + 8, rect.top);
+                  }}
+                >
+                  <span className="cal-stay-end-dot" aria-hidden="true" />
+                  <span className="cal-stay-label">
+                    {s.rsv.guestName}{' '}
+                    <span className="cal-stay-prop mono">{s.rsv.propertyCode}</span>
+                  </span>
+                  <span style={{ fontSize: 9, opacity: 0.75, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    {tag}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      {allDayEvs.length > 0 && (
+        <div className="cal-allday-row" style={{ gridTemplateColumns: '64px 1fr' }}>
+          <div className="cal-allday-label">All day</div>
+          <div className="cal-allday-cell" style={{ flexWrap: 'wrap' }}>
+            {allDayEvs.map((e, i) => (
+              <button
+                key={i}
+                type="button"
+                className={'cal-allday-pill ' + e.type}
+                onClick={(evt) => {
+                  const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                  onEventClick(e, rect.right + 8, rect.top);
+                }}
+              >
+                {e.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="cal-grid" style={{ gridTemplateColumns: '64px 1fr' }}>
+        {hours.map((h) => {
+          const cellEvs = evs.filter((e) => !e.allDay && e.start === h);
+          return (
+            <Fragment key={h}>
+              <div className="cal-hour-label">{String(h).padStart(2, '0')}:00</div>
+              <div className="cal-cell" style={{ height: 52 }}>
+                {cellEvs.map((e, i) => {
+                  const span = e.end - e.start;
+                  const widthPct = 100 / cellEvs.length;
+                  return (
+                    <div
+                      key={i}
+                      className={'cal-event ' + e.type}
+                      style={{
+                        top: 2,
+                        height: `calc(${span * 52}px - 4px)`,
+                        left: `${i * widthPct}%`,
+                        width: `calc(${widthPct}% - 2px)`,
+                      }}
+                      onClick={(evt) => {
+                        evt.stopPropagation();
+                        const rect = (evt.target as HTMLElement).getBoundingClientRect();
+                        onEventClick(e, rect.right + 8, rect.top);
+                      }}
+                    >
+                      <span className="ev-time mono">
+                        {String(e.start).padStart(2, '0')}:00
+                      </span>
+                      {e.title}
+                    </div>
+                  );
+                })}
+              </div>
+            </Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function MonthView({
+  days,
+  viewDate,
+  events,
+  stays,
+  onEventClick,
+  onStayClick,
+}: {
+  days: ViewDay[];
+  viewDate: Date;
+  events: CalEvent[];
+  stays: Stay[];
+  onEventClick: (ev: CalEvent, x: number, y: number) => void;
+  onStayClick: (rsv: Reservation, x: number, y: number) => void;
+}) {
+  void viewDate;
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const [expand, setExpand] = useState<{
+    isoDate: string;
+    events: CalEvent[];
+    stays: Stay[];
+    x: number;
+    y: number;
+  } | null>(null);
+  return (
+    <div className="cal-month">
+      <div className="cal-month-head">
+        {dayNames.map((d) => (
+          <div key={d} className="cal-month-head-cell">
+            {d}
+          </div>
+        ))}
+      </div>
+      <div className="cal-month-grid">
+        {days.map((d, idx) => {
+          const evs = events.filter((e) => e.day === idx);
+          const cellStays = stays.filter((s) => s.startIdx <= idx && s.endIdx >= idx);
+          const stayOverflow = Math.max(cellStays.length - 2, 0);
+          const eventOverflow = Math.max(evs.length - 2, 0);
+          const totalOverflow = stayOverflow + eventOverflow;
+          return (
+            <div
+              key={d.isoDate}
+              className={
+                'cal-month-cell' +
+                (!d.inFocusMonth ? ' other' : '') +
+                (d.today ? ' today' : '')
+              }
+            >
+              <div className="cal-month-day">{Number(d.date)}</div>
+              {cellStays.slice(0, 2).map((s) => {
+                const isStart = s.startIdx === idx && s.startsThisWeek;
+                const isEnd = s.endIdx === idx && s.endsThisWeek;
+                return (
+                  <button
+                    key={s.rsv.id}
+                    type="button"
+                    className={
+                      'cal-month-stay status-' + s.rsv.status +
+                      (isStart ? ' segment-start' : '') +
+                      (isEnd ? ' segment-end' : '') +
+                      (!isStart && !isEnd ? ' segment-middle' : '')
+                    }
+                    onClick={(evt) => {
+                      evt.stopPropagation();
+                      const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                      onStayClick(s.rsv, rect.right + 8, rect.top);
+                    }}
+                    title={`${s.rsv.guestName} · ${s.rsv.propertyCode} · ${s.rsv.nights} nts`}
+                  >
+                    {isStart && <span className="cal-stay-end-dot" aria-hidden="true" />}
+                    <span className="cal-month-stay-label">
+                      {isStart ? `${s.rsv.guestName.split(' ').slice(-1)[0]} · ${s.rsv.propertyCode}` : ''}
+                    </span>
+                  </button>
+                );
+              })}
+              {evs.slice(0, 2).map((e, i) => (
+                <div
+                  key={i}
+                  className={'cal-month-ev ' + e.type}
+                  onClick={(evt) => {
+                    evt.stopPropagation();
+                    const rect = (evt.target as HTMLElement).getBoundingClientRect();
+                    onEventClick(e, rect.right + 8, rect.top);
+                  }}
+                >
+                  {e.title}
+                </div>
+              ))}
+              {totalOverflow > 0 && (
+                <button
+                  type="button"
+                  className="cal-month-more"
+                  onClick={(evt) => {
+                    evt.stopPropagation();
+                    const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                    setExpand({
+                      isoDate: d.isoDate,
+                      events: evs,
+                      stays: cellStays,
+                      x: rect.left,
+                      y: rect.bottom + 4,
+                    });
+                  }}
+                >
+                  +{totalOverflow} more
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {expand && (
+        <>
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 99 }}
+            onClick={() => setExpand(null)}
+          />
+          <div
+            className="fad-dropdown cal-allday-expand"
+            style={{ top: expand.y, left: Math.min(expand.x, window.innerWidth - 320) }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="cal-allday-expand-header">
+              {new Date(expand.isoDate).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+              {' · '}{expand.stays.length + expand.events.length} item{expand.stays.length + expand.events.length === 1 ? '' : 's'}
+            </div>
+            <div className="cal-allday-expand-list">
+              {expand.stays.map((s) => (
+                <button
+                  key={s.rsv.id}
+                  type="button"
+                  className={'cal-allday-pill ' + (s.rsv.status === 'checked_in' ? 'checkin' : 'checkout')}
+                  onClick={(evt) => {
+                    const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                    setExpand(null);
+                    onStayClick(s.rsv, rect.right + 8, rect.top);
+                  }}
+                >
+                  🛏 {s.rsv.guestName} · {s.rsv.propertyCode}
+                </button>
+              ))}
+              {expand.events.map((e, i) => (
+                <button
+                  key={'ev-' + i}
+                  type="button"
+                  className={'cal-allday-pill ' + e.type}
+                  onClick={(evt) => {
+                    const rect = (evt.currentTarget as HTMLElement).getBoundingClientRect();
+                    setExpand(null);
+                    onEventClick(e, rect.right + 8, rect.top);
+                  }}
+                >
+                  {e.title}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function EventPopover({
+  ev,
+  x,
+  y,
+  onClose,
+}: {
+  ev: CalEvent;
+  x: number;
+  y: number;
+  onClose: () => void;
+}) {
+  // Match a task event back to its source record so we can show richer detail.
+  const linkedTask = ev.type === 'task' ? matchTaskFromEventTitle(ev.title) : null;
+  const timeLabel = ev.allDay
+    ? 'All day'
+    : `${String(ev.start).padStart(2, '0')}:00 – ${String(ev.end).padStart(2, '0')}:00`;
+  return (
+    <>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={onClose} />
+      <div
+        className="cal-popover"
+        style={{ top: y, left: Math.min(x, window.innerWidth - 320) }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+          <span className={'chip ' + (ev.type === 'maint' ? 'warn' : ev.type === 'checkin' || ev.type === 'checkout' ? 'info' : '')}>
+            {TYPE_LABEL[ev.type]}
+          </span>
+          {linkedTask && (
+            <span
+              className="mono"
+              style={{ fontSize: 10, color: 'var(--color-text-tertiary)' }}
+            >
+              #{linkedTask.bzId ?? linkedTask.id}
+            </span>
+          )}
+          <button className="fad-util-btn" onClick={onClose} style={{ marginLeft: 'auto', width: 22, height: 22 }}>
+            <IconClose size={12} />
+          </button>
+        </div>
+        <div className="cal-popover-title">{linkedTask?.title ?? ev.title}</div>
+        <div className="cal-popover-meta">{timeLabel}</div>
+        {linkedTask ? (
+          <TaskDetailBlock task={linkedTask} />
+        ) : (
+          <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
+            {ev.type === 'maint'
+              ? 'Maintenance work order — open the source record to assign or reschedule.'
+              : ev.type === 'meeting'
+              ? 'Internal meeting — invitees and notes live in the source record.'
+              : ''}
+          </div>
+        )}
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button className="btn sm">{eventOpenLabel(ev.type)}</button>
+          <button className="btn ghost sm">Edit</button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function matchTaskFromEventTitle(title: string): Task | null {
+  // Title shape from taskToEvent: "{propertyCode} · {task.title}"
+  const sepIdx = title.indexOf(' · ');
+  if (sepIdx < 0) return null;
+  const propertyCode = title.slice(0, sepIdx);
+  const taskTitle = title.slice(sepIdx + 3);
+  return TASKS.find((t) => t.propertyCode === propertyCode && t.title === taskTitle) ?? null;
+}
+
+function TaskDetailBlock({ task }: { task: Task }) {
+  const assignees = task.assigneeIds
+    .map((id) => TASK_USER_BY_ID[id]?.name.split(' ')[0])
+    .filter(Boolean)
+    .join(', ');
+  return (
+    <div className="cal-popover-finance">
+      <div className="cal-popover-finance-row">
+        <span>Property</span>
+        <span className="mono" style={{ fontWeight: 500 }}>{task.propertyCode}</span>
+      </div>
+      <div className="cal-popover-finance-row">
+        <span>Department</span>
+        <span style={{ color: 'var(--color-text-secondary)' }}>
+          {task.department} · {task.subdepartment.replace(/_/g, ' ')}
+        </span>
+      </div>
+      <div className="cal-popover-finance-row">
+        <span>Status</span>
+        <span style={{ color: 'var(--color-text-secondary)' }}>
+          {task.status.replace(/_/g, ' ')}
+        </span>
+      </div>
+      <div className="cal-popover-finance-row">
+        <span>Priority</span>
+        <span
+          style={{
+            fontSize: 10,
+            padding: '1px 6px',
+            borderRadius: 3,
+            fontWeight: 500,
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+            background:
+              task.priority === 'urgent'
+                ? 'var(--color-bg-danger)'
+                : task.priority === 'high'
+                ? 'var(--color-bg-warning)'
+                : 'var(--color-background-secondary)',
+            color:
+              task.priority === 'urgent'
+                ? 'var(--color-text-danger)'
+                : task.priority === 'high'
+                ? 'var(--color-text-warning)'
+                : 'var(--color-text-secondary)',
+          }}
+        >
+          {task.priority}
+        </span>
+      </div>
+      <div className="cal-popover-finance-row">
+        <span>Due</span>
+        <span style={{ color: 'var(--color-text-secondary)' }}>
+          {task.dueDate}{task.dueTime ? ` · ${task.dueTime}` : ''}
+        </span>
+      </div>
+      {assignees && (
+        <div className="cal-popover-finance-row">
+          <span>Assignees</span>
+          <span style={{ color: 'var(--color-text-secondary)' }}>{assignees}</span>
+        </div>
+      )}
+      {task.riskFlags.length > 0 && (
+        <div style={{ fontSize: 10, color: 'var(--color-text-warning)', marginTop: 4 }}>
+          ⚠ {task.riskFlags.join(', ')}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type StayPanel = 'none' | 'note' | 'times';
+
+function StayPopover({
+  rsv,
+  x,
+  y,
+  authorId,
+  onClose,
+  onCreateTask,
+  onMutated,
+}: {
+  rsv: Reservation;
+  x: number;
+  y: number;
+  authorId: string;
+  onClose: () => void;
+  onCreateTask: (rsv: Reservation) => void;
+  onMutated: () => void;
+}) {
+  const [panel, setPanel] = useState<StayPanel>('none');
+  const [noteDraft, setNoteDraft] = useState('');
+  const [noteMentions, setNoteMentions] = useState<string[]>([]);
+  const [mentionPickerOpen, setMentionPickerOpen] = useState(false);
+  const [checkInDraft, setCheckInDraft] = useState(rsv.checkIn.slice(0, 16));
+  const [checkOutDraft, setCheckOutDraft] = useState(rsv.checkOut.slice(0, 16));
+  const notes = notesForReservation(rsv.id);
+  const mentionCandidates = TASK_USERS.filter((u) => u.role !== 'external' && u.active && u.id !== authorId);
+
+  const insertMention = (userId: string) => {
+    const u = TASK_USER_BY_ID[userId];
+    if (!u) return;
+    setNoteDraft(noteDraft + (noteDraft.endsWith(' ') || noteDraft.length === 0 ? '' : ' ') + `@${u.name} `);
+    if (!noteMentions.includes(userId)) setNoteMentions([...noteMentions, userId]);
+    setMentionPickerOpen(false);
+  };
+
+  const postNote = () => {
+    const text = noteDraft.trim();
+    if (!text) return;
+    addReservationNote({
+      reservationId: rsv.id,
+      authorId,
+      body: text,
+      mentions: noteMentions,
+    });
+    setNoteDraft('');
+    setNoteMentions([]);
+    setPanel('none');
+    fireToast(
+      noteMentions.length > 0
+        ? `Note added · ${noteMentions.length} teammate${noteMentions.length === 1 ? '' : 's'} notified`
+        : 'Note added to reservation',
+    );
+    onMutated();
+  };
+
+  const saveTimes = async () => {
+    const inIso = checkInDraft.includes(':') ? checkInDraft + ':00' : checkInDraft;
+    const outIso = checkOutDraft.includes(':') ? checkOutDraft + ':00' : checkOutDraft;
+    if (inIso === rsv.checkIn && outIso === rsv.checkOut) {
+      fireToast('No time changes to save');
+      setPanel('none');
+      return;
+    }
+    await updateReservationTimes({
+      reservationId: rsv.id,
+      checkIn: inIso !== rsv.checkIn ? inIso : undefined,
+      checkOut: outIso !== rsv.checkOut ? outIso : undefined,
+      actorId: authorId,
+    });
+    setPanel('none');
+    fireToast('Reservation updated · Guesty sync task queued');
+    onMutated();
+    onClose();
+  };
+
+  return (
+    <>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 99 }} onClick={onClose} />
+      <div
+        className="cal-popover"
+        style={{
+          // Clamp `top` so the popover (which can grow tall when the note
+          // composer or time form is open) never spills below the viewport.
+          // Worst-case content is ~640px; reserve 16px breathing room.
+          top: Math.max(8, Math.min(y, window.innerHeight - 640 - 16)),
+          left: Math.min(x, window.innerWidth - 320),
+          maxHeight: '90vh',
+          overflowY: 'auto',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+          <span className="mono" style={{ fontSize: 11, fontWeight: 500 }}>🛏 {rsv.id}</span>
+          <span
+            style={{
+              fontSize: 10,
+              padding: '2px 6px',
+              borderRadius: 4,
+              background: 'var(--color-brand-accent-soft)',
+              color: 'var(--color-brand-accent)',
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+            }}
+          >
+            {RES_STATUS_LABEL[rsv.status]}
+          </span>
+          <button className="fad-util-btn" onClick={onClose} style={{ marginLeft: 'auto', width: 22, height: 22 }}>
+            <IconClose size={12} />
+          </button>
+        </div>
+        <div className="cal-popover-title">
+          {rsv.guestName} <span style={{ fontWeight: 400, color: 'var(--color-text-secondary)' }}>· {rsv.propertyCode}</span>
+        </div>
+        <div className="cal-popover-meta">{formatStayWindow(rsv)}</div>
+        <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginBottom: 8 }}>
+          {rsv.partySize.adults} adult{rsv.partySize.adults === 1 ? '' : 's'}
+          {rsv.partySize.children > 0 && ` · ${rsv.partySize.children} child${rsv.partySize.children === 1 ? '' : 'ren'}`}
+          {' · '}{CHANNEL_LABEL[rsv.channel]}
+        </div>
+        <div className="cal-popover-finance">
+          <div className="cal-popover-finance-label">Financials</div>
+          <div className="cal-popover-finance-row">
+            <span>Total</span>
+            <span className="mono" style={{ fontWeight: 500 }}>
+              {formatMoney(rsv.totalAmount, rsv.currency)}
+            </span>
+          </div>
+          <div className="cal-popover-finance-row">
+            <span>Nightly avg</span>
+            <span className="mono" style={{ color: 'var(--color-text-secondary)' }}>
+              {formatMoney(Math.round(rsv.totalAmount / Math.max(rsv.nights, 1)), rsv.currency)}
+            </span>
+          </div>
+          <div className="cal-popover-finance-row">
+            <span>Tourist tax</span>
+            <span className="mono" style={{ color: 'var(--color-text-secondary)' }}>
+              {formatMoney(rsv.touristTax, rsv.currency)}
+            </span>
+          </div>
+          <div className="cal-popover-finance-row">
+            <span>Payout</span>
+            <span
+              style={{
+                fontSize: 10,
+                padding: '1px 6px',
+                borderRadius: 3,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                background:
+                  rsv.payoutStatus === 'pending'
+                    ? 'var(--color-bg-warning)'
+                    : rsv.payoutStatus === 'refunded'
+                    ? 'var(--color-bg-danger)'
+                    : 'var(--color-bg-success)',
+                color:
+                  rsv.payoutStatus === 'pending'
+                    ? 'var(--color-text-warning)'
+                    : rsv.payoutStatus === 'refunded'
+                    ? 'var(--color-text-danger)'
+                    : 'var(--color-text-success)',
+              }}
+            >
+              {PAYOUT_LABEL[rsv.payoutStatus]}
+            </span>
+          </div>
+          {rsv.refundAmount && rsv.refundAmount > 0 && (
+            <div className="cal-popover-finance-row">
+              <span>Refund issued</span>
+              <span className="mono" style={{ color: 'var(--color-text-danger)' }}>
+                −{formatMoney(rsv.refundAmount, rsv.currency)}
+              </span>
+            </div>
+          )}
+        </div>
+        {rsv.notes && (
+          <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontStyle: 'italic', margin: '8px 0' }}>
+            {rsv.notes}
+          </div>
+        )}
+        {/* Existing notes — collapsed list above any open composer. */}
+        {notes.length > 0 && panel !== 'note' && (
+          <div className="cal-popover-note-list">
+            {notes.slice(0, 3).map((n) => (
+              <ReservationNoteItem key={n.id} note={n} />
+            ))}
+          </div>
+        )}
+
+        {panel === 'note' && (
+          <div className="cal-popover-note-compose">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, position: 'relative' }}>
+              <span style={{ fontSize: 10, color: 'var(--color-text-warning)', fontWeight: 500 }}>
+                🔒 Internal note · only your team can see this
+              </span>
+              <button
+                type="button"
+                className="btn ghost sm"
+                style={{ marginLeft: 'auto', fontSize: 10, padding: '2px 6px' }}
+                onClick={() => setMentionPickerOpen((v) => !v)}
+                title="Tag a teammate"
+              >
+                @ Mention
+              </button>
+              {mentionPickerOpen && (
+                <>
+                  <div
+                    style={{ position: 'fixed', inset: 0, zIndex: 9 }}
+                    onClick={() => setMentionPickerOpen(false)}
+                  />
+                  <div
+                    className="fad-dropdown"
+                    style={{
+                      position: 'absolute',
+                      top: '100%',
+                      right: 0,
+                      marginTop: 4,
+                      minWidth: 180,
+                      maxHeight: 220,
+                      overflowY: 'auto',
+                      zIndex: 10,
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {mentionCandidates.map((u) => (
+                      <button
+                        key={u.id}
+                        className="fad-dropdown-item"
+                        onClick={() => insertMention(u.id)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}
+                      >
+                        <span
+                          style={{
+                            width: 18,
+                            height: 18,
+                            borderRadius: 9,
+                            background: u.avatarColor,
+                            color: 'white',
+                            fontSize: 9,
+                            textAlign: 'center',
+                            lineHeight: '18px',
+                          }}
+                        >
+                          {u.initials}
+                        </span>
+                        {u.name}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            <textarea
+              value={noteDraft}
+              onChange={(e) => setNoteDraft(e.target.value)}
+              placeholder="What does the team need to know?"
+              style={{ width: '100%', minHeight: 60, fontSize: 12, fontFamily: 'inherit', padding: 6 }}
+              autoFocus
+            />
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 6 }}>
+              <button
+                className="btn ghost sm"
+                onClick={() => {
+                  setPanel('none');
+                  setNoteDraft('');
+                  setNoteMentions([]);
+                }}
+              >
+                Cancel
+              </button>
+              <button className="btn primary sm" onClick={postNote} disabled={!noteDraft.trim()}>
+                Post note
+              </button>
+            </div>
+          </div>
+        )}
+
+        {panel === 'times' && (
+          <div className="cal-popover-time-form">
+            <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
+              Adjust check-in / check-out
+            </div>
+            <label style={{ display: 'block', fontSize: 11, marginBottom: 4 }}>
+              Check-in
+              <input
+                type="datetime-local"
+                value={checkInDraft}
+                onChange={(e) => setCheckInDraft(e.target.value)}
+                style={{ display: 'block', width: '100%', marginTop: 2, padding: 4, fontSize: 12 }}
+              />
+            </label>
+            <label style={{ display: 'block', fontSize: 11, marginBottom: 4 }}>
+              Check-out
+              <input
+                type="datetime-local"
+                value={checkOutDraft}
+                onChange={(e) => setCheckOutDraft(e.target.value)}
+                style={{ display: 'block', width: '100%', marginTop: 2, padding: 4, fontSize: 12 }}
+              />
+            </label>
+            <div style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginTop: 4, marginBottom: 6 }}>
+              Saving queues a high-priority Guesty-sync task for the ops manager until the integration lands.
+            </div>
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+              <button
+                className="btn ghost sm"
+                onClick={() => {
+                  setPanel('none');
+                  setCheckInDraft(rsv.checkIn.slice(0, 16));
+                  setCheckOutDraft(rsv.checkOut.slice(0, 16));
+                }}
+              >
+                Cancel
+              </button>
+              <button className="btn primary sm" onClick={saveTimes}>
+                Save
+              </button>
+            </div>
+          </div>
+        )}
+
+        {panel === 'none' && (
+          <>
+            <div className="cal-popover-actions">
+              <button
+                className="btn ghost sm"
+                onClick={() => setPanel('note')}
+                title="Attach an internal note to this stay"
+              >
+                + Note
+              </button>
+              <button
+                className="btn ghost sm"
+                onClick={() => onCreateTask(rsv)}
+                title="Create a task linked to this reservation"
+              >
+                + Task
+              </button>
+              <button
+                className="btn ghost sm"
+                onClick={() => setPanel('times')}
+                title="Change check-in or check-out time"
+              >
+                Adjust times
+              </button>
+            </div>
+            <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+              <button
+                className="btn sm"
+                onClick={() => window.location.assign(`/fad?m=reservations&sub=overview&rsv=${rsv.id}`)}
+              >
+                Open reservation
+              </button>
+              <button
+                className="btn ghost sm"
+                onClick={() =>
+                  window.location.assign(`/fad?m=operations&sub=all&rsv=${rsv.id}`)
+                }
+              >
+                Linked tasks
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
+function ReservationNoteItem({ note }: { note: ReservationNote }) {
+  const author = TASK_USER_BY_ID[note.authorId];
+  return (
+    <div className="cal-popover-note-item">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+        {author && (
+          <span
+            style={{
+              display: 'inline-block',
+              width: 14,
+              height: 14,
+              borderRadius: 7,
+              background: author.avatarColor,
+              color: 'white',
+              fontSize: 8,
+              textAlign: 'center',
+              lineHeight: '14px',
+              fontWeight: 500,
+            }}
+          >
+            {author.initials}
+          </span>
+        )}
+        <span style={{ fontSize: 11, fontWeight: 500 }}>{note.authorName}</span>
+        <span style={{ fontSize: 10, color: 'var(--color-text-tertiary)', marginLeft: 'auto' }}>
+          {formatNoteTs(note.createdAt)}
+        </span>
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', whiteSpace: 'pre-wrap' }}>
+        {note.body}
+      </div>
+    </div>
+  );
+}
+
+function formatNoteTs(iso: string): string {
+  const d = new Date(iso);
+  const today = new Date('2026-04-27T12:00:00');
+  const sameDay = d.toDateString() === today.toDateString();
+  if (sameDay) return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
+}
+
+function NewEventModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fad-modal-overlay" onClick={onClose}>
+      <div className="fad-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="fad-modal-head">
+          <div className="fad-modal-title">New event</div>
+          <button className="fad-util-btn" style={{ marginLeft: 'auto' }} onClick={onClose}>
+            <IconClose />
+          </button>
+        </div>
+        <div className="fad-modal-body">
+          <div className="fad-field">
+            <label>Title</label>
+            <input placeholder="e.g. Owner call · Nitzana" defaultValue="" />
+          </div>
+          <div className="fad-field">
+            <label>Type</label>
+            <select defaultValue="meeting">
+              {EVENT_TYPES.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div className="fad-field">
+              <label>Day</label>
+              <input type="date" defaultValue={TODAY_ISO} />
+            </div>
+            <div className="fad-field">
+              <label>Start</label>
+              <select>
+                {Array.from({ length: 14 }, (_, i) => 7 + i).map((h) => (
+                  <option key={h}>{String(h).padStart(2, '0')}:00</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="fad-field">
+            <label>Property (optional)</label>
+            <input placeholder="—" />
+          </div>
+          <div className="fad-field">
+            <label>Notes</label>
+            <textarea rows={3} placeholder="What's this about?" />
+          </div>
+        </div>
+        <div className="fad-modal-foot">
+          <button className="btn" onClick={onClose}>
+            Cancel
+          </button>
+          <button className="btn primary" onClick={onClose}>
+            Create event
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

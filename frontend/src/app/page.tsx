@@ -1160,7 +1160,7 @@ export default function MessageDashboard() {
           mobileView={mobileView}
           selectConversation={selectConversation}
           handleMarkUnread={handleMarkUnread}
-          fetchPropertyCard={fetchPropertyCard}
+          fetchPropertyCard={(code) => { if (code) fetchPropertyCard(code) }}
           statusBadge={statusBadge}
           channelBadge={channelBadge}
           searchQuery={searchQuery}
@@ -1192,7 +1192,7 @@ export default function MessageDashboard() {
                 detail={detail}
                 mobileView={mobileView}
                 setMobileView={setMobileView}
-                fetchPropertyCard={fetchPropertyCard}
+                fetchPropertyCard={(code) => { if (code) fetchPropertyCard(code) }}
                 channelBadge={channelBadge}
                 displayName={displayName}
                 selectedConvId={selectedConvId}

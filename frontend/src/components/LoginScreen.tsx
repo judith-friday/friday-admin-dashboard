@@ -1,309 +1,403 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { API_BASE } from './types'
+// @demo:auth — ENTIRE FILE is fake authentication. Accepts any input,
+// fakes a "Welcome" flash, navigates to /fad. No real auth flow.
+// Tag: PROD-AUTH-1 — see frontend/DEMO_CRUFT.md
+// Replace with real OAuth/JWT flow. handleSubmit → POST /api/auth/login,
+// store token, redirect on success.
 
-const TAGLINES = [
-  'Your AI-powered guest experience engine',
-  'Friday is ready. Let\u2019s delight some guests.',
-  'Smarter replies. Happier guests. Less effort.',
-  'Where hospitality meets intelligence',
-  'The future of guest communication starts here',
+// Demo-mode login screen. No real authentication — clicking a name (or any
+// manual Sign-in path) simply navigates to /fad. The FAD shell manages its
+// own role + identity state independently, so no localStorage writes are
+// required here. Pure UI: wordmark, greeting, name chips, cycling tip.
+
+import React, { useState, useEffect, useMemo } from 'react'
+
+type Theme = 'light' | 'dark'
+
+// ─────────────────────────────── Team roster ───────────────────────────────
+// Drives the chip selector. Edit when team membership changes.
+const TEAM = [
+  { firstName: 'Ishant',    email: 'ishant@friday.mu' },
+  { firstName: 'Mathias',   email: 'mathias@friday.mu' },
+  { firstName: 'Franny',    email: 'franny@friday.mu' },
+  { firstName: 'Mary',      email: 'mary@friday.mu' },
+  { firstName: 'Bryan',     email: 'bryan@friday.mu' },
+  { firstName: 'Alexandra', email: 'alexandra@friday.mu' },
+  { firstName: 'Catherine', email: 'catherine@friday.mu' },
+] as const
+
+// ─────────────────────────────── Greetings ─────────────────────────────────
+// One pulled at random per page load. Friday's voice trends curious + dry.
+// @demo:ui — Tag: PROD-UI-2 — see frontend/DEMO_CRUFT.md
+// Optional keep: drop for a conventional production login, or keep if
+// Friday's voice on a real login screen is still playful.
+const FUNNY_GREETINGS = [
+  "Wait a second… who are you? 0.0",
+  "Hark, traveler. Identify thyself.",
+  "Friday squints. Who goes there?",
+  "🤨 Suspicious. Name?",
+  "Beep boop. Authentication required.",
+  "Knock knock. Who's there?",
+  "Hello hello. Which one of you is it?",
+  "Halt! Whomst arrives?",
+  "*peers over glasses* And you are?",
+  "Ahem. Speak, mortal.",
+  "Friday wakes up. Mumbles. Who's this?",
+  "Identify yourself or the AI gets it.",
+  "Right then. Which one of you scallywags is it?",
+  "Knockety knock. State your business.",
 ]
 
-type View = 'login' | 'forgot' | 'reset' | 'change-password'
+// ─────────────────────────────── Tip pool ──────────────────────────────────
+// One shown below the form, in tertiary text. Random per page load.
+// 'admin' = FAD product knowledge (✦), 'str' = hospitality stats (💡).
+// @demo:ui — Tag: PROD-UI-3 — see frontend/DEMO_CRUFT.md
+// Optional keep: could become GET /api/login-tips, or drop entirely.
+const TIPS = [
+  { kind: 'admin', text: "Cmd+K opens the command palette anywhere in the FAD." },
+  { kind: 'admin', text: "Sub-pages keep their filter state when you deep-link." },
+  { kind: 'admin', text: "Sidebar badges are role-aware — what you see is what's actionable for you." },
+  { kind: 'admin', text: "Bell icon → AI priority toggle reorders by what'll bite next." },
+  { kind: 'admin', text: "Notifications can be snoozed per-item — 1h / 4h / Tomorrow." },
+  { kind: 'admin', text: "Property chips are clickable everywhere — quick-view popover, no nav reset." },
+  { kind: 'str',   text: "First-reply under 1 hour lifts review scores ~0.3 stars." },
+  { kind: 'str',   text: "Listings with 30+ reviews convert ~2× better than fewer." },
+  { kind: 'str',   text: "Cleaning-fee transparency cuts booking abandonment by ~8%." },
+  { kind: 'str',   text: "Saturday check-ins outperform on stays longer than 5 nights." },
+  { kind: 'str',   text: "Video tours raise click-through ~10%." },
+  { kind: 'str',   text: "Same-day bookings tend to be your highest-margin segment." },
+] as const
 
-export default function LoginScreen({ onLogin }: { onLogin: (token: string) => void }) {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [welcomeName, setWelcomeName] = useState<string | null>(null)
-  const [tagline] = useState(() => TAGLINES[Math.floor(Math.random() * TAGLINES.length)])
+// ─────────────────────────────── Design tokens ─────────────────────────────
+// Mirrors src/app/fad/fad.css :root + html.fad-dark blocks. Inlined here
+// because login lives at / outside the FAD route.
+const TOKENS: Record<Theme, {
+  bgPage: string; bgCard: string; border: string;
+  textPrimary: string; textSecondary: string; textTertiary: string;
+  brandAccent: string; brandAccentSoft: string; brandAccentText: string;
+}> = {
+  light: {
+    bgPage: '#efede8',
+    bgCard: '#ffffff',
+    border: 'rgba(15, 24, 54, 0.08)',
+    textPrimary: '#1a1917',
+    textSecondary: '#55534d',
+    textTertiary: '#8a8780',
+    brandAccent: '#2B4A93',
+    brandAccentSoft: 'rgba(43, 74, 147, 0.08)',
+    brandAccentText: '#ffffff',
+  },
+  dark: {
+    bgPage: '#141620',
+    bgCard: '#1a1d28',
+    border: 'rgba(255, 255, 255, 0.08)',
+    textPrimary: '#e8e9ec',
+    textSecondary: '#a8abb6',
+    textTertiary: '#6b6e7a',
+    brandAccent: '#5680CA',
+    brandAccentSoft: 'rgba(86, 128, 202, 0.14)',
+    brandAccentText: '#0b0d14',
+  },
+}
 
-  // Force password change state
-  const [mustChangePassword, setMustChangePassword] = useState(false)
-  const [tempToken, setTempToken] = useState<string | null>(null)
-  const [currentPw, setCurrentPw] = useState('')
-  const [newPw, setNewPw] = useState('')
-  const [confirmPw, setConfirmPw] = useState('')
-  const [changingPw, setChangingPw] = useState(false)
+const FONT_SANS = 'Inter, system-ui, -apple-system, sans-serif'
+const FONT_FRIDAY = 'Fraunces, "Iowan Old Style", Georgia, serif'
 
-  // Forgot / Reset password state
-  const [view, setView] = useState<View>('login')
-  const [forgotEmail, setForgotEmail] = useState('')
-  const [forgotSent, setForgotSent] = useState(false)
-  const [resetToken, setResetToken] = useState('')
-  const [resetPw, setResetPw] = useState('')
-  const [resetConfirmPw, setResetConfirmPw] = useState('')
-  const [resetSuccess, setResetSuccess] = useState(false)
+const FAD_DESTINATION = '/fad'
 
-  // Check URL for reset token on mount
+// ─────────────────────────────── Helpers ───────────────────────────────────
+
+function useFadTheme(): Theme {
+  const [theme, setTheme] = useState<Theme>('light')
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const token = params.get('token')
-    const path = window.location.pathname
-    if (token && (path === '/reset-password' || path.includes('reset-password'))) {
-      setResetToken(token)
-      setView('reset')
+    const saved = localStorage.getItem('fad:theme')
+    if (saved === 'light' || saved === 'dark') {
+      setTheme(saved)
+    } else if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark')
     }
   }, [])
+  return theme
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
+function pickOnce<T>(pool: readonly T[]): T {
+  return pool[Math.floor(Math.random() * pool.length)]
+}
+
+// ─────────────────────────────── Component ─────────────────────────────────
+
+// Prop kept for backward compatibility with app/page.tsx — never invoked in
+// demo mode (we navigate away instead of upgrading the parent's auth state).
+export default function LoginScreen({ onLogin: _onLogin }: { onLogin: (token: string) => void }) {
+  const theme = useFadTheme()
+  const t = TOKENS[theme]
+
+  const greeting = useMemo(() => pickOnce(FUNNY_GREETINGS), [])
+  const tip = useMemo(() => pickOnce(TIPS), [])
+
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true))
+    return () => cancelAnimationFrame(id)
+  }, [])
+
+  // Form state — fields are always rendered and accept anything (or nothing).
+  // Chip click pre-fills email + focuses password. Sign-in succeeds regardless
+  // of what's typed — the screen is the production layout, the auth is fake.
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [welcomeName, setWelcomeName] = useState<string | null>(null)
+  const [lastEmail, setLastEmail] = useState<string | null>(null)
+
+  useEffect(() => {
+    setLastEmail(localStorage.getItem('fad:last-email'))
+  }, [])
+
+  // Demo "sign in" — write the email so chip auto-highlights next visit, flash
+  // a welcome, then navigate to the FAD shell. No tokens, no API, no auth.
+  const enterAs = (firstName: string, emailUsed: string) => {
+    try { localStorage.setItem('fad:last-email', emailUsed) } catch {}
+    setWelcomeName(firstName)
+    setTimeout(() => {
+      window.location.href = FAD_DESTINATION
+    }, 700)
+  }
+
+  // Click a chip → fill email, focus password (mirrors the production flow
+  // where the OS password manager would now pop in the saved password).
+  const pickMember = (m: typeof TEAM[number]) => {
+    setEmail(m.email)
+    setTimeout(() => {
+      const pw = document.querySelector('input[name="password"]') as HTMLInputElement | null
+      pw?.focus()
+    }, 30)
+  }
+
+  // Form submit — accept anything. Resolve a display name in best-effort order:
+  //   1. Match against TEAM by exact email
+  //   2. Fall back to the email-prefix (Capitalized)
+  //   3. Final fallback "Demo"
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError('')
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Login failed')
-      localStorage.setItem('gms_display_name', data.display_name || data.username)
-      localStorage.setItem('gms_role', data.role || 'agent')
-      if (data.user_id) localStorage.setItem('gms_user_id', data.user_id)
-
-      if (data.must_change_password) {
-        setTempToken(data.token)
-        setCurrentPw(password)
-        setMustChangePassword(true)
-        return
-      }
-
-      // Welcome flash
-      setWelcomeName(data.display_name || data.username)
-      setTimeout(() => onLogin(data.token), 1200)
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
+    const trimmed = email.trim()
+    const matched = TEAM.find((m) => m.email === trimmed)
+    let niceName: string
+    if (matched) {
+      niceName = matched.firstName
+    } else if (trimmed) {
+      const stub = trimmed.includes('@') ? trimmed.split('@')[0] : trimmed
+      niceName = stub.charAt(0).toUpperCase() + stub.slice(1)
+    } else {
+      niceName = 'Demo'
     }
+    enterAs(niceName, trimmed || 'demo@friday.mu')
   }
 
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    if (newPw.length < 8) { setError('Password must be at least 8 characters'); return }
-    if (newPw !== confirmPw) { setError('Passwords do not match'); return }
-    setChangingPw(true)
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/me/password`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tempToken}` },
-        body: JSON.stringify({ current_password: currentPw, new_password: newPw }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to change password')
-      const dn = localStorage.getItem('gms_display_name') || username
-      setMustChangePassword(false)
-      setWelcomeName(dn)
-      setTimeout(() => onLogin(tempToken!), 1200)
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setChangingPw(false)
-    }
+  // ─────────────────────── Style objects ───────────────────────
+
+  const pageStyle: React.CSSProperties = {
+    background: t.bgPage,
+    color: t.textPrimary,
+    fontFamily: FONT_SANS,
+    minHeight: '100dvh',
+    paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+    paddingTop: 'env(safe-area-inset-top, 0px)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   }
 
-  const handleForgotPassword = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotEmail }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Something went wrong')
-      setForgotSent(true)
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+  const cardStyle: React.CSSProperties = {
+    background: t.bgCard,
+    border: `0.5px solid ${t.border}`,
+    borderRadius: 12,
+    padding: 32,
+    width: '100%',
+    maxWidth: 420,
+    margin: '0 16px',
+    boxShadow: theme === 'light'
+      ? '0 1px 2px rgba(15, 24, 54, 0.04), 0 8px 24px rgba(15, 24, 54, 0.04)'
+      : '0 1px 2px rgba(0, 0, 0, 0.30), 0 8px 24px rgba(0, 0, 0, 0.30)',
   }
 
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    if (resetPw.length < 8) { setError('Password must be at least 8 characters'); return }
-    if (resetPw !== resetConfirmPw) { setError('Passwords do not match'); return }
-    setLoading(true)
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: resetToken, password: resetPw }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to reset password')
-      setResetSuccess(true)
-      // Clean URL and redirect to login after 3s
-      window.history.replaceState({}, '', '/')
-      setTimeout(() => {
-        setView('login')
-        setResetSuccess(false)
-        setResetToken('')
-        setResetPw('')
-        setResetConfirmPw('')
-      }, 3000)
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+  const titleStyle: React.CSSProperties = {
+    fontFamily: FONT_FRIDAY,
+    fontSize: 28,
+    fontWeight: 500,
+    letterSpacing: '-0.01em',
+    color: t.textPrimary,
+    margin: 0,
+    marginBottom: 4,
+    opacity: mounted ? 1 : 0,
+    transform: mounted ? 'translateY(0)' : 'translateY(6px)',
+    transition: 'opacity 700ms cubic-bezier(0.4, 0, 0.2, 1), transform 700ms cubic-bezier(0.4, 0, 0.2, 1)',
   }
 
-  const cardStyle = {
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    backdropFilter: 'blur(12px)',
-  }
-  const inputStyle = {
-    background: 'rgba(255,255,255,0.06)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    color: '#f1f5f9',
-  }
-  const btnStyle = {
-    background: 'rgba(99,149,255,0.2)',
-    color: '#6395ff',
-    border: '1px solid rgba(99,149,255,0.3)',
+  const subtitleStyle: React.CSSProperties = {
+    fontSize: 13,
+    color: t.textSecondary,
+    margin: 0,
+    marginBottom: 20,
+    minHeight: 18,
   }
 
-  // Welcome flash screen
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '10px 12px',
+    fontSize: 14,
+    fontFamily: 'inherit',
+    background: t.bgCard,
+    border: `0.5px solid ${t.border}`,
+    borderRadius: 6,
+    color: t.textPrimary,
+    outline: 'none',
+    transition: 'border-color 100ms cubic-bezier(0.4, 0, 0.2, 1)',
+  }
+
+  const primaryBtnStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '10px 14px',
+    fontSize: 14,
+    fontWeight: 500,
+    fontFamily: 'inherit',
+    background: t.brandAccent,
+    color: t.brandAccentText,
+    border: `0.5px solid ${t.brandAccent}`,
+    borderRadius: 6,
+    cursor: 'pointer',
+    transition: 'opacity 100ms cubic-bezier(0.4, 0, 0.2, 1)',
+  }
+
+  const chipsRowStyle: React.CSSProperties = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  }
+
+  const chipStyle = (highlighted: boolean): React.CSSProperties => ({
+    padding: '8px 14px',
+    fontSize: 13,
+    fontFamily: 'inherit',
+    fontWeight: 500,
+    background: highlighted ? t.brandAccentSoft : t.bgCard,
+    color: highlighted ? t.brandAccent : t.textPrimary,
+    border: `0.5px solid ${highlighted ? t.brandAccent : t.border}`,
+    borderRadius: 999,
+    cursor: 'pointer',
+    transition: 'background 100ms ease, border-color 100ms ease, transform 60ms ease',
+  })
+
+  const tipStyle: React.CSSProperties = {
+    fontSize: 12,
+    color: t.textTertiary,
+    lineHeight: 1.5,
+    marginTop: 22,
+    marginBottom: 0,
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 6,
+  }
+
+  const demoPillStyle: React.CSSProperties = {
+    display: 'inline-block',
+    padding: '2px 8px',
+    fontSize: 10,
+    fontWeight: 500,
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    color: t.textTertiary,
+    background: t.brandAccentSoft,
+    border: `0.5px solid ${t.border}`,
+    borderRadius: 999,
+    marginBottom: 12,
+  }
+
+  // ─────────────────────── Welcome flash ───────────────────────
+
   if (welcomeName) {
     return (
-      <div className="flex items-center justify-center" style={{background: 'linear-gradient(135deg, #0d1117 0%, #0f1d35 50%, #0d1117 100%)', minHeight: '100dvh'}}>
-        <div className="text-center animate-fade-in">
-          <div className="text-3xl font-bold mb-2" style={{color: '#f1f5f9'}}>Welcome back, {welcomeName} &#x1F44B;</div>
-          <div className="text-sm" style={{color: '#64748b'}}>Loading your inbox...</div>
+      <div style={pageStyle}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontFamily: FONT_FRIDAY, fontSize: 24, fontWeight: 500, color: t.textPrimary, marginBottom: 6 }}>
+            Welcome, {welcomeName}.
+          </div>
+          <div style={{ fontSize: 13, color: t.textSecondary }}>Setting things up…</div>
         </div>
       </div>
     )
   }
 
-  // Force password change modal
-  if (mustChangePassword) {
-    return (
-      <div className="flex items-center justify-center" style={{background: 'linear-gradient(135deg, #0d1117 0%, #0f1d35 50%, #0d1117 100%)', minHeight: '100dvh'}}>
-        <form onSubmit={handlePasswordChange} className="p-6 sm:p-8 rounded-xl w-full max-w-sm mx-4 sm:mx-auto" style={cardStyle}>
-          <h1 className="text-xl font-bold mb-1" style={{color: '#f1f5f9'}}>Change Your Password</h1>
-          <p className="text-xs mb-5" style={{color: '#64748b'}}>For security, please set a new password before continuing.</p>
-          {error && <div className="mb-4 p-3 rounded text-sm" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>{error}</div>}
-          <input type="password" placeholder="New password (min 8 chars)" value={newPw} onChange={e => setNewPw(e.target.value)}
-            className="w-full mb-3 px-4 py-2 rounded-lg text-base outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-200" style={inputStyle} autoFocus />
-          <input type="password" placeholder="Confirm new password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)}
-            className="w-full mb-4 px-4 py-2 rounded-lg text-base outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-200" style={inputStyle} />
-          <button type="submit" disabled={changingPw}
-            className="w-full py-2 rounded-lg font-medium disabled:opacity-50" style={btnStyle}>
-            {changingPw ? 'Changing...' : 'Set New Password'}
+  // ─────────────────────── Default: sign-in screen ───────────────────────
+
+  const tipIcon = tip.kind === 'admin' ? '✦' : '💡'
+
+  return (
+    <div data-testid="container-login-screen" style={pageStyle}>
+      <div style={cardStyle}>
+        {/* @demo:ui — Tag: PROD-UI-1 — see frontend/DEMO_CRUFT.md
+            Remove when real auth lands. Indicates demo mode at a glance. */}
+        <span style={demoPillStyle}>Simulated · Demo</span>
+        <h1 style={titleStyle}>Friday Admin</h1>
+        <p style={subtitleStyle}>{greeting}</p>
+
+        <div style={chipsRowStyle}>
+          {TEAM.map((m) => {
+            // Prefer "picked now" over "last-used"; only fall back to last-used
+            // when no email is currently set.
+            const isPicked = m.email === email
+            const isLast = !email && m.email === lastEmail
+            return (
+              <button
+                key={m.email}
+                type="button"
+                onClick={() => pickMember(m)}
+                style={chipStyle(isPicked || isLast)}
+                title={m.email}
+                data-testid={`chip-login-${m.firstName.toLowerCase()}`}
+              >
+                {m.firstName}
+              </button>
+            )
+          })}
+        </div>
+
+        <form onSubmit={handleSubmit} noValidate>
+          <input
+            type="text"
+            name="email"
+            inputMode="email"
+            autoComplete="username"
+            placeholder="you@friday.mu"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ ...inputStyle, marginBottom: 12 }}
+          />
+          <input
+            type="password"
+            name="password"
+            autoComplete="current-password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            data-testid="input-login-password"
+            style={{ ...inputStyle, marginBottom: 16 }}
+          />
+          <button
+            type="submit"
+            data-testid="btn-login"
+            style={primaryBtnStyle}
+          >
+            Sign in
           </button>
         </form>
+
+        <p style={tipStyle}>
+          <span aria-hidden="true" style={{ color: t.brandAccent, fontSize: 11, lineHeight: '18px' }}>{tipIcon}</span>
+          <span>{tip.text}</span>
+        </p>
       </div>
-    )
-  }
-
-  const bgStyle = {
-    background: 'linear-gradient(135deg, #0d1117 0%, #0f1d35 50%, #0d1117 100%)',
-    animation: 'gradientShift 20s ease infinite',
-    backgroundSize: '200% 200%',
-    minHeight: '100dvh',
-  }
-
-  // Forgot password view
-  if (view === 'forgot') {
-    return (
-      <div className="flex items-center justify-center" style={bgStyle}>
-        <div className="p-6 sm:p-8 rounded-xl w-full max-w-sm mx-4 sm:mx-auto" style={cardStyle}>
-          <h1 className="text-xl font-bold mb-1" style={{color: '#f1f5f9'}}>Reset Password</h1>
-          <p className="text-xs mb-5" style={{color: '#64748b'}}>Enter your email to receive a reset link.</p>
-          {error && <div className="mb-4 p-3 rounded text-sm" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>{error}</div>}
-          {forgotSent ? (
-            <div>
-              <div className="mb-4 p-3 rounded text-sm" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>
-                If that email is registered, you'll receive a reset link shortly.
-              </div>
-              <button onClick={() => { setView('login'); setForgotSent(false); setForgotEmail(''); setError('') }}
-                className="w-full py-2 rounded-lg font-medium" style={btnStyle}>
-                Back to Sign In
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleForgotPassword}>
-              <input type="email" placeholder="Email (e.g. ishant@friday.mu)" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)}
-                className="w-full mb-4 px-4 py-2 rounded-lg text-base outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-200" style={inputStyle} autoFocus />
-              <button type="submit" disabled={loading || !forgotEmail}
-                className="w-full py-2 rounded-lg font-medium disabled:opacity-50 mb-3" style={btnStyle}>
-                {loading ? 'Sending...' : 'Send Reset Link'}
-              </button>
-              <button type="button" onClick={() => { setView('login'); setError('') }}
-                className="w-full py-2 rounded-lg font-medium text-sm" style={{color: '#64748b'}}>
-                Back to Sign In
-              </button>
-            </form>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  // Reset password view (from email link)
-  if (view === 'reset') {
-    return (
-      <div className="flex items-center justify-center" style={bgStyle}>
-        <div className="p-6 sm:p-8 rounded-xl w-full max-w-sm mx-4 sm:mx-auto" style={cardStyle}>
-          <h1 className="text-xl font-bold mb-1" style={{color: '#f1f5f9'}}>Set New Password</h1>
-          <p className="text-xs mb-5" style={{color: '#64748b'}}>Choose a new password for your account.</p>
-          {error && <div className="mb-4 p-3 rounded text-sm" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>{error}</div>}
-          {resetSuccess ? (
-            <div>
-              <div className="mb-4 p-3 rounded text-sm" style={{background: 'rgba(34,197,94,0.15)', color: '#4ade80'}}>
-                Password reset successfully! Redirecting to sign in...
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleResetPassword}>
-              <input type="password" placeholder="New password (min 8 chars)" value={resetPw} onChange={e => setResetPw(e.target.value)}
-                className="w-full mb-3 px-4 py-2 rounded-lg text-base outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-200" style={inputStyle} autoFocus />
-              <input type="password" placeholder="Confirm new password" value={resetConfirmPw} onChange={e => setResetConfirmPw(e.target.value)}
-                className="w-full mb-4 px-4 py-2 rounded-lg text-base outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-200" style={inputStyle} />
-              <button type="submit" disabled={loading}
-                className="w-full py-2 rounded-lg font-medium disabled:opacity-50" style={btnStyle}>
-                {loading ? 'Resetting...' : 'Reset Password'}
-              </button>
-            </form>
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  // Login view (default)
-  return (
-    <div className="flex items-center justify-center" data-testid="container-login-screen" style={bgStyle}>
-      <form onSubmit={handleSubmit} className="p-6 sm:p-8 rounded-xl w-full max-w-sm mx-4 sm:mx-auto" style={cardStyle}>
-        <h1 className="text-2xl font-bold mb-1" style={{color: '#f1f5f9'}}>Friday Admin</h1>
-        <p className="text-sm mb-6 h-5" style={{color: '#6395ff', opacity: 0.8}}>{tagline}</p>
-        {error && <div className="mb-4 p-3 rounded text-sm" style={{background: 'rgba(239,68,68,0.15)', color: '#f87171'}}>{error}</div>}
-        <input type="text" placeholder="Email (e.g. ishant@friday.mu)" value={username} onChange={e => setUsername(e.target.value)}
-          className="w-full mb-3 px-4 py-2 rounded-lg text-base outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-200" style={inputStyle} autoFocus />
-        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}
-          data-testid="input-login-password"
-          className="w-full mb-4 px-4 py-2 rounded-lg text-base outline-none focus:ring-2 focus:ring-blue-500/30 transition-all duration-200" style={inputStyle} />
-        <button type="submit" disabled={loading}
-          data-testid="btn-login"
-          className="w-full py-2 rounded-lg font-medium disabled:opacity-50" style={btnStyle}>
-          {loading ? 'Signing in...' : 'Sign In'}
-        </button>
-        <button type="button" onClick={() => { setView('forgot'); setError('') }}
-          className="w-full mt-3 py-1 text-sm font-medium" style={{color: '#64748b', background: 'none', border: 'none'}}>
-          Forgot password?
-        </button>
-      </form>
     </div>
   )
 }

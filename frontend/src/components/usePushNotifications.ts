@@ -44,7 +44,7 @@ export function usePushNotifications() {
     const registration = await navigator.serviceWorker.ready
     const sub = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidKey),
+      applicationServerKey: urlBase64ToUint8Array(vapidKey) as BufferSource,
     })
     setSubscription(sub)
 

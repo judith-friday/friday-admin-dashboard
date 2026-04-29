@@ -2,6 +2,10 @@
 
 > Repo-local context for agents working in `friday-admin-dashboard`. For workspace-wide rules, see `~/.openclaw/workspace/AGENTS.md`.
 
+## Active branch
+
+**Working branch is `fad-rebuild`, not `main`.** Commit FAD work to `fad-rebuild`. `main` exists but lags. Vercel auto-deploys `fad-rebuild` to a public preview URL — Deployment Protection is currently disabled so the team can review without auth.
+
 ## Project overview
 
 Friday Admin Dashboard (FAD) is the operations cockpit for Friday Retreats — a short-term rental hospitality company with 24+ properties in Mauritius. It provides a unified interface for guest messaging (GMS), reservations, operations, finance, HR, and analytics. Built as a Next.js static-export frontend + lightweight Express backend. Part of the FridayOS platform.
@@ -17,7 +21,7 @@ Friday Admin Dashboard (FAD) is the operations cockpit for Friday Retreats — a
 │   │   └── reset-password/
 │   ├── src/components/ # Shared UI components
 │   ├── src/lib/        # Utilities, hooks, helpers
-│   ├── public/         # Static assets
+│   ├── public/         # Static assets (incl. manifest.json)
 │   ├── out/            # Static export output (gitignored)
 │   └── .next/          # Build cache (gitignored)
 ├── backend/            # Express server (minimal — serves API + static)
@@ -39,9 +43,9 @@ Friday Admin Dashboard (FAD) is the operations cockpit for Friday Retreats — a
 
 ## Conventions
 
-- **Commit messages:** Sprint 7 pattern — `feat: ...`, `fix: ...`, `docs: ...`, `s7-c1: ...`, etc.
+- **Commit messages:** `feat: ...`, `fix: ...`, `docs: ...`, `chore: ...` — sprint-prefixed when relevant (`s7-c1: ...`).
 - **File org:** App Router — each route is a folder with `page.tsx`. Shared components in `src/components/`. FAD-specific components in `src/app/fad/_components/`.
-- **Tailwind:** Utility-first. No custom CSS files per component unless absolutely necessary (prefer `fad.css` for global overrides).
+- **Tailwind:** Utility-first. No per-component CSS files; use `fad.css` for global overrides.
 - **Data fixtures:** `src/app/fad/_data/*.ts` — module data, fixtures, and config objects.
 - **TypeScript:** `ignoreBuildErrors: true` in next.config.js — don't rely on this; fix types properly.
 
@@ -49,7 +53,7 @@ Friday Admin Dashboard (FAD) is the operations cockpit for Friday Retreats — a
 
 **Adding a page:** Create folder under `src/app/fad/` or root `src/app/`, add `page.tsx`. Use `layout.tsx` for shared shells.
 
-**Adding a module:** Create component in `src/app/fad/_components/modules/`, register in the module router/data file. Modules: Inbox, Calendar, Operations, Finance, HR, Reservations, Analytics, Training, Settings.
+**Adding a module:** Create component in `src/app/fad/_components/modules/`, register in `_data/modules.ts` + add a case in `FadApp.tsx`. Existing modules: Inbox, Operations, Calendar, Reservations, Properties, Reviews, HR, Finance, Legal & Admin, Owners, Guests, Marketing, Leads, Analytics, Intelligence, Notifications, Training, Settings.
 
 **Adding a component:** If FAD-specific, put in `src/app/fad/_components/`. If shared across apps, put in `src/components/`.
 
@@ -57,15 +61,62 @@ Friday Admin Dashboard (FAD) is the operations cockpit for Friday Retreats — a
 
 **Static export:** `npm run build` in frontend generates `out/` folder. This is copied to `/var/www/friday-dashboard/` on deploy. No server-side rendering — everything must work as static HTML.
 
+## Key facts (always relevant)
+
+- **Cleaning Fee = net pass-through** (VAT optimization). Never model as revenue.
+- **`entity_id` = FR/FI/S divisions.** FR is the only legal entity currently.
+- **WhatsApp owner-approvals route via `approve/`** — primary channel for owner consent.
+- **Static export limits:** no API routes in `frontend/`, no `next/image` optimization without config, no dynamic routes with params unless `generateStaticParams`.
+
+## Demo cruft tagging (FAD is currently a frontend-only showcase)
+
+The FAD has no real backend yet. Login is fake, fixtures are local, "logout" just clears localStorage. Everything that exists purely to make the UI demonstrable needs a tag so Judith can rip it out cleanly when the backend lands.
+
+**The five tags** (use as code comments above the relevant constant / function / JSX block):
+
+| Tag | Means | Backend action when wired |
+|---|---|---|
+| `// @demo:data` | Hardcoded fixtures the UI reads from | Replace with API fetch |
+| `// @demo:logic` | Client-side logic that should be authoritative on the backend | Move logic to backend, replace with API call |
+| `// @demo:state` | Frontend-only persisted state (localStorage) that needs server sync | Add backend mirror + sync layer |
+| `// @demo:auth` | Anything that bypasses real authentication / authorization | Wire real auth + replace with backend-enforced gating |
+| `// @demo:ui` | UI surfaces that exist only because we're showcasing | Remove or hide behind feature flag |
+
+**Comment shape** — always include a tag ID that maps back to `DEMO_CRUFT.md`:
+
+```typescript
+// @demo:data — Replace with GET /api/users/team. Backend returns
+// [{first_name, email, role}]. Tag: PROD-AUTH-1.
+const TEAM = [ ... ]
+```
+
+**When you write new code** that's demo-only or fakes a backend behavior, **always tag it**. Add a row to `frontend/DEMO_CRUFT.md` with the tag ID, type, path, current behavior, and the backend action needed. One source of truth.
+
+**No untagged demo data, ever.** The contract: any new fixture, hardcoded value masquerading as data, or inline JSX that fakes a backend response gets its `@demo:*` tag IN THE SAME COMMIT as the code, plus a row in `DEMO_CRUFT.md`. If you find yourself writing `const FOO = [ {...}, {...} ]` for the UI to render, it needs a tag before it ships.
+
+**Before merging any backend wiring** — grep for `// @demo:` in the diff, cross-reference against `DEMO_CRUFT.md`, and confirm each tagged line either gets replaced or has its tag removed deliberately.
+
 ## Gotchas
 
 - **Always `git fetch origin` before assessing repo state.** 3-layer reconciliation per AGENTS.md.
-- **`fad-rebuild` is the active branch** for FAD-related work. `main` exists but `fad-rebuild` has the current development. Commit FAD work to `fad-rebuild`. If also committing to `main`, ensure it makes sense there.
+- **`fad-rebuild` is the active branch** for FAD-related work. `main` exists but `fad-rebuild` has the current development. If also committing to `main`, ensure it makes sense there.
 - **Static export limitation:** `output: 'export'` means no API routes in `frontend/`, no `next/image` optimization without config, no dynamic routes with params unless using `generateStaticParams`.
 - **Finance schema:** FAD finance schema lives at `/mnt/user-data/outputs/fad_finance_schema_v1.sql` (14 tables, `entity_id` for FR/FI/S divisions; FR is the only legal entity currently).
-- **Cleaning Fee = net pass-through** (VAT optimisation). Don't model it as revenue.
-- **WhatsApp template owner-approvals** use the `approve/` route — primary channel for owner consent.
-- **Phase 1+2 complete.** Phase 3 (GL + QuickBooks integration) scheduled May–Jun.
+
+## Reference docs (progressive disclosure)
+
+In-repo, fetch on demand:
+
+- `@docs/architecture.md` — **Read when:** adding modules, pages, components, or API integrations
+- `@docs/gotchas.md` — **Read when:** debugging unexpected behavior or hitting framework edges
+- `@docs/finance-schema.md` — **Read when:** working on Finance module
+- `@docs/deploy.md` — **Read when:** deploying or troubleshooting deploy
+
+Notion (via connector):
+
+- **Atlas §4 (GMS architecture)** — `34c43ca8849281b9a10de9f264141c37` — for FAD-GMS integration
+- **Friday Code Index** — `35143ca88492810d9a73d46b0101c436` — for module-specific deep dives
+- **Sprint 7 v3 plan** — `34f43ca88492815380d0d0dce19cb53c`
 
 ## Test / build / lint
 
@@ -88,13 +139,25 @@ npm test          # jest
 
 No root-level test script. Run separately in each subdir.
 
+## Verification
+
+Before declaring any change complete:
+
+1. `npm run build` in `frontend/` — verify chunk hashes change vs. last deploy (stale cached JS is a real failure mode)
+2. `npx tsc --noEmit` from `frontend/` — filter to `fad/` paths to skip pre-existing legacy errors
+3. Visual sweep on dev server, **desktop + mobile** (375×812), all states — full UI checks per `~/.claude/CLAUDE.md` "UI verification"
+4. Update relevant `@docs/*.md` if architecture, schema, or contract changed
+
 ## Deploy flow
 
 Canonical deploy lives in `~/.openclaw/workspace/AGENTS.md` Deploy Rules section. TL;DR:
 
 ```bash
-# Frontend
+# Frontend (Vercel auto-deploys on push to fad-rebuild)
 cd frontend && npm run build
+# OR push to fad-rebuild → Vercel preview deploy fires automatically
+
+# VPS deploy (manual, for production)
 # Copy frontend/out/ to VPS /var/www/friday-dashboard/
 # Verify chunk hashes changed (stale JS from browser cache is a real failure mode)
 
@@ -103,7 +166,7 @@ cd backend && npm run build
 # Deploy backend artifacts per AGENTS.md
 ```
 
-No auto-deploy on push. Sprint close handles full deploy.
+Vercel handles preview deploys automatically on push to `fad-rebuild`. VPS production deploy is manual at sprint close.
 
 ## References
 
@@ -113,3 +176,5 @@ No auto-deploy on push. Sprint close handles full deploy.
 - **Phase 1 investigation:** `~/judith/handovers/2026-04-28-sprint7-investigation.md`
 - **Bug-vs-sprint dedup:** `~/judith/handovers/2026-04-28-bug-vs-sprint-dedup.md`
 - **FAD finance schema:** `/mnt/user-data/outputs/fad_finance_schema_v1.sql`
+- **Latest session handover:** `~/Downloads/fad-handover-v9.md`
+- **Code bundle:** `~/Downloads/fad-bundle-v10.md`

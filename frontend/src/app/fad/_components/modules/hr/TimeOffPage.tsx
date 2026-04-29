@@ -1,0 +1,367 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { TIME_OFF_REQUESTS, TIME_OFF_STATUS_LABEL, TIME_OFF_TYPE_LABEL, type TimeOffRequest } from '../../../_data/timeOff';
+import { TASK_USER_BY_ID } from '../../../_data/tasks';
+import { useCurrentUserId, usePermissions } from '../../usePermissions';
+import { TimeOffDrawer } from './TimeOffDrawer';
+import { IconPlus } from '../../icons';
+import { timeOffStatusTone, toneStyle } from '../../palette';
+
+type StatusFilter = TimeOffRequest['status'] | 'all';
+
+function statusBadge(status: TimeOffRequest['status']) {
+  const s = toneStyle(timeOffStatusTone(status));
+  return { bg: s.background, fg: s.color };
+}
+
+export function TimeOffPage() {
+  const { role, can } = usePermissions();
+  const currentUserId = useCurrentUserId();
+  const canApprove = can('hr_time_off', 'approve') || can('hr_time_off', 'write');
+
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('pending');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [requestDrawer, setRequestDrawer] = useState<{ kind: 'new' } | { kind: 'detail'; id: string } | null>(null);
+  const [, setRev] = useState(0);
+  const bumpRev = () => setRev((n) => n + 1);
+
+  const visible = useMemo(() => {
+    let reqs = [...TIME_OFF_REQUESTS];
+
+    // Field + Mathias: only see own
+    if (role === 'field' || role === 'commercial_marketing') {
+      reqs = reqs.filter((r) => r.userId === currentUserId);
+    }
+
+    if (statusFilter !== 'all') {
+      reqs = reqs.filter((r) => r.status === statusFilter);
+    }
+    return reqs.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }, [statusFilter, role, currentUserId]);
+
+  const selected = TIME_OFF_REQUESTS.find((r) => r.id === selectedId) ?? visible[0];
+
+  return (
+    <div className={'fad-split-pane' + (detailOpen ? ' detail-open' : '')}>
+      {/* Left list */}
+      <div className="fad-split-list" style={{ width: 380, borderRight: '0.5px solid var(--color-border-tertiary)', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: 12, borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+            {(['pending', 'approved', 'declined', 'all'] as const).map((s) => (
+              <button
+                key={s}
+                className={'inbox-chip' + (statusFilter === s ? ' active' : '')}
+                onClick={() => setStatusFilter(s)}
+              >
+                {s === 'all' ? 'All' : TIME_OFF_STATUS_LABEL[s]}
+                {s !== 'all' && (
+                  <span style={{ marginLeft: 4, opacity: 0.6 }}>
+                    {TIME_OFF_REQUESTS.filter((r) => r.status === s && (role === 'field' || role === 'commercial_marketing' ? r.userId === currentUserId : true)).length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          {visible.map((r) => {
+            const user = TASK_USER_BY_ID[r.userId];
+            const isSelected = selected?.id === r.id;
+            const days = daysBetween(r.startDate, r.endDate);
+            const badge = statusBadge(r.status);
+            return (
+              <button
+                key={r.id}
+                onClick={() => { setSelectedId(r.id); setDetailOpen(true); }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 10,
+                  padding: '12px 14px',
+                  width: '100%',
+                  textAlign: 'left',
+                  border: 0,
+                  background: isSelected ? 'var(--color-background-tertiary)' : 'transparent',
+                  cursor: 'pointer',
+                  borderBottom: '0.5px solid var(--color-border-tertiary)',
+                }}
+              >
+                <span
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 14,
+                    background: user?.avatarColor ?? '#94a3b8',
+                    color: 'white',
+                    fontSize: 10,
+                    fontWeight: 500,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  {user?.initials ?? '??'}
+                </span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 13, fontWeight: 500 }}>{user?.name ?? 'Unknown'}</span>
+                    <span
+                      style={{
+                        fontSize: 9,
+                        padding: '2px 6px',
+                        borderRadius: 4,
+                        background: badge.bg,
+                        color: badge.fg,
+                        fontWeight: 500,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
+                      {r.status}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 2 }}>
+                    {r.startDate} → {r.endDate} · {days} day{days === 1 ? '' : 's'} · {TIME_OFF_TYPE_LABEL[r.type]}
+                  </div>
+                  {r.reason && (
+                    <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {r.reason}
+                    </div>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+          {visible.length === 0 && (
+            <div style={{ padding: 24, textAlign: 'center', fontSize: 12, color: 'var(--color-text-tertiary)' }}>
+              No requests in this view.
+            </div>
+          )}
+        </div>
+        <div style={{ padding: 10, borderTop: '0.5px solid var(--color-border-tertiary)' }}>
+          <button
+            className="btn primary sm"
+            onClick={() => setRequestDrawer({ kind: 'new' })}
+            style={{ width: '100%' }}
+          >
+            <IconPlus size={12} /> New time-off request
+          </button>
+        </div>
+      </div>
+
+      {/* Right detail */}
+      <div className="fad-split-detail" style={{ flex: 1, padding: 24, overflowY: 'auto' }}>
+        <button
+          type="button"
+          className="btn ghost sm fad-split-back"
+          onClick={() => setDetailOpen(false)}
+        >
+          ← Back to time-off
+        </button>
+        {selected ? (
+          <TimeOffDetail
+            req={selected}
+            canApprove={canApprove}
+            onAfterDecide={bumpRev}
+          />
+        ) : (
+          <div style={{ textAlign: 'center', color: 'var(--color-text-tertiary)', marginTop: 60 }}>
+            Select a request to view details.
+          </div>
+        )}
+      </div>
+
+      {requestDrawer && (
+        <TimeOffDrawer
+          mode={requestDrawer}
+          canApprove={canApprove}
+          onClose={() => setRequestDrawer(null)}
+          onSaved={(req) => {
+            setRequestDrawer(null);
+            setSelectedId(req.id);
+            bumpRev();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function TimeOffDetail({
+  req,
+  canApprove,
+  onAfterDecide,
+}: {
+  req: TimeOffRequest;
+  canApprove: boolean;
+  onAfterDecide: () => void;
+}) {
+  const user = TASK_USER_BY_ID[req.userId];
+  const reviewer = req.reviewedBy ? TASK_USER_BY_ID[req.reviewedBy] : undefined;
+  const days = daysBetween(req.startDate, req.endDate);
+  const [open, setOpen] = useState<'approve' | 'decline' | null>(null);
+  const [note, setNote] = useState('');
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+        <span
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            background: user?.avatarColor ?? '#94a3b8',
+            color: 'white',
+            fontSize: 18,
+            fontWeight: 500,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {user?.initials ?? '??'}
+        </span>
+        <div>
+          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 500 }}>{user?.name ?? 'Unknown'}</h2>
+          <div style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>
+            {req.startDate} → {req.endDate} · {days} day{days === 1 ? '' : 's'} · {TIME_OFF_TYPE_LABEL[req.type]}
+          </div>
+        </div>
+      </div>
+
+      {req.reason && (
+        <div
+          style={{
+            padding: 12,
+            background: 'var(--color-background-secondary)',
+            borderRadius: 6,
+            marginBottom: 16,
+            fontSize: 13,
+          }}
+        >
+          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-tertiary)', marginBottom: 4 }}>
+            Reason
+          </div>
+          {req.reason}
+        </div>
+      )}
+
+      <div style={{ marginBottom: 16, fontSize: 13 }}>
+        <strong>Status:</strong> {TIME_OFF_STATUS_LABEL[req.status]}
+        {reviewer && req.reviewedAt && (
+          <> by {reviewer.name} on {req.reviewedAt.slice(0, 10)}</>
+        )}
+      </div>
+
+      {req.reviewNotes && (
+        <div
+          style={{
+            padding: 12,
+            background: 'var(--color-background-secondary)',
+            borderLeft: '3px solid var(--color-brand-accent)',
+            borderRadius: 6,
+            marginBottom: 16,
+            fontSize: 13,
+          }}
+        >
+          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-tertiary)', marginBottom: 4 }}>
+            Reviewer notes
+          </div>
+          {req.reviewNotes}
+        </div>
+      )}
+
+      {req.status === 'pending' && canApprove && open === null && (
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn primary" onClick={() => setOpen('approve')}>Approve</button>
+          <button className="btn ghost" onClick={() => setOpen('decline')}>Decline</button>
+        </div>
+      )}
+
+      {open && (
+        <DecisionForm
+          req={req}
+          decision={open}
+          note={note}
+          setNote={setNote}
+          onCancel={() => { setOpen(null); setNote(''); }}
+          onAfter={() => { setOpen(null); setNote(''); onAfterDecide(); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function DecisionForm({
+  req,
+  decision,
+  note,
+  setNote,
+  onCancel,
+  onAfter,
+}: {
+  req: TimeOffRequest;
+  decision: 'approve' | 'decline';
+  note: string;
+  setNote: (n: string) => void;
+  onCancel: () => void;
+  onAfter: () => void;
+}) {
+  const reviewerId = useCurrentUserId();
+
+  const submit = async () => {
+    const { decideTimeOff } = await import('../../../_data/breezeway');
+    await decideTimeOff(req.id, decision === 'approve' ? 'approved' : 'declined', reviewerId, note || undefined);
+    onAfter();
+  };
+
+  return (
+    <div
+      style={{
+        padding: 16,
+        marginTop: 16,
+        border: '0.5px solid var(--color-border-tertiary)',
+        borderRadius: 8,
+      }}
+    >
+      <div style={{ fontWeight: 500, marginBottom: 8 }}>
+        {decision === 'approve' ? 'Approve request' : 'Decline request'}
+      </div>
+      {decision === 'approve' && (
+        <div
+          style={{
+            padding: 8,
+            background: 'var(--color-background-secondary)',
+            borderRadius: 4,
+            fontSize: 12,
+            color: 'var(--color-text-secondary)',
+            marginBottom: 10,
+          }}
+        >
+          Approving will auto-flip the corresponding roster cells to Leave.
+        </div>
+      )}
+      <textarea
+        placeholder={decision === 'approve' ? 'Optional note…' : 'Reason for declining…'}
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        style={{ width: '100%', minHeight: 60, padding: 8, fontSize: 13, fontFamily: 'inherit', marginBottom: 10 }}
+      />
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+        <button className="btn ghost" onClick={onCancel}>Cancel</button>
+        <button className="btn primary" onClick={submit}>
+          Confirm {decision}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function daysBetween(start: string, end: string): number {
+  const s = new Date(start);
+  const e = new Date(end);
+  return Math.round((e.getTime() - s.getTime()) / 86400000) + 1;
+}
