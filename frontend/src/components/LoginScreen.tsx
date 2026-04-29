@@ -131,8 +131,11 @@ export default function LoginScreen({ onLogin: _onLogin }: { onLogin: (token: st
     return () => cancelAnimationFrame(id)
   }, [])
 
-  const [manualMode, setManualMode] = useState(false)
-  const [manualEmail, setManualEmail] = useState('')
+  // Form state — fields are always rendered and accept anything (or nothing).
+  // Chip click pre-fills email + focuses password. Sign-in succeeds regardless
+  // of what's typed — the screen is the production layout, the auth is fake.
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [welcomeName, setWelcomeName] = useState<string | null>(null)
   const [lastEmail, setLastEmail] = useState<string | null>(null)
 
@@ -142,21 +145,41 @@ export default function LoginScreen({ onLogin: _onLogin }: { onLogin: (token: st
 
   // Demo "sign in" — write the email so chip auto-highlights next visit, flash
   // a welcome, then navigate to the FAD shell. No tokens, no API, no auth.
-  const enterAs = (firstName: string, email: string) => {
-    try { localStorage.setItem('fad:last-email', email) } catch {}
+  const enterAs = (firstName: string, emailUsed: string) => {
+    try { localStorage.setItem('fad:last-email', emailUsed) } catch {}
     setWelcomeName(firstName)
     setTimeout(() => {
       window.location.href = FAD_DESTINATION
     }, 700)
   }
 
-  const handleManualSubmit = (e: React.FormEvent) => {
+  // Click a chip → fill email, focus password (mirrors the production flow
+  // where the OS password manager would now pop in the saved password).
+  const pickMember = (m: typeof TEAM[number]) => {
+    setEmail(m.email)
+    setTimeout(() => {
+      const pw = document.querySelector('input[name="password"]') as HTMLInputElement | null
+      pw?.focus()
+    }, 30)
+  }
+
+  // Form submit — accept anything. Resolve a display name in best-effort order:
+  //   1. Match against TEAM by exact email
+  //   2. Fall back to the email-prefix (Capitalized)
+  //   3. Final fallback "Demo"
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const trimmed = manualEmail.trim()
-    const inferred = trimmed.includes('@')
-      ? trimmed.split('@')[0]
-      : (trimmed || 'there')
-    const niceName = inferred.charAt(0).toUpperCase() + inferred.slice(1)
+    const trimmed = email.trim()
+    const matched = TEAM.find((m) => m.email === trimmed)
+    let niceName: string
+    if (matched) {
+      niceName = matched.firstName
+    } else if (trimmed) {
+      const stub = trimmed.includes('@') ? trimmed.split('@')[0] : trimmed
+      niceName = stub.charAt(0).toUpperCase() + stub.slice(1)
+    } else {
+      niceName = 'Demo'
+    }
     enterAs(niceName, trimmed || 'demo@friday.mu')
   }
 
@@ -235,16 +258,6 @@ export default function LoginScreen({ onLogin: _onLogin }: { onLogin: (token: st
     transition: 'opacity 100ms cubic-bezier(0.4, 0, 0.2, 1)',
   }
 
-  const linkBtnStyle: React.CSSProperties = {
-    background: 'transparent',
-    color: t.textTertiary,
-    border: 0,
-    cursor: 'pointer',
-    fontSize: 12,
-    fontFamily: 'inherit',
-    padding: '6px 0',
-  }
-
   const chipsRowStyle: React.CSSProperties = {
     display: 'flex',
     flexWrap: 'wrap',
@@ -316,65 +329,56 @@ export default function LoginScreen({ onLogin: _onLogin }: { onLogin: (token: st
         <h1 style={titleStyle}>Friday Admin</h1>
         <p style={subtitleStyle}>{greeting}</p>
 
-        {!manualMode && (
-          <>
-            <div style={chipsRowStyle}>
-              {TEAM.map((m) => {
-                const isLast = m.email === lastEmail
-                return (
-                  <button
-                    key={m.email}
-                    type="button"
-                    onClick={() => enterAs(m.firstName, m.email)}
-                    style={chipStyle(isLast)}
-                    title={m.email}
-                    data-testid={`chip-login-${m.firstName.toLowerCase()}`}
-                  >
-                    {m.firstName}
-                  </button>
-                )
-              })}
-            </div>
-            <button
-              type="button"
-              onClick={() => setManualMode(true)}
-              style={{ ...linkBtnStyle, textAlign: 'left', padding: '4px 0' }}
-            >
-              or type your email
-            </button>
-          </>
-        )}
-
-        {manualMode && (
-          <form onSubmit={handleManualSubmit}>
-            <input
-              type="email"
-              name="email"
-              autoComplete="username"
-              placeholder="you@friday.mu"
-              value={manualEmail}
-              onChange={(e) => setManualEmail(e.target.value)}
-              style={{ ...inputStyle, marginBottom: 12 }}
-              autoFocus
-            />
-            <button
-              type="submit"
-              data-testid="btn-login"
-              style={primaryBtnStyle}
-            >
-              Sign in
-            </button>
-            <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 8 }}>
+        <div style={chipsRowStyle}>
+          {TEAM.map((m) => {
+            // Prefer "picked now" over "last-used"; only fall back to last-used
+            // when no email is currently set.
+            const isPicked = m.email === email
+            const isLast = !email && m.email === lastEmail
+            return (
               <button
+                key={m.email}
                 type="button"
-                onClick={() => { setManualMode(false); setManualEmail('') }}
-                style={linkBtnStyle}
+                onClick={() => pickMember(m)}
+                style={chipStyle(isPicked || isLast)}
+                title={m.email}
+                data-testid={`chip-login-${m.firstName.toLowerCase()}`}
               >
-                ← back to team
+                {m.firstName}
               </button>
-            </div>
-          </form>
-        )}
+            )
+          })}
+        </div>
+
+        <form onSubmit={handleSubmit} noValidate>
+          <input
+            type="text"
+            name="email"
+            inputMode="email"
+            autoComplete="username"
+            placeholder="you@friday.mu"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ ...inputStyle, marginBottom: 12 }}
+          />
+          <input
+            type="password"
+            name="password"
+            autoComplete="current-password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            data-testid="input-login-password"
+            style={{ ...inputStyle, marginBottom: 16 }}
+          />
+          <button
+            type="submit"
+            data-testid="btn-login"
+            style={primaryBtnStyle}
+          >
+            Sign in
+          </button>
+        </form>
 
         <p style={tipStyle}>
           <span aria-hidden="true" style={{ color: t.brandAccent, fontSize: 11, lineHeight: '18px' }}>{tipIcon}</span>
