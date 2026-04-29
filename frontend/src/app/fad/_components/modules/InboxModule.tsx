@@ -136,8 +136,12 @@ export function InboxModule({ onAskFriday }: Props) {
     return true;
   });
 
-  const thread = filtered.find((t) => t.id === selected) || filtered[0] || INBOX_THREADS[0] || null;
+  // PREVIEW guard: when fixtures are empty, threadOrNull is null. Render an
+  // empty-state instead of crashing on thread.subject / thread.id deeper in JSX.
+  const threadOrNull = filtered.find((t) => t.id === selected) || filtered[0] || INBOX_THREADS[0] || null;
+  const thread = threadOrNull as NonNullable<typeof threadOrNull>;
   const unread = INBOX_THREADS.filter((t) => t.unread).length;
+  const hasThreads = INBOX_THREADS.length > 0;
 
   const activeFilterCount =
     (triageFilter !== 'all' ? 1 : 0) +
@@ -226,6 +230,19 @@ export function InboxModule({ onAskFriday }: Props) {
           mobileThreadOpen={mobileThreadOpen}
           onMobileThreadOpenChange={setMobileThreadOpen}
         />
+      </div>
+    );
+  }
+
+  // PREVIEW empty-state: no threads → render placeholder. Keeps Inbox from
+  // crashing on `thread.subject` / `thread.id` when fixtures are empty.
+  if (!hasThreads) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
+        <ModuleHeader title="Inbox" subtitle="Guest threads · drafts · approvals" />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-tertiary)', fontSize: 13 }}>
+          No threads yet.
+        </div>
       </div>
     );
   }

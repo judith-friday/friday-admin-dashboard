@@ -131,7 +131,14 @@ export interface FinPeriod {
 // Hardcoded fiscal periods. Replace with: GET /api/finance/periods.
 export const FIN_PERIODS: FinPeriod[] = [];
 
-export const CURRENT_PERIOD = FIN_PERIODS[0] ?? null;
+// PREVIEW guard: when FIN_PERIODS is empty, fall back to a non-null stub
+// so every `CURRENT_PERIOD.field` access in the codebase doesn't crash.
+// Real backend will return a real FinPeriod via GET /api/finance/periods/current.
+const FIN_PERIOD_FALLBACK: FinPeriod = {
+  id: '', label: '—', status: 'open', startDate: '', endDate: '',
+  warRateEurMur: 0, warRateUsdMur: 0,
+};
+export const CURRENT_PERIOD: FinPeriod = FIN_PERIODS[0] ?? FIN_PERIOD_FALLBACK;
 
 // ───────────────── Expenses ─────────────────
 
