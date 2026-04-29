@@ -1251,6 +1251,7 @@ function FinanceTouristTax() {
             <div className="fin-tt-summary">
               <div><div className="fin-row-sub">Net owed</div><div className="fin-row-amount">€ {FIN_TOURIST_TAX[0].netOwedEur.toLocaleString()}</div></div>
               <div><div className="fin-row-sub">Refunded this period</div><div className="fin-row-amount">€ {FIN_TOURIST_TAX[0].refundedEur.toLocaleString()}</div></div>
+              {/* @demo:data — Tag: PROD-DATA-35 — see frontend/DEMO_CRUFT.md */}
               <div><div className="fin-row-sub">Reservations included</div><div className="fin-row-amount">14</div></div>
             </div>
             <div className="fin-capture-actions" style={{ marginTop: 14, justifyContent: 'flex-start' }}>

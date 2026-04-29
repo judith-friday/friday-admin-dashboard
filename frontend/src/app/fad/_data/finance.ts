@@ -517,6 +517,9 @@ export const FIN_TOURIST_OVERCHARGES: FinTouristOvercharge[] = [
 ];
 
 /** Computed roll-up across all months for the unremitted-liability hero block */
+// @demo:data — Tag: PROD-DATA-34 — see frontend/DEMO_CRUFT.md
+//   `ownerOverRefundDueEur` (1294) and `ownerOverRefundReservationsCount` (23)
+//   are hardcoded illustrative figures. The other two derive from FIN_TOURIST_TAX.
 export const FIN_TOURIST_TOTALS = {
   unremittedEur: FIN_TOURIST_TAX.filter((m) => !m.filed).reduce((s, m) => s + m.netOwedEur, 0),
   unfiledMonths: FIN_TOURIST_TAX.filter((m) => !m.filed).length,

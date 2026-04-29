@@ -396,6 +396,7 @@ export interface FixedCalEvent {
   title: string;
 }
 
+// @demo:data — Tag: PROD-DATA-30 — see frontend/DEMO_CRUFT.md
 export const CAL_EVENTS: FixedCalEvent[] = [
   { isoDate: '2026-04-27', start: 11, end: 12, type: 'maint', title: 'Pool service · BBH' },
   { isoDate: '2026-04-28', start: 9, end: 10, type: 'meeting', title: 'Ops stand-up' },

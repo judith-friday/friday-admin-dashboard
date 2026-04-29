@@ -75,6 +75,7 @@ export interface PayoutDiscrepancy {
 // 6 seeded discrepancies across the typical pattern set. Mix of channels,
 // severities, and resolution states so the surfaces have real-looking data.
 
+// @demo:data — Tag: PROD-DATA-33 — see frontend/DEMO_CRUFT.md
 export const FIN_PAYOUT_DISCREPANCIES: PayoutDiscrepancy[] = [
   {
     id: 'fpd-001',

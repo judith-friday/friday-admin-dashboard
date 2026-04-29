@@ -1533,6 +1533,7 @@ export interface ApprovalRequest {
   counterAmount?: number;
 }
 
+// @demo:data — Tag: PROD-DATA-31 — see frontend/DEMO_CRUFT.md
 export const APPROVAL_REQUESTS: ApprovalRequest[] = [
   {
     id: 'ar-001',
@@ -1613,6 +1614,7 @@ export const APPROVAL_REQUESTS: ApprovalRequest[] = [
 
 // ───────────────── Insights aggregations (precomputed for fixtures) ─────────────────
 
+// @demo:data — Tag: PROD-DATA-32 — see frontend/DEMO_CRUFT.md
 export const TASK_INSIGHTS = {
   weeklyCompleted: 47,
   weeklyCreated: 52,

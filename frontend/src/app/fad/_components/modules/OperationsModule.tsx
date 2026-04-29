@@ -1507,6 +1507,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 // ───────────────── Settings ─────────────────
 
+// @demo:data — Tag: PROD-DATA-36 — see frontend/DEMO_CRUFT.md
 function SettingsPage({ onCreate }: { onCreate: () => void }) {
   return (
     <div style={{ padding: 24, overflowY: 'auto', flex: 1 }}>
