@@ -55,6 +55,15 @@ If you write something demo-only or fake-backend, add a `// @demo:*` comment in 
 | PROD-DATA-13 | `frontend/src/app/fad/_data/friday.ts` | Friday-the-AI card metadata + prompts | `GET /api/friday/cards`, `GET /api/friday/prompts` |
 | PROD-DATA-14 | `frontend/src/app/fad/_data/notifications.ts` | Notification entries | `GET /api/notifications` (per-user) |
 | PROD-DATA-15 | `frontend/src/app/fad/_data/aiFixtures.ts` | AI inference context fixtures | Depends on AI integration — likely returned alongside conversation fetch |
+| PROD-DATA-16 | `frontend/src/app/fad/_components/modules/FinanceModule.tsx` (~line 1373) `PNL_BY_ENTITY` | Inline P&L by entity (FR/FI/S/all) with hardcoded MUR figures | `GET /api/finance/pnl?entity=:entity&period=:period` |
+| PROD-DATA-17 | `frontend/src/app/fad/_components/modules/properties/PropertyDetail.tsx` (~line 525) `AI_SUGGESTIONS_BY_CODE` | Hardcoded AI Card suggestions per property code | `GET /api/properties/:code/ai-suggestions` (server-side LLM-derived) |
+| PROD-DATA-18 | `frontend/src/app/fad/_components/modules/StubModules.tsx` (~line 1338) `PITCH_SPECS` | "Coming soon" pitch narratives for unreleased modules; references demo guests/owners | `GET /api/cms/pitches` — or just remove module-stub UI when each module ships |
+| PROD-DATA-19 | `frontend/src/app/fad/_components/modules/StubModules.tsx` (~line 1472) `TEASE_SPECS` | "Coming soon" tease blurbs; hardcoded "Ishant only", "until 2028", etc. | `GET /api/cms/teases` — or remove tease UI when modules ship |
+| PROD-DATA-20 | `frontend/src/app/fad/_components/modules/SettingsModule.tsx` (multiple inline blocks lines ~103-238) | Hardcoded "Ishant Sagoo" + email + 6-person team roster + integrations list + bug reports + billing | Multiple endpoints: `GET /api/users/team`, `GET /api/integrations`, `GET /api/bug-reports`, `GET /api/billing` |
+| PROD-DATA-21 | `frontend/src/app/fad/_data/finance.ts` (~line 60) `FIN_OWNERS` | Hardcoded property owners (Smith Family, Marchand SCI, etc.). Was on KEEP list in first audit but contains Friday-specific demo names. | `GET /api/finance/owners` |
+| PROD-DATA-22 | `frontend/src/app/fad/_data/finance.ts` (~line 84) `FIN_CATEGORIES` | Hardcoded expense categories | `GET /api/finance/categories` (likely tenant-configurable) |
+| PROD-DATA-23 | `frontend/src/app/fad/_data/finance.ts` (~line 110) `FIN_VENDORS` | Hardcoded vendor records | `GET /api/finance/vendors` |
+| PROD-DATA-24 | `frontend/src/app/fad/_data/finance.ts` (~line 178) `FIN_PERIODS` | Hardcoded fiscal periods (April 2026, etc.) | `GET /api/finance/periods` |
 
 **Static config (intentionally NOT tagged, ships as-is):**
 - `_data/modules.ts` — FAD module definitions (sidebar nav)
@@ -73,6 +82,7 @@ If you write something demo-only or fake-backend, add a `// @demo:*` comment in 
 | PROD-AUTH-2 | `frontend/src/app/fad/_components/Header.tsx` (`handleLogout` in AvatarDropdown) | Clears localStorage and redirects to `/`. No server call. | Replace with `POST /api/auth/logout` to invalidate session server-side. Keep the localStorage cleanup for client-side hygiene. |
 | PROD-AUTH-3 | `frontend/src/app/fad/_components/PermissionGate.tsx` (role-switcher UI ~lines 82-155) | "View as · dev preview" lets the user pick any role. Powers all the role-gated UI in the FAD. | **Remove the UI entirely.** Real auth resolves role from JWT. Keep `<PermissionGate>` as a no-op wrapper or delete and replace usages with backend role checks. |
 | PROD-AUTH-4 | `frontend/src/app/fad/_components/usePermissions.ts` (lines 33-89: STORAGE_KEY trio + PermissionsProvider) | Reads `fad:dev-role` / `fad:dev-user` / `fad:real-role` from localStorage. `pickUserForRole()` finds first fixture user matching a role. | Replace with auth-context provider that reads role + user from JWT (or `GET /api/auth/me`). Delete dev-role storage entirely. Backend MUST also enforce permission on API endpoints — client checks are not authoritative. |
+| PROD-AUTH-5 | `frontend/src/app/fad/_components/modules/StubModules.tsx` (line ~26) `CURRENT_USER = 'Ishant'` | Hardcoded current user identity used for task filtering | `useCurrentUser()` hook from auth context (JWT/session payload) |
 
 ---
 
@@ -101,6 +111,10 @@ If you write something demo-only or fake-backend, add a `// @demo:*` comment in 
 | PROD-LOGIC-6 | `bumpPendingRev()` / `subscribePendingRev()` pattern, defined in `pendingCounts.ts:314-328` | Client-side pub/sub that lets fixture mutations trigger badge recomputation across components. | Replace with WebSocket/SSE subscription to backend mutation events (e.g., `task.created`, `notification.new`). Frontend listens, refetches affected slices, or applies optimistic update. |
 | PROD-LOGIC-7 | Hardcoded `TODAY = '2026-04-27'` in `_data/tasks.ts:351`, `_data/notifications.ts:19`, `_data/reviews.ts:621`, `_data/pendingCounts.ts:22` | Demo timeline anchored to a specific date so fixtures stay self-consistent. | Use real `Date.now()` / server `now()`. All "today / yesterday / next week" calculations need to be relative to the actual current date. |
 | PROD-LOGIC-8 | Various inline `bumpRev()` patterns (ReviewsModule, OperationsModule, CalendarModule, FinanceModule, RosterPage, hr/* pages) | Each module keeps a `[rev, setRev]` and bumps it after mutating fixtures. | Same as PROD-LOGIC-6 — server-pushed updates replace client-side bump pattern. |
+| PROD-LOGIC-9 | Hardcoded `TODAY` / `TODAY_ISO` constants in 7 module files: `OperationsModule.tsx:39`, `CalendarModule.tsx:38`, `reservations/InquiriesPage.tsx:34`, `reservations/OverviewPage.tsx:15`, `reservations/AllReservationsPage.tsx:23`, `hr/StaffPage.tsx:13`, `roster/RosterPage.tsx:26` | Demo-anchored "now" so fixture math stays self-consistent | Use `new Date()` (server `now()`). Audit every "in N days" / "M days ago" calculation cascading from this. |
+| PROD-LOGIC-10 | `frontend/src/app/fad/_components/modules/InboxModule.tsx` (~line 1062) `INBOX_INTERNAL_NOTES.push(note)` | Mock mutation: appending an internal note pushes directly to the fixture array | `POST /api/inbox/threads/:id/notes` |
+| PROD-LOGIC-11 | `frontend/src/app/fad/_components/modules/FinanceModule.tsx` (~line 2759) `const cap = 200_00` (Mathias refund authority cap) | Hardcoded business policy constant | `GET /api/finance/policies` returning per-role authority caps. Likely tenant-configurable when multi-tenant lands. |
+| PROD-LOGIC-12 | **Brittle `array[0]` accesses** (NOT demo content per se, but breaks when source fixtures are empty): `FinanceModule.tsx:912-913` (`FIN_OWNER_STATEMENTS[0]`), `1252-1253` (`FIN_TOURIST_TAX[0]`), `1529` (`FIN_FLOAT_ACCOUNTS[0]`), `2624` (`FIN_BANK_LINES[0]`), `2948` (`FIN_ACCOUNTS[0]`); `InboxModule.tsx:139` (`INBOX_THREADS[0]`); `inbox/TeamInbox.tsx:56-59` (`visibleChannels[0] / visibleDms[0]`); `FridayDrawer.tsx:151` (`TASK_USER_BY_ID[currentUserId]?.name.split`) | useState initializers and `find() \|\| array[0]` cascades that crash on empty arrays | When wiring backend, add empty-state guards: `array.length > 0 ? array[0].id : null`, plus loading/empty states in the JSX. |
 
 ---
 
@@ -115,21 +129,40 @@ If you write something demo-only or fake-backend, add a `// @demo:*` comment in 
 
 ---
 
+## Architectural notes
+
+### Approvals duplication: Operations vs Finance
+
+Both modules have an "Approvals" sub-page. Confirmed via investigation (audit extension Apr 29 2026):
+
+| | Finance Approvals | Operations Approvals |
+|---|---|---|
+| Component | `FinanceModule.tsx` `FinanceApprovals()` (~lines 666-751) | `OperationsModule.tsx` `ApprovalsPage()` (~lines 1171-1276) |
+| Data source | `FIN_APPROVALS` (linked to `FIN_EXPENSES` via `expenseId`) | `APPROVAL_REQUESTS` (standalone, no expense link) |
+| Conceptually | Owner expense approvals (workflow: pending expense → owner decision → approval record) | Field-staff work-request approvals (Phase 2 trigger) |
+| UI shape | Split-pane list/detail | Split-pane list/detail (similar but separately implemented) |
+
+**Recommendation:** Keep separate (different domains, different lifecycles). But **extract a shared `<ApprovalSplitPane>` component** to eliminate the UI code duplication. That's a refactor task, not a backend wiring task — file under code-quality follow-ups.
+
 ## Notes for backend wiring
 
 - **`bumpRev` pattern is everywhere** — lots of components depend on it. Search-replace strategy: every `bumpRev()` call becomes either (a) an optimistic update + refetch, or (b) a no-op once the SSE event handler refreshes the affected slice.
 - **`gms.ts` may already be partly real** — the legacy GMS already has a backend at `/api/conversations`. Verify what's mock vs. real before touching.
 - **Permissions check happens twice** — the FAD does client-side gating (UX), but the real backend MUST also enforce permissions on every endpoint. Don't trust the client.
 - **The TODAY constant problem cascades** — when you switch to live `Date.now()`, scan every "in N days" / "M days ago" calculation and verify the math still makes sense without a fixed reference point.
+- **Brittle `array[0]` initializers (PROD-LOGIC-12)** — when fixtures get replaced with API loading states, these crash on first render. Convert each useState initializer pattern to `array.length > 0 ? array[0].id : null` plus an empty-state UI in the JSX.
 
 ---
 
 ## Inventory summary
 
-- **15 data fixtures** to replace with API endpoints
-- **4 auth-bypass surfaces** to wire real authentication
-- **6 localStorage-state buckets** to either sync or delete
-- **8 logic patterns** to move to backend
-- **4 demo UI surfaces** to remove or feature-flag
+After Apr 29 2026 audit extension:
 
-**Total: ~37 individual `// @demo:*` tags across the codebase.** Grep `// @demo:` to confirm count after tagging pass lands.
+- **24 data fixtures + inline business-data Maps** to replace with API endpoints (PROD-DATA-1..24)
+- **5 auth-bypass surfaces** to wire real authentication (PROD-AUTH-1..5)
+- **6 localStorage-state buckets** to either sync or delete (PROD-STATE-1..6)
+- **12 logic patterns** to move to backend or fix (PROD-LOGIC-1..12)
+- **4 demo UI surfaces** to remove or feature-flag (PROD-UI-1..4)
+- **1 architectural note** — Approvals duplication (Operations vs Finance)
+
+**Total: 51 individual `// @demo:*` tags across the codebase.** Grep `// @demo:` to confirm count after tagging pass lands.

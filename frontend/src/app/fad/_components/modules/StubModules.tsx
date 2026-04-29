@@ -23,6 +23,9 @@ import {
 } from '../../_data/fixtures';
 import { useState } from 'react';
 
+// @demo:auth — Tag: PROD-AUTH-5 — see frontend/DEMO_CRUFT.md
+// Hardcoded current user. Replace with: useCurrentUser() hook reading
+// from auth context (JWT/session) instead of constant.
 const CURRENT_USER = 'Ishant';
 const TASK_SOURCES = ['Inbox', 'Finance', 'Breezeway', 'Ops', 'CRM', 'Intel'];
 
@@ -1332,6 +1335,10 @@ interface PitchSpec {
   features: { icon: string; title: string; desc: string }[];
 }
 
+// @demo:data — Tag: PROD-DATA-18 — see frontend/DEMO_CRUFT.md
+// "Coming soon" pitch narratives for pre-launch modules. References
+// specific guests/owners (Nitzana, etc.). Replace with: GET /api/cms/pitches
+// (or remove module-stub UI entirely once each module ships).
 const PITCH_SPECS: Record<string, PitchSpec> = {
   reviews: {
     icon: 'IconReviews',
@@ -1462,6 +1469,10 @@ interface TeaseSpec {
   integration: string;
 }
 
+// @demo:data — Tag: PROD-DATA-19 — see frontend/DEMO_CRUFT.md
+// "Coming soon" tease blurbs for unreleased modules. Hardcoded user
+// references ("Ishant only", "Ishant + Franny internal", "until 2028").
+// Replace with: GET /api/cms/teases (or remove module-tease UI when shipped).
 const TEASE_SPECS: Record<string, TeaseSpec> = {
   syndic: {
     tagline: 'Shared-building management for co-owned properties',

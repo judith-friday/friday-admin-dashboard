@@ -10,6 +10,8 @@ import { fireToast } from '../../Toaster';
 import { TASKS } from '../../../_data/tasks';
 import { staffStatusTone, toneStyle } from '../../palette';
 
+// @demo:logic — Tag: PROD-LOGIC-9 — see frontend/DEMO_CRUFT.md
+// Hardcoded demo date. Replace with new Date() (server-aware).
 const TODAY = '2026-04-27';
 
 type StatusFilter = 'active' | 'departing' | 'departed' | 'all';

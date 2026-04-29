@@ -522,6 +522,9 @@ function AiCardSuggestion({ property }: { property: Property }) {
   );
 }
 
+// @demo:data — Tag: PROD-DATA-17 — see frontend/DEMO_CRUFT.md
+// Hardcoded AI suggestions keyed by property code. Replace with:
+// GET /api/properties/:code/ai-suggestions (server-side LLM-derived).
 const AI_SUGGESTIONS_BY_CODE: Record<string, { message: string }> = {
   'BS-1': { message: 'BS-1 doesn\'t have a Card entry for water shutoff — Mathias mentioned it in thread #1234. Add to Property Cards?' },
   'VV-47': { message: 'Two recent guest threads asked about pool heating. Add a Pool / Outdoor Card to capture the answer once?' },

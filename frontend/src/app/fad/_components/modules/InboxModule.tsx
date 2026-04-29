@@ -1059,6 +1059,8 @@ function InternalNoteCompose({
       mentions,
       createdAt: new Date().toISOString(),
     };
+    // @demo:logic — Tag: PROD-LOGIC-10 — see frontend/DEMO_CRUFT.md
+    // Mock mutation. Replace with: POST /api/inbox/threads/:id/notes.
     INBOX_INTERNAL_NOTES.push(note);
     fireToast(
       mentions.length > 0

@@ -1370,6 +1370,9 @@ type PnLEntity = 'FR' | 'FI' | 'S' | 'all';
 
 interface PnLLine { label: string; period: number; ytd: number; vsPrev?: string; section?: 'revenue' | 'passthrough' | 'opex' | 'subtotal' | 'total'; sub?: boolean; }
 
+// @demo:data — Tag: PROD-DATA-16 — see frontend/DEMO_CRUFT.md
+// Inline P&L data with hardcoded MUR figures across FR/FI/S/all entities.
+// Replace with: GET /api/finance/pnl?entity=:entity&period=:period.
 const PNL_BY_ENTITY: Record<PnLEntity, PnLLine[]> = {
   FR: [
     { label: 'Revenue', period: 0, ytd: 0, section: 'revenue' },
@@ -2753,6 +2756,9 @@ function PCStage4() {
   // routes via FAD Inbox per running decisions log §3.1 (was Slack-DM-Ishant
   // — supersedes the originally-locked rule in the UX brief §6).
   const items = detectAllAnomalies();
+  // @demo:logic — Tag: PROD-LOGIC-11 — see frontend/DEMO_CRUFT.md
+  // Hardcoded refund authority cap. Replace with: GET /api/finance/policies
+  // returning per-role authority caps (will likely be tenant-configurable).
   const cap = 200_00; // Mathias refund authority cap, MUR minor (€200 ≈ Rs 200 * 100... use 200_00 as fixture cap)
 
   const handleApply = (d: PayoutDiscrepancy) => {

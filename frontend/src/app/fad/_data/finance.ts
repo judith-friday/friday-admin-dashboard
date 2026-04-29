@@ -55,6 +55,10 @@ export interface FinOwner {
   whatsapp: string;
 }
 
+// @demo:data — Tag: PROD-DATA-21 — see frontend/DEMO_CRUFT.md
+// Hardcoded owner records. Replace with: GET /api/finance/owners.
+// Originally treated as static config in first audit, but contains
+// demo-specific names (Smith Family, Marchand SCI, etc.).
 export const FIN_OWNERS: FinOwner[] = [
   { id: 'o1', name: 'Smith Family', language: 'en', whatsapp: '+230 5712 0044' },
   { id: 'o2', name: 'Marchand SCI', language: 'fr', whatsapp: '+33 6 78 12 44 90' },
@@ -76,6 +80,8 @@ export interface FinCategory {
   internalLabour?: boolean;
 }
 
+// @demo:data — Tag: PROD-DATA-22 — see frontend/DEMO_CRUFT.md
+// Hardcoded expense categories. Replace with: GET /api/finance/categories.
 export const FIN_CATEGORIES: FinCategory[] = [
   { code: 'FR-REP', name: 'Repairs', defaultBillTo: 'owner', receiptRequired: 'always' },
   { code: 'FR-MAI', name: 'Maintenance', defaultBillTo: 'owner', receiptRequired: 'always', internalLabour: true },
@@ -100,6 +106,8 @@ export interface FinVendor {
   ytdSpendMUR: number;
 }
 
+// @demo:data — Tag: PROD-DATA-23 — see frontend/DEMO_CRUFT.md
+// Hardcoded vendor records. Replace with: GET /api/finance/vendors.
 export const FIN_VENDORS: FinVendor[] = [
   { id: 'v1', name: 'Pereybere Hardware', altNames: ['Pereybere', 'Per. Hardware', 'Quincaillerie Pereybere'], defaultCategory: 'FR-REP', ytdSpendMUR: 84_500 },
   { id: 'v2', name: 'Climate Tech Ltd', altNames: ['Climate Tech', 'CTL'], defaultCategory: 'FR-REP', ytdSpendMUR: 142_000 },
@@ -166,6 +174,8 @@ export interface FinPeriod {
   lockedAt?: string;
 }
 
+// @demo:data — Tag: PROD-DATA-24 — see frontend/DEMO_CRUFT.md
+// Hardcoded fiscal periods. Replace with: GET /api/finance/periods.
 export const FIN_PERIODS: FinPeriod[] = [
   { id: 'p-2026-04', label: 'April 2026', status: 'closing', startDate: '2026-04-01', endDate: '2026-04-30', warRateEurMur: 52.45, warRateUsdMur: 47.20, closeStage: 5, lockedBy: 'Mary', lockedAt: '2026-04-27 14:32' },
   { id: 'p-2026-03', label: 'March 2026', status: 'closed', startDate: '2026-03-01', endDate: '2026-03-31', warRateEurMur: 52.30, warRateUsdMur: 47.10 },

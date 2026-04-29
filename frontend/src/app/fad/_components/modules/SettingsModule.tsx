@@ -1,5 +1,14 @@
 'use client';
 
+// @demo:data + @demo:auth — Tag: PROD-DATA-20 — see frontend/DEMO_CRUFT.md
+// SettingsModule has multiple inline demo blocks:
+//   - Hardcoded user "Ishant Sagoo" / "ishant@friday.mu" (replace with auth context)
+//   - Inline team roster of 6 names (lines ~131-136) → GET /api/users/team
+//   - Hardcoded integrations list (lines ~171-178) → GET /api/integrations
+//   - Hardcoded bug reports (lines ~207-210) → GET /api/bug-reports
+//   - Billing info "Friday Internal · unmetered" (lines ~233-238) → GET /api/billing
+// Each block gets its own backend endpoint when wired.
+
 import { useState } from 'react';
 import { ModuleHeader } from '../ModuleHeader';
 import { useCurrentRole } from '../usePermissions';
