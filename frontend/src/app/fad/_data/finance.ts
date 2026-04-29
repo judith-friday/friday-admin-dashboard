@@ -217,13 +217,13 @@ export const FIN_TOURIST_TAX: FinTouristTaxRow[] = [];
 // ───────────────── KPIs (computed roll-up) ─────────────────
 
 export const FIN_OVERVIEW_KPIS = {
-  periodLabel: CURRENT_PERIOD.label,
+  periodLabel: CURRENT_PERIOD?.label ?? '',
   payoutsThisPeriodMinor: FIN_PAYOUTS_NEW
-    .filter((p) => p.periodId === CURRENT_PERIOD.id)
+    .filter((p) => p.periodId === CURRENT_PERIOD?.id)
     .reduce((s, p) => s + p.amountMinor, 0),
   payoutsCurrency: 'EUR' as Currency,
   expensesPostedThisPeriodMUR: FIN_EXPENSES
-    .filter((e) => e.periodId === CURRENT_PERIOD.id && e.status === 'posted' && e.currency === 'MUR')
+    .filter((e) => e.periodId === CURRENT_PERIOD?.id && e.status === 'posted' && e.currency === 'MUR')
     .reduce((s, e) => s + e.amountMinor, 0),
   pendingApprovalsCount: FIN_EXPENSES.filter((e) => e.status === 'pending_approval').length,
   pendingApprovalsMUR: FIN_EXPENSES
