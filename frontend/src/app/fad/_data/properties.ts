@@ -1,3 +1,6 @@
+// @demo:data — Properties + onboarding + insights — GET /api/properties
+// Tag: PROD-DATA-4 — see frontend/DEMO_CRUFT.md
+
 // Properties — canonical namespace per v0.2 LOCKED scoping pack.
 //
 // Replaces three legacy namespaces (legacy `Property` in fixtures.ts,

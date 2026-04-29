@@ -56,6 +56,8 @@ export function CreateTaskDrawer({ open, onClose, onCreated, prefill }: Props) {
 
   const parseNl = () => {
     if (!nl.trim()) return;
+    // @demo:logic — Tag: PROD-LOGIC-4 — see frontend/DEMO_CRUFT.md
+    // Replace with: POST /api/intent/parse-task (real LLM intent endpoint).
     // Phase 1: regex-based intent parsing. Phase 2 swaps to real LLM.
     const text = nl.toLowerCase();
 

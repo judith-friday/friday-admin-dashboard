@@ -1,3 +1,7 @@
+// @demo:logic — ENTIRE FILE is computed-on-frontend logic that should be backend.
+// Tag: PROD-LOGIC-5 — see frontend/DEMO_CRUFT.md
+// Replace with: GET /api/pending-counts?role=:role&userId=:id (server-computed).
+// Plus replace bumpRev/subscribePendingRev (lines ~314-328) with WebSocket/SSE.
 // Sidebar pending-count signals — central registry per-module.
 //
 // Each module exports a `pendingCount*()` function. The sidebar reads

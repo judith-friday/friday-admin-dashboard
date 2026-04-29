@@ -1,3 +1,6 @@
+// @demo:data — Notifications — GET /api/notifications (per-user)
+// Tag: PROD-DATA-14 — see frontend/DEMO_CRUFT.md
+
 // Notifications — central event log surfaced via the topbar bell.
 //
 // Distinct from `pendingCounts.ts` which counts actionable items per module
@@ -16,6 +19,7 @@ import { PROPERTIES, portfolioInsights } from './properties';
 import { REVIEWS } from './reviews';
 import { ROSTERS } from './roster';
 
+// @demo:logic — Tag: PROD-LOGIC-7 — see frontend/DEMO_CRUFT.md. Replace with real Date.now() / server now().
 const TODAY = '2026-04-27';
 const TODAY_MS = new Date(TODAY).getTime();
 

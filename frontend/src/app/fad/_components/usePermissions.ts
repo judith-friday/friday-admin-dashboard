@@ -30,6 +30,10 @@ interface PermissionsContextValue {
 
 const PermissionsContext = createContext<PermissionsContextValue | null>(null);
 
+// @demo:auth + @demo:state — Tag: PROD-AUTH-4 / PROD-STATE-1 — see frontend/DEMO_CRUFT.md
+// Replace with: auth-context provider that reads role + user from JWT (or
+// GET /api/auth/me). Delete dev-role storage entirely. Backend MUST also
+// enforce permission on API endpoints — client checks are not authoritative.
 const STORAGE_KEY = 'fad:dev-role';
 const STORAGE_USER_KEY = 'fad:dev-user';
 const STORAGE_REAL_ROLE_KEY = 'fad:real-role';

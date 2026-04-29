@@ -1,3 +1,6 @@
+// @demo:data — Expenses, payouts, refunds — GET /api/finance/*
+// Tag: PROD-DATA-3 — see frontend/DEMO_CRUFT.md
+
 // Finance fixtures — match schema v1 from finance brief (section 7).
 // Static seed data for Phase 1 surfaces: Overview, Transactions, Capture, Approvals.
 

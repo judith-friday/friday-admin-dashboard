@@ -1,3 +1,6 @@
+// @demo:data — Breezeway integration data — GET /api/integrations/breezeway
+// Tag: PROD-DATA-12 — see frontend/DEMO_CRUFT.md
+
 // Breezeway fixture-API shim.
 // Phase 1: appends/mutates local fixture arrays + fires "would push to Breezeway" toast.
 // Phase 2: swap internals to call real Breezeway endpoints. UI surface stays identical.

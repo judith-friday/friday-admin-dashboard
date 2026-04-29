@@ -68,6 +68,32 @@ Friday Admin Dashboard (FAD) is the operations cockpit for Friday Retreats — a
 - **WhatsApp owner-approvals route via `approve/`** — primary channel for owner consent.
 - **Static export limits:** no API routes in `frontend/`, no `next/image` optimization without config, no dynamic routes with params unless `generateStaticParams`.
 
+## Demo cruft tagging (FAD is currently a frontend-only showcase)
+
+The FAD has no real backend yet. Login is fake, fixtures are local, "logout" just clears localStorage. Everything that exists purely to make the UI demonstrable needs a tag so Judith can rip it out cleanly when the backend lands.
+
+**The five tags** (use as code comments above the relevant constant / function / JSX block):
+
+| Tag | Means | Backend action when wired |
+|---|---|---|
+| `// @demo:data` | Hardcoded fixtures the UI reads from | Replace with API fetch |
+| `// @demo:logic` | Client-side logic that should be authoritative on the backend | Move logic to backend, replace with API call |
+| `// @demo:state` | Frontend-only persisted state (localStorage) that needs server sync | Add backend mirror + sync layer |
+| `// @demo:auth` | Anything that bypasses real authentication / authorization | Wire real auth + replace with backend-enforced gating |
+| `// @demo:ui` | UI surfaces that exist only because we're showcasing | Remove or hide behind feature flag |
+
+**Comment shape** — always include a tag ID that maps back to `DEMO_CRUFT.md`:
+
+```typescript
+// @demo:data — Replace with GET /api/users/team. Backend returns
+// [{first_name, email, role}]. Tag: PROD-AUTH-1.
+const TEAM = [ ... ]
+```
+
+**When you write new code** that's demo-only or fakes a backend behavior, **always tag it**. Add a row to `frontend/DEMO_CRUFT.md` with the tag ID, type, path, current behavior, and the backend action needed. One source of truth.
+
+**Before merging any backend wiring** — grep for `// @demo:` in the diff, cross-reference against `DEMO_CRUFT.md`, and confirm each tagged line either gets replaced or has its tag removed deliberately.
+
 ## Gotchas
 
 - **Always `git fetch origin` before assessing repo state.** 3-layer reconciliation per AGENTS.md.

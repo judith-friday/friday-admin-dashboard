@@ -1,3 +1,6 @@
+// @demo:data — Inbox threads, KPIs, calendar — split into multiple endpoints
+// Tag: PROD-DATA-1 — see frontend/DEMO_CRUFT.md
+
 export interface InboxMessage {
   from: 'them' | 'us';
   name: string;

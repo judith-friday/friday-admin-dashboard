@@ -1,3 +1,6 @@
+// @demo:data — AI inference context — depends on AI integration shape
+// Tag: PROD-DATA-15 — see frontend/DEMO_CRUFT.md
+
 // AI fixture pools — Phase 1 stand-in for LLM responses.
 // Each surface has a pool of 3-5 responses; selection is deterministic-but-varied
 // by hour-of-day so reloads in the same hour show the same response, next hour

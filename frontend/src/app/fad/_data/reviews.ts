@@ -1,3 +1,6 @@
+// @demo:data — Channel reviews — GET /api/reviews
+// Tag: PROD-DATA-9 — see frontend/DEMO_CRUFT.md
+
 /**
  * Reviews module — Phase 1 fixture (direct read from Guesty + Breezeway).
  *
@@ -618,6 +621,7 @@ export function staffLinksForReview(reviewId: string): StaffReviewLink[] {
 
 // ───────────────── Aggregations / helpers ─────────────────
 
+// @demo:logic — Tag: PROD-LOGIC-7 — see frontend/DEMO_CRUFT.md. Replace with real Date.now() / server now().
 const TODAY_ISO = '2026-04-27';
 function daysAgo(iso: string): number {
   return Math.round((new Date(TODAY_ISO).getTime() - new Date(iso).getTime()) / (24 * 60 * 60 * 1000));

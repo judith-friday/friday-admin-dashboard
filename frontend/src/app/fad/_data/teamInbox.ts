@@ -1,3 +1,6 @@
+// @demo:data — Team-internal threads — GET /api/inbox/team-threads
+// Tag: PROD-DATA-11 — see frontend/DEMO_CRUFT.md
+
 // Team Inbox fixtures — channels + DMs + messages + scheduled calls.
 // Phase 1 fixture-only with optimistic local state (T3 wires UI).
 // Replaces internal Slack at the FAD level.

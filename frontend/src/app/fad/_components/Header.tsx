@@ -332,6 +332,9 @@ function AvatarDropdown() {
   const { currentUserId, role } = usePermissions();
   const user = TASK_USER_BY_ID[currentUserId];
 
+  // @demo:auth — Tag: PROD-AUTH-2 — see frontend/DEMO_CRUFT.md
+  // Replace with: POST /api/auth/logout to invalidate session server-side.
+  // Keep the localStorage cleanup for client-side hygiene.
   const handleLogout = () => {
     try {
       // Clear FAD identity state. Keeps preferences (theme, sidebar collapsed)

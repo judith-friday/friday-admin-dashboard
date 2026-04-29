@@ -1,3 +1,6 @@
+// @demo:data — GMS conversations — verify mock vs. real GMS backend
+// Tag: PROD-DATA-8 — see frontend/DEMO_CRUFT.md
+
 export interface Teaching {
   id: string;
   instruction: string;

@@ -1,5 +1,11 @@
 'use client'
 
+// @demo:auth — ENTIRE FILE is fake authentication. Accepts any input,
+// fakes a "Welcome" flash, navigates to /fad. No real auth flow.
+// Tag: PROD-AUTH-1 — see frontend/DEMO_CRUFT.md
+// Replace with real OAuth/JWT flow. handleSubmit → POST /api/auth/login,
+// store token, redirect on success.
+
 // Demo-mode login screen. No real authentication — clicking a name (or any
 // manual Sign-in path) simply navigates to /fad. The FAD shell manages its
 // own role + identity state independently, so no localStorage writes are
@@ -23,6 +29,9 @@ const TEAM = [
 
 // ─────────────────────────────── Greetings ─────────────────────────────────
 // One pulled at random per page load. Friday's voice trends curious + dry.
+// @demo:ui — Tag: PROD-UI-2 — see frontend/DEMO_CRUFT.md
+// Optional keep: drop for a conventional production login, or keep if
+// Friday's voice on a real login screen is still playful.
 const FUNNY_GREETINGS = [
   "Wait a second… who are you? 0.0",
   "Hark, traveler. Identify thyself.",
@@ -43,6 +52,8 @@ const FUNNY_GREETINGS = [
 // ─────────────────────────────── Tip pool ──────────────────────────────────
 // One shown below the form, in tertiary text. Random per page load.
 // 'admin' = FAD product knowledge (✦), 'str' = hospitality stats (💡).
+// @demo:ui — Tag: PROD-UI-3 — see frontend/DEMO_CRUFT.md
+// Optional keep: could become GET /api/login-tips, or drop entirely.
 const TIPS = [
   { kind: 'admin', text: "Cmd+K opens the command palette anywhere in the FAD." },
   { kind: 'admin', text: "Sub-pages keep their filter state when you deep-link." },
@@ -325,6 +336,8 @@ export default function LoginScreen({ onLogin: _onLogin }: { onLogin: (token: st
   return (
     <div data-testid="container-login-screen" style={pageStyle}>
       <div style={cardStyle}>
+        {/* @demo:ui — Tag: PROD-UI-1 — see frontend/DEMO_CRUFT.md
+            Remove when real auth lands. Indicates demo mode at a glance. */}
         <span style={demoPillStyle}>Simulated · Demo</span>
         <h1 style={titleStyle}>Friday Admin</h1>
         <p style={subtitleStyle}>{greeting}</p>

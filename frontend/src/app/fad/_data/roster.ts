@@ -1,3 +1,6 @@
+// @demo:data — Staff roster — GET /api/hr/roster
+// Tag: PROD-DATA-10 — see frontend/DEMO_CRUFT.md
+
 // Roster fixtures — Franny's weekly publishing tool.
 // v3 model: availability + zone (split), no shift times. Roster is availability, not schedule.
 // Source brief §4.1.

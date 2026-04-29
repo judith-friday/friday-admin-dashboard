@@ -1,3 +1,6 @@
+// @demo:data — Friday-the-AI cards + prompts — GET /api/friday/*
+// Tag: PROD-DATA-13 — see frontend/DEMO_CRUFT.md
+
 export interface FridayStep {
   type: 'tool';
   name: string;

@@ -1,3 +1,6 @@
+// @demo:data — Bookings — GET /api/reservations
+// Tag: PROD-DATA-6 — see frontend/DEMO_CRUFT.md
+
 /**
  * Canonical Reservations data. Consumed by Reservations module (primary key),
  * Tasks (`Task.reservationId`), Inbox (`InboxThread.reservationId`), Calendar,

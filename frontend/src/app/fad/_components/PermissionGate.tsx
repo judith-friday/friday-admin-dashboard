@@ -67,6 +67,10 @@ export function PermissionGate({
 
 // ───────────────── RoleSwitcher (dev affordance) ─────────────────
 
+// @demo:auth + @demo:ui — Tag: PROD-AUTH-3 / PROD-UI-4 — see frontend/DEMO_CRUFT.md
+// Remove this entire RoleSwitcher component when real auth lands.
+// Real auth resolves role from JWT — users can't pick. The ROLES table
+// below + the dropdown below + the "View as · dev preview" UI all go.
 const ROLES: Array<{ id: TaskUser['role']; label: string; example: string }> = [
   { id: 'director', label: 'Director', example: 'Ishant' },
   { id: 'commercial_marketing', label: 'Commercial & Marketing', example: 'Mathias' },

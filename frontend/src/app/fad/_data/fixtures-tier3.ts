@@ -1,3 +1,6 @@
+// @demo:data — HR staff + time-off — GET /api/hr/*
+// Tag: PROD-DATA-5 — see frontend/DEMO_CRUFT.md
+
 export interface Review {
   id: string;
   guest: string;

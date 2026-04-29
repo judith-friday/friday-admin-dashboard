@@ -1,3 +1,6 @@
+// @demo:data — Benchmarks + KPIs — GET /api/analytics/*
+// Tag: PROD-DATA-7 — see frontend/DEMO_CRUFT.md
+
 export const ANALYTICS_OVERVIEW_KPI = [
   { label: 'Revenue · MTD', value: '€ 184,220', sub: '+12% vs Apr LM', dir: 'up' as const },
   { label: 'Occupancy · 30d', value: '79%', sub: '+3pp vs LY', dir: 'up' as const },

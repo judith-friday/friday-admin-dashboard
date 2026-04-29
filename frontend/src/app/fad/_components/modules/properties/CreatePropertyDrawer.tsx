@@ -118,6 +118,9 @@ export function CreatePropertyDrawer({ open, onClose, onCreated }: Props) {
       lastActivityAt: new Date().toISOString().slice(0, 10),
     };
 
+    // @demo:logic — Tag: PROD-LOGIC-1 — see frontend/DEMO_CRUFT.md
+    // Replace with: POST /api/properties. Backend returns the created
+    // entity; frontend appends to its cache or refetches.
     PROPERTIES.push(property);
     PROPERTY_BY_CODE[property.code] = property;
     PROPERTY_BY_ID[property.id] = property;

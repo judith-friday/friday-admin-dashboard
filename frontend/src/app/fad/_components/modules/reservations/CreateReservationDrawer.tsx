@@ -136,6 +136,8 @@ export function CreateReservationDrawer({ open, onClose, onCreated }: Props) {
       ...(draft.extensionOf ? { extensionOf: draft.extensionOf } : {}),
       createdAt: new Date().toISOString(),
     };
+    // @demo:logic — Tag: PROD-LOGIC-2 — see frontend/DEMO_CRUFT.md
+    // Replace with: POST /api/reservations.
     RESERVATIONS.push(newRsv);
     // Keep the by-id index in sync so the detail drawer can find it.
     RESERVATION_BY_ID[newRsv.id] = newRsv;

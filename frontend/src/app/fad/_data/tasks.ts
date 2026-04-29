@@ -1,3 +1,6 @@
+// @demo:data — Operations tasks — GET /api/operations/tasks
+// Tag: PROD-DATA-2 — see frontend/DEMO_CRUFT.md
+
 // Tasks module fixtures — Phase 1 (Breezeway-API-shaped, fixture-backed).
 // Today: 2026-04-27 Monday. Week: 2026-04-27 → 2026-05-03.
 //
@@ -348,6 +351,7 @@ export interface Task {
 
 // ───────────────── Date helpers (today = 2026-04-27 Mon) ─────────────────
 
+// @demo:logic — Tag: PROD-LOGIC-7 — see frontend/DEMO_CRUFT.md. Replace with real Date.now() / server now().
 const today = '2026-04-27';
 const tomorrow = '2026-04-28';
 const wed = '2026-04-29';

@@ -1,0 +1,135 @@
+# DEMO_CRUFT.md — Frontend demo registry
+
+> **Master registry of every place the FAD frontend fakes a backend.** When the real backend lands and Judith starts wiring real APIs, this file is the punch-list. Each row maps a `// @demo:*` tag in the source to the backend action needed.
+
+The frontend is currently a **complete demo** — auth is fake, data is local fixtures, mutations write to in-memory arrays, "logout" just clears localStorage. None of this should ship to production unchanged.
+
+---
+
+## How to use this file
+
+**For Judith (or whoever wires the backend):**
+
+1. Grep the tags: `rg "// @demo:" frontend/src/`
+2. For each match, find the row in this file using the trailing `Tag: PROD-XXX-N` ID
+3. Do the backend action listed
+4. Remove the `// @demo:*` comment from the source
+5. Cross-check this file: when every PROD-* tag is gone from the codebase, this file should be empty (or describe only intentional static config)
+
+**For future Claude / Ishant (when adding new code):**
+
+If you write something demo-only or fake-backend, add a `// @demo:*` comment in the source AND a row here. See `CLAUDE.md` § "Demo cruft tagging" for the convention.
+
+---
+
+## Tag taxonomy
+
+| Tag | Means | Backend action |
+|---|---|---|
+| `@demo:data` | Hardcoded fixtures the UI reads from | Replace with API fetch |
+| `@demo:logic` | Client-side logic that should be authoritative on backend | Move to backend; replace with API call |
+| `@demo:state` | Frontend-only persisted state (localStorage) that needs server sync | Add backend mirror + sync layer |
+| `@demo:auth` | Anything that bypasses real authentication / authorization | Wire real auth + replace permission checks with backend gating |
+| `@demo:ui` | UI surfaces that exist only because we're showcasing | Remove or hide behind feature flag |
+
+---
+
+## PROD-DATA — Fixtures
+
+15 data fixture files exist purely so the UI has something to render. Each gets replaced by a real API endpoint.
+
+| ID | Path | What it holds | Backend action |
+|---|---|---|---|
+| PROD-DATA-1 | `frontend/src/app/fad/_data/fixtures.ts` | Inbox threads, internal notes, channel tree, calendar events, KPIs | Split into `GET /api/inbox/threads`, `GET /api/calendar/events`, etc. — the largest fixture file, may need decomposition first |
+| PROD-DATA-2 | `frontend/src/app/fad/_data/tasks.ts` | Operations tasks (~156 rows) | `GET /api/operations/tasks` (with pagination + filters) |
+| PROD-DATA-3 | `frontend/src/app/fad/_data/finance.ts` | Expenses, approvals, reconciliation, payouts, refunds (~228 rows) | Multiple endpoints: `GET /api/finance/expenses`, `/api/finance/payouts`, `/api/finance/refunds`, `/api/finance/transactions` |
+| PROD-DATA-4 | `frontend/src/app/fad/_data/properties.ts` | Properties + onboarding state + portfolio insights (~30 rows) | `GET /api/properties` (with `?include=onboarding,insights`) |
+| PROD-DATA-5 | `frontend/src/app/fad/_data/fixtures-tier3.ts` | HR staff, time-off requests | `GET /api/hr/staff`, `GET /api/hr/time-off-requests` |
+| PROD-DATA-6 | `frontend/src/app/fad/_data/reservations.ts` | Bookings (~65 rows) | `GET /api/reservations` (with pagination + filters) |
+| PROD-DATA-7 | `frontend/src/app/fad/_data/analytics.ts` | Benchmarking, occupancy, revenue across properties | `GET /api/analytics/benchmarks`, `GET /api/analytics/kpis` |
+| PROD-DATA-8 | `frontend/src/app/fad/_data/gms.ts` | GMS conversation threads + messages | `GET /api/gms/conversations` (already partly backed by real GMS — verify what's mock vs. real) |
+| PROD-DATA-9 | `frontend/src/app/fad/_data/reviews.ts` | Channel reviews (Airbnb, Booking, etc.) with reply state (~32 rows) | `GET /api/reviews`, `POST /api/reviews/:id/reply` |
+| PROD-DATA-10 | `frontend/src/app/fad/_data/roster.ts` | Staff roster, scheduled by week, with publish state | `GET /api/hr/roster?week=W{nn}`, `POST /api/hr/roster/:week/publish` |
+| PROD-DATA-11 | `frontend/src/app/fad/_data/teamInbox.ts` | Team-internal threads | `GET /api/inbox/team-threads` |
+| PROD-DATA-12 | `frontend/src/app/fad/_data/breezeway.ts` | Breezeway integration / synced data | `GET /api/integrations/breezeway` |
+| PROD-DATA-13 | `frontend/src/app/fad/_data/friday.ts` | Friday-the-AI card metadata + prompts | `GET /api/friday/cards`, `GET /api/friday/prompts` |
+| PROD-DATA-14 | `frontend/src/app/fad/_data/notifications.ts` | Notification entries | `GET /api/notifications` (per-user) |
+| PROD-DATA-15 | `frontend/src/app/fad/_data/aiFixtures.ts` | AI inference context fixtures | Depends on AI integration — likely returned alongside conversation fetch |
+
+**Static config (intentionally NOT tagged, ships as-is):**
+- `_data/modules.ts` — FAD module definitions (sidebar nav)
+- `_data/permissions.ts` — role × resource matrix (could move to backend later, fine static for v1)
+- `_data/financeAnomalies.ts` — anomaly detection rule config
+- `_data/financeRoles.ts` — approval tier config
+- `_data/timeOff.ts` — leave-type definitions
+
+---
+
+## PROD-AUTH — Authentication bypass
+
+| ID | Path | What it does today | Backend action |
+|---|---|---|---|
+| PROD-AUTH-1 | `frontend/src/components/LoginScreen.tsx` (entire file) | Accepts any email + password, fakes a "Welcome" flash, navigates to `/fad`. Includes hardcoded TEAM, FUNNY_GREETINGS, TIPS pools. | Wire real auth (OAuth/JWT/SAML). Replace `enterAs()` with `POST /api/auth/login`, store token, redirect on success. Remove TEAM hardcoding (replaced by `GET /api/users/team` if still needed). |
+| PROD-AUTH-2 | `frontend/src/app/fad/_components/Header.tsx` (`handleLogout` in AvatarDropdown) | Clears localStorage and redirects to `/`. No server call. | Replace with `POST /api/auth/logout` to invalidate session server-side. Keep the localStorage cleanup for client-side hygiene. |
+| PROD-AUTH-3 | `frontend/src/app/fad/_components/PermissionGate.tsx` (role-switcher UI ~lines 82-155) | "View as · dev preview" lets the user pick any role. Powers all the role-gated UI in the FAD. | **Remove the UI entirely.** Real auth resolves role from JWT. Keep `<PermissionGate>` as a no-op wrapper or delete and replace usages with backend role checks. |
+| PROD-AUTH-4 | `frontend/src/app/fad/_components/usePermissions.ts` (lines 33-89: STORAGE_KEY trio + PermissionsProvider) | Reads `fad:dev-role` / `fad:dev-user` / `fad:real-role` from localStorage. `pickUserForRole()` finds first fixture user matching a role. | Replace with auth-context provider that reads role + user from JWT (or `GET /api/auth/me`). Delete dev-role storage entirely. Backend MUST also enforce permission on API endpoints — client checks are not authoritative. |
+
+---
+
+## PROD-STATE — localStorage state
+
+| ID | Key(s) | Set / read in | Backend action |
+|---|---|---|---|
+| PROD-STATE-1 | `fad:dev-role`, `fad:dev-user`, `fad:real-role` | `usePermissions.ts` | **Delete entirely.** Replaced by JWT/auth-context (see PROD-AUTH-4). |
+| PROD-STATE-2 | `fad:last-email` | `LoginScreen.tsx`, `Header.tsx` (cleared on logout) | Either delete (auth provider remembers), or move to httpOnly cookie. Don't keep in localStorage. |
+| PROD-STATE-3 | `fad:notif-read`, `fad:notif-context` | Notifications module | Sync with backend per user. `PUT /api/notifications/:id/read`, `PATCH /api/notifications/:id/context` (snooze/note/waiting-on/forward). |
+| PROD-STATE-4 | `fad:roster-ack:{weekId}` | `_data/pendingCounts.ts` | `POST /api/hr/roster/:weekId/acknowledge` (event-based). Backend stores per-user ack with `publishedAt` timestamp; on re-publish, ack invalidates. |
+| PROD-STATE-5 | `fad:review` (review mode toggle) | `_data/reviewMode.ts` | Backend feature flag (`GET /api/feature-flags`). |
+| PROD-STATE-6 | `fad:theme`, `fad:collapsed`, `fad:inbox:list`, `fad:inbox:right` | UI preferences across FAD shell | **Optional** — these are pure UI prefs, fine to keep client-only. If we want cross-device persistence: `GET/PUT /api/user/preferences`. |
+
+---
+
+## PROD-LOGIC — Mock mutations + frontend-computed
+
+| ID | Path | What it does today | Backend action |
+|---|---|---|---|
+| PROD-LOGIC-1 | `frontend/src/app/fad/_components/modules/properties/CreatePropertyDrawer.tsx` (line ~121) | `PROPERTIES.push(property)` mutates the fixture array directly, then `bumpRev()` to force re-render. | `POST /api/properties` with the created property body. Backend returns the created entity; frontend appends to its cache or refetches. |
+| PROD-LOGIC-2 | `frontend/src/app/fad/_components/modules/reservations/CreateReservationDrawer.tsx` (line ~139) | `RESERVATIONS.push(newRsv)` direct fixture mutation. | `POST /api/reservations`. |
+| PROD-LOGIC-3 | `frontend/src/app/fad/_components/modules/reservations/ReservationDetail.tsx` (line ~313) | Cancel sets `r.status = 'cancelled'` directly on fixture. | `POST /api/reservations/:id/cancel` (Guesty cancel + owner notification, per Phase 2 comment). |
+| PROD-LOGIC-4 | `frontend/src/app/fad/_components/modules/operations/CreateTaskDrawer.tsx` (line ~59) | Phase 1 regex-based intent parsing for natural-language task creation. | Backend LLM intent endpoint (`POST /api/intent/parse-task`) — already noted as Phase 2 in the source. |
+| PROD-LOGIC-5 | `frontend/src/app/fad/_data/pendingCounts.ts` (entire file) | Computes sidebar pending-count badges by filtering local fixtures. Hardcoded `TODAY = '2026-04-27'` baseline. | `GET /api/pending-counts?role=:role&userId=:id` returns role-aware signals computed server-side. |
+| PROD-LOGIC-6 | `bumpPendingRev()` / `subscribePendingRev()` pattern, defined in `pendingCounts.ts:314-328` | Client-side pub/sub that lets fixture mutations trigger badge recomputation across components. | Replace with WebSocket/SSE subscription to backend mutation events (e.g., `task.created`, `notification.new`). Frontend listens, refetches affected slices, or applies optimistic update. |
+| PROD-LOGIC-7 | Hardcoded `TODAY = '2026-04-27'` in `_data/tasks.ts:351`, `_data/notifications.ts:19`, `_data/reviews.ts:621`, `_data/pendingCounts.ts:22` | Demo timeline anchored to a specific date so fixtures stay self-consistent. | Use real `Date.now()` / server `now()`. All "today / yesterday / next week" calculations need to be relative to the actual current date. |
+| PROD-LOGIC-8 | Various inline `bumpRev()` patterns (ReviewsModule, OperationsModule, CalendarModule, FinanceModule, RosterPage, hr/* pages) | Each module keeps a `[rev, setRev]` and bumps it after mutating fixtures. | Same as PROD-LOGIC-6 — server-pushed updates replace client-side bump pattern. |
+
+---
+
+## PROD-UI — Demo-only UI surfaces
+
+| ID | Path | What it is | Action |
+|---|---|---|---|
+| PROD-UI-1 | `frontend/src/components/LoginScreen.tsx` ("SIMULATED · DEMO" pill, line ~328) | Pill above the wordmark indicating demo mode | **Remove** when real auth is wired. |
+| PROD-UI-2 | `frontend/src/components/LoginScreen.tsx` (FUNNY_GREETINGS, lines ~26-41) | 14-line random greeting pool ("Wait a second… who are you? 0.0", etc.) | **Optional.** Keep if Friday's voice on a real login screen is still playful. Drop for a more conventional production login. |
+| PROD-UI-3 | `frontend/src/components/LoginScreen.tsx` (TIPS pool, lines ~46-59) | 12 admin/STR tips shown below the form | **Optional.** Could become `GET /api/login-tips` (backend-served daily tip), or drop entirely. |
+| PROD-UI-4 | `frontend/src/app/fad/_components/PermissionGate.tsx` ("View as · dev preview", lines ~82-155) | Role-switcher UI in the FAD header | **Remove entirely.** Real auth assigns role; users can't pick. |
+
+---
+
+## Notes for backend wiring
+
+- **`bumpRev` pattern is everywhere** — lots of components depend on it. Search-replace strategy: every `bumpRev()` call becomes either (a) an optimistic update + refetch, or (b) a no-op once the SSE event handler refreshes the affected slice.
+- **`gms.ts` may already be partly real** — the legacy GMS already has a backend at `/api/conversations`. Verify what's mock vs. real before touching.
+- **Permissions check happens twice** — the FAD does client-side gating (UX), but the real backend MUST also enforce permissions on every endpoint. Don't trust the client.
+- **The TODAY constant problem cascades** — when you switch to live `Date.now()`, scan every "in N days" / "M days ago" calculation and verify the math still makes sense without a fixed reference point.
+
+---
+
+## Inventory summary
+
+- **15 data fixtures** to replace with API endpoints
+- **4 auth-bypass surfaces** to wire real authentication
+- **6 localStorage-state buckets** to either sync or delete
+- **8 logic patterns** to move to backend
+- **4 demo UI surfaces** to remove or feature-flag
+
+**Total: ~37 individual `// @demo:*` tags across the codebase.** Grep `// @demo:` to confirm count after tagging pass lands.

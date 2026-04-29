@@ -310,6 +310,9 @@ function OverviewTab({
   };
 
   const confirmCancel = () => {
+    // @demo:logic — Tag: PROD-LOGIC-3 — see frontend/DEMO_CRUFT.md
+    // Replace with: POST /api/reservations/:id/cancel (Guesty cancel +
+    // owner notification, per the Phase 2 comment below).
     // Phase 1: mutate fixture status to cancelled. Phase 2 wires Guesty cancel API + owner notification.
     r.status = 'cancelled';
     setPanel('none');
