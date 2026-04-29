@@ -10,6 +10,9 @@ export function SettingsPage() {
   });
   const [autoPublishMin, setAutoPublishMin] = useState(5);
   const [lowActivityDays, setLowActivityDays] = useState(90);
+  // @demo:data — Tag: PROD-DATA-49 — see frontend/DEMO_CRUFT.md
+  // Hardcoded masked API keys + integration sync stats. Replace with
+  // GET /api/integrations/{guesty,breezeway}/status returning real values.
   const [guestyApiKey, setGuestyApiKey] = useState('••••••••••••gst_8f2a');
   const [breezewayApiKey, setBreezewayApiKey] = useState('••••••••••••brz_4d91');
 

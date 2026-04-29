@@ -212,14 +212,18 @@ export function pendingFinance(role: Role, _userId: string): PendingCount {
     return true;
   });
 
+  // @demo:logic — Tag: PROD-LOGIC-13 — see frontend/DEMO_CRUFT.md
   // End-of-month reconciliation: last week of month + unreconciled posted/captured items
   const isMonthEnd = TODAY_DAY >= 25;
   const monthEndItems = isMonthEnd
     ? FIN_EXPENSES.filter((e) => e.periodId === `p-${TODAY_MONTH}` && e.status === 'pending_approval').length
     : 0;
 
+  // Only surface a "reconciliation due" signal when there are real items to reconcile.
+  // (Previously fired unconditionally on day >= 25 even with empty fixtures.)
+  const reconSignal = isMonthEnd && monthEndItems > 0 ? 1 : 0;
   return {
-    total: approvals.length + (isMonthEnd ? 1 : 0), // count "reconciliation due" as 1 signal
+    total: approvals.length + reconSignal,
     tone: approvals.some((a) => a.approvalTier === 'urgent_override' || a.approvalTier === 'major') ? 'urgent' : 'normal',
   };
 }

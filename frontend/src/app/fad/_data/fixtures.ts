@@ -441,6 +441,9 @@ export const TASK_DETAIL: Record<string, TaskDetail> = {
   },
 };
 
+// @demo:data — Tag: PROD-DATA-48 — see frontend/DEMO_CRUFT.md
+//   covers LEGAL_RENEWALS + LEGAL_LICENSES + LEGAL_COMPLIANCE + LEGAL_DOCS
+//   (Legal & Admin module: renewals, licenses, compliance calendar, document store)
 export const LEGAL_RENEWALS = [
   { party: 'Blue Bay House · Harrington', kind: 'Management agreement', ends: 'May 2026', action: 'draft renewal' },
   { party: 'Fonseca vendor (groceries)', kind: 'Annual supply', ends: 'Jun 2026', action: 'review T&Cs' },

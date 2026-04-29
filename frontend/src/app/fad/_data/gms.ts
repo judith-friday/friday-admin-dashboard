@@ -228,6 +228,8 @@ export const KNOWLEDGE: KnowledgeEntry[] = [
   },
 ];
 
+// @demo:data — Tag: PROD-DATA-47 — see frontend/DEMO_CRUFT.md
+//   covers BRAND_VOICE principles + good/bad examples + tones (Training · Brand voice tab)
 export const BRAND_VOICE = {
   principles: [
     { title: 'Warm, not corporate', detail: 'Guests are at a villa on vacation. Drop the formal ladders. Use their first name.' },
@@ -274,6 +276,8 @@ export interface LearningSource {
   staff?: string;
 }
 
+// @demo:data — Tag: PROD-DATA-45 — see frontend/DEMO_CRUFT.md
+//   covers LEARNING_SOURCES + LEARNING_SOURCE_SUMMARY (Training · Sources tab)
 export const LEARNING_SOURCES: LearningSource[] = [
   { id: 'ls1', time: '14m ago', origin: 'Inbox', action: 'Franny approved reply to Marchand with French greeting', teachingCreated: 'Open FR guest replies with "Bonjour"', teachingId: 't2', staff: 'Franny' },
   { id: 'ls2', time: '42m ago', origin: 'Inbox', action: 'Mathias rephrased compensation message, Friday noted pattern', staff: 'Mathias' },
@@ -305,6 +309,8 @@ export interface StaffPerformance {
   creditSpend: number;
 }
 
+// @demo:data — Tag: PROD-DATA-46 — see frontend/DEMO_CRUFT.md
+//   covers STAFF_PERFORMANCE + PERFORMANCE_KPI (Training · Performance tab)
 export const STAFF_PERFORMANCE: StaffPerformance[] = [
   { name: 'Ishant', role: 'Admin', conversations: 142, firstDraftAcceptance: 0.78, teachingsContributed: 8, avgResponseTime: '18m', creditSpend: 142 },
   { name: 'Mathias', role: 'Manager', conversations: 388, firstDraftAcceptance: 0.84, teachingsContributed: 6, avgResponseTime: '11m', creditSpend: 312 },
