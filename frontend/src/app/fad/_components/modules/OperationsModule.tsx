@@ -214,27 +214,29 @@ function OverviewPage({ onOpenTask }: { onOpenTask: (id: string) => void }) {
         <KpiCard label="Reported today" value={kpis.reportedToday} accent="var(--color-text-success)" />
       </div>
 
-      {/* AI Daily Brief */}
-      <div
-        style={{
-          padding: 16,
-          background: 'var(--color-brand-accent-softer)',
-          borderLeft: '3px solid var(--color-brand-accent)',
-          borderRadius: 8,
-          marginBottom: 20,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-          <AIBadge size="md" prefix="" />
-          <span style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-brand-accent)' }}>
-            Friday Daily Brief
-          </span>
-          <span style={{ marginLeft: 'auto' }}>
-            <AIRegenerateButton onClick={regenerateBrief} />
-          </span>
+      {/* AI Daily Brief — hidden when DAILY_BRIEF_POOL is empty */}
+      {todaysBrief && (
+        <div
+          style={{
+            padding: 16,
+            background: 'var(--color-brand-accent-softer)',
+            borderLeft: '3px solid var(--color-brand-accent)',
+            borderRadius: 8,
+            marginBottom: 20,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            <AIBadge size="md" prefix="" />
+            <span style={{ fontSize: 11, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-brand-accent)' }}>
+              Friday Daily Brief
+            </span>
+            <span style={{ marginLeft: 'auto' }}>
+              <AIRegenerateButton onClick={regenerateBrief} />
+            </span>
+          </div>
+          <div style={{ fontSize: 13, lineHeight: 1.6 }}>{todaysBrief}</div>
         </div>
-        <div style={{ fontSize: 13, lineHeight: 1.6 }}>{todaysBrief}</div>
-      </div>
+      )}
 
       {/* Two-column layout */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>

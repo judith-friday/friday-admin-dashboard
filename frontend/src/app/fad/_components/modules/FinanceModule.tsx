@@ -479,7 +479,7 @@ function FinanceOverview({ onResumeClose }: { onResumeClose: () => void }) {
             </div>
           </div>
           <div className="fin-recon-foot">
-            14 accounts · last imported {FIN_BANK_LINES.length} lines on {CURRENT_PERIOD.endDate}
+            {FIN_ACCOUNTS.length} accounts · last imported {FIN_BANK_LINES.length} lines on {CURRENT_PERIOD.endDate || '—'}
           </div>
         </div>
       </div>
@@ -507,6 +507,9 @@ function FridayBrief() {
   const notice = insights.filter((i) => i.severity === 'notice');
   const info = insights.filter((i) => i.severity === 'info');
   const ordered = [...urgent, ...notice, ...info];
+
+  // Hide the brief shell entirely when there are no insights to surface.
+  if (ordered.length === 0) return null;
 
   return (
     <div className="fin-friday-brief">
