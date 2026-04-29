@@ -331,6 +331,21 @@ function HelpDropdown() {
 function AvatarDropdown() {
   const { currentUserId, role } = usePermissions();
   const user = TASK_USER_BY_ID[currentUserId];
+
+  const handleLogout = () => {
+    try {
+      // Clear FAD identity state. Keeps preferences (theme, sidebar collapsed)
+      // so the user lands back at /login with their visual settings intact.
+      localStorage.removeItem('fad:dev-role');
+      localStorage.removeItem('fad:dev-user');
+      localStorage.removeItem('fad:real-role');
+      localStorage.removeItem('fad:last-email');
+    } catch {
+      /* localStorage unavailable — proceed to navigate anyway */
+    }
+    window.location.href = '/';
+  };
+
   return (
     <div className="fad-dropdown" style={{ width: 220 }}>
       <div style={{ padding: '10px', borderBottom: '0.5px solid var(--color-border-tertiary)' }}>
@@ -342,7 +357,13 @@ function AvatarDropdown() {
       <button className="fad-dropdown-item">Profile</button>
       <button className="fad-dropdown-item">Preferences</button>
       <div className="fad-dropdown-divider" />
-      <button className="fad-dropdown-item">Log out</button>
+      <button
+        className="fad-dropdown-item"
+        onClick={handleLogout}
+        data-testid="btn-logout"
+      >
+        Log out
+      </button>
     </div>
   );
 }
