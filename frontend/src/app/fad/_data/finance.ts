@@ -308,8 +308,8 @@ export const FIN_TOURIST_OVERCHARGES: FinTouristOvercharge[] = [];
 export const FIN_TOURIST_TOTALS = {
   unremittedEur: FIN_TOURIST_TAX.filter((m) => !m.filed).reduce((s, m) => s + m.netOwedEur, 0),
   unfiledMonths: FIN_TOURIST_TAX.filter((m) => !m.filed).length,
-  ownerOverRefundDueEur: 1_294, // illustrative — full back-cleanup figure across 23 reservations historically
-  ownerOverRefundReservationsCount: 23,
+  ownerOverRefundDueEur: 0,
+  ownerOverRefundReservationsCount: 0,
 };
 
 // ───────────────── Float ledger (per field-PM account) ─────────────────

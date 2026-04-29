@@ -180,15 +180,7 @@ export interface FixedCalEvent {
   title: string;
 }
 
-export const CAL_EVENTS: FixedCalEvent[] = [
-  { isoDate: '2026-04-27', start: 11, end: 12, type: 'maint', title: 'Pool service · BBH' },
-  { isoDate: '2026-04-28', start: 9, end: 10, type: 'meeting', title: 'Ops stand-up' },
-  { isoDate: '2026-04-29', start: 10, end: 11, type: 'maint', title: 'Pump parts install · BBH' },
-  { isoDate: '2026-04-29', start: 16, end: 17, type: 'meeting', title: 'Mary handover' },
-  { isoDate: '2026-04-30', start: 15, end: 16, type: 'maint', title: 'Gardener · DMT' },
-  { isoDate: '2026-05-01', start: 14, end: 15, type: 'meeting', title: 'Owner call · Nitzana' },
-  { isoDate: '2026-05-03', start: 11, end: 12, type: 'maint', title: 'Deep clean · OCT' },
-];
+export const CAL_EVENTS: FixedCalEvent[] = [];
 
 /* ───── Extended fixtures (tier-2 detail views) ───── */
 

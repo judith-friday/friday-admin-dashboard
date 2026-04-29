@@ -911,6 +911,13 @@ function FinanceOwnerStatements() {
   const { openConfirm, openFriday } = useFinCtx();
   const [selectedCode, setSelectedCode] = useState<string>(FIN_OWNER_STATEMENTS[0]?.propertyCode ?? '');
   const selected = FIN_OWNER_STATEMENTS.find((s) => s.propertyCode === selectedCode) || FIN_OWNER_STATEMENTS[0] || null;
+  if (!selected) {
+    return (
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-tertiary)', fontSize: 13, padding: 40 }}>
+        No owner statements yet.
+      </div>
+    );
+  }
   const owner = FIN_OWNERS.find((o) => o.id === selected.ownerId);
   const property = FIN_PROPERTIES.find((p) => p.code === selected.propertyCode);
 
@@ -1251,12 +1258,12 @@ function FinanceTouristTax() {
             <div className="fin-tt-summary">
               <div><div className="fin-row-sub">Net owed</div><div className="fin-row-amount">€ {(FIN_TOURIST_TAX[0]?.netOwedEur ?? 0).toLocaleString()}</div></div>
               <div><div className="fin-row-sub">Refunded this period</div><div className="fin-row-amount">€ {(FIN_TOURIST_TAX[0]?.refundedEur ?? 0).toLocaleString()}</div></div>
-              <div><div className="fin-row-sub">Reservations included</div><div className="fin-row-amount">14</div></div>
+              <div><div className="fin-row-sub">Reservations included</div><div className="fin-row-amount">0</div></div>
             </div>
             <div className="fin-capture-actions" style={{ marginTop: 14, justifyContent: 'flex-start' }}>
               <button className="btn ghost sm" onClick={() => openConfirm({
                 title: `MRA submission CSV — ${CURRENT_PERIOD.label}`,
-                body: <p>Generates an MRA-spec CSV of €{(FIN_TOURIST_TAX[0]?.netOwedEur ?? 0).toLocaleString()} across 14 reservations. Manual remittance in v1; auto-push to MRA portal lands Phase 2.</p>,
+                body: <p>Generates an MRA-spec CSV of €{(FIN_TOURIST_TAX[0]?.netOwedEur ?? 0).toLocaleString()} across the period's reservations. Manual remittance in v1; auto-push to MRA portal lands Phase 2.</p>,
                 primaryLabel: 'Download CSV',
               })}>Generate MRA submission CSV</button>
               <button className="btn primary sm" onClick={() => openConfirm({
@@ -1484,6 +1491,13 @@ function FinanceFloatLedger() {
   const { openConfirm } = useFinCtx();
   const [selectedAcct, setSelectedAcct] = useState<string>(FIN_FLOAT_ACCOUNTS[0]?.accountId ?? '');
   const account = FIN_FLOAT_ACCOUNTS.find((a) => a.accountId === selectedAcct) || FIN_FLOAT_ACCOUNTS[0] || null;
+  if (!account) {
+    return (
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-tertiary)', fontSize: 13, padding: 40 }}>
+        No field-PM float accounts configured.
+      </div>
+    );
+  }
   const accountMeta = FIN_ACCOUNTS.find((a) => a.id === account.accountId);
 
   const variancePct = account.targetFloatMinor

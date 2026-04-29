@@ -417,118 +417,25 @@ export interface ApprovalRequest {
   counterAmount?: number;
 }
 
-export const APPROVAL_REQUESTS: ApprovalRequest[] = [
-  {
-    id: 'ar-001',
-    linkedTaskId: 't-007',
-    requesterId: 'u-alex',
-    propertyCode: 'LB-2',
-    type: 'spend',
-    amount: 8200,
-    currency: 'MUR',
-    vendor: 'Verre Express',
-    justification: 'Replace shattered outdoor table glass at LB-2. Guest checks in 28 Apr 14:00. Got 3 quotes: Verre Express 8,200, Glass Plus 9,500, Vitrerie Mr 8,800. Verre Express has 24h delivery.',
-    attachments: ['quote-verre-express.pdf', 'quote-glass-plus.pdf', 'quote-vitrerie.pdf'],
-    thresholdTier: 'small',
-    requestedAt: '2026-04-26T16:00:00',
-    status: 'pending',
-  },
-  {
-    id: 'ar-002',
-    linkedTaskId: 't-006',
-    requesterId: 'u-mathias',
-    propertyCode: 'LB-2',
-    type: 'spend',
-    amount: 4800,
-    currency: 'MUR',
-    vendor: 'Coolbreeze',
-    justification: 'Compressor parts for LB-2 living room split. Guest in-stay, A/C not cooling since 22:15 last night. Coolbreeze has parts ready, can fix by 16:00 today. No alternative supplier with same-day stock.',
-    attachments: ['coolbreeze-quote.pdf'],
-    thresholdTier: 'small',
-    requestedAt: '2026-04-27T09:20:00',
-    status: 'pending',
-  },
-  {
-    id: 'ar-003',
-    linkedTaskId: 't-019',
-    requesterId: 'u-mathias',
-    propertyCode: 'SD-10',
-    type: 'other',
-    justification: 'Pool pump showing intermittent fault — need 2 extra hours diagnostic before deciding repair vs replace. Standard chemistry test fine, but pump cycles erratically. Want to get baseline electrical readings before quoting.',
-    attachments: [],
-    requestedAt: '2026-04-27T08:00:00',
-    status: 'pending',
-  },
-  {
-    id: 'ar-004',
-    linkedTaskId: 't-008',
-    requesterId: 'u-mathias',
-    propertyCode: 'BCN-A',
-    type: 'vendor',
-    vendor: 'Ariston (replaces Atlantic)',
-    justification: 'Switch water heater from Atlantic to Ariston (better warranty, similar price). Atlantic 100L stock-out 3 weeks. Ariston 100L same price (Rs 18,500), 5yr vs 3yr warranty, in stock at Brico Center.',
-    attachments: ['ariston-spec.pdf'],
-    thresholdTier: 'medium',
-    requestedAt: '2026-04-25T14:00:00',
-    status: 'approved',
-    reviewedBy: 'u-judith',
-    reviewedAt: '2026-04-25T15:30:00',
-    reviewNotes: 'Approved. Better warranty wins.',
-  },
-  {
-    id: 'ar-005',
-    linkedTaskId: 't-005',
-    requesterId: 'u-bryan',
-    propertyCode: 'BL-12',
-    type: 'scope_change',
-    amount: 600,
-    currency: 'MUR',
-    justification: 'Add fridge defrost-deep-clean to BL-12 deep clean (originally not in scope). Found mold in fridge seal during pre-clean. Will add ~45 min and Rs 600 in cleaning supplies.',
-    attachments: ['fridge-mold.jpg'],
-    thresholdTier: 'small',
-    requestedAt: '2026-04-26T11:00:00',
-    status: 'countered',
-    reviewedBy: 'u-franny',
-    reviewedAt: '2026-04-26T11:30:00',
-    counterAmount: 400,
-    reviewNotes: 'Approved scope, but cap supplies at Rs 400 — use existing stock first.',
-  },
-];
+export const APPROVAL_REQUESTS: ApprovalRequest[] = [];
 
 // ───────────────── Insights aggregations (precomputed for fixtures) ─────────────────
 
 export const TASK_INSIGHTS = {
-  weeklyCompleted: 47,
-  weeklyCreated: 52,
-  avgCompletionMinutes: 73,
-  topAssignees: [
-    { userId: 'u-alex', completed: 12, avgMinutes: 65 },
-    { userId: 'u-bryan', completed: 11, avgMinutes: 78 },
-    { userId: 'u-mathias', completed: 9, avgMinutes: 105 },
-    { userId: 'u-mary', completed: 8, avgMinutes: 52 },
-    { userId: 'u-catherine', completed: 7, avgMinutes: 41 },
-  ],
-  byDepartment: [
-    { dept: 'cleaning' as const, count: 21, avgMinutes: 145 },
-    { dept: 'inspection' as const, count: 14, avgMinutes: 38 },
-    { dept: 'maintenance' as const, count: 9, avgMinutes: 92 },
-    { dept: 'office' as const, count: 8, avgMinutes: 45 },
-  ],
-  topPropertiesByIssues: [
-    { code: 'LB-2', issues: 4 },
-    { code: 'LV-10', issues: 3 },
-    { code: 'KS-5', issues: 2 },
-    { code: 'GBH-C3', issues: 2 },
-    { code: 'RC-15', issues: 2 },
-  ],
-  escalationTrend: [3, 5, 4, 7, 6, 8, 5], // last 7 days
-  completedTrend: [6, 8, 7, 5, 9, 6, 6],  // last 7 days
-  /** AI accuracy — populated by telemetry hooks in Phase 2; canned for Phase 1. */
+  weeklyCompleted: 0,
+  weeklyCreated: 0,
+  avgCompletionMinutes: 0,
+  topAssignees: [] as { userId: string; completed: number; avgMinutes: number }[],
+  byDepartment: [] as { dept: 'cleaning' | 'inspection' | 'maintenance' | 'office'; count: number; avgMinutes: number }[],
+  topPropertiesByIssues: [] as { code: string; issues: number }[],
+  escalationTrend: [0, 0, 0, 0, 0, 0, 0],
+  completedTrend: [0, 0, 0, 0, 0, 0, 0],
+  /** AI accuracy — populated by telemetry hooks in Phase 2. */
   aiAccuracy: {
-    autoTriageAccept: 0.78,
-    nlParseAccept: 0.84,
-    riskFlagAccept: 0.91,
-    sampleSize: 138,
+    autoTriageAccept: 0,
+    nlParseAccept: 0,
+    riskFlagAccept: 0,
+    sampleSize: 0,
   },
 };
 

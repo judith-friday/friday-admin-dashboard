@@ -1516,75 +1516,9 @@ function SettingsPage({ onCreate }: { onCreate: () => void }) {
           <IconPlus size={12} /> Manual create task
         </button>
       </div>
-
-      <div
-        style={{
-          padding: 12,
-          background: 'var(--color-bg-warning)',
-          borderLeft: '3px solid var(--color-text-warning)',
-          borderRadius: 4,
-          marginBottom: 20,
-          fontSize: 12,
-        }}
-      >
-        Read-only mirror of Breezeway templates and workflows. Edit upstream in Breezeway until Phase 3.
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-tertiary)', fontSize: 13, padding: 40 }}>
+        Templates, workflows and recurring rules sync from Breezeway in Phase 2.
       </div>
-
-      <Section title="Templates · read-only mirror from Breezeway">
-        {[
-          { id: 'std-clean', name: 'Standard cleaning', dept: 'cleaning > standard_clean', items: 82, est: '2h', uses30d: 287 },
-          { id: 'post-clean', name: 'Post-clean inspection', dept: 'inspection > post_clean', items: 45, est: '30m', uses30d: 261 },
-          { id: 'pre-arrival', name: 'Pre-arrival inspection', dept: 'inspection > pre_arrival', items: 38, est: '45m', uses30d: 198 },
-          { id: 'deep-clean', name: 'Deep clean', dept: 'cleaning > deep_clean', items: 134, est: '6h', uses30d: 32 },
-          { id: 'pool', name: 'Pool clarity check', dept: 'maintenance > pool', items: 12, est: '45m', uses30d: 64 },
-        ].map((t) => (
-          <div
-            key={t.id}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr',
-              gap: 8,
-              padding: '10px 12px',
-              borderBottom: '0.5px solid var(--color-border-tertiary)',
-              fontSize: 12,
-              alignItems: 'center',
-            }}
-          >
-            <span style={{ fontWeight: 500 }}>{t.name}</span>
-            <span style={{ color: 'var(--color-text-secondary)' }}>{t.dept}</span>
-            <span className="mono">{t.items} items</span>
-            <span className="mono">{t.est}</span>
-            <span className="mono" style={{ color: 'var(--color-text-tertiary)', fontSize: 11 }}>{t.uses30d} uses 30d</span>
-          </div>
-        ))}
-      </Section>
-
-      <Section title="Workflows · auto-task generation">
-        <Workflow trigger="On checkout" actions={['Standard cleaning (same day)', 'Post-clean inspection (same day, after cleaning)']} />
-        <Workflow
-          trigger="2 days before check-in"
-          actions={[
-            'IF property empty >3 days OR pre-arrival flag → Arrival inspection (1 day before check-in)',
-            'ELSE skip',
-          ]}
-        />
-      </Section>
-
-      <Section title="Recurring rules">
-        <Workflow trigger="Pest control · per property" actions={['Every 3 months']} />
-        <Workflow trigger="AC servicing · per property" actions={['Every 6 months']} />
-        <Workflow trigger="Preventative maintenance" actions={['Monthly · all properties']} />
-        <Workflow trigger="Aesthetic check" actions={['Monthly · all properties']} />
-        <Workflow trigger="Amenities form → Gap analysis" actions={['Monthly · sequential']} />
-      </Section>
-
-      <button
-        className="btn ghost sm"
-        onClick={() => fireToast('Would open Breezeway templates editor in new tab')}
-        style={{ marginTop: 12 }}
-      >
-        Edit in Breezeway ↗
-      </button>
     </div>
   );
 }
