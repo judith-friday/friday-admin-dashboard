@@ -176,26 +176,11 @@ export const TASK_DETAIL: Record<string, TaskDetail> = {
   },
 };
 
-export const LEGAL_RENEWALS = [
-  { party: 'Blue Bay House · Harrington', kind: 'Management agreement', ends: 'May 2026', action: 'draft renewal' },
-  { party: 'Fonseca vendor (groceries)', kind: 'Annual supply', ends: 'Jun 2026', action: 'review T&Cs' },
-  { party: 'Beaumont Trust · 2 props', kind: 'Owner agreement', ends: 'Nov 2026', action: 'plan outreach' },
-];
+export const LEGAL_RENEWALS: { party: string; kind: string; ends: string; action: string }[] = [];
 
-export const LEGAL_LICENSES = [
-  { name: 'Tourist Authority — classification', holder: 'Friday Retreats Ltd', ends: 'Oct 2026', status: 'active' },
-  { name: 'Trade license (Port Louis)', holder: 'Friday Retreats Ltd', ends: 'Jun 2026', status: 'renewal due' },
-  { name: 'VAT registration', holder: 'Friday Retreats Ltd', ends: '—', status: 'active' },
-  { name: 'Tourism Fund levy registration', holder: 'Friday Retreats Ltd', ends: '—', status: 'active' },
-];
+export const LEGAL_LICENSES: { name: string; holder: string; ends: string; status: string }[] = [];
 
-export const LEGAL_COMPLIANCE = [
-  { item: 'Tourist tax · Apr filing', due: 'May 7', owner: 'Mary', kind: 'Tax', status: 'open' },
-  { item: 'Trade license renewal', due: 'Jun 30', owner: 'Mary', kind: 'License', status: 'open' },
-  { item: 'MRA VAT return · Q2', due: 'Jul 20', owner: 'Mary', kind: 'Tax', status: 'open' },
-  { item: 'PDPA data audit', due: 'Sep 15', owner: 'Ishant', kind: 'Privacy', status: 'scheduled' },
-  { item: 'Owner K-1 statements · FY25', due: 'Apr 1', owner: 'Mary', kind: 'Reporting', status: 'done' },
-];
+export const LEGAL_COMPLIANCE: { item: string; due: string; owner: string; kind: string; status: string }[] = [];
 
 export const FIN_PAYOUTS = [
   { id: 'p1', channel: 'Airbnb', period: 'Apr wk 2', amount: 48220, status: 'settled', date: 'Apr 18', ref: 'AXB-8821' },
@@ -248,14 +233,7 @@ export const OPS_ROSTER = [
   { name: 'Ravi', role: 'Driver (on-call)', props: ['All'], today: 1, week: 4, status: 'on-duty' },
 ];
 
-export const LEGAL_DOCS = [
-  { name: 'Villa Azur · title deed.pdf', kind: 'Title', size: '4.2 MB' },
-  { name: 'Nitzana · owner agreement v3.pdf', kind: 'Contract', size: '890 KB' },
-  { name: 'Breezeway · MSA 2026.pdf', kind: 'Vendor', size: '320 KB' },
-  { name: 'Blue Bay · insurance certificate.pdf', kind: 'Insurance', size: '1.1 MB' },
-  { name: 'MRA · VAT registration.pdf', kind: 'License', size: '210 KB' },
-  { name: 'Tourism Authority · classification cert.pdf', kind: 'License', size: '480 KB' },
-];
+export const LEGAL_DOCS: { name: string; kind: string; size: string }[] = [];
 
 /**
  * Calendar week — Mon 2026-04-27 → Sun 2026-05-03. Mon is today.

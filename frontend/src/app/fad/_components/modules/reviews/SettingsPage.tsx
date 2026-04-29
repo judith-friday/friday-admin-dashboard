@@ -10,8 +10,8 @@ export function SettingsPage() {
   });
   const [autoPublishMin, setAutoPublishMin] = useState(5);
   const [lowActivityDays, setLowActivityDays] = useState(90);
-  const [guestyApiKey, setGuestyApiKey] = useState('••••••••••••gst_8f2a');
-  const [breezewayApiKey, setBreezewayApiKey] = useState('••••••••••••brz_4d91');
+  const [guestyApiKey, setGuestyApiKey] = useState('');
+  const [breezewayApiKey, setBreezewayApiKey] = useState('');
 
   const toggleChannel = (ch: ReviewChannel) => {
     setChannelSubs((prev) => ({ ...prev, [ch]: !prev[ch] }));
@@ -53,10 +53,10 @@ export function SettingsPage() {
           </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 8, fontSize: 12 }}>
-          <Stat label="Last sync · Guesty" value="2 minutes ago" />
-          <Stat label="Last sync · Breezeway" value="6 minutes ago" />
-          <Stat label="Last error" value="None · 7d" />
-          <Stat label="Reviews today" value="3" />
+          <Stat label="Last sync · Guesty" value="—" />
+          <Stat label="Last sync · Breezeway" value="—" />
+          <Stat label="Last error" value="—" />
+          <Stat label="Reviews today" value="0" />
         </div>
       </div>
 

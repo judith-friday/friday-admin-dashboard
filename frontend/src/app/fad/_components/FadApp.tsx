@@ -339,15 +339,15 @@ function renderModuleInner(
     case 'reviews':
       return <ReviewsModule subPage={subPage || 'overview'} onChangeSubPage={ctx.setSubPage} />;
     case 'guests':
-      return <GuestsModule />;
+      return <ComingSoonModule label="Guests" />;
     case 'marketing':
-      return <MarketingModule />;
+      return <ComingSoonModule label="Marketing" />;
     case 'leads':
       return <LeadsModule />;
     case 'intelligence':
       return <IntelligenceModule />;
     case 'analytics':
-      return <AnalyticsModule />;
+      return <ComingSoonModule label="Analytics" />;
     case 'notifications':
       return <NotificationsModule />;
     case 'syndic':
